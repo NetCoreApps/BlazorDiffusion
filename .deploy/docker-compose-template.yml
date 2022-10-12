@@ -16,6 +16,7 @@ services:
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
       DEPLOY_API: ${DEPLOY_API}
       DEPLOY_CDN: ${DEPLOY_CDN}
+      DREAMAI_APIKEY: ${DREAMAI_APIKEY}
     volumes:
       - ${APP_NAME}-mydb:/app/App_Data
   ${APP_NAME}-migration:

@@ -143,6 +143,7 @@ jobs:
           LETSENCRYPT_EMAIL: ${{ secrets.LETSENCRYPT_EMAIL }}
           DEPLOY_API: ${{ secrets.DEPLOY_API }}
           DEPLOY_CDN: ${{ secrets.DEPLOY_CDN }}
+          DREAMAI_APIKEY: ${{ secrets.DREAMAI_APIKEY }}
         with:
           input: .deploy/docker-compose-template.yml
           output: .deploy/${{ github.event.repository.name }}-docker-compose.yml
