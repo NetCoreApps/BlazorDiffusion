@@ -29,7 +29,7 @@ public class AppHost : AppHostBase, IHostingStartup
             "https://" + Environment.GetEnvironmentVariable("DEPLOY_CDN")
         }, allowCredentials: true));
 
-        var appFs = new FileSystemVirtualFiles(ContentRootDirectory.RealPath.CombineWith("App_Data").AssertDir());
+        var appFs = new FileSystemVirtualFiles(ContentRootDirectory.RealPath.CombineWith("App_Files").AssertDir());
         Plugins.Add(new FilesUploadFeature(
             new UploadLocation("fs", appFs,
                 readAccessRole: RoleNames.AllowAnon,
@@ -38,7 +38,7 @@ public class AppHost : AppHostBase, IHostingStartup
         Register<IStableDiffusionClient>(new DreamAiImageGenerationClient
         {
             ApiKey = Environment.GetEnvironmentVariable("DREAMAI_APIKEY") ?? "<your_api_key>",
-            OutputPathPrefix = Path.Join(ContentRootDirectory.RealPath.CombineWith("App_Data"),"fs")
+            OutputPathPrefix = Path.Join(ContentRootDirectory.RealPath.CombineWith("App_Files"),"fs")
         });
     }
 

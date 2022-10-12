@@ -45,8 +45,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="App_Data\fs\**\*.png" />
-      <Content Include="App_Data\fs\**\*.png">
+      <None Remove="App_Files\fs\**\*.png" />
+      <Content Include="App_Files\fs\**\*.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
