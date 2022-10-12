@@ -144,6 +144,7 @@ jobs:
           DEPLOY_API: ${{ secrets.DEPLOY_API }}
           DEPLOY_CDN: ${{ secrets.DEPLOY_CDN }}
           DREAMAI_APIKEY: ${{ secrets.DREAMAI_APIKEY }}
+          SERVICESTACK_LICENSE: ${{ secrets.SERVICESTACK_LICENSE }}
         with:
           input: .deploy/docker-compose-template.yml
           output: .deploy/${{ github.event.repository.name }}-docker-compose.yml

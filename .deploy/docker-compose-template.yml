@@ -17,6 +17,7 @@ services:
       DEPLOY_API: ${DEPLOY_API}
       DEPLOY_CDN: ${DEPLOY_CDN}
       DREAMAI_APIKEY: ${DREAMAI_APIKEY}
+      SERVICESTACK_LICENSE: ${SERVICESTACK_LICENSE}
     volumes:
       - ${APP_NAME}-mydb:/app/App_Data
   ${APP_NAME}-migration:
