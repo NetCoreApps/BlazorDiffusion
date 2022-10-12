@@ -44,6 +44,13 @@
         <Protobuf Include="proto\generation.proto" GrpcServices="Client" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="App_Data\fs\**\*.png" />
+      <Content Include="App_Data\fs\**\*.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
     <PropertyGroup>
         <ClientDir>$(MSBuildProjectDirectory)/../BlazorAiGallery.Client</ClientDir>
         <WwwRoot>$(ClientDir)/wwwroot</WwwRoot>
