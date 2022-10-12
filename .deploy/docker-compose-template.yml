@@ -1,0 +1,31 @@
+version: "3.9"
+services:
+  ${APP_NAME}:
+    image: ghcr.io/${IMAGE_REPO}:${RELEASE_VERSION}
+    restart: always
+    network_mode: bridge
+    ports:
+      - "80"
+    environment:
+      LC_ALL: en_US.UTF-8
+      LANG: en_US.UTF-8
+      VIRTUAL_HOST: ${HOST_DOMAIN}
+      WS_HOST: ws://${HOST_DOMAIN}
+      WS_PORT: 80
+      LETSENCRYPT_HOST: ${HOST_DOMAIN}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+      DEPLOY_API: ${DEPLOY_API}
+      DEPLOY_CDN: ${DEPLOY_CDN}
+    volumes:
+      - ${APP_NAME}-mydb:/app/App_Data
+  ${APP_NAME}-migration:
+    image: ghcr.io/${IMAGE_REPO}:${RELEASE_VERSION}
+    restart: "no"
+    profiles:
+      - migration
+    command: --AppTasks=migrate
+    volumes:
+      - ${APP_NAME}-mydb:/app/App_Data
+
+volumes:
+  ${APP_NAME}-mydb:
