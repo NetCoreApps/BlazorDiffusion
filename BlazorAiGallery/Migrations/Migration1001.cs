@@ -37,7 +37,7 @@ public class Migration1001 : MigrationBase
     
         public string? ImageBasisPath { get; set; }
     
-        public int NumberOfImages { get; set; }
+        public int Images { get; set; }
     
         public int Width { get; set; }
     
@@ -105,16 +105,100 @@ public class Migration1001 : MigrationBase
         
         Db.CreateTable<AiGallery>();
         Db.CreateTable<AiGalleryImage>();
+
+        Db.Insert(new Creative
+        {
+            Name = "Test1",
+            Description = "Test2",
+            Id = 1
+        });
+        Db.Insert(new CreativeTask
+        {
+            Height = 512,
+            Width = 512,
+            Id = 1,
+            CreativeId = 1,
+            Prompt = "A dream of a distant galaxy, by Caspar David Friedrich, matte painting trending on artstation HQ",
+            Images = 4,
+            Steps = 50
+        });
+        Db.Insert(new AiGeneratedFile
+        {
+            Height = 512,
+            Width = 512,
+            Prompt = "A dream of a distant galaxy, by Caspar David Friedrich, matte painting trending on artstation HQ",
+            Seed = 1134476444,
+            ContentLength = 417639,
+            Id = 1,
+            ContentType = "image/png",
+            FileName = "output_1134476444.png",
+            FilePath = "/uploads/fs/1/task/1/output_1134476444.png",
+            CreativeTaskId = 1
+        });
+        Db.Insert(new AiGeneratedFile
+        {
+            Height = 512,
+            Width = 512,
+            Prompt = "A dream of a distant galaxy, by Caspar David Friedrich, matte painting trending on artstation HQ",
+            Seed = 2130171066,
+            ContentLength = 415669,
+            Id = 2,
+            ContentType = "image/png",
+            FileName = "output_2130171066.png",
+            FilePath = "/uploads/fs/1/task/1/output_2130171066.png",
+            CreativeTaskId = 1
+        });
+        Db.Insert(new AiGeneratedFile
+        {
+            Height = 512,
+            Width = 512,
+            Prompt = "A dream of a distant galaxy, by Caspar David Friedrich, matte painting trending on artstation HQ",
+            Seed = 2669329965,
+            ContentLength = 363970,
+            Id = 3,
+            ContentType = "image/png",
+            FileName = "output_2669329965.png",
+            FilePath = "/uploads/fs/1/task/1/output_2669329965.png",
+            CreativeTaskId = 1
+        });
+        Db.Insert(new AiGeneratedFile
+        {
+            Height = 512,
+            Width = 512,
+            Prompt = "A dream of a distant galaxy, by Caspar David Friedrich, matte painting trending on artstation HQ",
+            Seed = 3635816568,
+            ContentLength = 379902,
+            Id = 4,
+            ContentType = "image/png",
+            FileName = "output_3635816568.png",
+            FilePath = "/uploads/fs/1/task/1/output_3635816568.png",
+            CreativeTaskId = 1
+        });
+
+        Db.Insert(new AiGallery
+        {
+            Id = 1,
+            Topic = "Amazing Art",
+            Description = "Test",
+            Curator = "DR"
+        });
+        Db.Insert(new AiGalleryImage
+        {
+            Description = "TEst3",
+            Name = "Test",
+            Id = 1,
+            AiGalleryId = 1,
+            AiGeneratedFileId = 2
+        });
     }
 
     public override void Down()
     {
+        Db.DropTable<AiGalleryImage>();
         Db.DropTable<AiGeneratedFile>();
+        Db.DropTable<AiGallery>();
         Db.DropTable<CreativeTask>();
         Db.DropTable<Creative>();
-        
-        Db.DropTable<AiGalleryImage>();
-        Db.DropTable<AiGallery>();
         
     }
 }

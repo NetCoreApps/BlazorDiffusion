@@ -11,18 +11,28 @@ public class CreateTaskService : Service
 {
     public IStableDiffusionClient StableDiffusionClient { get; set; }
     public IAutoQueryDb AutoQuery { get; set; }
+    public string DefaultEngine { get; set; } = "stable-diffusion-v1-5";
+    public int DefaultHeight { get; set; } = 512;
+    public int DefaultWidth { get; set; } = 512;
+    public int DefaultImages { get; set; } = 4;
     
     public async Task<object> Post(CreateCreativeTask request)
     {
         
         var creativeTask = (CreativeTask)(await AutoQuery.CreateAsync(request, Request));
-        
-        var imageGenerationResponse = await StableDiffusionClient.GenerateImageAsync(new ImageGeneration
+        var imageGenOptions = new ImageGeneration
         {
             Prompt = request.Prompt,
             CreativeId = creativeTask.CreativeId,
-            CreativeTaskId = creativeTask.Id
-        });
+            CreativeTaskId = creativeTask.Id,
+            Engine = DefaultEngine,
+            Height = request.Height ?? DefaultHeight,
+            Width = request.Width ?? DefaultWidth,
+            Images = request.Images ?? DefaultImages,
+            Seed = request.Seed
+        };
+        
+        var imageGenerationResponse = await StableDiffusionClient.GenerateImageAsync(imageGenOptions);
 
         foreach (var imageResult in imageGenerationResponse.Results)
         {

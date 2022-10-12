@@ -36,7 +36,7 @@ public class CreativeTask
     
     public string? ImageBasisPath { get; set; }
     
-    public int NumberOfImages { get; set; }
+    public int Images { get; set; }
     
     public int Width { get; set; }
     
@@ -114,7 +114,7 @@ public class CreateCreativeTask : ICreateDb<CreativeTask>, IReturn<CreativeTask>
     public string? Artist { get; set; }
     
     [AutoDefault(Value = 4)]
-    public int? NumberOfImages { get; set; }
+    public int? Images { get; set; }
     
     [AutoDefault(Value = 512)]
     public int? Width { get; set; }

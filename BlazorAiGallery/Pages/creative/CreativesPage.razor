@@ -1,0 +1,22 @@
+﻿@page "/creatives"
+@inject NavigationManager NavigationManager
+<Breadcrumbs class="mb-8">
+    <Breadcrumb>
+        Creative
+    </Breadcrumb>
+</Breadcrumbs>
+
+<AutoQueryGrid Model="Creative" 
+               RowSelected="Callback"
+               Apis="Apis.AutoQuery<QueryCreative, CreateCreative>()">
+    
+</AutoQueryGrid>
+
+@code {
+
+    private void Callback(Creative obj)
+    {
+        NavigationManager.NavigateTo($"/creatives/{obj.Id}/tasks");
+    }
+
+}
