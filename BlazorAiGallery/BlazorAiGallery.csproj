@@ -51,6 +51,10 @@
       </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="App_Data\" />
+    </ItemGroup>
+
     <PropertyGroup>
         <ClientDir>$(MSBuildProjectDirectory)/../BlazorAiGallery.Client</ClientDir>
         <WwwRoot>$(ClientDir)/wwwroot</WwwRoot>

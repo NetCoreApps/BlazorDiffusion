@@ -27,13 +27,12 @@ public class CreativeTask
     
     [Reference]
     public Creative Creative { get; set; }
-    
+
+    public string UserPrompt { get; set; }
     public string Prompt { get; set; }
-    
-    public string Style { get; set; }
-    
-    public string Artist { get; set; }
-    
+
+    public int? ArtistId { get; set; }
+
     public string? ImageBasisPath { get; set; }
     
     public int Images { get; set; }
@@ -107,11 +106,9 @@ public class CreateCreativeTask : ICreateDb<CreativeTask>, IReturn<CreativeTask>
     public int CreativeId { get; set; }
 
     [Required]
+    public string UserPrompt { get; set; }
     public string Prompt { get; set; }
-    
-    public string? Style { get; set; }
-    
-    public string? Artist { get; set; }
+    public int? ArtistId { get; set; }
     
     [AutoDefault(Value = 4)]
     public int? Images { get; set; }
@@ -138,3 +135,101 @@ public class QueryAiGeneratedFile : QueryDb<AiGeneratedFile>
     
 }
 
+
+public class QueryArtists : QueryDb<Artist> {}
+
+public class CreateArtist : ICreateDb<Artist>, IReturn<Artist>
+{
+    public string? FirstName { get; set; }
+    [ValidateNotEmpty, Required]
+    public string LastName { get; set; }
+    public int? YearDied { get; set; }
+    public List<string>? Type { get; set; }
+}
+
+public class UpdateArtist : IPatchDb<Artist>, IReturn<Artist>
+{
+    public int Id { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public int? YearDied { get; set; }
+    public List<string>? Type { get; set; }
+}
+public class DeleteArtist : IDeleteDb<Artist>, IReturnVoid 
+{
+    public int Id { get; set; }
+}
+
+public class Artist
+{
+    [AutoIncrement]
+    public int Id { get; set; }
+    public string? FirstName { get; set; }
+    public string LastName { get; set; }
+    public int? YearDied { get; set; }
+    public List<string>? Type { get; set; }
+}
+
+public class QueryModifiers : QueryDb<Modifier> { }
+
+public class CreateModifier : ICreateDb<Modifier>, IReturn<Modifier>
+{
+    [ValidateNotEmpty, Required]
+    public string Name { get; set; }
+    [ValidateNotEmpty, Required]
+    public string Category { get; set; }
+    public string? Description { get; set; }
+}
+
+public class UpdateModifier : ICreateDb<Modifier>, IReturn<Modifier>
+{
+    public int Id { get; set; }
+    public string? Name { get; set; }
+    public string? Category { get; set; }
+    public string? Description { get; set; }
+}
+
+public class DeleteModifier : IDeleteDb<Modifier>, IReturnVoid
+{
+    public int Id { get; set; }
+}
+
+
+public class Modifier
+{
+    [AutoIncrement]
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Category { get; set; }
+    public string? Description { get; set; }
+}
+
+public class QueryCreativeTaskModifiers : QueryDb<CreativeTaskModifier> 
+{
+    public int? CreativeTaskId { get; set; }
+    public int? ModifierId { get; set; }
+}
+
+public class CreateCreativeTaskModifier : ICreateDb<CreativeTaskModifier>, IReturn<CreativeTaskModifier>
+{
+    [ValidateGreaterThan(0)]
+    public int? CreativeTaskId { get; set; }
+    [ValidateGreaterThan(0)]
+    public int? ModifierId { get; set; }
+}
+
+public class DeleteCreativeTaskModifier : IDeleteDb<CreativeTaskModifier>, IReturnVoid
+{
+    public int? Id { get; set; }
+    public int[]? Ids { get; set; }
+}
+
+public class CreativeTaskModifier
+{
+    [AutoIncrement]
+    public int Id { get; set; }
+    [References(typeof(CreativeTask))]
+    public int CreativeTaskId { get; set; }
+    [References(typeof(Modifier))]
+    public int ModifierId { get; set; }
+}

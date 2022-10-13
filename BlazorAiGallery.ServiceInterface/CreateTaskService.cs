@@ -18,7 +18,6 @@ public class CreateTaskService : Service
     
     public async Task<object> Post(CreateCreativeTask request)
     {
-        
         var creativeTask = (CreativeTask)(await AutoQuery.CreateAsync(request, Request));
         var imageGenOptions = new ImageGeneration
         {
