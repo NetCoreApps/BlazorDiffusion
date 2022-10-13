@@ -14,4 +14,4 @@ jobs:
     - name: Build
       run: dotnet build
     - name: Test
-      run: dotnet test ./BlazorAiGallery.Tests
+      run: dotnet test ./BlazorDiffusion.Tests

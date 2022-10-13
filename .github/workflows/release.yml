@@ -69,7 +69,7 @@ jobs:
 
       # Publish .NET Project
       - name: Publish dotnet project
-        working-directory: ./BlazorAiGallery
+        working-directory: ./BlazorDiffusion
         run: | 
           dotnet publish -c Release /p:DEPLOY_API=${{ secrets.DEPLOY_API }} /p:DEPLOY_CDN=${{ secrets.DEPLOY_CDN }} /p:APP_TASKS=prerender
 
@@ -101,7 +101,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./BlazorAiGallery/bin/Release/net6.0/publish/wwwroot
+          publish_dir: ./BlazorDiffusion/bin/Release/net6.0/publish/wwwroot
           user_name: 'GitHub Action'
           user_email: 'action@github.com'
 

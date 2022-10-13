@@ -1,0 +1,68 @@
+﻿@page "/creatives/{CreativeId}/tasks"
+<Breadcrumbs class="mb-8">
+    <Breadcrumb>
+        Creatives
+    </Breadcrumb>
+    <Breadcrumb>
+        <span>@CreativeId</span>
+    </Breadcrumb>
+    <Breadcrumb>
+        Tasks
+    </Breadcrumb>
+</Breadcrumbs>
+
+<AutoQueryGrid Model="Creative"
+               ShowPreferences="false"
+               ShowDownloadCsv="false"
+               ShowCopyApiUrl="false"
+               RowSelected="RowSelected"
+               Apis="Apis.AutoQuery<QueryCreative,CreateCreative>()"></AutoQueryGrid>
+
+<div class="bg-white">
+    <div class="mx-auto max-w-2xl py-16 px-4 sm:py-24 sm:px-6 lg:max-w-7xl lg:px-8">
+        <div class="mt-6 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-4 md:gap-y-0 lg:gap-x-8">
+            @if (files is {Count: > 0 })
+            {
+                @foreach (var preview in files)
+                {
+                    <div class="group relative">
+                        <div class="w-full overflow-hidden rounded-md bg-gray-200 group-hover:opacity-75">
+                            <img src="@(preview.FilePath)" alt="@(preview.FileName)" class="h-full w-full object-cover object-center">
+                        </div>
+                        <h3 class="mt-4 text-sm text-gray-700">
+                            <a href="@(preview.FilePath)" target="_blank">
+                                <span class="absolute inset-0"></span>
+                        
+                            </a>
+                        </h3>
+                        <p class="mt-1 text-sm text-gray-500">@(preview.Width) X @(preview.Height) pixels</p>
+                        <p class="mt-1 text-sm font-medium text-gray-900">@(preview.ContentLength / 1024)KB</p>
+                    </div>
+                }
+            }
+            
+            
+        </div>
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public string CreativeId { get; set; }
+
+    List<CreativeArtifact> files = new();
+
+
+    private void RowSelected(Creative obj)
+    {
+        files.Clear();
+        files.AddRange(obj.Artifacts);
+    }
+
+    private void ImageSelected(CreativeArtifact file)
+    {
+        
+    }
+
+}
