@@ -23,7 +23,7 @@ public class AiGalleryImage
     [References(typeof(AiGallery))]
     public int AiGalleryId { get; set; }
 
-    [References(typeof(AiGeneratedFile))]
+    [References(typeof(CreativeArtifact))]
     public int AiGeneratedFileId { get; set; }
     
     public string Name { get; set; }

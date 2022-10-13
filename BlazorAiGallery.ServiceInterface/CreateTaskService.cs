@@ -16,14 +16,13 @@ public class CreateTaskService : Service
     public int DefaultWidth { get; set; } = 512;
     public int DefaultImages { get; set; } = 4;
     
-    public async Task<object> Post(CreateCreativeTask request)
+    public async Task<object> Post(CreateCreative request)
     {
-        var creativeTask = (CreativeTask)(await AutoQuery.CreateAsync(request, Request));
+        var creative = (Creative)(await AutoQuery.CreateAsync(request, Request));
         var imageGenOptions = new ImageGeneration
         {
             Prompt = request.Prompt,
-            CreativeId = creativeTask.CreativeId,
-            CreativeTaskId = creativeTask.Id,
+            CreativeId = creative.Id,
             Engine = DefaultEngine,
             Height = request.Height ?? DefaultHeight,
             Width = request.Width ?? DefaultWidth,
@@ -35,21 +34,21 @@ public class CreateTaskService : Service
 
         foreach (var imageResult in imageGenerationResponse.Results)
         {
-            await Db.InsertAsync(new AiGeneratedFile
+            await Db.InsertAsync(new CreativeArtifact
             {
-                Width = creativeTask.Width,
-                Height = creativeTask.Height,
+                CreativeId = creative.Id,
+                Width = creative.Width,
+                Height = creative.Height,
                 Prompt = imageResult.Prompt,
                 Seed = imageResult.Seed,
                 FileName = imageResult.FileName,
                 FilePath = imageResult.FilePath,
                 ContentType = MimeTypes.ImagePng,
-                CreativeTaskId = creativeTask.Id,
                 ContentLength = imageResult.ContentLength
             });
         }
 
-        var updatedTask = await Db.LoadSingleByIdAsync<CreativeTask>(creativeTask.Id);
+        var updatedTask = await Db.LoadSingleByIdAsync<Creative>(creative.Id);
 
         return updatedTask;
     }
@@ -62,15 +61,13 @@ public interface IStableDiffusionClient
 
 public class ImageGeneration
 {
+    public int CreativeId { get; set; }
     public string Engine { get; set; } = "stable-diffusion-v1-5";
     public int Width { get; set; } = 512;
     public int Height { get; set; } = 512;
     public int Images { get; set; } = 4;
     public long? Seed { get; set; } = Random.Shared.Next();
     public string Prompt { get; set; }
-    
-    public int CreativeId { get; set; }
-    public int CreativeTaskId { get; set; }
 }
 
 public class ImageGenerationResponse

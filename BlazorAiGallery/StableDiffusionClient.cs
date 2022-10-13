@@ -69,7 +69,7 @@ public class DreamAiImageGenerationClient : IStableDiffusionClient
             if (hasArtifact)
             {
                 var artifact = item.Artifacts.First();
-                var vfsPathSuffix = $"{request.CreativeId}/task/{request.CreativeTaskId}";
+                var vfsPathSuffix = $"{request.CreativeId}/task/{request.CreativeId}";
                 var outputDir = new DirectoryInfo(Path.Join(OutputPathPrefix, vfsPathSuffix));
                 if (!outputDir.Exists)
                 {

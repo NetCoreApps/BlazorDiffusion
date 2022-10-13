@@ -8,100 +8,63 @@ public class Creative
 {
     [AutoIncrement]
     public int Id { get; set; }
-    
-    public string Name { get; set; }
-    
-    public string Description { get; set; }
-    
-    [Reference]
-    public List<CreativeTask> CreativeTasks { get; set; }
-}
-
-public class CreativeTask
-{
-    [AutoIncrement]
-    public int Id { get; set; }
-    
-    [References(typeof(Creative))]
-    public int CreativeId { get; set; }
-    
-    [Reference]
-    public Creative Creative { get; set; }
 
     public string UserPrompt { get; set; }
     public string Prompt { get; set; }
 
-    public int? ArtistId { get; set; }
-
     public string? ImageBasisPath { get; set; }
-    
+
     public int Images { get; set; }
-    
+
     public int Width { get; set; }
-    
+
     public int Height { get; set; }
-    
+
     public int Steps { get; set; }
-    
+
+    public int? PrimaryArtifactId { get; set; }
+
+    [Reference]
+    public List<CreativeArtist> Artists { get; set; }
+    [Reference]
+    public List<CreativeModifier> Modifiers { get; set; }
+
     [Reference]
     [Format("presentFilesPreview")]
-    public List<AiGeneratedFile> Files { get; set; }
+    public List<CreativeArtifact> Artifacts { get; set; }
 }
 
-public class AiGeneratedFile
+public class CreativeArtifact
 {
-    [AutoIncrement] 
+    [AutoIncrement]
     public int Id { get; set; }
-        
+
+    [References(typeof(Creative))]
+    public int CreativeId { get; set; }
+
     public string FileName { get; set; }
 
-    [Format(FormatMethods.Attachment)] 
+    [Format(FormatMethods.Attachment)]
     public string FilePath { get; set; }
     public string ContentType { get; set; }
 
-    [Format(FormatMethods.Bytes)] 
+    [Format(FormatMethods.Bytes)]
     public long ContentLength { get; set; }
-    
+
     public int Width { get; set; }
     public int Height { get; set; }
     public ulong Seed { get; set; }
     public string Prompt { get; set; }
-    
-    [References(typeof(CreativeTask))]
-    public int CreativeTaskId { get; set; }
+    public int? HighResArtifactId { get; set; }
 }
 
 public class QueryCreative : QueryDb<Creative>
-{
-    public int? Id { get; set; }    
-}
-
-public class CreateCreative : ICreateDb<Creative>, IReturn<Creative>
-{
-    public string Name { get; set; }
-    
-    public string Description { get; set; }
-}
-
-public class UpdateCreative : IPatchDb<Creative>, IReturn<Creative>
-{
-    public int Id { get; set; }
-    public string? Name { get; set; }
-    public string? Description { get; set; }
-}
-
-public class DeleteCreative : IDeleteDb<Creative>, IReturnVoid
-{
-    public int Id { get; set; }
-}
-
-public class QueryCreativeTask : QueryDb<CreativeTask>
 {
     public int? Id { get; set; }
     public int? CreativeId { get; set; }
 }
 
-public class CreateCreativeTask : ICreateDb<CreativeTask>, IReturn<CreativeTask>
+public class CreateCreative : ICreateDb<Creative>, IReturn<Creative>
 {
     public int CreativeId { get; set; }
 
@@ -125,12 +88,12 @@ public class CreateCreativeTask : ICreateDb<CreativeTask>, IReturn<CreativeTask>
     public long? Seed { get; set; }
 }
 
-public class DeleteCreativeTask : IDeleteDb<CreativeTask>, IReturnVoid
+public class DeleteCreative : IDeleteDb<Creative>, IReturnVoid
 {
     public int Id { get; set; }
 }
 
-public class QueryAiGeneratedFile : QueryDb<AiGeneratedFile>
+public class QueryCreativeArtifacts : QueryDb<CreativeArtifact>
 {
     
 }
@@ -170,6 +133,7 @@ public class Artist
     public List<string>? Type { get; set; }
 }
 
+
 public class QueryModifiers : QueryDb<Modifier> { }
 
 public class CreateModifier : ICreateDb<Modifier>, IReturn<Modifier>
@@ -204,13 +168,14 @@ public class Modifier
     public string? Description { get; set; }
 }
 
-public class QueryCreativeTaskModifiers : QueryDb<CreativeTaskModifier> 
+
+public class QueryCreativeArtists : QueryDb<CreativeArtist>
 {
     public int? CreativeTaskId { get; set; }
     public int? ModifierId { get; set; }
 }
 
-public class CreateCreativeTaskModifier : ICreateDb<CreativeTaskModifier>, IReturn<CreativeTaskModifier>
+public class CreateCreativeArtist : ICreateDb<CreativeArtist>, IReturn<CreativeArtist>
 {
     [ValidateGreaterThan(0)]
     public int? CreativeTaskId { get; set; }
@@ -218,18 +183,49 @@ public class CreateCreativeTaskModifier : ICreateDb<CreativeTaskModifier>, IRetu
     public int? ModifierId { get; set; }
 }
 
-public class DeleteCreativeTaskModifier : IDeleteDb<CreativeTaskModifier>, IReturnVoid
+public class DeleteCreativeArtist : IDeleteDb<CreativeArtist>, IReturnVoid
+{
+    public int? Id { get; set; }
+    public int[]? Ids { get; set; }
+}
+public class CreativeArtist
+{
+    [AutoIncrement]
+    public int Id { get; set; }
+    [References(typeof(Creative))]
+    public int CreativeTaskId { get; set; }
+    [References(typeof(Artist))]
+    public int ArtistId { get; set; }
+}
+
+
+public class QueryCreativeModifiers : QueryDb<CreativeModifier> 
+{
+    public int? CreativeTaskId { get; set; }
+    public int? ModifierId { get; set; }
+}
+
+public class CreateCreativeModifier : ICreateDb<CreativeModifier>, IReturn<CreativeModifier>
+{
+    [ValidateGreaterThan(0)]
+    public int? CreativeTaskId { get; set; }
+    [ValidateGreaterThan(0)]
+    public int? ModifierId { get; set; }
+}
+
+public class DeleteCreativeModifier : IDeleteDb<CreativeModifier>, IReturnVoid
 {
     public int? Id { get; set; }
     public int[]? Ids { get; set; }
 }
 
-public class CreativeTaskModifier
+public class CreativeModifier
 {
     [AutoIncrement]
     public int Id { get; set; }
-    [References(typeof(CreativeTask))]
+    [References(typeof(Creative))]
     public int CreativeTaskId { get; set; }
     [References(typeof(Modifier))]
     public int ModifierId { get; set; }
 }
+

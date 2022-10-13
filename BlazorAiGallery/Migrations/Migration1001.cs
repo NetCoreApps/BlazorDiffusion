@@ -12,31 +12,9 @@ public class Migration1001 : MigrationBase
         [AutoIncrement]
         public int Id { get; set; }
     
-        public string Name { get; set; }
-    
-        public string Description { get; set; }
-    
-        [Reference]
-        public List<CreativeTask> CreativeTasks { get; set; }
-    }
-
-    class CreativeTask
-    {
-        [AutoIncrement]
-        public int Id { get; set; }
-    
-        [References(typeof(Creative))]
-        public int CreativeId { get; set; }
-    
-        [Reference]
-        public Creative Creative { get; set; }
-
         public string UserPrompt { get; set; }
         public string Prompt { get; set; }
 
-        [References(typeof(Artist))]
-        public int? ArtistId { get; set; }
-    
         public string? ImageBasisPath { get; set; }
     
         public int Images { get; set; }
@@ -46,16 +24,26 @@ public class Migration1001 : MigrationBase
         public int Height { get; set; }
     
         public int Steps { get; set; }
-    
+
+        public int? PrimaryArtifactId { get; set; }
+
         [Reference]
-        public List<AiGeneratedFile> Files { get; set; }
+        public List<CreativeArtist> Artists { get; set; }
+        [Reference]
+        public List<CreativeModifier> Modifiers { get; set; }
+
+        [Reference]
+        public List<CreativeArtifact> Artifacts { get; set; }
     }
 
-    class AiGeneratedFile
+    class CreativeArtifact
     {
         [AutoIncrement] 
         public int Id { get; set; }
-        
+
+        [References(typeof(Creative))]
+        public int CreativeId { get; set; }
+
         public string FileName { get; set; }
 
         [Format(FormatMethods.Attachment)] 
@@ -69,36 +57,9 @@ public class Migration1001 : MigrationBase
         public int Height { get; set; }
         public ulong Seed { get; set; }
         public string Prompt { get; set; }
-    
-        [References(typeof(CreativeTask))]
-        public int CreativeTaskId { get; set; }
+        public int? HighResArtifactId { get; set; }
     }
     
-    class AiGallery
-    {
-        public int Id { get; set; }
-        public string Topic { get; set; }
-    
-        public string Description { get; set; }
-    
-        public string Curator { get; set; }
-    }
-
-    class AiGalleryImage
-    {
-        public int Id { get; set; }
-    
-        [References(typeof(AiGallery))]
-        public int AiGalleryId { get; set; }
-        
-        [References(typeof(AiGeneratedFile))]
-        public int AiGeneratedFileId { get; set; }
-    
-        public string Name { get; set; }
-    
-        public string Description { get; set; }
-    }
-
     public class Artist
     {
         [AutoIncrement]
@@ -117,11 +78,20 @@ public class Migration1001 : MigrationBase
         public string Category { get; set; }
         public string? Description { get; set; }
     }
-    public class CreativeTaskModifier
+    public class CreativeArtist
     {
         [AutoIncrement]
         public int Id { get; set; }
-        [References(typeof(CreativeTask))]
+        [References(typeof(Creative))]
+        public int CreativeTaskId { get; set; }
+        [References(typeof(Artist))]
+        public int ArtistId { get; set; }
+    }
+    public class CreativeModifier
+    {
+        [AutoIncrement]
+        public int Id { get; set; }
+        [References(typeof(Creative))]
         public int CreativeTaskId { get; set; }
         [References(typeof(Modifier))]
         public int ModifierId { get; set; }
@@ -133,21 +103,12 @@ public class Migration1001 : MigrationBase
         Db.CreateTable<Artist>();
         Db.CreateTable<Modifier>();
         Db.CreateTable<Creative>();
-        Db.CreateTable<CreativeTask>();
-        Db.CreateTable<CreativeTaskModifier>();
-        Db.CreateTable<AiGeneratedFile>();
-        
-        Db.CreateTable<AiGallery>();
-        Db.CreateTable<AiGalleryImage>();
-
-        var id = (int)Db.Insert(new Creative {
-            Name = "Test1",
-            Description = "Test2",
-        }, selectIdentity:true);
+        Db.CreateTable<CreativeArtist>();
+        Db.CreateTable<CreativeModifier>();
+        Db.CreateTable<CreativeArtifact>();
         
         const string distantGalaxyPrompt = "A dream of a distant galaxy, by Caspar David Friedrich, matte painting trending on artstation HQ";
-        var taskId = (int)Db.Insert(new CreativeTask {
-            CreativeId = id,
+        var creativeId = (int)Db.Insert(new Creative {
             Height = 512,
             Width = 512,
             Prompt = distantGalaxyPrompt,
@@ -155,9 +116,9 @@ public class Migration1001 : MigrationBase
             Steps = 50
         }, selectIdentity:true);
 
-        AiGeneratedFile DistantGalaxy(int creativeId, int creativeTaskId, ulong seed, long contentLength) => new AiGeneratedFile
+        CreativeArtifact DistantGalaxy(int creativeId, ulong seed, long contentLength) => new CreativeArtifact
         {
-            CreativeTaskId = creativeTaskId,
+            CreativeId = creativeId,
             Prompt = distantGalaxyPrompt,
             Seed = seed,
             Height = 512,
@@ -165,29 +126,12 @@ public class Migration1001 : MigrationBase
             ContentLength = contentLength,
             ContentType = MimeTypes.ImagePng,
             FileName = $"output_{seed}.png",
-            FilePath = $"/uploads/fs/{creativeId}/task/{creativeTaskId}/output_{seed}.png",
+            FilePath = $"/uploads/fs/{creativeId}/output_{seed}.png",
         };
-        Db.Insert(DistantGalaxy(id, taskId, 1134476444, 417639));
-        Db.Insert(DistantGalaxy(id, taskId, 2130171066, 415669));
-        Db.Insert(DistantGalaxy(id, taskId, 2669329965, 363970));
-        Db.Insert(DistantGalaxy(id, taskId, 3635816568, 379902));
-
-        Db.Insert(new AiGallery
-        {
-            Id = 1,
-            Topic = "Amazing Art",
-            Description = "Test",
-            Curator = "DR"
-        });
-        Db.Insert(new AiGalleryImage
-        {
-            Description = "Test3",
-            Name = "Test",
-            Id = 1,
-            AiGalleryId = 1,
-            AiGeneratedFileId = 2
-        });
-
+        Db.Insert(DistantGalaxy(creativeId, 1134476444, 417639));
+        Db.Insert(DistantGalaxy(creativeId, 2130171066, 415669));
+        Db.Insert(DistantGalaxy(creativeId, 2669329965, 363970));
+        Db.Insert(DistantGalaxy(creativeId, 3635816568, 379902));
 
         Db.InsertAll(Artists);
         foreach (var entry in Modifiers)
@@ -202,11 +146,10 @@ public class Migration1001 : MigrationBase
 
     public override void Down()
     {
-        Db.DropTable<AiGalleryImage>();
-        Db.DropTable<AiGeneratedFile>();
-        Db.DropTable<AiGallery>();
-        Db.DropTable<CreativeTaskModifier>();
-        Db.DropTable<CreativeTask>();
+        Db.DropTable<CreativeArtifact>();
+        Db.DropTable<CreativeArtist>();
+        Db.DropTable<CreativeModifier>();
+        Db.DropTable<Creative>();
         Db.DropTable<Creative>();
         Db.DropTable<Modifier>();
         Db.DropTable<Artist>();

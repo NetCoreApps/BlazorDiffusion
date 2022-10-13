@@ -11,12 +11,12 @@
     </Breadcrumb>
 </Breadcrumbs>
 
-<AutoQueryGrid Model="CreativeTask"
+<AutoQueryGrid Model="Creative"
                ShowPreferences="false"
                ShowDownloadCsv="false"
                ShowCopyApiUrl="false"
                RowSelected="RowSelected"
-               Apis="Apis.AutoQuery<QueryCreativeTask,CreateCreativeTask>()"></AutoQueryGrid>
+               Apis="Apis.AutoQuery<QueryCreative,CreateCreative>()"></AutoQueryGrid>
 
 <div class="bg-white">
     <div class="mx-auto max-w-2xl py-16 px-4 sm:py-24 sm:px-6 lg:max-w-7xl lg:px-8">
@@ -51,16 +51,16 @@
     [Parameter]
     public string CreativeId { get; set; }
 
-    List<AiGeneratedFile> files = new();
+    List<CreativeArtifact> files = new();
 
 
-    private void RowSelected(CreativeTask obj)
+    private void RowSelected(Creative obj)
     {
         files.Clear();
         files.AddRange(obj.Files);
     }
 
-    private void ImageSelected(AiGeneratedFile file)
+    private void ImageSelected(CreativeArtifact file)
     {
         
     }
