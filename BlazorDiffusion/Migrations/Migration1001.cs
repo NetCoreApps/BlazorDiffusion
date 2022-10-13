@@ -134,10 +134,12 @@ public class Migration1001 : MigrationBase
         Db.Insert(DistantGalaxy(creativeId, 3635816568, 379902));
 
         Db.InsertAll(Artists);
-        foreach (var entry in Modifiers)
+        
+        var categoryNames = Modifiers.Keys.OrderBy(x => x).ToList();
+        foreach (var category in categoryNames)
         {
-            var category = entry.Key;
-            foreach (var modifier in entry.Value)
+            var modifiers = Modifiers[category];
+            foreach (var modifier in modifiers)
             {
                 Db.Insert(new Modifier { Name = modifier, Category = category }.BySystemUser());
             }

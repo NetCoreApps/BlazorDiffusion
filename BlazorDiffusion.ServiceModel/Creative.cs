@@ -24,6 +24,9 @@ public class Creative
 
     public int? PrimaryArtifactId { get; set; }
 
+    List<string> ArtistNames { get; set; }
+    List<string> ModifierNames { get; set; }
+
     [Reference]
     public List<CreativeArtist> Artists { get; set; }
     [Reference]
