@@ -7,7 +7,7 @@ namespace BlazorDiffusion.Migrations;
 
 public class Migration1001 : MigrationBase
 {
-    class Creative
+    public class Creative : AuditBase
     {
         [AutoIncrement]
         public int Id { get; set; }
@@ -36,7 +36,7 @@ public class Migration1001 : MigrationBase
         public List<CreativeArtifact> Artifacts { get; set; }
     }
 
-    class CreativeArtifact
+    public class CreativeArtifact : AuditBase
     {
         [AutoIncrement] 
         public int Id { get; set; }
@@ -60,7 +60,7 @@ public class Migration1001 : MigrationBase
         public int? HighResArtifactId { get; set; }
     }
     
-    public class Artist
+    public class Artist : AuditBase
     {
         [AutoIncrement]
         public int Id { get; set; }
@@ -70,7 +70,7 @@ public class Migration1001 : MigrationBase
         public List<string>? Type { get; set; }
     }
 
-    public class Modifier
+    public class Modifier : AuditBase
     {
         [AutoIncrement]
         public int Id { get; set; }
@@ -114,7 +114,7 @@ public class Migration1001 : MigrationBase
             Prompt = distantGalaxyPrompt,
             Images = 4,
             Steps = 50
-        }, selectIdentity:true);
+        }.BySystemUser(), selectIdentity:true);
 
         CreativeArtifact DistantGalaxy(int creativeId, ulong seed, long contentLength) => new CreativeArtifact
         {
@@ -127,7 +127,7 @@ public class Migration1001 : MigrationBase
             ContentType = MimeTypes.ImagePng,
             FileName = $"output_{seed}.png",
             FilePath = $"/uploads/fs/{creativeId}/output_{seed}.png",
-        };
+        }.BySystemUser();
         Db.Insert(DistantGalaxy(creativeId, 1134476444, 417639));
         Db.Insert(DistantGalaxy(creativeId, 2130171066, 415669));
         Db.Insert(DistantGalaxy(creativeId, 2669329965, 363970));
@@ -139,7 +139,7 @@ public class Migration1001 : MigrationBase
             var category = entry.Key;
             foreach (var modifier in entry.Value)
             {
-                Db.Insert(new Modifier { Name = modifier, Category = category });
+                Db.Insert(new Modifier { Name = modifier, Category = category }.BySystemUser());
             }
         }
     }
@@ -188,7 +188,7 @@ public class Migration1001 : MigrationBase
         LastName = lastName,
         YearDied = yearDied,
         Type = type?.ToList(),
-    };
+    }.BySystemUser();
 
     // https://www.urania.ai/top-sd-artists
     List<Artist> Artists = new List<Artist>
@@ -1784,5 +1784,4 @@ public class Migration1001 : MigrationBase
         artist("David","Wojnarowicz",1992,new[]{ "photography","collage" }),
         artist("Howardena","Pindell",null,new[]{ "collage","colorful","expressionism" }),
     };
-
 }

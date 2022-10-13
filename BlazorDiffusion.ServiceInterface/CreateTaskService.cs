@@ -7,7 +7,7 @@ using ServiceStack.OrmLite;
 
 namespace BlazorDiffusion.ServiceInterface;
 
-public class CreateTaskService : Service
+public class CreativeService : Service
 {
     public IStableDiffusionClient StableDiffusionClient { get; set; }
     public IAutoQueryDb AutoQuery { get; set; }

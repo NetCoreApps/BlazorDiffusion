@@ -84,8 +84,9 @@ public class CreateCreative : ICreateDb<Creative>, IReturn<Creative>
     
     [AutoDefault(Value = 50)]
     public int? Steps { get; set; }
-
     public long? Seed { get; set; }
+    List<int> ArtistIds { get; set; }
+    List<int> ModifierIds { get; set; }
 }
 
 public class DeleteCreative : IDeleteDb<Creative>, IReturnVoid
