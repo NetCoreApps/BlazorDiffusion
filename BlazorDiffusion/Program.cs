@@ -5,6 +5,8 @@ using ServiceStack.Blazor;
 using BlazorDiffusion;
 using Microsoft.Net.Http.Headers;
 
+Licensing.RegisterLicense("OSS BSD-2-Clause 2022 https://github.com/NetCoreApps/BlazorDiffusion Ml25hVebV/jhTNlJa3WXFowrEn0QhqLjgNqmMhq7v+CylawWO+OEqlekfm2d4s93HbPCZz95Q+w763hDE7WjEPVfX7VzooDTb++JNUKzNfdH84kWe2Yv+p36xh8xAkJPFo8f7mvvP3p9dF62GuRWzBoo3Zh3P/52WpGZuChfJ0w=");
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
