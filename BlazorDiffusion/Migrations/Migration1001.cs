@@ -34,6 +34,8 @@ public class Migration1001 : MigrationBase
 
         [Reference]
         public List<CreativeArtifact> Artifacts { get; set; }
+        
+        public string? Error { get; set; }
     }
 
     public class CreativeArtifact : AuditBase
@@ -83,7 +85,7 @@ public class Migration1001 : MigrationBase
         [AutoIncrement]
         public int Id { get; set; }
         [References(typeof(Creative))]
-        public int CreativeTaskId { get; set; }
+        public int CreativeId { get; set; }
         [References(typeof(Artist))]
         public int ArtistId { get; set; }
     }
@@ -92,7 +94,7 @@ public class Migration1001 : MigrationBase
         [AutoIncrement]
         public int Id { get; set; }
         [References(typeof(Creative))]
-        public int CreativeTaskId { get; set; }
+        public int CreativeId { get; set; }
         [References(typeof(Modifier))]
         public int ModifierId { get; set; }
     }
@@ -144,6 +146,16 @@ public class Migration1001 : MigrationBase
                 Db.Insert(new Modifier { Name = modifier, Category = category }.BySystemUser());
             }
         }
+
+        var seedFromDirectory = new DirectoryInfo("./App_Files/fs");
+        var filesToLoad = seedFromDirectory.GetMatchingFiles("*metadata.json");
+        var creativeEntries = new List<Creative>();
+        foreach (var file in filesToLoad)
+        {
+            creativeEntries.Add(File.ReadAllText(file).FromJson<Creative>());
+        }
+        
+        Db.SaveAllReferences(creativeEntries);
     }
 
     public override void Down()
@@ -151,7 +163,6 @@ public class Migration1001 : MigrationBase
         Db.DropTable<CreativeArtifact>();
         Db.DropTable<CreativeArtist>();
         Db.DropTable<CreativeModifier>();
-        Db.DropTable<Creative>();
         Db.DropTable<Creative>();
         Db.DropTable<Modifier>();
         Db.DropTable<Artist>();

@@ -35,7 +35,7 @@ public class AppHost : AppHostBase, IHostingStartup
                 readAccessRole: RoleNames.AllowAnon,
                 maxFileBytes: 10 * 1024 * 1024)));
 
-        Register<IStableDiffusionClient>(new DreamAiImageGenerationClient
+        Register<IStableDiffusionClient>(new DreamStudioClient
         {
             ApiKey = Environment.GetEnvironmentVariable("DREAMAI_APIKEY") ?? "<your_api_key>",
             OutputPathPrefix = Path.Join(ContentRootDirectory.RealPath.CombineWith("App_Files"),"fs")

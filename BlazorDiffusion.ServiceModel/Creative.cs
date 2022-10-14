@@ -4,7 +4,7 @@ using ServiceStack.DataAnnotations;
 
 namespace BlazorDiffusion.ServiceModel;
 
-public class Creative
+public class Creative : AuditBase
 {
     [AutoIncrement]
     public int Id { get; set; }
@@ -24,9 +24,6 @@ public class Creative
 
     public int? PrimaryArtifactId { get; set; }
 
-    List<string> ArtistNames { get; set; }
-    List<string> ModifierNames { get; set; }
-
     [Reference]
     public List<CreativeArtist> Artists { get; set; }
     [Reference]
@@ -35,9 +32,11 @@ public class Creative
     [Reference]
     [Format("presentFilesPreview")]
     public List<CreativeArtifact> Artifacts { get; set; }
+    
+    public string? Error { get; set; }
 }
 
-public class CreativeArtifact
+public class CreativeArtifact : AuditBase
 {
     [AutoIncrement]
     public int Id { get; set; }
@@ -67,15 +66,12 @@ public class QueryCreative : QueryDb<Creative>
     public int? CreativeId { get; set; }
 }
 
+[AutoApply(Behavior.AuditCreate)]
 public class CreateCreative : ICreateDb<Creative>, IReturn<Creative>
 {
-    public int CreativeId { get; set; }
-
     [Required]
     public string UserPrompt { get; set; }
-    public string Prompt { get; set; }
-    public int? ArtistId { get; set; }
-    
+
     [AutoDefault(Value = 4)]
     public int? Images { get; set; }
     
@@ -88,8 +84,9 @@ public class CreateCreative : ICreateDb<Creative>, IReturn<Creative>
     [AutoDefault(Value = 50)]
     public int? Steps { get; set; }
     public long? Seed { get; set; }
-    List<int> ArtistIds { get; set; }
-    List<int> ModifierIds { get; set; }
+    
+    public List<int> ArtistIds { get; set; }
+    public List<int> ModifierIds { get; set; }
 }
 
 public class DeleteCreative : IDeleteDb<Creative>, IReturnVoid
@@ -175,14 +172,14 @@ public class Modifier
 
 public class QueryCreativeArtists : QueryDb<CreativeArtist>
 {
-    public int? CreativeTaskId { get; set; }
+    public int? CreativeId { get; set; }
     public int? ModifierId { get; set; }
 }
 
 public class CreateCreativeArtist : ICreateDb<CreativeArtist>, IReturn<CreativeArtist>
 {
     [ValidateGreaterThan(0)]
-    public int? CreativeTaskId { get; set; }
+    public int? CreativeId { get; set; }
     [ValidateGreaterThan(0)]
     public int? ModifierId { get; set; }
 }
@@ -197,7 +194,7 @@ public class CreativeArtist
     [AutoIncrement]
     public int Id { get; set; }
     [References(typeof(Creative))]
-    public int CreativeTaskId { get; set; }
+    public int CreativeId { get; set; }
     [References(typeof(Artist))]
     public int ArtistId { get; set; }
 }
@@ -205,14 +202,14 @@ public class CreativeArtist
 
 public class QueryCreativeModifiers : QueryDb<CreativeModifier> 
 {
-    public int? CreativeTaskId { get; set; }
+    public int? CreativeId { get; set; }
     public int? ModifierId { get; set; }
 }
 
 public class CreateCreativeModifier : ICreateDb<CreativeModifier>, IReturn<CreativeModifier>
 {
     [ValidateGreaterThan(0)]
-    public int? CreativeTaskId { get; set; }
+    public int? CreativeId { get; set; }
     [ValidateGreaterThan(0)]
     public int? ModifierId { get; set; }
 }
@@ -228,7 +225,7 @@ public class CreativeModifier
     [AutoIncrement]
     public int Id { get; set; }
     [References(typeof(Creative))]
-    public int CreativeTaskId { get; set; }
+    public int CreativeId { get; set; }
     [References(typeof(Modifier))]
     public int ModifierId { get; set; }
 }

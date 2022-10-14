@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 using ServiceStack.OrmLite;
 using BlazorDiffusion.Migrations;
@@ -16,6 +17,7 @@ public class MigrationTasks
     public void Migrate()
     {
         var migrator = CreateMigrator();
+        migrator.Timeout = TimeSpan.Zero;
         var result = migrator.Run();
         Assert.That(result.Succeeded);
     }

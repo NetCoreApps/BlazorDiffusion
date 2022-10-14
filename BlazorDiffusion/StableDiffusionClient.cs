@@ -1,11 +1,12 @@
 ﻿using BlazorDiffusion.ServiceInterface;
+using BlazorDiffusion.ServiceModel;
 using Gooseai;
 using Grpc.Core;
 using Grpc.Net.Client;
 
 namespace BlazorDiffusion;
 
-public class DreamAiImageGenerationClient : IStableDiffusionClient
+public class DreamStudioClient : IStableDiffusionClient
 {
     GrpcChannel channel;
     GenerationService.GenerationServiceClient client;
@@ -14,7 +15,7 @@ public class DreamAiImageGenerationClient : IStableDiffusionClient
     public string OutputPathPrefix { get; set; }
     public string EngineId { get; set; }
     
-    public DreamAiImageGenerationClient()
+    public DreamStudioClient()
     {
         var credentials = CallCredentials.FromInterceptor((context, metadata) =>
         {
@@ -63,13 +64,14 @@ public class DreamAiImageGenerationClient : IStableDiffusionClient
 
         });
         var results = new List<ImageGenerationResult>();
+        var uuid = Guid.NewGuid().ToString();
         await foreach (var item in response.ResponseStream.ReadAllAsync())
         {
             var hasArtifact = item.Artifacts.Count > 0;
             if (hasArtifact)
             {
                 var artifact = item.Artifacts.First();
-                var vfsPathSuffix = $"{request.CreativeId}/task/{request.CreativeId}";
+                var vfsPathSuffix = $"{uuid}";
                 var outputDir = new DirectoryInfo(Path.Join(OutputPathPrefix, vfsPathSuffix));
                 if (!outputDir.Exists)
                 {
@@ -91,7 +93,15 @@ public class DreamAiImageGenerationClient : IStableDiffusionClient
         }
         return new ImageGenerationResponse
         {
-            Results = results
+            Results = results,
+            Id = uuid
         };
+    }
+
+    public async Task SaveMetadata(ImageGenerationResponse response, Creative entry)
+    {
+        var vfsPathSuffix = $"{response.Id}";
+        var outputDir = new DirectoryInfo(Path.Join(OutputPathPrefix, vfsPathSuffix));
+        await File.WriteAllTextAsync(Path.Join(outputDir.FullName,"metadata.json"),entry.ToSafeJson());
     }
 }
