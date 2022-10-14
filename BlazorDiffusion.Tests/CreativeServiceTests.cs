@@ -88,6 +88,7 @@ public class CreativeServiceTests
 
     public CreativeServiceTests()
     {
+        BlazorDiffusion.AppHost.RegisterKey();
         appHost = new AppHost()
             .Init()
             .Start(BaseUri);
