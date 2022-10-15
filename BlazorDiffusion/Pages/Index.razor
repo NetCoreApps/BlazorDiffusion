@@ -1,27 +1,29 @@
 ﻿@page "/"
 
-<div class="mx-auto mt-16 max-w-7xl px-4 sm:mt-24">
-    <div class="text-center">
-        <h1 class="text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-100 sm:text-5xl md:text-6xl">
-            <span class="block xl:inline">Welcome to</span>
-            <span class="block text-indigo-600 dark:text-indigo-500 xl:inline">ServiceStack.Blazor</span>
-        </h1>
-        <p class="mx-auto mt-3 max-w-md text-base text-gray-500 sm:text-lg md:mt-5 md:max-w-3xl md:text-xl">
-            Welcome to your new Blazor App, checkout links below to get started:
-        </p>
-        <div class="mx-auto mt-5 max-w-md sm:flex sm:justify-center md:mt-8">
-            <div class="rounded-md shadow">
-                <a href="https://blazor-gallery.servicestack.net/" class="flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 md:py-4 md:px-10 md:text-lg">
-                    Blazor Gallery
-                </a>
+<div class="overflow-hidden absolute w-full left-0 -mt-5">
+    <div class="py-16 sm:px-2 lg:relative lg:py-20 lg:px-0">
+        <div class="mx-auto">
+            <div class="relative z-10  flex justify-center">
+                <img alt="" src="/img/blur-cyan.png" width="530" height="530" decoding="async" data-nimg="future" class="absolute bottom-full right-full -mr-72 -mb-56 opacity-50" style="color:transparent">
+                <div class="relative">
+                    <p class="inline bg-gradient-to-r from-indigo-200 via-sky-400 to-indigo-200 bg-clip-text font-display text-5xl tracking-tight text-transparent">Blazor Diffusion</p>
+                    <p class="mt-3 text-2xl tracking-tight text-slate-400">
+                        Stable Diffusion Image Search
+                    </p>
+                    <div class="mt-8 flex gap-4 md:justify-center lg:justify-start">
+                        <a class="rounded-full bg-sky-300 py-2 px-4 text-sm font-semibold text-slate-900 hover:bg-sky-200 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300/50 active:bg-sky-500" href="/">Search</a>
+                        <a class="rounded-full bg-slate-800 py-2 px-4 text-sm font-medium text-white hover:bg-slate-700 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 active:text-slate-400" href="/">Generate</a>
+                    </div>
+                </div>
             </div>
-            <div class="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
-                <a href="https://docs.servicestack.net/templates-blazor-tailwind" class="flex w-full items-center justify-center rounded-md border border-transparent bg-white dark:bg-gray-800 dark:border-gray-600 px-8 py-3 text-base font-medium text-indigo-600 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 md:py-4 md:px-10 md:text-lg">
-                    Blazor Docs
-                </a>
+            <div class="relative lg:static xl:pl-10">
+                <div class="absolute inset-x-[-50vw] [mask-image:linear-gradient(transparent,white,white)] dark:[mask-image:linear-gradient(transparent,white,transparent)] lg:left-[calc(50%+14rem)] lg:right-0 lg:-top-32 lg:-bottom-32 lg:[mask-image:none] lg:dark:[mask-image:linear-gradient(white,white,transparent)]">
+                    <img class="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 lg:left-0 lg:translate-x-0 lg:translate-y-[-60%]" src="/img/bg-body.svg" />
+                </div>
+                <div class="relative">
+                    <img alt="" src="/img/blur-cyan.png" width="530" height="530" decoding="async" data-nimg="future" class="absolute -top-64 -right-64" style="color:transparent;/* display: none; */"><img alt="" src="/_next/static/media/blur-indigo.b752cf77.png" width="567" height="567" decoding="async" data-nimg="future" class="absolute -bottom-40 -right-44" style="color:transparent;display:none;">
+                </div>
             </div>
         </div>
     </div>
 </div>
-
-<GettingStarted />

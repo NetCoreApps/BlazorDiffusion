@@ -6,12 +6,18 @@
 <header class="border-b border-gray-200 dark:border-gray-800 pr-3">
     <div class="flex flex-wrap items-center">
         <div class="flex flex-grow flex-shrink flex-nowrap justify-end items-center">
+            <NavLink href="/" class="flex items-center flex-shrink-0 px-4 text-2xl whitespace-nowrap overflow-x-hidden flex items-center">
+                <img class="h-8 w-auto"
+                     src="/img/blazor.svg"
+                     alt="My App">
+                <div class="ml-2 text-black dark:text-white">Diffusion</div>
+            </NavLink>
             <nav class="relative flex flex-grow">
                 <ul class="flex flex-wrap items-center justify-end w-full m-0">
                     @foreach (var item in NavItems)
                     {
                         <li class="relative flex flex-wrap just-fu-start m-0">
-                            <NavLink href=@item.Href class="flex items-center justify-start mw-full p-4 hover:text-green-600 dark:hover:text-green-400">@item.Label</NavLink>
+                            <NavLink href=@item.Href class="flex items-center justify-start mw-full p-4 hover:text-cyan-600 dark:hover:text-cyan-400">@item.Label</NavLink>
                         </li>
                     }
 
@@ -63,10 +69,6 @@
                             </li>
                         </NotAuthorized>
                     </AuthorizeView>
-
-                    <li class="relative flex flex-wrap just-fu-start m-0">
-                        <DarkModeToggle />
-                    </li>
 
                 </ul>
             </nav>

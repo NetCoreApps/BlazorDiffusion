@@ -193,7 +193,7 @@ public class Migration1001 : MigrationBase
         ["Setting"]       = new[] { "Edwardian", "1950s suburbia", "70s science fiction", "overgrown", "Tanjore", "cityscape" },
         ["Lighting"]      = new[] { "Ambient occlusion", "Backlight photo sample", "Broad light", "Chiaroscuro lighting", "Dim light", "Fill light photo sample", "Flash light", "Flat light photo sample", "High key light", "Light diffraction", "Low key Light", "Natural light", "Overcast light", "Split light", "Spotlight", "Studio light", "Tenebrism", "Glow in the Dark", "Glowwave", "Holography", "Holographic", "Iridescence", "Polarized Light", "Candle Light", "Backlight", "Refraction", "Radiant", "Soft Shaded", "Dynamic Lighting", "Bioluminiscent", "Beautifully Lit", "Golden Hour", "Moody Lighting", "Lighting", "Ambient Lighting", "Volumetric Lighting", "Neon" },
         ["Color"]         = new[] { "contrasting colors", "dripping colors", "DayGlo", "color splash", "infrared", "glow in the dark", "gold leaf", "cosmic nebulae", "cyberdelic", "holography", "holographic", "iridescence", "sepia", "fluo colors", "acid colors", "primary colors", "monochromatic", "eye strain", "vibrant color scheme", "chromatic aberration", "metallic", "high chroma", "kaleidoscopic", "prismatic", "desaturated", "golden hour" },
-        ["Pop Culture"]   = new[] { "Blade Runner 2049", "Dreamworks", "Interstellar", "Stranger Things", "Alien" },
+        ["Movie Theme"]   = new[] { "Blade Runner 2049", "Dreamworks", "Interstellar", "Stranger Things", "Alien", "Altered Carbon" },
     };
 
     public static Artist artist(string? firstName, string lastName, int? yearDied, string[]? type) => new Artist {
