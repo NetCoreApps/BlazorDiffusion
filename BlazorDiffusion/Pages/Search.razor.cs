@@ -1,5 +1,7 @@
 ﻿using BlazorDiffusion.ServiceModel;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace BlazorDiffusion.Pages;
 
@@ -29,22 +31,18 @@ public partial class Search
     CreateCreative request = new();
     ApiResult<QueryResponse<CreateCreative>> api = new();
 
-    KeyValuePair<string, string>[]? ArtistOptions => DataCache?.Artists;
+    List<ArtistInfo>? ArtistOptions => DataCache?.Artists;
+    List<ArtistInfo> artists = new();
 
-    InputInfo? artistInput;
-    InputInfo? ArtistInput => artistInput ??= DataCache == null ? null : new InputInfo { AllowableEntries = ArtistOptions };
+    //void addArtist(Property artist)
+    //{
+    //    if (!artists.Any(x => x.Key == artist.Key))
+    //        artists.Add(artist);
+    //}
 
-    List<KeyValuePair<string, string>> artists = new();
-
-    void addArtist(KeyValuePair<string, string> artist)
+    void removeArtist(ArtistInfo artist)
     {
-        if (!artists.Any(x => x.Key == artist.Key))
-            artists.Add(artist);
-    }
-
-    void removeArtist(KeyValuePair<string, string> artist)
-    {
-        artists.RemoveAll(x => x.Key == artist.Key);
+        artists.Remove(artist);
     }
 
 
@@ -52,31 +50,28 @@ public partial class Search
     string[] CategoryNames => categoryNames ??= DataCache == null ? Array.Empty<string>()
         : DataCache.Modifiers.Select(x => x.Category).Distinct().OrderBy(x => x).ToArray();
 
-    KeyValuePair<string, string>[]? modifierOptions;
-    KeyValuePair<string, string>[]? ModifierOptions => modifierOptions ??= DataCache == null ? null :
-        DataCache!.Modifiers.Select(x => new KeyValuePair<string, string>($"{x.Id}", x.Name)).ToArray();
+    List<ModifierInfo>? ModifierOptions => DataCache?.Modifiers;
 
 
-    List<KeyValuePair<string, string>> modifiers = new();
+    List<ModifierInfo> modifiers = new();
 
     string? selectedGroup;
     string? selectedCategory;
 
     string[] groupCategories => DataCache?.CategoryGroups.FirstOrDefault(x => x.Name == selectedGroup)?.Items ?? Array.Empty<string>();
 
-    KeyValuePair<string, string>[] categoryModifiers => (selectedCategory != null
-        ? DataCache?.Modifiers.Where(x => x.Category == selectedCategory && !modifiers.Any(m => m.Key == x.Id.ToString())).Select(x => new KeyValuePair<string, string>($"{x.Id}", x.Name)).ToArray()
-        : null) ?? Array.Empty<KeyValuePair<string, string>>();
+    List<ModifierInfo> categoryModifiers => (selectedCategory != null
+        ? DataCache?.Modifiers.Where(x => x.Category == selectedCategory && !modifiers.Contains(x)).ToList()
+        : null) ?? new();
 
-    void addModifier(KeyValuePair<string, string> modifier)
+    void addModifier(ModifierInfo modifier)
     {
-        if (!modifiers.Any(x => x.Key == modifier.Key))
-            modifiers.Add(modifier);
+        modifiers.Add(modifier);
     }
 
-    void removeModifier(KeyValuePair<string, string> modifier)
+    void removeModifier(ModifierInfo modifier)
     {
-        modifiers.RemoveAll(x => x.Key == modifier.Key);
+        modifiers.Remove(modifier);
     }
 
     void selectGroup(string group)

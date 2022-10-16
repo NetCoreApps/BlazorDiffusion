@@ -1959,6 +1959,14 @@ input[data-autocompleted] {
   padding: 0.75rem;
 }
 
+.p-0\.5 {
+  padding: 0.125rem;
+}
+
+.p-0 {
+  padding: 0px;
+}
+
 .px-4 {
   padding-left: 1rem;
   padding-right: 1rem;
