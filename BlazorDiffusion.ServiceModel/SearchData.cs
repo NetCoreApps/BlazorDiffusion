@@ -9,13 +9,20 @@ public class SearchData : IReturn<SearchDataResponse>
 
 public class SearchDataResponse
 {
-    public List<CategoryGroup> CategoryGroups { get; set; }
-    public List<Artist> Artists { get; set; }
-    public List<Modifier> Modifiers { get; set; }
+    public Group[] CategoryGroups { get; set; }
+    public KeyValuePair<string, string>[] Artists { get; set; }
+    public ModifierInfo[] Modifiers { get; set; }
 }
 
-public class CategoryGroup
+public class Group
 {
-    public string Group { get; set; }
-    public string[] Categories { get; set; }
+    public string Name { get; set; }
+    public string[] Items { get; set; }
+}
+
+public class ModifierInfo
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Category { get; set; }
 }
