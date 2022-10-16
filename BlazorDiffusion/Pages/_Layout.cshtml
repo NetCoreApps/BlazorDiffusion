@@ -60,7 +60,7 @@
 
 <script src="_framework/blazor.server.js"></script>
 <script type="text/javascript" src="/js/servicestack-blazor.js"></script>
-<script>JS.init()</script>
+<script>JS.init({ colorScheme: location.search === '?light' ? 'light' : 'dark' })</script>
 
 </body>
 </html>
