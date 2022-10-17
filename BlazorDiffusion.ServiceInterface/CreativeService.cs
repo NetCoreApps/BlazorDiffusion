@@ -16,13 +16,36 @@ public class CreativeService : Service
     public string DefaultEngine { get; set; } = "stable-diffusion-v1-5";
     public int DefaultHeight { get; set; } = 512;
     public int DefaultWidth { get; set; } = 512;
-    public int DefaultImages { get; set; } = 2;
+    public int DefaultImages { get; set; } = 4;
+    
+    public async Task<object> Post(CreateCreative request)
+    {
+        var imageGenerationResponse = await GenerateImage(request);
+        
+        var creative = await PersistCreative(request,imageGenerationResponse).ConfigureAwait(false);
+        
+        await StableDiffusionClient.SaveMetadata(imageGenerationResponse, creative);
+
+        return creative;
+    }
 
     private async Task<Creative> PersistCreative(CreateCreative request,
         ImageGenerationResponse imageGenerationResponse)
     {
         Creative creative;
         creative = (Creative)(await AutoQuery.CreateAsync(request, Request));
+        var dimensions = GetDimensions(request.Orientation);
+        creative.Width = dimensions.Item1;
+        creative.Height = dimensions.Item2;
+        
+        
+        var artists = await Db.SelectAsync<Artist>(x => Sql.In(x.Id, request.ArtistIds));
+        var modifiers = await Db.SelectAsync<Modifier>(x => Sql.In(x.Id, request.ModifierIds));
+        creative.ArtistNames = artists.Select(x => $"{x.FirstName} {x.LastName}").ToList();
+        creative.ModifiersText = modifiers.Select(x => x.Name).ToList();
+        
+        await Db.UpdateAsync(creative);
+        
         var creativeArtists = request.ArtistIds.Select(x => new CreativeArtist
         {
             ArtistId = x,
@@ -35,13 +58,14 @@ public class CreativeService : Service
         });
         await Db.InsertAllAsync(creativeArtists);
         await Db.InsertAllAsync(creativeModifiers);
+        
         foreach (var imageResult in imageGenerationResponse.Results)
         {
             await Db.InsertAsync(new CreativeArtifact
             {
                 CreativeId = creative.Id,
-                Width = creative.Width,
-                Height = creative.Height,
+                Width = imageResult.Width,
+                Height = imageResult.Height,
                 Prompt = imageResult.Prompt,
                 Seed = imageResult.Seed,
                 FileName = imageResult.FileName,
@@ -54,48 +78,44 @@ public class CreativeService : Service
         return result;
     }
     
-    public async Task<object> Post(CreateCreative request)
-    {
-        var imageGenerationResponse = await GenerateImage(request);
-        
-        var creative = await PersistCreative(request,imageGenerationResponse).ConfigureAwait(false);
-        
-        await StableDiffusionClient.SaveMetadata(imageGenerationResponse, creative);
-
-        return creative;
-    }
-    
     private async Task<ImageGenerationResponse> GenerateImage(CreateCreative request)
     {
         var modifiers = await Db.SelectAsync<Modifier>(x => Sql.In(x.Id, request.ModifierIds));
         
-        var artists = new List<Artist>();
-        if (request.ArtistIds.Count == 0)
-        {
-            // Use modifier to select a default random artist based
-            // on category to use in prompt. This way, every generation
-            // has an artist attribution without the user needing to select specific artist.
-        }
-        else
-        {
-            artists = await Db.SelectAsync<Artist>(x => Sql.In(x.Id, request.ArtistIds));
-        }
+        var artists = request.ArtistIds.Count == 0 ? new List<Artist>() :
+            await Db.SelectAsync<Artist>(x => Sql.In(x.Id, request.ArtistIds));;
         
         var apiPrompt = ConstructPrompt(request.UserPrompt, 
             modifiers, artists);
+
+        var dimensions = GetDimensions(request.Orientation);
         
         var imageGenOptions = new ImageGeneration
         {
             Prompt = apiPrompt,
             Engine = DefaultEngine,
-            Height = request.Height ?? DefaultHeight,
-            Width = request.Width ?? DefaultWidth,
+            Height = dimensions.Item2,
+            Width = dimensions.Item1,
             Images = request.Images ?? DefaultImages,
             Seed = request.Seed
         };
 
         var imageGenerationResponse = await StableDiffusionClient.GenerateImageAsync(imageGenOptions);
         return imageGenerationResponse;
+    }
+
+    private Tuple<int, int> GetDimensions(CreativeOrientation orientation)
+    {
+        switch (orientation)
+        {
+            case CreativeOrientation.Landscape:
+                return new Tuple<int, int>(896, 512);
+            case CreativeOrientation.Portrait:
+                return new Tuple<int, int>(512, 896);
+            case CreativeOrientation.Square:
+            default:
+                return new Tuple<int, int>(512, 512);
+        }
     }
 
     private string ConstructPrompt(string userPrompt, List<Modifier> modifiers, List<Artist> artists)
@@ -138,4 +158,6 @@ public class ImageGenerationResult
     public string Prompt { get; set; }
     public string FileName { get; set; }
     public long ContentLength { get; set; }
+    public int Width { get; set; }
+    public int Height { get; set; }
 }

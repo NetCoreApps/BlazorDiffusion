@@ -26,7 +26,10 @@ public class Migration1001 : MigrationBase
         public int Steps { get; set; }
 
         public int? PrimaryArtifactId { get; set; }
-
+        
+        public List<string> ModifiersText { get; set; }
+        public List<string> ArtistNames { get; set; }
+        
         [Reference]
         public List<CreativeArtist> Artists { get; set; }
         [Reference]
@@ -36,6 +39,14 @@ public class Migration1001 : MigrationBase
         public List<CreativeArtifact> Artifacts { get; set; }
         
         public string? Error { get; set; }
+        public CreativeOrientation Orientation { get; set; }
+    }
+    
+    public enum CreativeOrientation
+    {
+        Square,
+        Portrait,
+        Landscape
     }
 
     public class CreativeArtifact : AuditBase
@@ -88,6 +99,9 @@ public class Migration1001 : MigrationBase
         public int CreativeId { get; set; }
         [References(typeof(Artist))]
         public int ArtistId { get; set; }
+        
+        [Reference]
+        public Artist Artist { get; set; }
     }
     public class CreativeModifier
     {
@@ -97,6 +111,9 @@ public class Migration1001 : MigrationBase
         public int CreativeId { get; set; }
         [References(typeof(Modifier))]
         public int ModifierId { get; set; }
+        
+        [Reference]
+        public Modifier Modifier { get; set; }
     }
 
 
@@ -154,8 +171,43 @@ public class Migration1001 : MigrationBase
         {
             creativeEntries.Add(File.ReadAllText(file).FromJson<Creative>());
         }
-        
-        Db.SaveAllReferences(creativeEntries);
+
+        var savedModifiers = Db.Select<Modifier>().ToDictionary(modifier => $"{modifier.Category}-{modifier.Name}", modifier => modifier.Id);
+        var savedArtists = Db.Select<Artist>().ToDictionary(a => $"{a.FirstName} {a.LastName}", a => a.Id);
+        // reset keys
+        foreach (var creativeEntry in creativeEntries)
+        {
+            creativeEntry.Id = 0;
+            creativeEntry.Modifiers = new List<CreativeModifier>();
+            creativeEntry.ModifiersText ??= new List<string>();
+            creativeEntry.ArtistNames ??= new List<string>();
+            foreach (var text in creativeEntry.ModifiersText)
+            {
+                var mod = savedModifiers[text];
+                creativeEntry.Modifiers.Add(new CreativeModifier
+                {
+                    ModifierId = mod,
+                    CreativeId = 0
+                });
+            }
+
+            foreach (var artistName in creativeEntry.ArtistNames)
+            {
+                var artist = savedArtists[artistName];
+                creativeEntry.Artists.Add(new CreativeArtist
+                {
+                    ArtistId = artist,
+                    CreativeId = 0
+                });
+            }
+
+            foreach (var artifact in creativeEntry.Artifacts)
+            {
+                artifact.Id = 0;
+                artifact.CreativeId = 0;
+            }
+            Db.SaveAllReferences(creativeEntry);
+        }
     }
 
     public override void Down()
@@ -182,7 +234,7 @@ public class Migration1001 : MigrationBase
         ["Positive Mood"] = new[] { "Balmy", "Calm", "Comforting", "Cozy", "Delicate", "Elegant", "Ethereal", "Graceful", "Light", "Mild", "Pastel", "Peaceful", "Quiet", "Relaxed", "Serene", "Soft", "Soothing", "Subtle", "Tender", "Tranquil", 
                                     /*High Energy*/ "Brash", "Bright", "Colorful", "Dynamic", "Ecstatic", "Energetic", "Exciting", "Expressive", "Hot", "Joyful", "Kaleidoscopic", "Lively", "Passionate", "Psychedelic", "Rich", "Romantic", "Saturated", "Spirited", "Vibrant", "Vivid" },
         ["Negative Mood"] = new[] { "Bleak", "Depressing", "Desaturated", "Dismal", "Dreary", "Dull", "Funeral", "Gloomy", "Grey", "Melancholic", "Mournful", "Muted", "Pale", "Sad", "Somber", "Subdued", "Tired", "Washed-out", "Weary", 
-                                    /*High Energy*/ "Apocalyptic", "Dark", "Doom", "Dreadful", "Forbidding", "Frightful", "Ghastly", "Ghostly", "Gloomy", "Harrowing", "Haunting", "Hideous", "Ominous", "Shadowy", "Shocking", "Sinister", "Stormy", "Terrifying", "Terror", "Threatening", "Unnerving" },
+                                    /*High Energy*/ "Apocalyptic", "Dark", "Doom", "Dreadful", "Forbidding", "Frightful", "Ghastly", "Ghostly", "Harrowing", "Haunting", "Hideous", "Ominous", "Shadowy", "Shocking", "Sinister", "Stormy", "Terrifying", "Terror", "Threatening", "Unnerving" },
         // https://proximacentaurib.notion.site/2b07d3195d5948c6a7e5836f9d535592?v=e8062bc85bfd43a99fb6e187e9bac926
         ["Style"]         = new[] { "fantasy", "surrealism", "symmetry", "contemporary", "modern", "minimalism", "masterpiece", "vaporwave", "post-apocalyptic", "gothic and fantasy", "cybernatic and sci-fi", "steampunk", "memphis", "dieselpunk", "afrofuturism", "cyberpunk", "biopunk", "3d", "artstation hq", "behance", "cgsociety", "claymation", "concept art", "CryEngine", "cyanotype", "deviantart", "digital art", "digital illustration", "diorama", "fine art", "gouache painting", "isometric", "isotype", "lineart", "lomography", "low poly", "octane", "oil on canvas", "Demoscene", "Cubo-Futurism", "International Typographic Style", "Batik", "Assemblage", "digital collage", "Dada collage", "Arte Povera", "coloring book style", "Pattachitra", "Egyptian mythology", "Mughal painting", "Native American mythology", "contrasting colors", "Tarot card", "Aestheticism", "Edwardian", "Der Blaue", "sticker", "De Stijl", "sketch", "doodle", "naive", "watercolor", "Encaustic", "sand painting", "NES style", "Atari 2600 style", "Ashcan School painting", "Renaissance", "Futurism", "Pointillisme", "Amiga 500 style", "glamour shot", "en plein air", "comic", "clutter", "chibi", "horror", "spooky", "16-Bit", "DMT", "robloxcore", "fineartamerica", "dripping colors", "vintage illustration", "hi-fructose", "fractal", "ferrofluid", "by GLaDOS", "cymatics", "dark fine art", "macabre fine art", "morbid fine art", "massurrealism", "enlightenment", "sfumato", "tenebrism", "woodblock print", "woodblock", "astrophotography", "art brut", "art nouveau", "matte painting", "Unsplash contest winner", "fashion editorial", "Unsplash", "propaganda poster", "poster", "linocut", "artwork", "anime", "album cover", "Blade Runner 2049", "behance HD", "Dreamworks", "DayGlo", "color splash", "Interstellar", "infrared", "glow in the dark", "gold leaf", "haze filter", "high speed liquid photography", "Pantone", "papercraft", "stained glass", "thangka", "tonalism", "underwater photography", "velvia", "ukiyo-e", "risograph", "pixel art", "voxel art", "vector art", "pixiv", "rendered in octane", "unreal engine", "trending on artstation", "minecraftcore", "biomechanical", "daguerrotype", "Macchiaioli", "art deco", "board game", "cityscape", "neon", "alien" },
         ["Aesthetic"]     = new[] { "robloxcore", "1950s suburbia", "70s science fiction", "atompunk", "beatnik", "cassette futurism", "cosmic horror", "cosmic nebulae", "cyberdelic", "cyberpop", "cyberpunk", "ethereal", "fauvism", "glitch art", "glitchcore", "glowwave", "goth", "gothic", "hyperpop", "kawaii", "lunarpunk", "minimalism", "normcore", "minecraftcore", "biomechanical", "pixiecore", "chillwave", "darkwave", "weirdcore", "animecore", "futuristic", "futuresynth", "biopunk", "deathpunk", "sparklecore", "funk art", "holography", "holographic", "paranormalpunk", "sci-fi", "science fiction", "soviet poster", "pre-raphaelite", "witchcore", "soft grunge", "voidpunk", "unicorncore", "southern gothic", "sovietwave", "vaporwave", "retrowave", "trippy", "retro-futurism", "psychedelic", "x-ray photography", "solarpunk", "seapunk", "steampunk" },

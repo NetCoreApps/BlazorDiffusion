@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ServiceStack;
 using ServiceStack.DataAnnotations;
 
@@ -23,6 +24,9 @@ public class Creative : AuditBase
     public int Steps { get; set; }
 
     public int? PrimaryArtifactId { get; set; }
+    
+    public List<string> ModifiersText { get; set; }
+    public List<string> ArtistNames { get; set; }
 
     [Reference]
     public List<CreativeArtist> Artists { get; set; }
@@ -34,6 +38,8 @@ public class Creative : AuditBase
     public List<CreativeArtifact> Artifacts { get; set; }
     
     public string? Error { get; set; }
+    
+    public CreativeOrientation Orientation { get; set; }
 }
 
 public class CreativeArtifact : AuditBase
@@ -76,17 +82,28 @@ public class CreateCreative : ICreateDb<Creative>, IReturn<Creative>
     public int? Images { get; set; }
     
     [AutoDefault(Value = 512)]
+    [Obsolete("Use `Orientation`")]
     public int? Width { get; set; }
     
     [AutoDefault(Value = 512)]
+    [Obsolete("Use `Orientation`")]
     public int? Height { get; set; }
     
     [AutoDefault(Value = 50)]
     public int? Steps { get; set; }
     public long? Seed { get; set; }
     
+    public CreativeOrientation Orientation { get; set; }
+    
     public List<int> ArtistIds { get; set; }
     public List<int> ModifierIds { get; set; }
+}
+
+public enum CreativeOrientation
+{
+    Square,
+    Portrait,
+    Landscape
 }
 
 public class DeleteCreative : IDeleteDb<Creative>, IReturnVoid
@@ -197,6 +214,9 @@ public class CreativeArtist
     public int CreativeId { get; set; }
     [References(typeof(Artist))]
     public int ArtistId { get; set; }
+    
+    [Reference]
+    public Artist Artist { get; set; }
 }
 
 
@@ -228,5 +248,8 @@ public class CreativeModifier
     public int CreativeId { get; set; }
     [References(typeof(Modifier))]
     public int ModifierId { get; set; }
+    
+    [Reference]
+    public Modifier Modifier { get; set; }
 }
 

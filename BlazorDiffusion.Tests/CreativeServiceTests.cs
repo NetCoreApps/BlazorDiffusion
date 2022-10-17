@@ -35,6 +35,7 @@ public class CreativeServiceTests
                     SqliteDialect.Provider));
             
             var migrator = CreateMigrator();
+            migrator.Timeout = TimeSpan.Zero;
             var revert = migrator.Revert(Migrator.All);
             Assert.That(revert.Succeeded);
             var migrate = migrator.Run();
@@ -111,10 +112,24 @@ public class CreativeServiceTests
         //     UserPrompt = "A portrait of a character in a scenic environment",
         //     ModifierNames = new() {"dystopian","Bleak"}
         // },
+        // new ImageGenerationTestCase
+        // {
+        //     UserPrompt = "A portrait of Lara Croft in a scenic environment",
+        //     ModifierNames = new() {"beautiful", "HQ", "hyper detailed", "overgrown","cityscape", "4k","CryEngine"},
+        //     
+        // },
+        //
+        // new ImageGenerationTestCase
+        // {
+        //     UserPrompt = "A portrait of Aloy from the Horizon video game in a scenic environment",
+        //     ModifierNames = new() {"beautiful", "HQ", "hyper detailed", "overgrown","cityscape", "4k","CryEngine"},
+        //     Orientation = CreativeOrientation.Landscape
+        // },
         new ImageGenerationTestCase
         {
-            UserPrompt = "A portrait of a Lara Croft in a scenic environment",
-            ModifierNames = new() {"beautiful", "HQ", "hyper detailed", "overgrown","cityscape", "4k","CryEngine"}
+            UserPrompt = "outside of a futuristic gothic cathedral with leds",
+            ModifierNames = new() {"beautiful", "HQ", "hyper detailed", "overgrown","cityscape", "4k","CryEngine"},
+            Orientation = CreativeOrientation.Landscape
         }
     };
     
@@ -138,6 +153,23 @@ public class CreativeServiceTests
         var artists = testCase.ArtistsType == null ? new List<Artist>() :
             db.Select<Artist>($"select * from Artist where Type like '%{testCase.ArtistsType}%'");
 
+        if (artists == null && testCase.ArtistNames.Count > 0)
+        {
+            artists = new List<Artist>();
+            foreach (var name in testCase.ArtistNames)
+            {
+                var nameSplit = name.Split(" ");
+                var firstName = nameSplit.Length > 1 ? nameSplit[0] : null;
+                var lastName = nameSplit.Length > 1 ? nameSplit[1] : name;
+                var artist = db.Select<Artist>(x => x.FirstName == firstName && x.LastName == lastName)
+                    .FirstOrDefault();
+                if(artist != null)
+                    artists.Add(artist);
+            }
+        }
+        
+        artists ??= new List<Artist>();
+        
         var artistsIds = artists.Select(x => x.Id).ToList();
         var modifierIds = modifiers.Select(x => x.Id).ToList();
         
@@ -146,7 +178,8 @@ public class CreativeServiceTests
             UserPrompt = testCase.UserPrompt,
             ArtistIds = artistsIds,
             ModifierIds = modifierIds,
-            Images = 6
+            Images = 6,
+            Orientation = testCase.Orientation
         });
 
         Assert.That(response, Is.Not.Null);
@@ -155,7 +188,14 @@ public class CreativeServiceTests
 
 public class ImageGenerationTestCase
 {
+    public ImageGenerationTestCase()
+    {
+        ArtistNames = new();
+        ModifierNames = new();
+    }
     public string UserPrompt { get; set; }
     public string? ArtistsType { get; set; }
+    public List<string> ArtistNames { get; set; }
     public List<string> ModifierNames { get; set; }
+    public CreativeOrientation Orientation { get; set; }
 }

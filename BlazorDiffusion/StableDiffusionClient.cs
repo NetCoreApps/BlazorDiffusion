@@ -87,7 +87,9 @@ public class DreamStudioClient : IStableDiffusionClient
                     AnswerId = item.AnswerId,
                     FilePath = $"/uploads/fs/{vfsPathSuffix}/output_{artifact.Seed}.png",
                     FileName = $"output_{artifact.Seed}.png",
-                    ContentLength = bytes.Length
+                    ContentLength = bytes.Length,
+                    Width = request.Width,
+                    Height = request.Height
                 });
             }
         }
