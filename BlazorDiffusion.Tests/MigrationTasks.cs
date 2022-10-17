@@ -17,7 +17,7 @@ public class MigrationTasks
     public void Migrate()
     {
         var migrator = CreateMigrator();
-        //migrator.Timeout = TimeSpan.Zero;
+        migrator.Timeout = TimeSpan.Zero;
         var result = migrator.Run();
         Assert.That(result.Succeeded);
     }
@@ -26,7 +26,7 @@ public class MigrationTasks
     public void Revert_All()
     {
         var migrator = CreateMigrator();
-        //migrator.Timeout = TimeSpan.Zero;
+        migrator.Timeout = TimeSpan.Zero;
         var result = migrator.Revert(Migrator.All);
         Assert.That(result.Succeeded);
     }

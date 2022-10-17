@@ -102,35 +102,47 @@ public class CreativeServiceTests
 
     public static List<ImageGenerationTestCase> AllGenerationCases = new()
     {
+        // new ImageGenerationTestCase
+        // {
+        //     UserPrompt = "A broken down building in a stunning landscape, overgrowth of vegetation",
+        //     ModifierNames = new() {"3D","Bloom light effect","CryEngine"},
+        //     ArtistsType = "3d"
+        // },
+        // new ImageGenerationTestCase
+        // {
+        //     UserPrompt = "A portrait of a character in a scenic environment",
+        //     ModifierNames = new() {"Dystopian","Bleak"}
+        // },
+        // new ImageGenerationTestCase
+        // {
+        //     UserPrompt = "A portrait of Lara Croft in a scenic environment",
+        //     ModifierNames = new() {"Beautiful", "HQ", "Hyper Detailed", "Overgrown","Cityscape", "4k","CryEngine"},
+        //     
+        // },
+        //
+        // new ImageGenerationTestCase
+        // {
+        //     UserPrompt = "A portrait of Aloy from the Horizon video game in a scenic environment",
+        //     ModifierNames = new() {"Beautiful", "HQ", "Hyper Detailed", "Overgrown","Cityscape", "4k","CryEngine"},
+        //     ImageType = ImageType.Landscape
+        // },
+        // new ImageGenerationTestCase
+        // {
+        //     UserPrompt = "outside of a futuristic gothic cathedral with leds",
+        //     ModifierNames = new() {"Beautiful", "HQ", "Hyper Detailed", "Overgrown","Cityscape", "4k","CryEngine"},
+        //     ImageType = ImageType.Landscape
+        // }
+        // new ImageGenerationTestCase
+        // {
+        //     UserPrompt = "Portrait of a ruggedly handsome paladin, soft hair, muscular, half body, masculine, mature",
+        //     ModifierNames = new() {"Beautiful", "HQ", "Hyper Detailed", "Digital Illustration","Concept Art", "4k"},
+        //     ImageType = ImageType.Portrait
+        // },
         new ImageGenerationTestCase
         {
-            UserPrompt = "A broken down building in a stunning landscape, overgrowth of vegetation",
-            ModifierNames = new() {"3D","Bloom light effect","CryEngine"},
-            ArtistsType = "3d"
-        },
-        new ImageGenerationTestCase
-        {
-            UserPrompt = "A portrait of a character in a scenic environment",
-            ModifierNames = new() {"Dystopian","Bleak"}
-        },
-        new ImageGenerationTestCase
-        {
-            UserPrompt = "A portrait of Lara Croft in a scenic environment",
-            ModifierNames = new() {"Beautiful", "HQ", "Hyper Detailed", "Overgrown","Cityscape", "4k","CryEngine"},
-            
-        },
-        
-        new ImageGenerationTestCase
-        {
-            UserPrompt = "A portrait of Aloy from the Horizon video game in a scenic environment",
-            ModifierNames = new() {"Beautiful", "HQ", "Hyper Detailed", "Overgrown","Cityscape", "4k","CryEngine"},
-            ImageType = ImageType.Landscape
-        },
-        new ImageGenerationTestCase
-        {
-            UserPrompt = "outside of a futuristic gothic cathedral with leds",
-            ModifierNames = new() {"Beautiful", "HQ", "Hyper Detailed", "Overgrown","Cityscape", "4k","CryEngine"},
-            ImageType = ImageType.Landscape
+            UserPrompt = "Floating spooky house in the sky",
+            ModifierNames = new() {"Low Poly", "3D Rendering", "Hyper Detailed", "Isometric","Sharp Focus", "Ray Tracing"},
+            ImageType = ImageType.Square
         }
     };
     
@@ -175,19 +187,49 @@ public class CreativeServiceTests
         var modifierIds = modifiers.Select(x => x.Id).ToList();
 
         var dimensions = GetDimensions(testCase.ImageType);
+        var numberOfImages = testCase.Images ?? 6;
         var response = client.Post(new CreateCreative()
         {
             UserPrompt = testCase.UserPrompt,
             ArtistIds = artistsIds,
             ModifierIds = modifierIds,
-            Images = 6,
+            Images = numberOfImages,
             Width = dimensions.Width,
             Height = dimensions.Height
         });
 
         Assert.That(response, Is.Not.Null);
+        Assert.That(response.Artifacts, Is.Not.Null);
+        Assert.That(response.Artifacts.Count, Is.EqualTo(numberOfImages));
+
+        var primaryArtifactResponse = client.Post(new UpdateCreative
+        {
+            Id = response.Id,
+            PrimaryArtifactId = response.Artifacts[0].Id
+        });
+
+        var nsfwArtifactResponse = client.Post(new UpdateCreativeArtifact
+        {
+            Id = response.Artifacts[1].Id,
+            Nsfw = true
+        });
+        
+        Assert.That(primaryArtifactResponse, Is.Not.Null);
+        Assert.That(nsfwArtifactResponse, Is.Not.Null);
+
+        var queryResponse = client.Get(new QueryCreative
+        {
+            Id = response.Id
+        });
+        
+        Assert.That(queryResponse, Is.Not.Null);
+        Assert.That(queryResponse.Results, Is.Not.Null);
+        Assert.That(queryResponse.Results.Count, Is.EqualTo(1));
+        Assert.That(queryResponse.Results[0].AppUserId, Is.Not.Null);
+        Assert.That(queryResponse.Results[0].AppUserId, Is.GreaterThan(0));
+        Assert.That(queryResponse.Results[0].AppUser, Is.Not.Null);
+        Assert.That(queryResponse.Results[0].AppUser?.Email, Is.EqualTo("admin@email.com"));
     }
-    
     
     private ImageSize GetDimensions(ImageType orientation)
     {
@@ -226,4 +268,5 @@ public class ImageGenerationTestCase
     public List<string> ArtistNames { get; set; }
     public List<string> ModifierNames { get; set; }
     public ImageType ImageType { get; set; }
+    public int? Images { get; set; }
 }

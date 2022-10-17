@@ -1,3 +1,4 @@
+using BlazorDiffusion.ServiceModel;
 using ServiceStack;
 using ServiceStack.Web;
 using ServiceStack.Data;
@@ -18,18 +19,6 @@ public enum Department
     HumanResources,
 }
 
-// Custom User Table with extended Metadata properties
-public class AppUser : UserAuth
-{
-    public Department Department { get; set; }
-    public string? ProfileUrl { get; set; }
-    public string? LastLoginIp { get; set; }
-
-    public bool IsArchived { get; set; }
-    public DateTime? ArchivedDate { get; set; }
-
-    public DateTime? LastLoginDate { get; set; }
-}
 
 public class AppUserAuthEvents : AuthEvents
 {
@@ -70,7 +59,6 @@ public class ConfigureAuthRepository : IHostingStartup
                     nameof(AppUser.Id),
                     nameof(AppUser.Email),
                     nameof(AppUser.DisplayName),
-                    nameof(AppUser.Department),
                     nameof(AppUser.CreatedDate),
                     nameof(AppUser.LastLoginDate),
                 },
@@ -78,7 +66,6 @@ public class ConfigureAuthRepository : IHostingStartup
                 QueryMediaRules = new()
                 {
                     MediaRules.ExtraSmall.Show<AppUser>(x => new { x.Id, x.Email, x.DisplayName }),
-                    MediaRules.Small.Show<AppUser>(x => x.Department),
                 },
 
                 // Add Custom Fields to Create/Edit User Forms
@@ -86,7 +73,6 @@ public class ConfigureAuthRepository : IHostingStartup
                     Input.For<AppUser>(x => x.Email),
                     Input.For<AppUser>(x => x.DisplayName),
                     Input.For<AppUser>(x => x.Company),
-                    Input.For<AppUser>(x => x.Department, c => c.FieldsPerRow(2)),
                     Input.For<AppUser>(x => x.PhoneNumber, c => {
                         c.Type = Input.Types.Tel;
                         c.FieldsPerRow(2);

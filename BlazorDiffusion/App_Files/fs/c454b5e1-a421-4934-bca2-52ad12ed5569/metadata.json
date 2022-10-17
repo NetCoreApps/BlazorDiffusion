@@ -1,0 +1,154 @@
+{
+  "id": 8,
+  "userPrompt": "Portrait of a ruggedly handsome paladin, soft hair, muscular, half body, masculine, mature",
+  "prompt": "Portrait of a ruggedly handsome paladin, soft hair, muscular, half body, masculine, mature, Concept Art,Digital Illustration,4k,Beautiful,HQ,Hyper Detailed",
+  "images": 6,
+  "width": 512,
+  "height": 896,
+  "steps": 50,
+  "modifiersText": [
+    "Concept Art",
+    "Digital Illustration",
+    "4k",
+    "Beautiful",
+    "HQ",
+    "Hyper Detailed"
+  ],
+  "artistNames": [],
+  "artists": [],
+  "modifiers": [
+    {
+      "id": 22,
+      "creativeId": 8,
+      "modifierId": 233
+    },
+    {
+      "id": 23,
+      "creativeId": 8,
+      "modifierId": 348
+    },
+    {
+      "id": 24,
+      "creativeId": 8,
+      "modifierId": 486
+    },
+    {
+      "id": 25,
+      "creativeId": 8,
+      "modifierId": 491
+    },
+    {
+      "id": 26,
+      "creativeId": 8,
+      "modifierId": 492
+    },
+    {
+      "id": 27,
+      "creativeId": 8,
+      "modifierId": 493
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 43,
+      "creativeId": 8,
+      "fileName": "output_4276849765.png",
+      "filePath": "/uploads/fs/c454b5e1-a421-4934-bca2-52ad12ed5569/output_4276849765.png",
+      "contentType": "image/png",
+      "contentLength": 647486,
+      "width": 512,
+      "height": 896,
+      "seed": 4276849765,
+      "prompt": "Portrait of a ruggedly handsome paladin, soft hair, muscular, half body, masculine, mature, Concept Art,Digital Illustration,4k,Beautiful,HQ,Hyper Detailed",
+      "createdDate": "\/Date(1665980966096-0000)\/",
+      "createdBy": "1",
+      "modifiedDate": "\/Date(1665980966096-0000)\/",
+      "modifiedBy": "1"
+    },
+    {
+      "id": 44,
+      "creativeId": 8,
+      "fileName": "output_1359071114.png",
+      "filePath": "/uploads/fs/c454b5e1-a421-4934-bca2-52ad12ed5569/output_1359071114.png",
+      "contentType": "image/png",
+      "contentLength": 680752,
+      "width": 512,
+      "height": 896,
+      "seed": 1359071114,
+      "prompt": "Portrait of a ruggedly handsome paladin, soft hair, muscular, half body, masculine, mature, Concept Art,Digital Illustration,4k,Beautiful,HQ,Hyper Detailed",
+      "createdDate": "\/Date(1665980966100-0000)\/",
+      "createdBy": "1",
+      "modifiedDate": "\/Date(1665980966100-0000)\/",
+      "modifiedBy": "1"
+    },
+    {
+      "id": 45,
+      "creativeId": 8,
+      "fileName": "output_2264601020.png",
+      "filePath": "/uploads/fs/c454b5e1-a421-4934-bca2-52ad12ed5569/output_2264601020.png",
+      "contentType": "image/png",
+      "contentLength": 673148,
+      "width": 512,
+      "height": 896,
+      "seed": 2264601020,
+      "prompt": "Portrait of a ruggedly handsome paladin, soft hair, muscular, half body, masculine, mature, Concept Art,Digital Illustration,4k,Beautiful,HQ,Hyper Detailed",
+      "createdDate": "\/Date(1665980966103-0000)\/",
+      "createdBy": "1",
+      "modifiedDate": "\/Date(1665980966103-0000)\/",
+      "modifiedBy": "1"
+    },
+    {
+      "id": 46,
+      "creativeId": 8,
+      "fileName": "output_4229241284.png",
+      "filePath": "/uploads/fs/c454b5e1-a421-4934-bca2-52ad12ed5569/output_4229241284.png",
+      "contentType": "image/png",
+      "contentLength": 829967,
+      "width": 512,
+      "height": 896,
+      "seed": 4229241284,
+      "prompt": "Portrait of a ruggedly handsome paladin, soft hair, muscular, half body, masculine, mature, Concept Art,Digital Illustration,4k,Beautiful,HQ,Hyper Detailed",
+      "createdDate": "\/Date(1665980966106-0000)\/",
+      "createdBy": "1",
+      "modifiedDate": "\/Date(1665980966106-0000)\/",
+      "modifiedBy": "1"
+    },
+    {
+      "id": 47,
+      "creativeId": 8,
+      "fileName": "output_3673933438.png",
+      "filePath": "/uploads/fs/c454b5e1-a421-4934-bca2-52ad12ed5569/output_3673933438.png",
+      "contentType": "image/png",
+      "contentLength": 606231,
+      "width": 512,
+      "height": 896,
+      "seed": 3673933438,
+      "prompt": "Portrait of a ruggedly handsome paladin, soft hair, muscular, half body, masculine, mature, Concept Art,Digital Illustration,4k,Beautiful,HQ,Hyper Detailed",
+      "createdDate": "\/Date(1665980966108-0000)\/",
+      "createdBy": "1",
+      "modifiedDate": "\/Date(1665980966108-0000)\/",
+      "modifiedBy": "1"
+    },
+    {
+      "id": 48,
+      "creativeId": 8,
+      "fileName": "output_4234021107.png",
+      "filePath": "/uploads/fs/c454b5e1-a421-4934-bca2-52ad12ed5569/output_4234021107.png",
+      "contentType": "image/png",
+      "contentLength": 628190,
+      "width": 512,
+      "height": 896,
+      "seed": 4234021107,
+      "prompt": "Portrait of a ruggedly handsome paladin, soft hair, muscular, half body, masculine, mature, Concept Art,Digital Illustration,4k,Beautiful,HQ,Hyper Detailed",
+      "isPrimaryArtifact": true,
+      "createdDate": "\/Date(1665980966111-0000)\/",
+      "createdBy": "1",
+      "modifiedDate": "\/Date(1665980966111-0000)\/",
+      "modifiedBy": "1"
+    }
+  ],
+  "createdDate": "\/Date(1665941366060-0000)\/",
+  "createdBy": "admin@email.com",
+  "modifiedDate": "\/Date(1665941366060-0000)\/",
+  "modifiedBy": "admin@email.com"
+}

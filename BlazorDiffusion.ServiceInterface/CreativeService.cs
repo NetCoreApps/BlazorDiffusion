@@ -35,12 +35,16 @@ public class CreativeService : Service
         var creative = await Db.LoadSingleByIdAsync<Creative>(request.Id);
         if (creative == null)
             throw HttpError.NotFound($"Creative {request.Id} not found");
-        
-        if(creative.Artifacts.All(x => x.Id != request.PrimaryArtifactId))
+
+        var artifact = creative.Artifacts.SingleOrDefault(x => x.Id == request.PrimaryArtifactId);
+        if(artifact == null)
             throw HttpError.BadRequest($"No such Artifact ID {request.PrimaryArtifactId}");
 
         creative.PrimaryArtifactId = request.PrimaryArtifactId;
         await Db.SaveAsync(creative);
+        artifact.IsPrimaryArtifact = true;
+        await Db.SaveAsync(artifact);
+        
         return creative;
     }
 
@@ -50,6 +54,7 @@ public class CreativeService : Service
         var creative = (Creative)(await AutoQuery.CreateAsync(request, Request));
         creative.Width = request.Width ?? DefaultWidth;
         creative.Height = request.Height ?? DefaultHeight;
+        creative.AppUserId = (await GetSessionAsync()).UserAuthId?.ToInt();
         
         var artists = await Db.SelectAsync<Artist>(x => Sql.In(x.Id, request.ArtistIds));
         var modifiers = await Db.SelectAsync<Modifier>(x => Sql.In(x.Id, request.ModifierIds));
@@ -112,7 +117,16 @@ public class CreativeService : Service
             Seed = request.Seed
         };
 
-        var imageGenerationResponse = await StableDiffusionClient.GenerateImageAsync(imageGenOptions);
+        ImageGenerationResponse imageGenerationResponse;
+        try
+        {
+            imageGenerationResponse = await StableDiffusionClient.GenerateImageAsync(imageGenOptions);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw HttpError.ServiceUnavailable($"Failed to generate image: {e.Message}");
+        }
         return imageGenerationResponse;
     }
 
@@ -160,6 +174,7 @@ public class ImageGenerationResponse
 {
     public List<ImageGenerationResult> Results { get; set; }
     public string Id { get; set; }
+    public string? Error { get; set; }
 }
 
 public class ImageGenerationResult

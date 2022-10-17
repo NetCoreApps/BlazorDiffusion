@@ -1,5 +1,7 @@
-﻿using Gooseai;
+﻿using System.Runtime.Serialization;
+using Gooseai;
 using ServiceStack;
+using ServiceStack.Auth;
 using ServiceStack.DataAnnotations;
 using ServiceStack.OrmLite;
 
@@ -37,6 +39,9 @@ public class Migration1001 : MigrationBase
         public List<CreativeArtifact> Artifacts { get; set; }
         
         public string? Error { get; set; }
+        
+        [References(typeof(AppUser))]
+        public int? AppUserId { get; set; }
     }
 
     public class CreativeArtifact : AuditBase
@@ -60,6 +65,8 @@ public class Migration1001 : MigrationBase
         public int Height { get; set; }
         public ulong Seed { get; set; }
         public string Prompt { get; set; }
+        public bool IsPrimaryArtifact { get; set; }
+        public bool Nsfw { get; set; }
     }
     
     public class Artist : AuditBase
@@ -110,9 +117,63 @@ public class Migration1001 : MigrationBase
         public Modifier Modifier { get; set; }
     }
 
+    public class AppUser : IUserAuth
+    {
+        public string UserName { get; set; }
+        public string DisplayName { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Company { get; set; }
+    
+        [Index]
+        public string Email { get; set; }
+    
+        public string? ProfileUrl { get; set; }
+        public string? LastLoginIp { get; set; }
+
+        public bool IsArchived { get; set; }
+        public DateTime? ArchivedDate { get; set; }
+
+        public DateTime? LastLoginDate { get; set; }
+        public string PhoneNumber { get; set; }
+        public DateTime? BirthDate { get; set; }
+        public string BirthDateRaw { get; set; }
+        public string Address { get; set; }
+        public string Address2 { get; set; }
+        public string City { get; set; }
+        public string State { get; set; }
+        public string Country { get; set; }
+        public string Culture { get; set; }
+        public string FullName { get; set; }
+        public string Gender { get; set; }
+        public string Language { get; set; }
+        public string MailAddress { get; set; }
+        public string Nickname { get; set; }
+        public string PostalCode { get; set; }
+        public string TimeZone { get; set; }
+        public Dictionary<string, string> Meta { get; set; }
+        public int Id { get; set; }
+        public string PrimaryEmail { get; set; }
+        [IgnoreDataMember]
+        public string Salt { get; set; }
+        [IgnoreDataMember]
+        public string PasswordHash { get; set; }
+        [IgnoreDataMember]
+        public string DigestHa1Hash { get; set; }
+        public List<string> Roles { get; set; }
+        public List<string> Permissions { get; set; }
+        public int? RefId { get; set; }
+        public string RefIdStr { get; set; }
+        public int InvalidLoginAttempts { get; set; }
+        public DateTime? LastLoginAttempt { get; set; }
+        public DateTime? LockedDate { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime ModifiedDate { get; set; }
+    }
 
     public override void Up()
     {
+        Db.CreateTable<AppUser>();
         Db.CreateTable<Artist>();
         Db.CreateTable<Modifier>();
         Db.CreateTable<Creative>();
@@ -163,6 +224,7 @@ public class Migration1001 : MigrationBase
             creativeEntry.Modifiers = new List<CreativeModifier>();
             creativeEntry.ModifiersText ??= new List<string>();
             creativeEntry.ArtistNames ??= new List<string>();
+            creativeEntry.AppUserId = null;
             var id = (int)Db.Insert(creativeEntry, selectIdentity: true);
             foreach (var text in creativeEntry.ModifiersText)
             {
@@ -210,8 +272,10 @@ public class Migration1001 : MigrationBase
         Db.DropTable<CreativeArtist>();
         Db.DropTable<CreativeModifier>();
         Db.DropTable<Creative>();
+        Db.DropTable<AppUser>();
         Db.DropTable<Modifier>();
         Db.DropTable<Artist>();
+        Db.DropTable<AppUser>();
     }
 
     Dictionary<string, string[]> Modifiers = new()

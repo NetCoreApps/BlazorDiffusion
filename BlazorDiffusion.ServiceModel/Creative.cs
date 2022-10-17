@@ -36,8 +36,15 @@ public class Creative : AuditBase
     public List<CreativeArtifact> Artifacts { get; set; }
     
     public string? Error { get; set; }
+    
+    [References(typeof(AppUser))]
+    public int? AppUserId { get; set; }
+    
+    [Reference]
+    public AppUser? AppUser { get; set; }
 }
 
+[AutoApply(Behavior.AuditCreate)]
 public class CreativeArtifact : AuditBase
 {
     [AutoIncrement]
@@ -59,6 +66,10 @@ public class CreativeArtifact : AuditBase
     public int Height { get; set; }
     public ulong Seed { get; set; }
     public string Prompt { get; set; }
+    
+    public bool IsPrimaryArtifact { get; set; }
+    
+    public bool Nsfw { get; set; }
 }
 
 public class QueryCreative : QueryDb<Creative>
@@ -92,7 +103,7 @@ public class CreateCreative : ICreateDb<Creative>, IReturn<Creative>
 }
 
 [AutoApply(Behavior.AuditModify)]
-public class UpdateCreative : IUpdateDb<Creative>, IReturn<Creative>
+public class UpdateCreative : IPatchDb<Creative>, IReturn<Creative>
 {
     public int Id { get; set; }
     
@@ -108,6 +119,14 @@ public class DeleteCreative : IDeleteDb<Creative>, IReturnVoid
 public class QueryCreativeArtifacts : QueryDb<CreativeArtifact>
 {
     
+}
+
+[AutoApply(Behavior.AuditModify)]
+public class UpdateCreativeArtifact : IPatchDb<CreativeArtifact>, IReturn<CreativeArtifact>
+{
+    public int Id { get; set; }
+    
+    public bool Nsfw { get; set; }
 }
 
 
