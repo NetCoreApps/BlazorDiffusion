@@ -1,7 +1,11 @@
-﻿@page "/search"
+﻿@page "/create"
+@attribute [Authorize]
+@inherits AppAuthComponentBase
+
 
 <Home>
-    <form class="mx-auto shadow overflow-hidden sm:rounded-md w-[450px] sm:w-[600px]" @onsubmit="submit" @onsubmit:preventDefault>
+    <form class="mt-4 mx-auto shadow overflow-hidden sm:rounded-md w-[450px] sm:w-[600px]" @onsubmit="noop" @onsubmit:preventDefault>
+    <CascadingValue Value=@api.Error>
         <ErrorSummary Except=@VisibleFields />
 
         <div class="px-4 space-y-6 sm:p-6">
@@ -54,9 +58,14 @@
             }
 
             <div class="mt-8 mx-auto w-[440px]">
-                <Autocomplete Options="ModifierOptions" Multiple=true @bind-Values="modifiers" Match="(x, value) => x.Name.Contains(value)" placeholder="Select Modifiers">
+                <Autocomplete Id="ModifierIds" Options="ModifierOptions" Multiple=true @bind-Values="modifiers" placeholder="Select Modifiers"
+                    Match="(x, value) => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase) ||
+                                         x.Category.Contains(value, StringComparison.OrdinalIgnoreCase)">
                     <Item>
-                        <span class="block truncate">@context.Name</span>
+                        <div class="flex justify-between">
+                            <span class="truncate">@context!.Name</span>
+                            <span class="text-gray-400 truncate -mr-6">@context!.Category</span>
+                        </div>
                     </Item>
                 </Autocomplete>
             </div>
@@ -110,8 +119,8 @@
                             @foreach (var category in groupCategories)
                             {
                                 <button @key=@category @onclick="_ => selectCategory(category)" class=@CssUtils.ClassNames(category == selectedCategory
-                                ? "bg-gray-100 dark:bg-gray-900 text-black dark:text-white"
-                                : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-black dark:hover:text-white",
+                                    ? "bg-gray-100 dark:bg-gray-900 text-black dark:text-white"
+                                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-black dark:hover:text-white",
                                     "w-full group flex items-center px-2 py-2 text-sm font-medium rounded-md")>
                                     @category
                                 </button>
@@ -133,16 +142,75 @@
             </div>
         }
 
-        <div class="mt-4 p-0.5 flex flex-col gap-y-4">
-            <TextInput @bind-Value="request.UserPrompt" spellcheck="false" Placeholder="Description of Image" Label="" />
+        <div class="mt-4 p-2 flex flex-col gap-y-4">
+            <TextInput class="!text-lg" @bind-Value="request.UserPrompt" spellcheck="false" Placeholder="Description of Image" Label="" />
         </div>
 
         <div class="my-8 text-right">
             <div class="flex justify-center">
-                <PrimaryButton type="submit" Style="ButtonStyle.Sky" class="!rounded-full text-lg font-normal">
-                    Search
+                <PrimaryButton @onclick="submit" Style="ButtonStyle.Sky" class="!rounded-full text-lg font-normal">
+                    Generate
                 </PrimaryButton>
             </div>
         </div>
+    </CascadingValue>
     </form>
+
+    <div class="mt-8 mb-40">
+        @if (api.IsLoading)
+        {
+            <div class="flex justify-center">
+                <Loading class="text-gray-300 font-normal" ImageClass="w-7 h-7 mt-1.5" Message="generating images..." />
+            </div>
+        }
+        else if (creative != null)
+        {
+            <div class="flex flex-wrap flex justify-evenly">
+                @foreach (var artifact in creative.Artifacts)
+            {
+                <div class="p-2 flex flex-col cursor-pointer w-60 sm:w-80">
+                    <img class="rounded-lg" src=@artifact.FilePath alt=@artifact.FileName
+                         width=@artifact.Width height=@artifact.Height />
+                        <div class="flex justify-between">
+                        <span class="m-2 text-sm text-gray-600 dark:text-gray-400">@artifact.Height x @artifact.Width</span>
+                        <span class="m-2 text-sm text-gray-600 dark:text-gray-400">@TextUtils.FormatBytes(artifact.ContentLength)</span>
+                    </div>
+                </div>
+            }
+            </div>
+        }
+    </div>
 </Home>
+
+
+<div class="z-10 absolute top-16 right-2 -mt-2">
+    <div class="flex flex-col">
+    @if (apiHistory?.Response?.Results.Count > 0)
+    {
+        <div class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100">
+            <div class="group cursor-pointer" @onclick="_ => toggleMenu(CreateMenu.History)">
+                <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M19.5 12A7.5 7.5 0 0 0 6.9 6.5h1.35a.75.75 0 0 1 0 1.5h-3a.75.75 0 0 1-.75-.75v-3a.75.75 0 0 1 1.5 0v1.042a9 9 0 1 1-2.895 5.331a.749.749 0 0 1 .752-.623c.46 0 .791.438.724.892A7.5 7.5 0 1 0 19.5 12Zm-7-4.25a.75.75 0 0 0-1.5 0v4.5c0 .414.336.75.75.75h2.5a.75.75 0 0 0 0-1.5H12.5V7.75Z" /></svg>
+                <span class="block -mt-0.5 text-xs invisible group-hover:visible">history</span>
+            </div>
+        </div>
+    }
+    </div>
+</div>
+
+@if (createMenu == CreateMenu.History && apiHistory?.Response?.Results.Count > 0)
+{
+    <div class="rounded-md absolute top-12 mt-2 right-12 shadow bg-white dark:bg-black flex flex-col z-10 p-2">
+        <nav class="space-y-1" aria-label="Sidebar">
+        @foreach (var item in apiHistory.Response.Results)
+        {
+            <NavLink href=@($"/create?Id={item.Id}") class=@ClassNames("flex items-center px-3 py-2 text-sm font-medium", Id == item.Id
+                ? "bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100")>
+                <span class="w-40 truncate" title=@item.UserPrompt>@item.UserPrompt</span>
+            </NavLink>
+        }
+        </nav>
+    </div>
+}
+
+email @User?.GetEmail()

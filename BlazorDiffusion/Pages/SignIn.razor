@@ -5,7 +5,7 @@
 
 @if (IsAuthenticated)
 {
-    NavigationManager.NavigateTo(NavigationManager.GetReturnUrl(), true);
+    NavigationManager.NavigateTo(ReturnUrl ?? NavigationManager.GetReturnUrl(), true);
     return;
 }
 
@@ -64,6 +64,8 @@
 </div>
 
 @code {
+    [Parameter] public string? ReturnUrl { get; set; }
+
     string[] VisibleFields => new[]{ nameof(Authenticate.UserName), nameof(Authenticate.Password) };
 
     ApiResult<AuthenticateResponse> api = new();
@@ -92,6 +94,6 @@
         api = await provider.LoginAsync(request.UserName, request.Password);
 
         if (api.Succeeded)
-            NavigationManager.NavigateTo(NavigationManager.GetReturnUrl(), true);
+            NavigationManager.NavigateTo(ReturnUrl ?? NavigationManager.GetReturnUrl(), true);
     }
 }

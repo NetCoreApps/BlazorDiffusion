@@ -39,9 +39,6 @@ public class Creative : AuditBase
     
     [References(typeof(AppUser))]
     public int? AppUserId { get; set; }
-    
-    [Reference]
-    public AppUser? AppUser { get; set; }
 }
 
 [AutoApply(Behavior.AuditCreate)]
@@ -72,10 +69,11 @@ public class CreativeArtifact : AuditBase
     public bool Nsfw { get; set; }
 }
 
-public class QueryCreative : QueryDb<Creative>
+public class QueryCreatives : QueryDb<Creative>
 {
     public int? Id { get; set; }
     public int? CreativeId { get; set; }
+    public string? CreatedBy { get; set; }
 }
 
 [AutoApply(Behavior.AuditCreate)]

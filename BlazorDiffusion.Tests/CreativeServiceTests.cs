@@ -217,7 +217,7 @@ public class CreativeServiceTests
         Assert.That(primaryArtifactResponse, Is.Not.Null);
         Assert.That(nsfwArtifactResponse, Is.Not.Null);
 
-        var queryResponse = client.Get(new QueryCreative
+        var queryResponse = client.Get(new QueryCreatives
         {
             Id = response.Id
         });
@@ -227,8 +227,7 @@ public class CreativeServiceTests
         Assert.That(queryResponse.Results.Count, Is.EqualTo(1));
         Assert.That(queryResponse.Results[0].AppUserId, Is.Not.Null);
         Assert.That(queryResponse.Results[0].AppUserId, Is.GreaterThan(0));
-        Assert.That(queryResponse.Results[0].AppUser, Is.Not.Null);
-        Assert.That(queryResponse.Results[0].AppUser?.Email, Is.EqualTo("admin@email.com"));
+        Assert.That(queryResponse.Results[0].CreatedBy, Is.EqualTo("admin@email.com"));
     }
     
     private ImageSize GetDimensions(ImageType orientation)

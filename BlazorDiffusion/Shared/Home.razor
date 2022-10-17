@@ -28,14 +28,14 @@
                         Stable Diffusion Image Search
                     </p>
                     <div class="mt-8 flex gap-4 justify-center">
-                        @if (Browse) {
-                            <PrimaryButton @onclick="navToBrowse" class="!rounded-full py-2 px-4" Style="ButtonStyle.Sky">Browse</PrimaryButton>
-                            <SecondaryButton @onclick="navToSearch" class="!rounded-full py-2 px-4">Search</SecondaryButton>
+                        @if (Search) {
+                            <PrimaryButton @onclick="navToSearch" class="!rounded-full py-2 px-4" Style="ButtonStyle.Sky">Search</PrimaryButton>
+                            <SecondaryButton @onclick="navToCreate" class="!rounded-full py-2 px-4">Create</SecondaryButton>
                         }
                         else
                         {
-                            <SecondaryButton @onclick="navToBrowse" class="!rounded-full py-2 px-4">Browse</SecondaryButton>
-                            <PrimaryButton @onclick="navToSearch" class="!rounded-full py-2 px-4" Style="ButtonStyle.Sky">Search</PrimaryButton>
+                            <SecondaryButton @onclick="navToSearch" class="!rounded-full py-2 px-4">Search</SecondaryButton>
+                            <PrimaryButton @onclick="navToCreate" class="!rounded-full py-2 px-4" Style="ButtonStyle.Sky">Create</PrimaryButton>
                         }
                     </div>
                 </div>
@@ -50,8 +50,8 @@
 @code 
 {
     [Parameter] public RenderFragment? ChildContent { get; set; }
-    [Parameter] public bool Browse { get; set; }
+    [Parameter] public bool Search { get; set; }
 
-    void navToSearch() => NavigationManager.NavigateTo("/search");
-    void navToBrowse() => NavigationManager.NavigateTo("/");
+    void navToCreate() => NavigationManager.NavigateTo("/create");
+    void navToSearch() => NavigationManager.NavigateTo("/");
 }
