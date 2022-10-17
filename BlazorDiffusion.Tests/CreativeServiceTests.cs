@@ -102,30 +102,30 @@ public class CreativeServiceTests
 
     public static List<ImageGenerationTestCase> AllGenerationCases = new()
     {
-        // new ImageGenerationTestCase
-        // {
-        //     UserPrompt = "A broken down building in a stunning landscape, overgrowth of vegetation",
-        //     ModifierNames = new() {"3D","Bloom light effect","CryEngine"},
-        //     ArtistsType = "3d"
-        // },
-        // new ImageGenerationTestCase
-        // {
-        //     UserPrompt = "A portrait of a character in a scenic environment",
-        //     ModifierNames = new() {"dystopian","Bleak"}
-        // },
-        // new ImageGenerationTestCase
-        // {
-        //     UserPrompt = "A portrait of Lara Croft in a scenic environment",
-        //     ModifierNames = new() {"beautiful", "HQ", "hyper detailed", "overgrown","cityscape", "4k","CryEngine"},
-        //     
-        // },
-        //
-        // new ImageGenerationTestCase
-        // {
-        //     UserPrompt = "A portrait of Aloy from the Horizon video game in a scenic environment",
-        //     ModifierNames = new() {"beautiful", "HQ", "hyper detailed", "overgrown","cityscape", "4k","CryEngine"},
-        //     Orientation = CreativeOrientation.Landscape
-        // },
+        new ImageGenerationTestCase
+        {
+            UserPrompt = "A broken down building in a stunning landscape, overgrowth of vegetation",
+            ModifierNames = new() {"3D","Bloom light effect","CryEngine"},
+            ArtistsType = "3d"
+        },
+        new ImageGenerationTestCase
+        {
+            UserPrompt = "A portrait of a character in a scenic environment",
+            ModifierNames = new() {"dystopian","Bleak"}
+        },
+        new ImageGenerationTestCase
+        {
+            UserPrompt = "A portrait of Lara Croft in a scenic environment",
+            ModifierNames = new() {"beautiful", "HQ", "hyper detailed", "overgrown","cityscape", "4k","CryEngine"},
+            
+        },
+        
+        new ImageGenerationTestCase
+        {
+            UserPrompt = "A portrait of Aloy from the Horizon video game in a scenic environment",
+            ModifierNames = new() {"beautiful", "HQ", "hyper detailed", "overgrown","cityscape", "4k","CryEngine"},
+            Orientation = CreativeOrientation.Landscape
+        },
         new ImageGenerationTestCase
         {
             UserPrompt = "outside of a futuristic gothic cathedral with leds",

@@ -177,8 +177,20 @@ public class Migration1001 : MigrationBase
             creativeEntries.Add(File.ReadAllText(file).FromJson<Creative>());
         }
 
-        var savedModifiers = Db.Select<Modifier>().ToDictionary(modifier => $"{modifier.Category}-{modifier.Name}", modifier => modifier.Id);
-        var savedArtists = Db.Select<Artist>().ToDictionary(a => $"{a.FirstName} {a.LastName}", a => a.Id);
+        var savedModifiers = new Dictionary<string, int>();
+        var allMods = Db.Select<Modifier>();
+        foreach (var modifier in allMods)
+        {
+            savedModifiers.TryAdd(modifier.Name, modifier.Id);
+        }
+
+        var savedArtists = new Dictionary<string, int>();
+        var allArtists = Db.Select<Artist>();
+        foreach (var a in allArtists)
+        {
+            savedArtists.TryAdd($"{a.FirstName} {a.LastName}", a.Id);
+        }
+        
         // reset keys
         foreach (var creativeEntry in creativeEntries)
         {
@@ -186,32 +198,34 @@ public class Migration1001 : MigrationBase
             creativeEntry.Modifiers = new List<CreativeModifier>();
             creativeEntry.ModifiersText ??= new List<string>();
             creativeEntry.ArtistNames ??= new List<string>();
+            var id = (int)Db.Insert(creativeEntry, selectIdentity: true);
             foreach (var text in creativeEntry.ModifiersText)
             {
                 var mod = savedModifiers[text];
-                creativeEntry.Modifiers.Add(new CreativeModifier
+                Db.Insert(new CreativeModifier
                 {
                     ModifierId = mod,
-                    CreativeId = 0
+                    CreativeId = id
                 });
             }
 
             foreach (var artistName in creativeEntry.ArtistNames)
             {
                 var artist = savedArtists[artistName];
-                creativeEntry.Artists.Add(new CreativeArtist
+                Db.Insert(new CreativeArtist
                 {
                     ArtistId = artist,
-                    CreativeId = 0
+                    CreativeId = id
                 });
             }
 
             foreach (var artifact in creativeEntry.Artifacts)
             {
                 artifact.Id = 0;
-                artifact.CreativeId = 0;
+                artifact.CreativeId = id;
+                Db.Save(artifact);
             }
-            Db.SaveAllReferences(creativeEntry);
+            
         }
     }
 
@@ -241,7 +255,7 @@ public class Migration1001 : MigrationBase
         ["Filters"]       = new[] { "Amaro filter", "Black and White", "Grayscale", "Lark filter", "Oversaturated", "Sepia filter", "Monochrome", "Monochromatic Blue filter", "Monochromatic Purple filter", "Monochromatic Red filter" },
         ["Lenses"]        = new[] { "Fisheye lens", "Macro lens", "Telephoto lens", "Tilt-shift lens", "Wide-angle lens", "Zoom lens" },
         ["Photography"]   = new[] { "Glamour shot", "Astrophotography", "Fashion Editorial", "Unsplash", "Infrared", "Haze Filter", "Velvia", "X-Ray Photography", "Polarized Light", "Sepia", "Lomo Effect", "Long Exposure", "Chromatic Aberration", "Double Exposure", "Golden Hour", "Dehazed", "Super Wide Angle", "Tilt-Shift", "Aerial Photograph", "Underwater Photography", "High speed Liquid Photography", "Unsplash Contest Winner" },
-        ["Lighting"]      = new[] { "Ambient Occlusion", "Backlight Photo", "Broad Light", "Chiaroscuro lighting", "Dim light", "Flash Light", "Fill Light", "Flat Light", "Candle Light", "High Key light", "Light Diffraction", "Low Key Light", "Natural Light", "Overcast light", "Split light", "Spotlight", "Studio light", "Tenebrism", "Glow in the Dark", "Glowwave", "Iridescence", "Polarized Light", "Candle Light", "Backlight", "Refraction", "Radiant", "Soft Shaded", "Dynamic Lighting", "Bioluminiscent", "Beautifully Lit", "Golden Hour", "Moody Lighting", "Lighting", "Ambient Lighting", "Volumetric Lighting", "Neon" },
+        ["Lighting"]      = new[] { "Ambient Occlusion", "Backlight Photo", "Broad Light", "Chiaroscuro lighting", "Dim light", "Flash Light", "Fill Light", "Flat Light", "Candle Light", "High Key light", "Light Diffraction", "Low Key Light", "Natural Light", "Overcast light", "Split light", "Spotlight", "Studio light", "Tenebrism", "Glow in the Dark", "Glowwave", "Iridescence", "Polarized Light", "Backlight", "Refraction", "Radiant", "Soft Shaded", "Dynamic Lighting", "Bioluminiscent", "Beautifully Lit", "Golden Hour", "Moody Lighting", "Lighting", "Ambient Lighting", "Volumetric Lighting", "Neon" },
         ["Color"]         = new[] { "Contrasting Colors", "Dripping Colors", "DayGlo", "Color Splash", "Infrared", "Glow in the Dark", "Gold Leaf", "Cosmic Nebulae", "Cyberdelic", "Holography", "Holographic", "Iridescence", "Sepia", "Fluo Colors", "Acid Colors", "Primary Colors", "Monochromatic", "Eye Strain", "Vibrant Color Scheme", "Chromatic Aberration", "Metallic", "High Chroma", "Prismatic", "Desaturated", "Golden Hour" },
 
         // Art Style
