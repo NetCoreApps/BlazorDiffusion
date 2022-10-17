@@ -218,15 +218,15 @@ public class Migration1001 : MigrationBase
         }
         
         // reset keys
-        foreach (var creativeEntry in creativeEntries)
+        foreach (var creative in creativeEntries)
         {
-            creativeEntry.Id = 0;
-            creativeEntry.Modifiers = new List<CreativeModifier>();
-            creativeEntry.ModifiersText ??= new List<string>();
-            creativeEntry.ArtistNames ??= new List<string>();
-            creativeEntry.AppUserId = null;
-            var id = (int)Db.Insert(creativeEntry, selectIdentity: true);
-            foreach (var text in creativeEntry.ModifiersText)
+            creative.Id = 0;
+            creative.Modifiers = new List<CreativeModifier>();
+            creative.ModifiersText ??= new List<string>();
+            creative.ArtistNames ??= new List<string>();
+            creative.AppUserId = null;
+            var id = (int)Db.Insert(creative, selectIdentity: true);
+            foreach (var text in creative.ModifiersText)
             {
                 var mod = savedModifiers[text.ToLowerInvariant()];
                 Db.Insert(new CreativeModifier
@@ -236,7 +236,7 @@ public class Migration1001 : MigrationBase
                 });
             }
 
-            foreach (var artistName in creativeEntry.ArtistNames)
+            foreach (var artistName in creative.ArtistNames)
             {
                 var artist = savedArtists[artistName.ToLowerInvariant()];
                 Db.Insert(new CreativeArtist
@@ -246,13 +246,12 @@ public class Migration1001 : MigrationBase
                 });
             }
 
-            foreach (var artifact in creativeEntry.Artifacts)
+            foreach (var artifact in creative.Artifacts)
             {
                 artifact.Id = 0;
                 artifact.CreativeId = id;
                 Db.Save(artifact);
             }
-            
         }
     }
     

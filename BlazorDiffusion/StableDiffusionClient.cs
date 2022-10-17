@@ -10,6 +10,7 @@ public class DreamStudioClient : IStableDiffusionClient
 {
     GrpcChannel channel;
     GenerationService.GenerationServiceClient client;
+
     
     public string ApiKey { get; set; }
     public string OutputPathPrefix { get; set; }
@@ -33,6 +34,7 @@ public class DreamStudioClient : IStableDiffusionClient
     }
     public async Task<ImageGenerationResponse> GenerateImageAsync(ImageGeneration request)
     {
+
         var response = client.Generate(new Request
         {
             EngineId = string.IsNullOrEmpty(EngineId) ? "stable-diffusion-v1-5" : EngineId,
@@ -61,22 +63,19 @@ public class DreamStudioClient : IStableDiffusionClient
                     }
                 },
             },
-
         });
+
+        var now = DateTime.UtcNow;
+        var key = $"{now:yyyy/MM/dd}/{now.TimeOfDay.TotalMilliseconds}";
+        var outputDir = new DirectoryInfo(Path.Join(OutputPathPrefix, key).AssertDir());
+
         var results = new List<ImageGenerationResult>();
-        var uuid = Guid.NewGuid().ToString();
         await foreach (var item in response.ResponseStream.ReadAllAsync())
         {
             var hasArtifact = item.Artifacts.Count > 0;
             if (hasArtifact)
             {
                 var artifact = item.Artifacts.First();
-                var vfsPathSuffix = $"{uuid}";
-                var outputDir = new DirectoryInfo(Path.Join(OutputPathPrefix, vfsPathSuffix));
-                if (!outputDir.Exists)
-                {
-                    outputDir.Create();
-                }
                 var output = Path.Join(outputDir.FullName, $"output_{artifact.Seed}.png");
                 var bytes = artifact.Binary.ToByteArray();
                 await File.WriteAllBytesAsync(output,bytes);
@@ -85,7 +84,7 @@ public class DreamStudioClient : IStableDiffusionClient
                     Prompt = request.Prompt,
                     Seed = artifact.Seed,
                     AnswerId = item.AnswerId,
-                    FilePath = $"/uploads/fs/{vfsPathSuffix}/output_{artifact.Seed}.png",
+                    FilePath = $"/uploads/fs/{key}/output_{artifact.Seed}.png",
                     FileName = $"output_{artifact.Seed}.png",
                     ContentLength = bytes.Length,
                     Width = request.Width,
@@ -95,14 +94,14 @@ public class DreamStudioClient : IStableDiffusionClient
         }
         return new ImageGenerationResponse
         {
+            Key = key,
             Results = results,
-            Id = uuid
         };
     }
 
     public async Task SaveMetadata(ImageGenerationResponse response, Creative entry)
     {
-        var vfsPathSuffix = $"{response.Id}";
+        var vfsPathSuffix = $"{response.Key}";
         var outputDir = new DirectoryInfo(Path.Join(OutputPathPrefix, vfsPathSuffix));
         await File.WriteAllTextAsync(Path.Join(outputDir.FullName,"metadata.json"),entry.ToSafeJson());
     }

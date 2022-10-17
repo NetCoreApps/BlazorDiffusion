@@ -25,7 +25,7 @@ public class CreativeService : Service
     {
         var imageGenerationResponse = await GenerateImage(request);
         
-        var creative = await PersistCreative(request,imageGenerationResponse).ConfigureAwait(false);
+        var creative = await PersistCreative(request, imageGenerationResponse);
         
         await StableDiffusionClient.SaveMetadata(imageGenerationResponse, creative);
 
@@ -72,51 +72,52 @@ public class CreativeService : Service
         return artifact;
     }
     
-    private async Task<Creative> PersistCreative(CreateCreative request,
-        ImageGenerationResponse imageGenerationResponse)
+    private async Task<Creative> PersistCreative(CreateCreative request, ImageGenerationResponse imageGenerationResponse)
     {
         var creative = (Creative)(await AutoQuery.CreateAsync(request, Request));
         creative.Width = request.Width ?? DefaultWidth;
         creative.Height = request.Height ?? DefaultHeight;
         creative.AppUserId = (await GetSessionAsync()).UserAuthId?.ToInt();
+        creative.Key = imageGenerationResponse.Key;
         
         var artists = await Db.SelectAsync<Artist>(x => Sql.In(x.Id, request.ArtistIds));
         var modifiers = await Db.SelectAsync<Modifier>(x => Sql.In(x.Id, request.ModifierIds));
         creative.ArtistNames = artists.Select(x => $"{x.FirstName} {x.LastName}").ToList();
         creative.ModifiersText = modifiers.Select(x => x.Name).ToList();
         creative.Prompt = ConstructPrompt(request.UserPrompt, modifiers, artists);
-        
+
+        using var trans = Db.OpenTransaction();
+        var now = DateTime.UtcNow;
+
         await Db.UpdateAsync(creative);
         
-        var creativeArtists = request.ArtistIds.Select(x => new CreativeArtist
-        {
+        var creativeArtists = request.ArtistIds.Select(x => new CreativeArtist {
             ArtistId = x,
             CreativeId = creative.Id
         });
-        var creativeModifiers = request.ModifierIds.Select(x => new CreativeModifier
-        {
+        var creativeModifiers = request.ModifierIds.Select(x => new CreativeModifier {
             CreativeId = creative.Id,
             ModifierId = x
         });
         
         await Db.InsertAllAsync(creativeArtists);
         await Db.InsertAllAsync(creativeModifiers);
-        
-        foreach (var imageResult in imageGenerationResponse.Results)
-        {
-            await Db.InsertAsync(new CreativeArtifact
-            {
-                CreativeId = creative.Id,
-                Width = imageResult.Width,
-                Height = imageResult.Height,
-                Prompt = imageResult.Prompt,
-                Seed = imageResult.Seed,
-                FileName = imageResult.FileName,
-                FilePath = imageResult.FilePath,
-                ContentType = MimeTypes.ImagePng,
-                ContentLength = imageResult.ContentLength
-            }.WithAudit(req: Request, DateTime.Now));
-        }
+
+        var artifacts = imageGenerationResponse.Results.Select(x => new CreativeArtifact {
+            CreativeId = creative.Id,
+            Width = x.Width,
+            Height = x.Height,
+            Prompt = x.Prompt,
+            Seed = x.Seed,
+            FileName = x.FileName,
+            FilePath = x.FilePath,
+            ContentType = MimeTypes.ImagePng,
+            ContentLength = x.ContentLength
+        }.WithAudit(Request, now));
+        await Db.InsertAllAsync(artifacts);
+
+        trans.Commit();
+
         var result = await Db.LoadSingleByIdAsync<Creative>(creative.Id);
         return result;
     }
@@ -126,10 +127,9 @@ public class CreativeService : Service
         var modifiers = await Db.SelectAsync<Modifier>(x => Sql.In(x.Id, request.ModifierIds));
         
         var artists = request.ArtistIds.Count == 0 ? new List<Artist>() :
-            await Db.SelectAsync<Artist>(x => Sql.In(x.Id, request.ArtistIds));;
+            await Db.SelectAsync<Artist>(x => Sql.In(x.Id, request.ArtistIds));
         
-        var apiPrompt = ConstructPrompt(request.UserPrompt, 
-            modifiers, artists);
+        var apiPrompt = ConstructPrompt(request.UserPrompt, modifiers, artists);
         var imageGenOptions = new ImageGeneration
         {
             Prompt = apiPrompt,
@@ -197,7 +197,7 @@ public struct ImageSize
 public class ImageGenerationResponse
 {
     public List<ImageGenerationResult> Results { get; set; }
-    public string Id { get; set; }
+    public string Key { get; set; }
     public string? Error { get; set; }
 }
 

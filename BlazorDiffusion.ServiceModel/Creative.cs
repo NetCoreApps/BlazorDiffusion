@@ -39,6 +39,7 @@ public class Creative : AuditBase
     
     [References(typeof(AppUser))]
     public int? AppUserId { get; set; }
+    public string? Key { get; set; }
 }
 
 [AutoApply(Behavior.AuditCreate)]
