@@ -33,9 +33,8 @@ public class CreativeService : Service
         ImageGenerationResponse imageGenerationResponse)
     {
         var creative = (Creative)(await AutoQuery.CreateAsync(request, Request));
-        var dimensions = GetDimensions(request.ImageType);
-        creative.Width = dimensions.Width;
-        creative.Height = dimensions.Height;
+        creative.Width = request.Width ?? DefaultWidth;
+        creative.Height = request.Height ?? DefaultHeight;
         
         var artists = await Db.SelectAsync<Artist>(x => Sql.In(x.Id, request.ArtistIds));
         var modifiers = await Db.SelectAsync<Modifier>(x => Sql.In(x.Id, request.ModifierIds));
@@ -87,35 +86,18 @@ public class CreativeService : Service
         
         var apiPrompt = ConstructPrompt(request.UserPrompt, 
             modifiers, artists);
-
-        var dimensions = GetDimensions(request.ImageType);
-        
         var imageGenOptions = new ImageGeneration
         {
             Prompt = apiPrompt,
             Engine = DefaultEngine,
-            Height = dimensions.Width,
-            Width = dimensions.Height,
+            Height = request.Height ?? DefaultHeight,
+            Width = request.Width ?? DefaultWidth,
             Images = request.Images ?? DefaultImages,
             Seed = request.Seed
         };
 
         var imageGenerationResponse = await StableDiffusionClient.GenerateImageAsync(imageGenOptions);
         return imageGenerationResponse;
-    }
-
-    private ImageSize GetDimensions(ImageType orientation)
-    {
-        switch (orientation)
-        {
-            case ImageType.Landscape:
-                return new ImageSize(896, 512);
-            case ImageType.Portrait:
-                return new ImageSize(512, 896);
-            case ImageType.Square:
-            default:
-                return new ImageSize(512, 512);
-        }
     }
 
     private string ConstructPrompt(string userPrompt, List<Modifier> modifiers, List<Artist> artists)

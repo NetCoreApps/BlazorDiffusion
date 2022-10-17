@@ -36,8 +36,6 @@ public class Creative : AuditBase
     public List<CreativeArtifact> Artifacts { get; set; }
     
     public string? Error { get; set; }
-    
-    public ImageType Orientation { get; set; }
 }
 
 public class CreativeArtifact : AuditBase
@@ -79,30 +77,18 @@ public class CreateCreative : ICreateDb<Creative>, IReturn<Creative>
     [AutoDefault(Value = 4)]
     public int? Images { get; set; }
 
-
     [AutoDefault(Value = 512)]
-    [Obsolete("Use `ImageType`")]
     public int? Width { get; set; }
 
     [AutoDefault(Value = 512)]
-    [Obsolete("Use `ImageType`")]
     public int? Height { get; set; }
 
     [AutoDefault(Value = 50)]
     public int? Steps { get; set; }
     public long? Seed { get; set; }
     
-    public ImageType ImageType { get; set; }
-    
     public List<int> ArtistIds { get; set; }
     public List<int> ModifierIds { get; set; }
-}
-
-public enum ImageType
-{
-    Square,
-    Portrait,
-    Landscape
 }
 
 public class DeleteCreative : IDeleteDb<Creative>, IReturnVoid

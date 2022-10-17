@@ -173,19 +173,46 @@ public class CreativeServiceTests
         
         var artistsIds = artists.Select(x => x.Id).ToList();
         var modifierIds = modifiers.Select(x => x.Id).ToList();
-        
+
+        var dimensions = GetDimensions(testCase.ImageType);
         var response = client.Post(new CreateCreative()
         {
             UserPrompt = testCase.UserPrompt,
             ArtistIds = artistsIds,
             ModifierIds = modifierIds,
             Images = 6,
-            ImageType = testCase.ImageType
+            Width = dimensions.Width,
+            Height = dimensions.Height
         });
 
         Assert.That(response, Is.Not.Null);
     }
+    
+    
+    private ImageSize GetDimensions(ImageType orientation)
+    {
+        switch (orientation)
+        {
+            case ImageType.Landscape:
+                return new ImageSize(896, 512);
+            case ImageType.Portrait:
+                return new ImageSize(512, 896);
+            case ImageType.Square:
+            default:
+                return new ImageSize(512, 512);
+        }
+    }
+
 }
+
+public enum ImageType
+{
+    Square,
+    Portrait,
+    Landscape
+}
+
+
 
 public class ImageGenerationTestCase
 {

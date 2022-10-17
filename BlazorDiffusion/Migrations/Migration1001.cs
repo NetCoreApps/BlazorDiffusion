@@ -37,14 +37,6 @@ public class Migration1001 : MigrationBase
         public List<CreativeArtifact> Artifacts { get; set; }
         
         public string? Error { get; set; }
-        public ImageType ImageType { get; set; }
-    }
-    
-    public enum ImageType
-    {
-        Square,
-        Portrait,
-        Landscape
     }
 
     public class CreativeArtifact : AuditBase
