@@ -1,7 +1,5 @@
 ﻿using BlazorDiffusion.ServiceModel;
-using Google.Protobuf.WellKnownTypes;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
 
 namespace BlazorDiffusion.Pages;
 
@@ -33,18 +31,9 @@ public partial class Search
 
     List<ArtistInfo>? ArtistOptions => DataCache?.Artists;
     List<ArtistInfo> artists = new();
+    ArtistInfo? artist;
 
-    //void addArtist(Property artist)
-    //{
-    //    if (!artists.Any(x => x.Key == artist.Key))
-    //        artists.Add(artist);
-    //}
-
-    void removeArtist(ArtistInfo artist)
-    {
-        artists.Remove(artist);
-    }
-
+    void removeArtist(ArtistInfo artist) => artists.Remove(artist);
 
     string[]? categoryNames;
     string[] CategoryNames => categoryNames ??= DataCache == null ? Array.Empty<string>()
@@ -64,15 +53,8 @@ public partial class Search
         ? DataCache?.Modifiers.Where(x => x.Category == selectedCategory && !modifiers.Contains(x)).ToList()
         : null) ?? new();
 
-    void addModifier(ModifierInfo modifier)
-    {
-        modifiers.Add(modifier);
-    }
-
-    void removeModifier(ModifierInfo modifier)
-    {
-        modifiers.Remove(modifier);
-    }
+    void addModifier(ModifierInfo modifier) => modifiers.Add(modifier);
+    void removeModifier(ModifierInfo modifier) => modifiers.Remove(modifier);
 
     void selectGroup(string group)
     {
@@ -94,5 +76,9 @@ public partial class Search
         }
         if (selectedGroup == null)
             selectGroup(DataCache.CategoryGroups[0].Name);
+    }
+    async Task submit()
+    {
+
     }
 }

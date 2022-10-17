@@ -23,7 +23,8 @@ public class DataService : Service
             Artists = (await Db.SelectAsync<Artist>()).OrderBy(x => x.Rank)
                 .Select(x => new ArtistInfo { 
                     Id = x.Id, 
-                    Name = x.FirstName != null ? $"{x.FirstName} {x.LastName}" : x.LastName
+                    Name = x.FirstName != null ? $"{x.FirstName} {x.LastName}" : x.LastName,
+                    Type = x.Type == null ? null : string.Join(", ", x.Type.Take(3)),
                 }).ToList(),
             
             Modifiers = (await Db.SelectAsync<Modifier>()).OrderBy(x => x.Rank)

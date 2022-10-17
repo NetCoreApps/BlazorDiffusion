@@ -25,6 +25,7 @@ public class ArtistInfo
 {
     public int Id { get; set; }
     public string Name { get; set; }
+    public string Type { get; set; }
 
     public override bool Equals(object? obj) => obj is ArtistInfo info && Id == info.Id && Name == info.Name;
     public override int GetHashCode() => HashCode.Combine(Id, Name);

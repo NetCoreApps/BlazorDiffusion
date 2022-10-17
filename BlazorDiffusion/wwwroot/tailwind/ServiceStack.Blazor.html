@@ -324,6 +324,69 @@ else
 @code {
 bool dismissed = false;
 }
+@typeparam T
+@inherits TextInputBase
+<div id=@($"{Id}-autocomplete")>
+@if (!string.IsNullOrEmpty(Label))
+{
+<label for=@Id class=@ClassNames("block text-sm font-medium text-gray-700 dark:text-gray-300", LabelClass)>@UseLabel</label>
+}
+<div class="relative mt-1">
+<input id=@Id type="text" @bind="txtValue" class=@ClassNames("block w-full sm:text-sm rounded-md dark:text-white dark:bg-gray-900",
+CssClass("shadow-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300 dark:border-gray-600",
+"pr-10 border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500"))
+role="combobox" aria-controls="options" aria-expanded="false" autocomplete="off" placeholder=@(Multiple || Value == null ? placeholder : "")
+@bind:event="oninput" @onkeydown="OnKeyDown" @onkeyup="OnKeyUp" @onclick="update" @attributes="IncludeAttributes">
+<button type="button" @onclick="toggle" class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none" tabindex="-1">
+<svg class="h-5 w-5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+<path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
+</svg>
+</button>
+@if (showPopup)
+{
+<ul class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-black py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+@onkeydown="OnKeyDown" id=@("{Id}-options") role="listbox">
+@foreach (var option in FilteredValues)
+{
+<li class=@ClassNames(option.Equals(active) ? "active bg-indigo-600 text-white" : "text-gray-900 dark:text-gray-100", "relative cursor-default select-none py-2 pl-3 pr-9")
+@onmouseover="_ => setActive(option)" @onclick="_ => select(option)" role="option" tabindex="-1">
+@Item!(option)
+@if (Values.Contains(option))
+{
+<span class=@ClassNames("absolute inset-y-0 right-0 flex items-center pr-4", option.Equals(active) ? "text-white" : "text-indigo-600")>
+<svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+<path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+</svg>
+</span>
+}
+</li>
+}
+</ul>
+}
+else if (!Multiple && Value is not null)
+{
+<div @onkeydown="OnKeyDown" @onclick="toggle" class="h-8 -mt-8 ml-3 pt-0.5">
+@Item!(Value)
+</div>
+}
+@if (HasErrorField)
+{
+<div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none" tabindex="-1">
+<svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+</svg>
+</div>
+}
+</div>
+@if (HasErrorField)
+{
+<p class="mt-2 text-sm text-red-500" id=@($"{Id}-error")>@ErrorFieldMessage</p>
+}
+else if (!string.IsNullOrEmpty(UseHelp))
+{
+<p id=@($"{Id}-description") class="text-gray-500">@UseHelp</p>
+}
+</div>
 @typeparam Model
 @inherits AutoFormBase<Model>
 <div class="relative z-10" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
@@ -571,10 +634,18 @@ else if (Api != null)
 </div>
 }
 <div class="flex pb-1 sm:pb-0">
+@if (ShowRefresh)
+{
+<div class="pl-2">
+<button type="button" @onclick="RefreshAsync" title="Refresh" class=@ToolbarButtonClass>
+<svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 20v-5h-5M4 4v5h5m10.938 2A8.001 8.001 0 0 0 5.07 8m-1.008 5a8.001 8.001  0 0 0 14.868 3" /></svg>
+</button>
+</div>
+}
 @if (ShowDownloadCsv)
 {
 <div class="pl-2">
-<button type="button" @onclick="_ => downloadCsv()" title="Download CSV" class=@ToolbarButtonClass>
+<button type="button" @onclick="downloadCsv" title="Download CSV" class=@ToolbarButtonClass>
 <svg class="w-5 h-5 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M28.781 4.405h-10.13V2.018L2 4.588v22.527l16.651 2.868v-3.538h10.13A1.162 1.162 0 0 0 30 25.349V5.5a1.162 1.162 0 0 0-1.219-1.095zm.16 21.126H18.617l-.017-1.889h2.487v-2.2h-2.506l-.012-1.3h2.518v-2.2H18.55l-.012-1.3h2.549v-2.2H18.53v-1.3h2.557v-2.2H18.53v-1.3h2.557v-2.2H18.53v-2h10.411z" fill="#20744a" fill-rule="evenodd" /><path fill="#20744a" d="M22.487 7.439h4.323v2.2h-4.323z" /><path fill="#20744a" d="M22.487 10.94h4.323v2.2h-4.323z" /><path fill="#20744a" d="M22.487 14.441h4.323v2.2h-4.323z" /><path fill="#20744a" d="M22.487 17.942h4.323v2.2h-4.323z" /><path fill="#20744a" d="M22.487 21.443h4.323v2.2h-4.323z" /><path fill="#fff" fill-rule="evenodd" d="M6.347 10.673l2.146-.123l1.349 3.709l1.594-3.862l2.146-.123l-2.606 5.266l2.606 5.279l-2.269-.153l-1.532-4.024l-1.533 3.871l-2.085-.184l2.422-4.663l-2.238-4.993z" /></svg>
 <span class="text-green-900 dark:text-green-100">Excel</span>
 </button>
@@ -583,7 +654,7 @@ else if (Api != null)
 @if (ShowCopyApiUrl)
 {
 <div class="pl-2">
-<button type="button" @onclick="_ => copyApiUrl()" title="Copy API URL" class=@ToolbarButtonClass>
+<button type="button" @onclick="copyApiUrl" title="Copy API URL" class=@ToolbarButtonClass>
 @if (copiedApiUrl)
 {
 <svg class="w-5 h-5 mr-1 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
@@ -1571,7 +1642,7 @@ else if (!string.IsNullOrEmpty(UseHelp))
 }
 <div class="mt-1 relative rounded-md shadow-sm">
 @{
-var cls = @ClassNames("block w-full sm:text-sm rounded-md dark:text-white dark:bg-gray-900",
+var cls = ClassNames("block w-full sm:text-sm rounded-md dark:text-white dark:bg-gray-900",
 CssClass("shadow-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300 dark:border-gray-600",
 "pr-10 border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500"));
 }
@@ -1586,7 +1657,6 @@ else
 @if (HasErrorField)
 {
 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-<!-- Heroicon name: solid/exclamation-circle -->
 <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
 </svg>

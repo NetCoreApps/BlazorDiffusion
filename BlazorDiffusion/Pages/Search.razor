@@ -1,7 +1,7 @@
 ﻿@page "/search"
 
 <Home>
-    <div class="mx-auto shadow overflow-hidden sm:rounded-md w-[450px] sm:w-[600px]">
+    <form class="mx-auto shadow overflow-hidden sm:rounded-md w-[450px] sm:w-[600px]" @onsubmit="submit" @onsubmit:preventDefault>
         <ErrorSummary Except=@VisibleFields />
 
         <div class="px-4 space-y-6 sm:p-6">
@@ -23,12 +23,17 @@
 
         @if (DataCache != null)
         {
-            <div class="flex gap-y-4 justify-center">
-                <ComboBox Options="ArtistOptions" @bind-Values="artists" Match="(x, value) => x.Name.Contains(value)" placeholder="Select Artist Style">
+            <div class="mx-auto w-[440px]">
+                <Autocomplete Id="ArtistIds" Options="ArtistOptions" Multiple=true @bind-Values="artists" placeholder="Select Artist Style"
+                    Match="(x, value) => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase) ||
+                                         x.Type?.Contains(value, StringComparison.OrdinalIgnoreCase) == true">
                     <Item>
-                        <span class="block truncate">@context.Name</span>
+                        <div class="flex justify-between">
+                            <span class="truncate">@context!.Name</span>
+                            <span class="text-gray-400 truncate -mr-6">@context!.Type</span>
+                        </div>
                     </Item>
-                </ComboBox>
+                </Autocomplete>
             </div>
 
             @if (artists.Count > 0)
@@ -48,12 +53,12 @@
                 </div>
             }
 
-            <div class="mt-8 flex gap-y-4 justify-center">
-                <ComboBox Options="ModifierOptions" @bind-Values="modifiers" Match="(x, value) => x.Name.Contains(value)" placeholder="Select Modifiers">
+            <div class="mt-8 mx-auto w-[440px]">
+                <Autocomplete Options="ModifierOptions" Multiple=true @bind-Values="modifiers" Match="(x, value) => x.Name.Contains(value)" placeholder="Select Modifiers">
                     <Item>
                         <span class="block truncate">@context.Name</span>
                     </Item>
-                </ComboBox>
+                </Autocomplete>
             </div>
 
             @if (modifiers.Count > 0)
@@ -139,5 +144,5 @@
                 </PrimaryButton>
             </div>
         </div>
-    </div>
+    </form>
 </Home>
