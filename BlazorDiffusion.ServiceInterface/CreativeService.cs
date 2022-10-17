@@ -32,12 +32,10 @@ public class CreativeService : Service
     private async Task<Creative> PersistCreative(CreateCreative request,
         ImageGenerationResponse imageGenerationResponse)
     {
-        Creative creative;
-        creative = (Creative)(await AutoQuery.CreateAsync(request, Request));
+        var creative = (Creative)(await AutoQuery.CreateAsync(request, Request));
         var dimensions = GetDimensions(request.Orientation);
-        creative.Width = dimensions.Item1;
-        creative.Height = dimensions.Item2;
-        
+        creative.Width = dimensions.Width;
+        creative.Height = dimensions.Height;
         
         var artists = await Db.SelectAsync<Artist>(x => Sql.In(x.Id, request.ArtistIds));
         var modifiers = await Db.SelectAsync<Modifier>(x => Sql.In(x.Id, request.ModifierIds));
@@ -56,6 +54,7 @@ public class CreativeService : Service
             CreativeId = creative.Id,
             ModifierId = x
         });
+        
         await Db.InsertAllAsync(creativeArtists);
         await Db.InsertAllAsync(creativeModifiers);
         
@@ -94,8 +93,8 @@ public class CreativeService : Service
         {
             Prompt = apiPrompt,
             Engine = DefaultEngine,
-            Height = dimensions.Item2,
-            Width = dimensions.Item1,
+            Height = dimensions.Width,
+            Width = dimensions.Height,
             Images = request.Images ?? DefaultImages,
             Seed = request.Seed
         };
@@ -104,17 +103,17 @@ public class CreativeService : Service
         return imageGenerationResponse;
     }
 
-    private Tuple<int, int> GetDimensions(CreativeOrientation orientation)
+    private ImageDimensions GetDimensions(CreativeOrientation orientation)
     {
         switch (orientation)
         {
             case CreativeOrientation.Landscape:
-                return new Tuple<int, int>(896, 512);
+                return new ImageDimensions(896, 512);
             case CreativeOrientation.Portrait:
-                return new Tuple<int, int>(512, 896);
+                return new ImageDimensions(512, 896);
             case CreativeOrientation.Square:
             default:
-                return new Tuple<int, int>(512, 512);
+                return new ImageDimensions(512, 512);
         }
     }
 
@@ -142,6 +141,18 @@ public class ImageGeneration
     public int Images { get; set; }
     public long? Seed { get; set; }
     public string Prompt { get; set; }
+}
+
+public struct ImageDimensions
+{
+    public ImageDimensions(int width, int height)
+    {
+        Width = width;
+        Height = height;
+    }
+    
+    public int Width { get; set; }
+    public int Height { get; set; }
 }
 
 public class ImageGenerationResponse
