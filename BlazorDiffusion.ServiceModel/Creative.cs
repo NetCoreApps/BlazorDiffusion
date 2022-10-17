@@ -149,6 +149,8 @@ public class Artist
     public string LastName { get; set; }
     public int? YearDied { get; set; }
     public List<string>? Type { get; set; }
+    public int Score { get; set; }
+    public int Rank { get; set; }
 }
 
 
@@ -184,6 +186,8 @@ public class Modifier
     public string Name { get; set; }
     public string Category { get; set; }
     public string? Description { get; set; }
+    public int Score { get; set; }
+    public int Rank { get; set; }
 }
 
 

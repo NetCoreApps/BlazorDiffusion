@@ -15,7 +15,7 @@ namespace BlazorDiffusion;
 
 public class AppHost : AppHostBase, IHostingStartup
 {
-    public AppHost() : base("BlazorDiffusion", typeof(MyServices).Assembly) { }
+        public AppHost() : base("Blazor Diffusion", typeof(MyServices).Assembly) { }
 
     public override void Configure(Container container)
     {
@@ -45,6 +45,9 @@ public class AppHost : AppHostBase, IHostingStartup
     public void Configure(IWebHostBuilder builder) => builder
         .ConfigureServices((context, services) => 
             services.ConfigureNonBreakingSameSiteCookies(context.HostingEnvironment));
+
+    public static void RegisterKey() =>
+        Licensing.RegisterLicense("OSS BSD-2-Clause 2022 https://github.com/NetCoreApps/BlazorDiffusion Ml25hVebV/jhTNlJa3WXFowrEn0QhqLjgNqmMhq7v+CylawWO+OEqlekfm2d4s93HbPCZz95Q+w763hDE7WjEPVfX7VzooDTb++JNUKzNfdH84kWe2Yv+p36xh8xAkJPFo8f7mvvP3p9dF62GuRWzBoo3Zh3P/52WpGZuChfJ0w=");
 }
 
 

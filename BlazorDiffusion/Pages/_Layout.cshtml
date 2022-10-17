@@ -6,11 +6,11 @@
 @inject NavigationManager NavigationManager
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Blazor Gallery</title>
+    <title>Blazor Diffusion</title>
     <base href="~/" />
     <link rel="stylesheet" href="css/app.css"/>
     <link href="css/typography.css" rel="stylesheet">
@@ -18,7 +18,7 @@
     <link rel="icon" href="/img/blazor.svg" type="image/svg+xml">
     <component type="typeof(HeadOutlet)" render-mode="Server" />
 </head>
-<body class=@(new Regex("/gallery/[a-z]*/[a-z]*").IsMatch(new Uri(NavigationManager.Uri).LocalPath) ? "p-1 overflow-hidden" : "")>
+<body class="bg-white dark:bg-black dark:text-white">
 
 @RenderBody()
 
@@ -60,6 +60,7 @@
 
 <script src="_framework/blazor.server.js"></script>
 <script type="text/javascript" src="/js/servicestack-blazor.js"></script>
+<script>JS.init({ colorScheme: location.search === '?light' ? 'light' : 'dark' })</script>
 
 </body>
 </html>

@@ -5,6 +5,8 @@ using ServiceStack.Blazor;
 using BlazorDiffusion;
 using Microsoft.Net.Http.Headers;
 
+AppHost.RegisterKey();
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
