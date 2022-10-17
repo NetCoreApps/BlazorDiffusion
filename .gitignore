@@ -1,6 +1,7 @@
 # Ignore pre-rendered markdown docs, let CI generate it
 **/wwwroot/docs/
 **/wwwroot/prerender/
+App_Files/
 
 
 ## Ignore Visual Studio temporary files, build results, and
