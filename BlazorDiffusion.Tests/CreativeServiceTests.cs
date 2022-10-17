@@ -111,26 +111,26 @@ public class CreativeServiceTests
         new ImageGenerationTestCase
         {
             UserPrompt = "A portrait of a character in a scenic environment",
-            ModifierNames = new() {"dystopian","Bleak"}
+            ModifierNames = new() {"Dystopian","Bleak"}
         },
         new ImageGenerationTestCase
         {
             UserPrompt = "A portrait of Lara Croft in a scenic environment",
-            ModifierNames = new() {"beautiful", "HQ", "hyper detailed", "overgrown","cityscape", "4k","CryEngine"},
+            ModifierNames = new() {"Beautiful", "HQ", "Hyper Detailed", "Overgrown","Cityscape", "4k","CryEngine"},
             
         },
         
         new ImageGenerationTestCase
         {
             UserPrompt = "A portrait of Aloy from the Horizon video game in a scenic environment",
-            ModifierNames = new() {"beautiful", "HQ", "hyper detailed", "overgrown","cityscape", "4k","CryEngine"},
-            Orientation = CreativeOrientation.Landscape
+            ModifierNames = new() {"Beautiful", "HQ", "Hyper Detailed", "Overgrown","Cityscape", "4k","CryEngine"},
+            ImageType = ImageType.Landscape
         },
         new ImageGenerationTestCase
         {
             UserPrompt = "outside of a futuristic gothic cathedral with leds",
-            ModifierNames = new() {"beautiful", "HQ", "hyper detailed", "overgrown","cityscape", "4k","CryEngine"},
-            Orientation = CreativeOrientation.Landscape
+            ModifierNames = new() {"Beautiful", "HQ", "Hyper Detailed", "Overgrown","Cityscape", "4k","CryEngine"},
+            ImageType = ImageType.Landscape
         }
     };
     
@@ -180,7 +180,7 @@ public class CreativeServiceTests
             ArtistIds = artistsIds,
             ModifierIds = modifierIds,
             Images = 6,
-            Orientation = testCase.Orientation
+            ImageType = testCase.ImageType
         });
 
         Assert.That(response, Is.Not.Null);
@@ -198,5 +198,5 @@ public class ImageGenerationTestCase
     public string? ArtistsType { get; set; }
     public List<string> ArtistNames { get; set; }
     public List<string> ModifierNames { get; set; }
-    public CreativeOrientation Orientation { get; set; }
+    public ImageType ImageType { get; set; }
 }

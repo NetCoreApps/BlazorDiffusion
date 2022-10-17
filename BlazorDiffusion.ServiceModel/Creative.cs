@@ -12,9 +12,7 @@ public class Creative : AuditBase
 
     public string UserPrompt { get; set; }
     public string Prompt { get; set; }
-
-    public string? ImageBasisPath { get; set; }
-
+    
     public int Images { get; set; }
 
     public int Width { get; set; }
@@ -39,7 +37,7 @@ public class Creative : AuditBase
     
     public string? Error { get; set; }
     
-    public CreativeOrientation Orientation { get; set; }
+    public ImageType Orientation { get; set; }
 }
 
 public class CreativeArtifact : AuditBase
@@ -81,25 +79,17 @@ public class CreateCreative : ICreateDb<Creative>, IReturn<Creative>
     [AutoDefault(Value = 4)]
     public int? Images { get; set; }
     
-    [AutoDefault(Value = 512)]
-    [Obsolete("Use `Orientation`")]
-    public int? Width { get; set; }
-    
-    [AutoDefault(Value = 512)]
-    [Obsolete("Use `Orientation`")]
-    public int? Height { get; set; }
-    
     [AutoDefault(Value = 50)]
     public int? Steps { get; set; }
     public long? Seed { get; set; }
     
-    public CreativeOrientation Orientation { get; set; }
+    public ImageType ImageType { get; set; }
     
     public List<int> ArtistIds { get; set; }
     public List<int> ModifierIds { get; set; }
 }
 
-public enum CreativeOrientation
+public enum ImageType
 {
     Square,
     Portrait,

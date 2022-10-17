@@ -14,8 +14,6 @@ public class Migration1001 : MigrationBase
     
         public string UserPrompt { get; set; }
         public string Prompt { get; set; }
-
-        public string? ImageBasisPath { get; set; }
     
         public int Images { get; set; }
     
@@ -39,10 +37,10 @@ public class Migration1001 : MigrationBase
         public List<CreativeArtifact> Artifacts { get; set; }
         
         public string? Error { get; set; }
-        public CreativeOrientation Orientation { get; set; }
+        public ImageType ImageType { get; set; }
     }
     
-    public enum CreativeOrientation
+    public enum ImageType
     {
         Square,
         Portrait,
@@ -130,32 +128,6 @@ public class Migration1001 : MigrationBase
         Db.CreateTable<CreativeArtist>();
         Db.CreateTable<CreativeModifier>();
         Db.CreateTable<CreativeArtifact>();
-        
-        const string distantGalaxyPrompt = "A dream of a distant galaxy, by Caspar David Friedrich, matte painting trending on artstation HQ";
-        var creativeId = (int)Db.Insert(new Creative {
-            Height = 512,
-            Width = 512,
-            Prompt = distantGalaxyPrompt,
-            Images = 4,
-            Steps = 50
-        }.BySystemUser(), selectIdentity:true);
-
-        CreativeArtifact DistantGalaxy(int creativeId, ulong seed, long contentLength) => new CreativeArtifact
-        {
-            CreativeId = creativeId,
-            Prompt = distantGalaxyPrompt,
-            Seed = seed,
-            Height = 512,
-            Width = 512,
-            ContentLength = contentLength,
-            ContentType = MimeTypes.ImagePng,
-            FileName = $"output_{seed}.png",
-            FilePath = $"/uploads/fs/{creativeId}/output_{seed}.png",
-        }.BySystemUser();
-        Db.Insert(DistantGalaxy(creativeId, 1134476444, 417639));
-        Db.Insert(DistantGalaxy(creativeId, 2130171066, 415669));
-        Db.Insert(DistantGalaxy(creativeId, 2669329965, 363970));
-        Db.Insert(DistantGalaxy(creativeId, 3635816568, 379902));
 
         Db.InsertAll(Artists);
         
@@ -174,21 +146,23 @@ public class Migration1001 : MigrationBase
         var creativeEntries = new List<Creative>();
         foreach (var file in filesToLoad)
         {
-            creativeEntries.Add(File.ReadAllText(file).FromJson<Creative>());
+            var creative = File.ReadAllText(file).FromJson<Creative>();
+            creative.Prompt = ConstructPrompt(creative.UserPrompt, creative.ModifiersText, creative.ArtistNames);
+            creativeEntries.Add(creative);
         }
 
         var savedModifiers = new Dictionary<string, int>();
         var allMods = Db.Select<Modifier>();
         foreach (var modifier in allMods)
         {
-            savedModifiers.TryAdd(modifier.Name, modifier.Id);
+            savedModifiers.TryAdd(modifier.Name.ToLowerInvariant(), modifier.Id);
         }
 
         var savedArtists = new Dictionary<string, int>();
         var allArtists = Db.Select<Artist>();
         foreach (var a in allArtists)
         {
-            savedArtists.TryAdd($"{a.FirstName} {a.LastName}", a.Id);
+            savedArtists.TryAdd($"{a.FirstName} {a.LastName}".ToLowerInvariant(), a.Id);
         }
         
         // reset keys
@@ -201,7 +175,7 @@ public class Migration1001 : MigrationBase
             var id = (int)Db.Insert(creativeEntry, selectIdentity: true);
             foreach (var text in creativeEntry.ModifiersText)
             {
-                var mod = savedModifiers[text];
+                var mod = savedModifiers[text.ToLowerInvariant()];
                 Db.Insert(new CreativeModifier
                 {
                     ModifierId = mod,
@@ -211,7 +185,7 @@ public class Migration1001 : MigrationBase
 
             foreach (var artistName in creativeEntry.ArtistNames)
             {
-                var artist = savedArtists[artistName];
+                var artist = savedArtists[artistName.ToLowerInvariant()];
                 Db.Insert(new CreativeArtist
                 {
                     ArtistId = artist,
@@ -227,6 +201,16 @@ public class Migration1001 : MigrationBase
             }
             
         }
+    }
+    
+    private string ConstructPrompt(string userPrompt, List<string> modifiers, List<string> artists)
+    {
+        var finalPrompt = userPrompt;
+        finalPrompt += $", {modifiers.Select(x => x).Join(",").TrimEnd(',')}";
+        var artistsSuffix = artists.Select(x => $"inspired by {x}").Join(",").TrimEnd(',');
+        if(artists.Count > 0)
+            finalPrompt += $", {artistsSuffix}";
+        return finalPrompt;
     }
 
     public override void Down()

@@ -1,22 +1,32 @@
-﻿@page "/creatives"
+﻿@page "/create"
 @inject NavigationManager NavigationManager
-<Breadcrumbs class="mb-8">
-    <Breadcrumb>
-        Creative
-    </Breadcrumb>
-</Breadcrumbs>
 
-<AutoQueryGrid Model="Creative" 
-               RowSelected="Callback"
-               Apis="Apis.AutoQuery<QueryCreative, CreateCreative>()">
-    
-</AutoQueryGrid>
+<div class="overflow-hidden absolute w-full left-0 -mt-6">
+    <div class="py-16 sm:px-2 lg:relative lg:py-20 lg:px-0">
+        <div class="mx-auto">
+            <div class="relative z-10  flex justify-center">
+                <img alt="" src="/img/blur-cyan.png" width="530" height="530" decoding="async" data-nimg="future" class="absolute bottom-full right-full -mr-72 -mb-56 opacity-50" style="color:transparent">
+            </div>
+        </div>
+    </div>
+    <div class="relative lg:static xl:pl-10" style="height:300px">
+        <div class="absolute inset-x-[-50vw] [mask-image:linear-gradient(transparent,white,white)] dark:[mask-image:linear-gradient(transparent,white,transparent)] lg:left-[calc(50%+14rem)] lg:right-0 lg:-top-32 lg:-bottom-32 lg:[mask-image:none] lg:dark:[mask-image:linear-gradient(white,white,transparent)]">
+            <img class="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 lg:left-0 lg:translate-x-0 lg:translate-y-[-60%]" src="/img/bg-body.svg" />
+        </div>
+        <div class="relative">
+            <img alt="" src="/img/blur-cyan.png" width="530" height="530" decoding="async" data-nimg="future" class="absolute -top-64 -right-64" style="color:transparent;/* display: none; */"><img alt="" src="/img/blur-indigo.png" width="567" height="567" decoding="async" data-nimg="future" class="absolute -bottom-40 -right-44" style="color:transparent;display:none;">
+        </div>
+    </div>
+</div>
 
-@code {
-
-    private void Callback(Creative obj)
-    {
-        NavigationManager.NavigateTo($"/creatives/{obj.Id}/tasks");
-    }
-
-}
+<div class="">
+    <div class="py-16 sm:px-2 lg:relative lg:py-20 lg:px-0">
+        <div class="mx-auto">
+            <div class="relative z-10 flex justify-center">
+                <div class="relative">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

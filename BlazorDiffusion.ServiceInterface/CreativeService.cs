@@ -33,7 +33,7 @@ public class CreativeService : Service
         ImageGenerationResponse imageGenerationResponse)
     {
         var creative = (Creative)(await AutoQuery.CreateAsync(request, Request));
-        var dimensions = GetDimensions(request.Orientation);
+        var dimensions = GetDimensions(request.ImageType);
         creative.Width = dimensions.Width;
         creative.Height = dimensions.Height;
         
@@ -41,6 +41,7 @@ public class CreativeService : Service
         var modifiers = await Db.SelectAsync<Modifier>(x => Sql.In(x.Id, request.ModifierIds));
         creative.ArtistNames = artists.Select(x => $"{x.FirstName} {x.LastName}").ToList();
         creative.ModifiersText = modifiers.Select(x => x.Name).ToList();
+        creative.Prompt = ConstructPrompt(request.UserPrompt, modifiers, artists);
         
         await Db.UpdateAsync(creative);
         
@@ -87,7 +88,7 @@ public class CreativeService : Service
         var apiPrompt = ConstructPrompt(request.UserPrompt, 
             modifiers, artists);
 
-        var dimensions = GetDimensions(request.Orientation);
+        var dimensions = GetDimensions(request.ImageType);
         
         var imageGenOptions = new ImageGeneration
         {
@@ -103,26 +104,27 @@ public class CreativeService : Service
         return imageGenerationResponse;
     }
 
-    private ImageDimensions GetDimensions(CreativeOrientation orientation)
+    private ImageSize GetDimensions(ImageType orientation)
     {
         switch (orientation)
         {
-            case CreativeOrientation.Landscape:
-                return new ImageDimensions(896, 512);
-            case CreativeOrientation.Portrait:
-                return new ImageDimensions(512, 896);
-            case CreativeOrientation.Square:
+            case ImageType.Landscape:
+                return new ImageSize(896, 512);
+            case ImageType.Portrait:
+                return new ImageSize(512, 896);
+            case ImageType.Square:
             default:
-                return new ImageDimensions(512, 512);
+                return new ImageSize(512, 512);
         }
     }
 
     private string ConstructPrompt(string userPrompt, List<Modifier> modifiers, List<Artist> artists)
     {
         var finalPrompt = userPrompt;
-        finalPrompt += $", {modifiers.Select(x => x.Name).Join(",")}";
-        var artistsSuffix = artists.Select(x => $"inspired by {x.FirstName} {x.LastName}").Join(", and ");
-        finalPrompt += $", {artistsSuffix}";
+        finalPrompt += $", {modifiers.Select(x => x.Name).Join(",").TrimEnd(',')}";
+        var artistsSuffix = artists.Select(x => $"inspired by {x.FirstName} {x.LastName}").Join(",").TrimEnd(',');
+        if(artists.Count > 0)
+            finalPrompt += $", {artistsSuffix}";
         return finalPrompt;
     }
 }
@@ -143,9 +145,9 @@ public class ImageGeneration
     public string Prompt { get; set; }
 }
 
-public struct ImageDimensions
+public struct ImageSize
 {
-    public ImageDimensions(int width, int height)
+    public ImageSize(int width, int height)
     {
         Width = width;
         Height = height;
