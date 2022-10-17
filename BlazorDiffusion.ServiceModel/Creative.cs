@@ -103,6 +103,7 @@ public class CreateCreative : ICreateDb<Creative>, IReturn<Creative>
 }
 
 [AutoApply(Behavior.AuditModify)]
+[ValidateIsAuthenticated]
 public class UpdateCreative : IPatchDb<Creative>, IReturn<Creative>
 {
     public int Id { get; set; }
@@ -111,6 +112,7 @@ public class UpdateCreative : IPatchDb<Creative>, IReturn<Creative>
 }
 
 [AutoApply(Behavior.AuditSoftDelete)]
+[ValidateIsAuthenticated]
 public class DeleteCreative : IDeleteDb<Creative>, IReturnVoid
 {
     public int Id { get; set; }
@@ -122,6 +124,7 @@ public class QueryCreativeArtifacts : QueryDb<CreativeArtifact>
 }
 
 [AutoApply(Behavior.AuditModify)]
+[ValidateIsAuthenticated]
 public class UpdateCreativeArtifact : IPatchDb<CreativeArtifact>, IReturn<CreativeArtifact>
 {
     public int Id { get; set; }

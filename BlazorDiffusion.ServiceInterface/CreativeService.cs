@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using BlazorDiffusion.ServiceModel;
 using ServiceStack;
+using ServiceStack.Auth;
+using ServiceStack.Configuration;
 using ServiceStack.OrmLite;
 
 namespace BlazorDiffusion.ServiceInterface;
@@ -48,6 +50,28 @@ public class CreativeService : Service
         return creative;
     }
 
+    public async Task<object> Post(UpdateCreativeArtifact request)
+    {
+        var artifact = await Db.LoadSingleByIdAsync<CreativeArtifact>(request.Id);
+        
+        if(artifact == null)
+            throw HttpError.NotFound("Artifact not found.");
+
+        var creative = await Db.LoadSingleByIdAsync<Creative>(artifact.CreativeId);
+        
+        var session = await GetSessionAsync();
+        if (!session.HasRole(RoleNames.Admin, AuthRepository))
+        {
+            if(creative?.AppUserId.ToString() != session.UserAuthId)
+                throw HttpError.BadRequest("You don't own this Artifact");
+        }
+
+        artifact.Nsfw = request.Nsfw;
+        artifact.WithAudit(Request);
+        await Db.SaveAsync(artifact);
+        return artifact;
+    }
+    
     private async Task<Creative> PersistCreative(CreateCreative request,
         ImageGenerationResponse imageGenerationResponse)
     {
