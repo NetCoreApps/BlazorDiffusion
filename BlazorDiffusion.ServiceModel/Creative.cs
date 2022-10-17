@@ -59,7 +59,6 @@ public class CreativeArtifact : AuditBase
     public int Height { get; set; }
     public ulong Seed { get; set; }
     public string Prompt { get; set; }
-    public int? HighResArtifactId { get; set; }
 }
 
 public class QueryCreative : QueryDb<Creative>
@@ -69,6 +68,7 @@ public class QueryCreative : QueryDb<Creative>
 }
 
 [AutoApply(Behavior.AuditCreate)]
+[ValidateIsAuthenticated]
 public class CreateCreative : ICreateDb<Creative>, IReturn<Creative>
 {
     [Required]
@@ -91,6 +91,15 @@ public class CreateCreative : ICreateDb<Creative>, IReturn<Creative>
     public List<int> ModifierIds { get; set; }
 }
 
+[AutoApply(Behavior.AuditModify)]
+public class UpdateCreative : IUpdateDb<Creative>, IReturn<Creative>
+{
+    public int Id { get; set; }
+    
+    public int PrimaryArtifactId { get; set; }
+}
+
+[AutoApply(Behavior.AuditSoftDelete)]
 public class DeleteCreative : IDeleteDb<Creative>, IReturnVoid
 {
     public int Id { get; set; }

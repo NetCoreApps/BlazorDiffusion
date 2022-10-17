@@ -13,10 +13,11 @@ public class CreativeService : Service
 {
     public IStableDiffusionClient StableDiffusionClient { get; set; }
     public IAutoQueryDb AutoQuery { get; set; }
-    public string DefaultEngine { get; set; } = "stable-diffusion-v1-5";
-    public int DefaultHeight { get; set; } = 512;
-    public int DefaultWidth { get; set; } = 512;
-    public int DefaultImages { get; set; } = 4;
+    public const string DefaultEngine = "stable-diffusion-v1-5";
+    public const int DefaultHeight = 512;
+    public const int DefaultWidth = 512;
+    public const int DefaultImages = 4;
+    public const int DefaultSteps = 50;
     
     public async Task<object> Post(CreateCreative request)
     {
@@ -26,6 +27,20 @@ public class CreativeService : Service
         
         await StableDiffusionClient.SaveMetadata(imageGenerationResponse, creative);
 
+        return creative;
+    }
+
+    public async Task<object> Post(UpdateCreative request)
+    {
+        var creative = await Db.LoadSingleByIdAsync<Creative>(request.Id);
+        if (creative == null)
+            throw HttpError.NotFound($"Creative {request.Id} not found");
+        
+        if(creative.Artifacts.All(x => x.Id != request.PrimaryArtifactId))
+            throw HttpError.BadRequest($"No such Artifact ID {request.PrimaryArtifactId}");
+
+        creative.PrimaryArtifactId = request.PrimaryArtifactId;
+        await Db.SaveAsync(creative);
         return creative;
     }
 
@@ -93,6 +108,7 @@ public class CreativeService : Service
             Height = request.Height ?? DefaultHeight,
             Width = request.Width ?? DefaultWidth,
             Images = request.Images ?? DefaultImages,
+            Steps = request.Steps ?? DefaultSteps,
             Seed = request.Seed
         };
 
@@ -125,6 +141,7 @@ public class ImageGeneration
     public int Images { get; set; }
     public long? Seed { get; set; }
     public string Prompt { get; set; }
+    public int Steps { get; set; }
 }
 
 public struct ImageSize

@@ -42,7 +42,7 @@ public class DreamStudioClient : IStableDiffusionClient
                 Height = Convert.ToUInt32(request.Height),
                 Width = Convert.ToUInt32(request.Width),
                 Seed = { Convert.ToUInt32(request.Seed) },
-                Steps = 50,
+                Steps = Convert.ToUInt32(request.Steps),
                 Samples = Convert.ToUInt32(request.Images),
                 Transform = new TransformType
                 {

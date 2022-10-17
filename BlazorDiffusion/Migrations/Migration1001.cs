@@ -60,7 +60,6 @@ public class Migration1001 : MigrationBase
         public int Height { get; set; }
         public ulong Seed { get; set; }
         public string Prompt { get; set; }
-        public int? HighResArtifactId { get; set; }
     }
     
     public class Artist : AuditBase
