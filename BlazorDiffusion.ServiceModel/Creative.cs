@@ -78,7 +78,16 @@ public class CreateCreative : ICreateDb<Creative>, IReturn<Creative>
 
     [AutoDefault(Value = 4)]
     public int? Images { get; set; }
-    
+
+
+    [AutoDefault(Value = 512)]
+    [Obsolete("Use `ImageType`")]
+    public int? Width { get; set; }
+
+    [AutoDefault(Value = 512)]
+    [Obsolete("Use `ImageType`")]
+    public int? Height { get; set; }
+
     [AutoDefault(Value = 50)]
     public int? Steps { get; set; }
     public long? Seed { get; set; }

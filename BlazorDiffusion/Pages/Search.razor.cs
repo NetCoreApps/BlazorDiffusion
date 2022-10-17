@@ -14,7 +14,8 @@ public partial class Search
     string[] VisibleFields => new[] {
         nameof(CreateCreative.UserPrompt),
         nameof(CreateCreative.Images),
-        nameof(CreateCreative.ImageType)
+        nameof(CreateCreative.Width),
+        nameof(CreateCreative.Height),
     };
 
     ImageSize imageSize;
