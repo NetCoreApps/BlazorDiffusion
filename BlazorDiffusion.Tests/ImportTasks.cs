@@ -66,11 +66,13 @@ public class ImportTasks
             creative.Key = key;
             foreach (var artifact in creative.Artifacts)
             {
-                artifact.FilePath = $"/uploads/fs/{key}/{artifact.FileName}";
+                artifact.FilePath = $"/uploads/artifacts/{key}/{artifact.FileName}";
             }
             //creative.ToJson().Print();
             File.WriteAllText(metadataFile, creative.ToJson());
         }
     }
+
+
 
 }

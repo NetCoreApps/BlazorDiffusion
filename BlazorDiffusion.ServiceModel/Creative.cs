@@ -66,7 +66,6 @@ public class CreativeArtifact : AuditBase
     public string Prompt { get; set; }
     
     public bool IsPrimaryArtifact { get; set; }
-    
     public bool Nsfw { get; set; }
 }
 
