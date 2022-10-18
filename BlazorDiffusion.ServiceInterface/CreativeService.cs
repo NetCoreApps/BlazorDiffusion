@@ -7,6 +7,7 @@ using BlazorDiffusion.ServiceModel;
 using ServiceStack;
 using ServiceStack.Auth;
 using ServiceStack.Configuration;
+using ServiceStack.Data;
 using ServiceStack.OrmLite;
 
 namespace BlazorDiffusion.ServiceInterface;
@@ -14,7 +15,7 @@ namespace BlazorDiffusion.ServiceInterface;
 public class CreativeService : Service
 {
     public IStableDiffusionClient StableDiffusionClient { get; set; }
-    public IAutoQueryDb AutoQuery { get; set; }
+    public IDbConnectionFactory DbConnectionFactory { get; set; }
     public const string DefaultEngine = "stable-diffusion-v1-5";
     public const int DefaultHeight = 512;
     public const int DefaultWidth = 512;
@@ -23,15 +24,19 @@ public class CreativeService : Service
     
     public async Task<object> Post(CreateCreative request)
     {
-        var imageGenerationResponse = await GenerateImage(request);
+        var modifiers = await Db.SelectAsync<Modifier>(x => Sql.In(x.Id, request.ModifierIds));
+        var artists = request.ArtistIds.Count == 0 ? new List<Artist>() :
+            await Db.SelectAsync<Artist>(x => Sql.In(x.Id, request.ArtistIds));
         
-        var creative = await PersistCreative(request, imageGenerationResponse);
+        var imageGenerationResponse = await GenerateImage(request,modifiers,artists);
+        
+        var creative = await PersistCreative(request, imageGenerationResponse,modifiers,artists);
         
         await StableDiffusionClient.SaveMetadata(imageGenerationResponse, creative);
 
         return creative;
     }
-
+    
     public async Task<object> Post(UpdateCreative request)
     {
         var creative = await Db.LoadSingleByIdAsync<Creative>(request.Id);
@@ -72,23 +77,27 @@ public class CreativeService : Service
         return artifact;
     }
     
-    private async Task<Creative> PersistCreative(CreateCreative request, ImageGenerationResponse imageGenerationResponse)
+    private async Task<Creative> PersistCreative(CreateCreative request, 
+        ImageGenerationResponse imageGenerationResponse,
+        List<Modifier> modifiers, 
+        List<Artist> artists)
     {
-        var creative = (Creative)(await AutoQuery.CreateAsync(request, Request));
+        var userId = (await GetSessionAsync()).UserAuthId?.ToInt();
+        var now = DateTime.UtcNow;
+        var creative = new Creative().PopulateWith(request)
+            .WithAudit(Request,now);
         creative.Width = request.Width ?? DefaultWidth;
         creative.Height = request.Height ?? DefaultHeight;
-        creative.AppUserId = (await GetSessionAsync()).UserAuthId?.ToInt();
+        creative.Steps = request.Steps ?? DefaultSteps;
+        creative.AppUserId = userId;
         creative.Key = imageGenerationResponse.Key;
-        
-        var artists = await Db.SelectAsync<Artist>(x => Sql.In(x.Id, request.ArtistIds));
-        var modifiers = await Db.SelectAsync<Modifier>(x => Sql.In(x.Id, request.ModifierIds));
         creative.ArtistNames = artists.Select(x => $"{x.FirstName} {x.LastName}").ToList();
         creative.ModifiersText = modifiers.Select(x => x.Name).ToList();
         creative.Prompt = ConstructPrompt(request.UserPrompt, modifiers, artists);
 
-        var now = DateTime.UtcNow;
-
-        await Db.UpdateAsync(creative);
+        using var db = DbConnectionFactory.OpenDbConnection();
+        using var transaction = db.OpenTransaction();
+        await db.SaveAsync(creative);
         
         var creativeArtists = request.ArtistIds.Select(x => new CreativeArtist {
             ArtistId = x,
@@ -99,8 +108,8 @@ public class CreativeService : Service
             ModifierId = x
         });
         
-        await Db.InsertAllAsync(creativeArtists);
-        await Db.InsertAllAsync(creativeModifiers);
+        await db.InsertAllAsync(creativeArtists);
+        await db.InsertAllAsync(creativeModifiers);
 
         var artifacts = imageGenerationResponse.Results.Select(x => new CreativeArtifact {
             CreativeId = creative.Id,
@@ -113,19 +122,16 @@ public class CreativeService : Service
             ContentType = MimeTypes.ImagePng,
             ContentLength = x.ContentLength
         }.WithAudit(Request, now));
-        await Db.InsertAllAsync(artifacts);
-
+        await db.InsertAllAsync(artifacts);
+        transaction.Commit();
+        
         var result = await Db.LoadSingleByIdAsync<Creative>(creative.Id);
         return result;
     }
     
-    private async Task<ImageGenerationResponse> GenerateImage(CreateCreative request)
+    private async Task<ImageGenerationResponse> GenerateImage(CreateCreative request,
+        List<Modifier> modifiers, List<Artist> artists)
     {
-        var modifiers = await Db.SelectAsync<Modifier>(x => Sql.In(x.Id, request.ModifierIds));
-        
-        var artists = request.ArtistIds.Count == 0 ? new List<Artist>() :
-            await Db.SelectAsync<Artist>(x => Sql.In(x.Id, request.ArtistIds));
-        
         var apiPrompt = ConstructPrompt(request.UserPrompt, modifiers, artists);
         var imageGenOptions = new ImageGeneration
         {

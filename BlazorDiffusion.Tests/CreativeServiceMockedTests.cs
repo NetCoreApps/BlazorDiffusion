@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using BlazorDiffusion.Migrations;
@@ -16,11 +15,8 @@ using ServiceStack.OrmLite;
 
 namespace BlazorDiffusion.Tests;
 
-public class CreativeServiceTests
+public class CreativeServiceMockedTests
 {
-    const string BaseUri = "http://localhost:2000/";
-    private readonly ServiceStackHost appHost;
-
     class AppHost : AppSelfHostBase
     {
         public AppHost() : base(nameof(CreativeServiceTests), typeof(MyServices).Assembly) { }
@@ -28,6 +24,34 @@ public class CreativeServiceTests
         Migrator CreateMigrator() => new(ResolveDbFactory(), typeof(Migration1000).Assembly); 
         IDbConnectionFactory ResolveDbFactory() => this.Resolve<IDbConnectionFactory>();
 
+        public class MockStableDiffusionClient : IStableDiffusionClient
+        {
+            public async Task<ImageGenerationResponse> GenerateImageAsync(ImageGeneration request)
+            {
+                return new ImageGenerationResponse
+                {
+                    Results = new List<ImageGenerationResult>
+                    {
+                        new()
+                        {
+                            Height = request.Height,
+                            Width = request.Width,
+                            Prompt = request.Prompt,
+                            Seed = 12345,
+                            AnswerId = "54321",
+                            ContentLength = 1234,
+                            FileName = "output_12345.png",
+                            FilePath = "/blah/output_12345.png"
+                        }
+                    }
+                };
+            }
+
+            public async Task SaveMetadata(ImageGenerationResponse response, Creative entry)
+            {
+                
+            }
+        }
         
         public override void Configure(Container container)
         {
@@ -59,86 +83,37 @@ public class CreativeServiceTests
             
             var authRepo = container.Resolve<IAuthRepository>();
             authRepo.InitSchema();
-            CreateUser(authRepo, "admin@email.com", "Admin User", "p@55wOrd", roles: new[] { RoleNames.Admin });
+            CreativeServiceTests.CreateUser(authRepo, "admin@email.com", "Admin User", "p@55wOrd", roles: new[] { RoleNames.Admin });
 
             this.Plugins.Add(new AutoQueryFeature {
                 MaxLimit = 1000,
                 //IncludeTotal = true,
             });
             
-            container.Register<IStableDiffusionClient>(new DreamStudioClient
-            {
-                ApiKey = Environment.GetEnvironmentVariable("DREAMAI_APIKEY") ?? "<your_api_key>",
-                OutputPathPrefix = Path.Join(ContentRootDirectory.RealPath.CombineWith("App_Files"),"fs")
-            });
+            container.Register<IStableDiffusionClient>(new MockStableDiffusionClient());
             container.AddSingleton<ICrudEvents>(c =>
                 new OrmLiteCrudEvents(c.Resolve<IDbConnectionFactory>()));
             container.Resolve<ICrudEvents>().InitSchema();
         }
     }
-    
-    // Add initial Users to the configured Auth Repository
-    public static void CreateUser(IAuthRepository authRepo, string email, string name, string password, string[] roles)
-    {
-        if (authRepo.GetUserAuthByUserName(email) == null)
-        {
-            var newAdmin = new AppUser { Email = email, DisplayName = name };
-            var user = authRepo.CreateUserAuth(newAdmin, password);
-            authRepo.AssignRoles(user, roles);
-        }
-    }
 
-    public CreativeServiceTests()
+    public CreativeServiceMockedTests()
     {
         BlazorDiffusion.AppHost.RegisterKey();
         appHost = new AppHost()
             .Init()
             .Start(BaseUri);
     }
-
+    
+    const string BaseUri = "http://localhost:2001/";
+    private readonly ServiceStackHost appHost;
+    public IServiceClient CreateClient() => new JsonServiceClient(BaseUri);
+    
     [OneTimeTearDown]
     public void OneTimeTearDown() => appHost.Dispose();
-
-    public IServiceClient CreateClient() => new JsonServiceClient(BaseUri);
-
+    
     public static List<ImageGenerationTestCase> AllGenerationCases = new()
     {
-        // new ImageGenerationTestCase
-        // {
-        //     UserPrompt = "A broken down building in a stunning landscape, overgrowth of vegetation",
-        //     ModifierNames = new() {"3D","Bloom light effect","CryEngine"},
-        //     ArtistsType = "3d"
-        // },
-        // new ImageGenerationTestCase
-        // {
-        //     UserPrompt = "A portrait of a character in a scenic environment",
-        //     ModifierNames = new() {"Dystopian","Bleak"}
-        // },
-        // new ImageGenerationTestCase
-        // {
-        //     UserPrompt = "A portrait of Lara Croft in a scenic environment",
-        //     ModifierNames = new() {"Beautiful", "HQ", "Hyper Detailed", "Overgrown","Cityscape", "4k","CryEngine"},
-        //     
-        // },
-        //
-        // new ImageGenerationTestCase
-        // {
-        //     UserPrompt = "A portrait of Aloy from the Horizon video game in a scenic environment",
-        //     ModifierNames = new() {"Beautiful", "HQ", "Hyper Detailed", "Overgrown","Cityscape", "4k","CryEngine"},
-        //     ImageType = ImageType.Landscape
-        // },
-        // new ImageGenerationTestCase
-        // {
-        //     UserPrompt = "outside of a futuristic gothic cathedral with leds",
-        //     ModifierNames = new() {"Beautiful", "HQ", "Hyper Detailed", "Overgrown","Cityscape", "4k","CryEngine"},
-        //     ImageType = ImageType.Landscape
-        // }
-        // new ImageGenerationTestCase
-        // {
-        //     UserPrompt = "Portrait of a ruggedly handsome paladin, soft hair, muscular, half body, masculine, mature",
-        //     ModifierNames = new() {"Beautiful", "HQ", "Hyper Detailed", "Digital Illustration","Concept Art", "4k"},
-        //     ImageType = ImageType.Portrait
-        // },
         new ImageGenerationTestCase
         {
             UserPrompt = "Floating spooky house in the sky",
@@ -149,8 +124,7 @@ public class CreativeServiceTests
     
     [Test]
     [TestCaseSource("AllGenerationCases")]
-    [Explicit]
-    public void Can_generate_images(ImageGenerationTestCase testCase)
+    public void Can_generate_images_mocked(ImageGenerationTestCase testCase)
     {
         var client = CreateClient();
 
@@ -187,8 +161,8 @@ public class CreativeServiceTests
         var artistsIds = artists.Select(x => x.Id).ToList();
         var modifierIds = modifiers.Select(x => x.Id).ToList();
 
-        var dimensions = GetDimensions(testCase.ImageType);
-        var numberOfImages = testCase.Images ?? 6;
+        var dimensions = CreativeServiceTests.GetDimensions(testCase.ImageType);
+        var numberOfImages = 1;
         var response = client.Post(new CreateCreative()
         {
             UserPrompt = testCase.UserPrompt,
@@ -211,7 +185,7 @@ public class CreativeServiceTests
 
         var nsfwArtifactResponse = client.Post(new UpdateCreativeArtifact
         {
-            Id = response.Artifacts[1].Id,
+            Id = response.Artifacts[0].Id,
             Nsfw = true
         });
         
@@ -230,43 +204,4 @@ public class CreativeServiceTests
         Assert.That(queryResponse.Results[0].AppUserId, Is.GreaterThan(0));
         Assert.That(queryResponse.Results[0].CreatedBy, Is.EqualTo("1"));
     }
-    
-    public static ImageSize GetDimensions(ImageType orientation)
-    {
-        switch (orientation)
-        {
-            case ImageType.Landscape:
-                return new ImageSize(896, 512);
-            case ImageType.Portrait:
-                return new ImageSize(512, 896);
-            case ImageType.Square:
-            default:
-                return new ImageSize(512, 512);
-        }
-    }
-
-}
-
-public enum ImageType
-{
-    Square,
-    Portrait,
-    Landscape
-}
-
-
-
-public class ImageGenerationTestCase
-{
-    public ImageGenerationTestCase()
-    {
-        ArtistNames = new();
-        ModifierNames = new();
-    }
-    public string UserPrompt { get; set; }
-    public string? ArtistsType { get; set; }
-    public List<string> ArtistNames { get; set; }
-    public List<string> ModifierNames { get; set; }
-    public ImageType ImageType { get; set; }
-    public int? Images { get; set; }
 }
