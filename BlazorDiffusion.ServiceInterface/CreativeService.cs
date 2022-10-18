@@ -86,7 +86,6 @@ public class CreativeService : Service
         creative.ModifiersText = modifiers.Select(x => x.Name).ToList();
         creative.Prompt = ConstructPrompt(request.UserPrompt, modifiers, artists);
 
-        using var trans = Db.OpenTransaction();
         var now = DateTime.UtcNow;
 
         await Db.UpdateAsync(creative);
@@ -115,8 +114,6 @@ public class CreativeService : Service
             ContentLength = x.ContentLength
         }.WithAudit(Request, now));
         await Db.InsertAllAsync(artifacts);
-
-        trans.Commit();
 
         var result = await Db.LoadSingleByIdAsync<Creative>(creative.Id);
         return result;

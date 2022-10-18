@@ -7,6 +7,8 @@ namespace BlazorDiffusion.Pages;
 
 public partial class Create : AppAuthComponentBase
 {
+    [Inject] public NavigationManager NavigationManager { get; set; }
+
     static SearchDataResponse? DataCache;
 
     string[] VisibleFields => new[] {
@@ -17,6 +19,7 @@ public partial class Create : AppAuthComponentBase
     };
 
     [Parameter, SupplyParameterFromQuery] public int? Id { get; set; }
+    [Parameter, SupplyParameterFromQuery] public int? View { get; set; }
 
 
     ImageSize imageSize;

@@ -31,7 +31,7 @@ public class ImportTasks
             string metadataPath = Path.Combine(dirInfo.FullName, "metadata.json");
 
             var creative = File.ReadAllText(metadataPath).FromJson<Creative>();
-            var key = $"{creative.CreatedDate:yyyy/MM/dd}/{creative.CreatedDate.TimeOfDay.TotalMilliseconds}";
+            var key = $"{creative.CreatedDate:yyyy/MM/dd}/{(long)creative.CreatedDate.TimeOfDay.TotalMilliseconds}";
             creative.Key = key;
             var vfsDirPath = $"/uploads/fs/{key}";
             foreach (var artifact in creative.Artifacts)

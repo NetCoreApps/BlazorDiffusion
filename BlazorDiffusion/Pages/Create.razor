@@ -2,7 +2,6 @@
 @attribute [Authorize]
 @inherits AppAuthComponentBase
 
-
 <Home>
     <form class="mt-4 mx-auto shadow overflow-hidden sm:rounded-md w-[450px] sm:w-[600px]" @onsubmit="noop" @onsubmit:preventDefault>
     <CascadingValue Value=@api.Error>
@@ -168,6 +167,7 @@
             <div class="flex flex-wrap flex justify-evenly">
                 @foreach (var artifact in creative.Artifacts)
             {
+                <NavLink href=@($"/create?id={creative.Id}&view={artifact.Id}")>
                 <div class="p-2 flex flex-col cursor-pointer w-60 sm:w-80">
                     <img class="rounded-lg" src=@artifact.FilePath alt=@artifact.FileName
                          width=@artifact.Width height=@artifact.Height />
@@ -176,6 +176,7 @@
                         <span class="m-2 text-sm text-gray-600 dark:text-gray-400">@TextUtils.FormatBytes(artifact.ContentLength)</span>
                     </div>
                 </div>
+                </NavLink>
             }
             </div>
         }
@@ -203,7 +204,7 @@
         <nav class="space-y-1" aria-label="Sidebar">
         @foreach (var item in apiHistory.Response.Results)
         {
-            <NavLink href=@($"/create?Id={item.Id}") class=@ClassNames("flex items-center px-3 py-2 text-sm font-medium", Id == item.Id
+            <NavLink href=@($"/create?id={item.Id}") class=@ClassNames("flex items-center px-3 py-2 text-sm font-medium", Id == item.Id
                 ? "bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100"
                 : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100")>
                 <span class="w-40 truncate" title=@item.UserPrompt>@item.UserPrompt</span>
@@ -211,4 +212,32 @@
         }
         </nav>
     </div>
+}
+
+@if (View != null && creative != null)
+{
+    var artifact = creative.Artifacts?.FirstOrDefault(x => x.Id == View);
+    if (artifact != null)
+    {
+        <SlideOver Done=@(() => NavigationManager.NavigateTo($"/create?id={creative.Id}"))>
+            <div class="p-2 mt-4 flex flex-col items-center">
+                <img class="rounded-lg" src=@artifact.FilePath alt=@artifact.FileName
+                        width=@artifact.Width height=@artifact.Height />
+                <div class="flex">
+                    <span class="my-2 mx-4 text-sm text-gray-600 dark:text-gray-400">@artifact.Height x @artifact.Width</span>
+                    <span class="my-2 mx-4 text-sm text-gray-600 dark:text-gray-400">@TextUtils.FormatBytes(artifact.ContentLength)</span>
+                </div>
+            </div>
+            <div class="mt-4 flex justify-center">
+            @foreach (var artifact in creative.Artifacts.OrEmpty())
+            {
+                <div class="flex justify-center">
+                    <NavLink href=@($"/create?id={creative.Id}&view={artifact.Id}")>
+                        <img class="rounded-lg h-32 mx-4" src=@artifact.FilePath alt=@artifact.FileName />
+                    </NavLink>
+                </div>
+            }
+            </div>
+        </SlideOver>
+    }
 }

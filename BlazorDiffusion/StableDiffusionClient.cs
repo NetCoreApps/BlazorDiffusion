@@ -66,7 +66,7 @@ public class DreamStudioClient : IStableDiffusionClient
         });
 
         var now = DateTime.UtcNow;
-        var key = $"{now:yyyy/MM/dd}/{now.TimeOfDay.TotalMilliseconds}";
+        var key = $"{now:yyyy/MM/dd}/{(long)now.TimeOfDay.TotalMilliseconds}";
         var outputDir = new DirectoryInfo(Path.Join(OutputPathPrefix, key).AssertDir());
 
         var results = new List<ImageGenerationResult>();
