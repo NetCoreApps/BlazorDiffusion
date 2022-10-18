@@ -41,3 +41,18 @@ public class ModifierInfo
         Id == info.Id && Name == info.Name && Category == info.Category;
     public override int GetHashCode() => HashCode.Combine(Id, Name, Category);
 }
+
+public class UserData : IReturn<UserDataResponse>
+{
+}
+
+public class Likes
+{
+    public List<int> ArtifactIds { get; set; }
+}
+
+public class UserDataResponse
+{
+    public Likes Likes { get; set; }
+}
+
