@@ -9,6 +9,12 @@
 
     <ItemGroup>
       <None Remove="appsettings.json" />
+      <None Update="App_Data\seed\artists.csv">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="App_Data\seed\modifiers.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
     <ItemGroup>
@@ -31,6 +37,10 @@
 
         <PackageReference Include="ServiceStack" Version="6.*" />
         <PackageReference Include="ServiceStack.Kestrel" Version="6.*" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="App_Files" />
     </ItemGroup>
 
 </Project>
