@@ -165,17 +165,18 @@
         else if (creative != null)
         {
             <div class="flex flex-wrap flex justify-evenly">
-                @foreach (var artifact in creative.Artifacts)
+            @foreach (var artifact in creative.Artifacts)
             {
-                <NavLink href=@($"/create?id={creative.Id}&view={artifact.Id}")>
+                <NavLink href=@($"/create?id={creative.Id}&view={artifact.Id}") class="relative overflow-hidden">
                 <div class="p-2 flex flex-col cursor-pointer w-60 sm:w-80">
                     <img class="rounded-lg" src=@artifact.FilePath alt=@artifact.FileName
                          width=@artifact.Width height=@artifact.Height />
-                        <div class="flex justify-between">
+                    <div class="flex justify-between">
                         <span class="m-2 text-sm text-gray-600 dark:text-gray-400">@artifact.Height x @artifact.Width</span>
                         <span class="m-2 text-sm text-gray-600 dark:text-gray-400">@TextUtils.FormatBytes(artifact.ContentLength)</span>
                     </div>
                 </div>
+                <div class="absolute top-0 right-0 bottom-0 left-0 w-full h-full overflow-hidden opacity-0 transition duration-300 ease-in-out bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-700 via-gray-900 to-black hover:opacity-50"></div>
                 </NavLink>
             }
             </div>
@@ -219,8 +220,9 @@
     var artifact = creative.Artifacts?.FirstOrDefault(x => x.Id == View);
     if (artifact != null)
     {
-        <SlideOver Done=@(() => NavigationManager.NavigateTo($"/create?id={creative.Id}"))
-           Title=@creative.UserPrompt TitlebarClass="bg-gray-50 dark:bg-black px-4 py-6 sm:px-6">
+        <SlideOver Done=@(() => NavigationManager.NavigateTo($"/create?id={creative.Id}")) Title=@creative.UserPrompt 
+                   TitlebarClass="bg-gray-50 dark:bg-black px-4 py-6 sm:px-6" HeadingClass="text-lg font-normal text-gray-900 dark:text-gray-100"
+                   ShowFooter=@false>
             <div class="p-2 mt-4 flex flex-col items-center">
                 <img class="rounded-lg" src=@artifact.FilePath alt=@artifact.FileName width=@artifact.Width height=@artifact.Height />
                 <div class="flex">
@@ -231,11 +233,12 @@
             <div class="flex flex-wrap justify-center">
             @foreach (var artifact in creative.Artifacts.OrEmpty())
             {
-                <div class="flex justify-center mr-4 mb-4">
-                    <NavLink href=@($"/create?id={creative.Id}&view={artifact.Id}")>
+                <NavLink href=@($"/create?id={creative.Id}&view={artifact.Id}") class="relative overflow-hidden">
+                    <div class="flex justify-center mr-4 mb-4">
                         <img class="rounded-lg h-32 mx-4" src=@artifact.FilePath alt=@artifact.FileName />
-                    </NavLink>
-                </div>
+                    </div>
+                    <div class="absolute top-0 right-0 bottom-0 left-0 w-full h-full overflow-hidden opacity-0 transition duration-300 ease-in-out bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-700 via-gray-900 to-black hover:opacity-50"></div>
+                </NavLink>
             }
             </div>
         </SlideOver>
