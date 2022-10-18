@@ -1001,6 +1001,21 @@ input[data-autocompleted] {
   margin-bottom: 2rem;
 }
 
+.my-2 {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.mx-4 {
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+
+.my-4 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
 .-mx-2 {
   margin-left: -0.5rem;
   margin-right: -0.5rem;
@@ -1036,11 +1051,6 @@ input[data-autocompleted] {
   margin-right: 0.75rem;
 }
 
-.my-2 {
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
 .mx-1 {
   margin-left: 0.25rem;
   margin-right: 0.25rem;
@@ -1054,11 +1064,6 @@ input[data-autocompleted] {
 .-mx-4 {
   margin-left: -1rem;
   margin-right: -1rem;
-}
-
-.mx-4 {
-  margin-left: 1rem;
-  margin-right: 1rem;
 }
 
 .-mt-4 {
@@ -1281,6 +1286,10 @@ input[data-autocompleted] {
   height: 2rem;
 }
 
+.h-32 {
+  height: 8rem;
+}
+
 .h-6 {
   height: 1.5rem;
 }
@@ -1309,20 +1318,8 @@ input[data-autocompleted] {
   height: 4rem;
 }
 
-.h-32 {
-  height: 8rem;
-}
-
-.h-20 {
-  height: 5rem;
-}
-
 .max-h-60 {
   max-height: 15rem;
-}
-
-.max-h-20 {
-  max-height: 5rem;
 }
 
 .min-h-full {
@@ -1635,10 +1632,6 @@ input[data-autocompleted] {
 
 .justify-between {
   justify-content: space-between;
-}
-
-.justify-around {
-  justify-content: space-around;
 }
 
 .justify-evenly {
@@ -2085,6 +2078,11 @@ input[data-autocompleted] {
   padding-right: 0.75rem;
 }
 
+.py-6 {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
 .py-5 {
   padding-top: 1.25rem;
   padding-bottom: 1.25rem;
@@ -2113,11 +2111,6 @@ input[data-autocompleted] {
 .py-8 {
   padding-top: 2rem;
   padding-bottom: 2rem;
-}
-
-.py-6 {
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
 }
 
 .px-2\.5 {

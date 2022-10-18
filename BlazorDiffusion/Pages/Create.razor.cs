@@ -34,7 +34,7 @@ public partial class Create : AppAuthComponentBase
     {
         History,
     }
-    CreateMenu? createMenu;
+    CreateMenu? createMenu = CreateMenu.History;
     void toggleMenu(CreateMenu menu) => createMenu = menu == createMenu ? null : menu;
     void closeMenu() => createMenu = null;
 
@@ -99,14 +99,7 @@ public partial class Create : AppAuthComponentBase
     {
         await base.OnParametersSetAsync();
 
-        if (User != null)
-        {
-            apiHistory = await ApiAsync(new QueryCreatives {
-                CreatedBy = User.GetEmail(),
-                Take = 30,
-                OrderByDesc = nameof(Creative.Id),
-            });
-        }
+        await loadHistory();
 
         if (Id != null)
         {
@@ -141,6 +134,19 @@ public partial class Create : AppAuthComponentBase
         }
     }
 
+    async Task loadHistory()
+    {
+        if (User != null)
+        {
+            apiHistory = await ApiAsync(new QueryCreatives
+            {
+                CreatedBy = User.GetUserId(),
+                Take = 30,
+                OrderByDesc = nameof(Creative.Id),
+            });
+        }
+    }
+
     void noop() {}
 
     async Task submit()
@@ -164,5 +170,7 @@ public partial class Create : AppAuthComponentBase
         api.IsLoading = true;
         api = await ApiAsync(request);
         creative = api.Response;
+
+        await loadHistory();
     }
 }

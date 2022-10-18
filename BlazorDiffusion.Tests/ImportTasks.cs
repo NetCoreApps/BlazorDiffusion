@@ -58,25 +58,43 @@ public class ImportTasks
     }
 
     [Test]
-    public void Rewrite_Artifacts()
+    public void Rewrite_Creatives()
     {
         var hostDir = GetHostDir();
 
         var artifactPaths = Path.Combine(hostDir, "App_Files/artifacts");
         var metadataFiles = Directory.GetFiles(artifactPaths, "metadata.json", SearchOption.AllDirectories);
+
+        var replaceBy = new Dictionary<string, string>
+        {
+            ["admin@email.com"] = "1",
+            ["manager@email.com"] = "2",
+        };
+        var nonUserIds = new HashSet<string>();
         foreach (var metadataFile in metadataFiles)
         {
-            var key = metadataFile.Replace('\\','/').Substring(artifactPaths.Length).LastLeftPart('/').TrimStart('/');
+            //var key = metadataFile.Replace('\\','/').Substring(artifactPaths.Length).LastLeftPart('/').TrimStart('/');
 
             var creative = File.ReadAllText(metadataFile).FromJson<Creative>();
-            creative.Key = key;
-            foreach (var artifact in creative.Artifacts)
+            if (creative.CreatedBy != null && !int.TryParse(creative.CreatedBy, out _))
             {
-                artifact.FilePath = $"/uploads/artifacts/{key}/{artifact.FileName}";
+                creative.CreatedBy = replaceBy[creative.CreatedBy];
             }
+            if (creative.ModifiedBy != null && !int.TryParse(creative.ModifiedBy, out _))
+            {
+                creative.ModifiedBy = replaceBy[creative.ModifiedBy];
+            }
+
+            //creative.Key = key;
+            //foreach (var artifact in creative.Artifacts)
+            //{
+            //    artifact.FilePath = $"/uploads/artifacts/{key}/{artifact.FileName}";
+            //}
             //creative.ToJson().Print();
             File.WriteAllText(metadataFile, creative.ToJson());
         }
+
+        nonUserIds.PrintDump();
     }
 
 

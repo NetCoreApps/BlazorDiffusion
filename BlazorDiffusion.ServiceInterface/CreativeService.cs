@@ -82,10 +82,11 @@ public class CreativeService : Service
         List<Modifier> modifiers, 
         List<Artist> artists)
     {
-        var userId = (await GetSessionAsync()).UserAuthId?.ToInt();
+        string userAuthId = (await GetSessionAsync()).UserAuthId;
+        var userId = userAuthId?.ToInt();
         var now = DateTime.UtcNow;
         var creative = new Creative().PopulateWith(request)
-            .WithAudit(Request,now);
+            .WithAudit(userAuthId, now);
         creative.Width = request.Width ?? DefaultWidth;
         creative.Height = request.Height ?? DefaultHeight;
         creative.Steps = request.Steps ?? DefaultSteps;
@@ -121,7 +122,7 @@ public class CreativeService : Service
             FilePath = x.FilePath,
             ContentType = MimeTypes.ImagePng,
             ContentLength = x.ContentLength
-        }.WithAudit(Request, now));
+        }.WithAudit(userAuthId, now));
         await db.InsertAllAsync(artifacts);
         transaction.Commit();
         

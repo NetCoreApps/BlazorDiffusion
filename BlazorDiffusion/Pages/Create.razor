@@ -147,7 +147,7 @@
 
         <div class="my-8 text-right">
             <div class="flex justify-center">
-                <PrimaryButton @onclick="submit" Style="ButtonStyle.Sky" class="!rounded-full text-lg font-normal">
+                <PrimaryButton @onclick="submit" Style="ButtonStyle.Sky" class="!rounded-full text-lg font-normal" disabled=@api.IsLoading>
                     Generate
                 </PrimaryButton>
             </div>
@@ -188,7 +188,7 @@
     <div class="flex flex-col">
     @if (apiHistory?.Response?.Results.Count > 0)
     {
-        <div class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100">
+        <div class="select-none text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100">
             <div class="group cursor-pointer" @onclick="_ => toggleMenu(CreateMenu.History)">
                 <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M19.5 12A7.5 7.5 0 0 0 6.9 6.5h1.35a.75.75 0 0 1 0 1.5h-3a.75.75 0 0 1-.75-.75v-3a.75.75 0 0 1 1.5 0v1.042a9 9 0 1 1-2.895 5.331a.749.749 0 0 1 .752-.623c.46 0 .791.438.724.892A7.5 7.5 0 1 0 19.5 12Zm-7-4.25a.75.75 0 0 0-1.5 0v4.5c0 .414.336.75.75.75h2.5a.75.75 0 0 0 0-1.5H12.5V7.75Z" /></svg>
                 <span class="block -mt-0.5 text-xs invisible group-hover:visible">history</span>
@@ -219,19 +219,19 @@
     var artifact = creative.Artifacts?.FirstOrDefault(x => x.Id == View);
     if (artifact != null)
     {
-        <SlideOver Done=@(() => NavigationManager.NavigateTo($"/create?id={creative.Id}"))>
+        <SlideOver Done=@(() => NavigationManager.NavigateTo($"/create?id={creative.Id}"))
+           Title=@creative.UserPrompt TitlebarClass="bg-gray-50 dark:bg-black px-4 py-6 sm:px-6">
             <div class="p-2 mt-4 flex flex-col items-center">
-                <img class="rounded-lg" src=@artifact.FilePath alt=@artifact.FileName
-                        width=@artifact.Width height=@artifact.Height />
+                <img class="rounded-lg" src=@artifact.FilePath alt=@artifact.FileName width=@artifact.Width height=@artifact.Height />
                 <div class="flex">
                     <span class="my-2 mx-4 text-sm text-gray-600 dark:text-gray-400">@artifact.Height x @artifact.Width</span>
                     <span class="my-2 mx-4 text-sm text-gray-600 dark:text-gray-400">@TextUtils.FormatBytes(artifact.ContentLength)</span>
                 </div>
             </div>
-            <div class="mt-4 flex justify-center">
+            <div class="flex flex-wrap justify-center">
             @foreach (var artifact in creative.Artifacts.OrEmpty())
             {
-                <div class="flex justify-center">
+                <div class="flex justify-center mr-4 mb-4">
                     <NavLink href=@($"/create?id={creative.Id}&view={artifact.Id}")>
                         <img class="rounded-lg h-32 mx-4" src=@artifact.FilePath alt=@artifact.FileName />
                     </NavLink>

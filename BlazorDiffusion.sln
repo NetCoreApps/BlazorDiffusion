@@ -10,6 +10,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorDiffusion.ServiceMode
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorDiffusion.Tests", "BlazorDiffusion.Tests\BlazorDiffusion.Tests.csproj", "{455EC1EF-134F-4CD4-9C78-E813E4E6D8F6}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{889D44FD-52E9-4E97-8AA6-EAD91B198025}"
+	ProjectSection(SolutionItems) = preProject
+		export.bat = export.bat
+		import.bat = import.bat
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
