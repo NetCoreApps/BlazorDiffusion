@@ -1,13 +1,18 @@
 ﻿using BlazorDiffusion.ServiceModel;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using ServiceStack;
 using ServiceStack.Blazor;
+using ServiceStack.Blazor.Components.Tailwind;
+using ServiceStack.Blazor.Components;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace BlazorDiffusion.Pages;
 
 public partial class Create : AppAuthComponentBase
 {
     [Inject] public NavigationManager NavigationManager { get; set; }
+    [Inject] public IJSRuntime JS { get; set; }
 
     static SearchDataResponse? DataCache;
 
@@ -173,4 +178,116 @@ public partial class Create : AppAuthComponentBase
 
         await loadHistory();
     }
+
+    void navTo(int? creativeId = null, int? artifactId = null)
+    {
+        if (creativeId == null)
+        {
+            NavigationManager.NavigateTo("/create");
+            return;
+        }
+
+        var url = artifactId != null
+            ? $"/create?id={creativeId}&view={artifactId}"
+            : $"/create?id={creativeId}";
+        NavigationManager.NavigateTo(url);
+    }
+
+    async Task CloseDialogsAsync()
+    {
+        if (View != null)
+            navTo(Id);
+    }
+
+    [JSInvokable]
+    public async Task OnKeyNav(string key)
+    {
+        if (key == KeyCodes.Escape)
+        {
+            await CloseDialogsAsync();
+            return;
+        }
+
+        var results = apiHistory?.Response?.Results;
+        if (Id != null && results != null)
+        {
+            switch (key)
+            {
+                case KeyCodes.ArrowUp:
+                case KeyCodes.ArrowDown:
+                case KeyCodes.Home:
+                case KeyCodes.End:
+                    var activeIndex = results.FindIndex(x => x.Id == Id);
+                    if (activeIndex >= 0)
+                    {
+                        var nextIndex = key switch
+                        {
+                            KeyCodes.ArrowUp => activeIndex - 1,
+                            KeyCodes.ArrowDown => activeIndex + 1,
+                            KeyCodes.Home => 0,
+                            KeyCodes.End => results.Count - 1,
+                            _ => 0
+                        };
+                        if (nextIndex < 0)
+                        {
+                            nextIndex = results.Count - 1;
+                        }
+                        var next = results[nextIndex % results.Count];
+                        navTo(next.Id);
+                        return;
+                    }
+                    break;
+
+                case KeyCodes.ArrowLeft:
+                case KeyCodes.ArrowRight:
+                    if (creative != null)
+                    {
+                        if (View == null)
+                        {
+                            if (key == KeyCodes.ArrowRight)
+                            {
+                                var artifact = creative.Artifacts.FirstOrDefault();
+                                if (artifact != null)
+                                {
+                                    navTo(Id, artifact.Id);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            activeIndex = creative.Artifacts.FindIndex(x => x.Id == View);
+                            if (activeIndex >= 0)
+                            {
+                                var nextIndex = key switch
+                                {
+                                    KeyCodes.ArrowLeft => activeIndex - 1,
+                                    KeyCodes.ArrowRight => activeIndex + 1,
+                                    _ => 0
+                                };
+                                if (nextIndex < 0)
+                                {
+                                    nextIndex = creative.Artifacts.Count - 1;
+                                }
+                                var next = creative.Artifacts[nextIndex % creative.Artifacts.Count];
+                                navTo(Id, next.Id);
+                            }
+                        }
+                        return;
+                    }
+                    break;
+            }
+        }
+    }
+
+    private DotNetObjectReference<Create>? dotnetRef;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            dotnetRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("JS.registerKeyNav", dotnetRef);
+        }
+    }
+    public void Dispose() => dotnetRef?.Dispose();
+
 }
