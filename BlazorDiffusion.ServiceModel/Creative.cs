@@ -82,17 +82,13 @@ public class CreateCreative : ICreateDb<Creative>, IReturn<Creative>
 {
     [Required]
     public string UserPrompt { get; set; }
-
-    [AutoDefault(Value = 4)]
+    
     public int? Images { get; set; }
-
-    [AutoDefault(Value = 512)]
+    
     public int? Width { get; set; }
-
-    [AutoDefault(Value = 512)]
+    
     public int? Height { get; set; }
-
-    [AutoDefault(Value = 50)]
+    
     public int? Steps { get; set; }
     public long? Seed { get; set; }
     

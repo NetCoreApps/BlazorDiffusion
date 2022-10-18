@@ -119,6 +119,25 @@ public class CreativeServiceMockedTests
             UserPrompt = "Floating spooky house in the sky",
             ModifierNames = new() {"Low Poly", "3D Rendering", "Hyper Detailed", "Isometric","Sharp Focus", "Ray Tracing"},
             ImageType = ImageType.Square
+        },
+        new ImageGenerationTestCase
+        {
+            UserPrompt = "Floating spooky house in the sky",
+            ModifierNames = new() {"Low Poly", "3D Rendering", "Hyper Detailed", "Isometric","Sharp Focus", "Ray Tracing"},
+            ImageType = ImageType.Landscape
+        },
+        new ImageGenerationTestCase
+        {
+            UserPrompt = "Floating spooky house in the sky",
+            ModifierNames = new() {"Low Poly", "3D Rendering", "Hyper Detailed", "Isometric","Sharp Focus", "Ray Tracing"},
+            ImageType = ImageType.Portrait,
+            Steps = 25
+        },
+        new ImageGenerationTestCase
+        {
+            UserPrompt = "Floating spooky house in the sky",
+            ModifierNames = new() {"Low Poly", "3D Rendering", "Hyper Detailed", "Isometric","Sharp Focus", "Ray Tracing"},
+            Steps = 10,
         }
     };
     
