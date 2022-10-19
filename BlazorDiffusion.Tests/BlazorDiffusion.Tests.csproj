@@ -39,8 +39,8 @@
         <PackageReference Include="ServiceStack.Kestrel" Version="6.*" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="App_Files" />
-    </ItemGroup>
+    <Target Name="CreateAppFilesFolder" AfterTargets="AfterBuild">
+        <MakeDir Directories="$(BuildDir)App_Files/artifacts" Condition="!Exists('$(BuildDir)App_Files/artifacts')" />
+    </Target>
 
 </Project>

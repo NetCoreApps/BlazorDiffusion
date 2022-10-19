@@ -143,7 +143,7 @@ public class CreativeServiceMockedTests
     
     [Test]
     [TestCaseSource("AllGenerationCases")]
-    public void Can_generate_images_mocked(ImageGenerationTestCase testCase)
+    public void Can_make_valid_creative_requests(ImageGenerationTestCase testCase)
     {
         var client = CreateClient();
 
