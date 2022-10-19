@@ -200,7 +200,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USERNAME }}
           port: 22
           key: ${{ secrets.DEPLOY_KEY }}
-          strip_components: 2
+          strip_components: 1
           source: "./BlazorDiffusionAssets/artifacts/*"
           target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data/"
       
