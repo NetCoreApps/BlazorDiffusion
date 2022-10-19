@@ -20,7 +20,7 @@ public class CreativeService : Service
     public const int DefaultHeight = 512;
     public const int DefaultWidth = 512;
     public const int DefaultImages = 4;
-    public const int DefaultSteps = 25;
+    public const int DefaultSteps = 40;
     
     public async Task<object> Post(CreateCreative request)
     {
