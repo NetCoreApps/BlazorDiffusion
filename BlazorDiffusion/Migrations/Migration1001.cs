@@ -52,6 +52,32 @@ public class Migration1001 : MigrationBase
 
     }
 
+    public class ArtifactAppUserLike : AuditBase
+    {
+        [AutoIncrement]
+        public long Id { get; set; }
+        
+        [References(typeof(CreativeArtifact))]
+        public int CreativeArtifactId { get; set; }
+        [References(typeof(AppUser))]
+        public int AppUserId { get; set; }
+    }
+
+    public class ArtifactAppUserReport : AuditBase
+    {
+        [AutoIncrement]
+        public long Id { get; set; }
+        
+        [References(typeof(CreativeArtifact))]
+        public int CreativeArtifactId { get; set; }
+        [References(typeof(AppUser))]
+        public int AppUserId { get; set; }
+        
+        public bool Nsfw { get; set; }
+        public bool Other { get; set; }
+        public string? Description { get; set; }
+    }
+
     public class CreativeArtifact : AuditBase
     {
         [AutoIncrement] 
@@ -188,6 +214,8 @@ public class Migration1001 : MigrationBase
         Db.CreateTable<CreativeArtist>();
         Db.CreateTable<CreativeModifier>();
         Db.CreateTable<CreativeArtifact>();
+        Db.CreateTable<ArtifactAppUserLike>();
+        Db.CreateTable<ArtifactAppUserReport>();
 
         var seedDir = Path.GetFullPath(Path.Combine("./App_Data/seed"));
 
@@ -287,6 +315,8 @@ public class Migration1001 : MigrationBase
 
     public override void Down()
     {
+        Db.DropTable<ArtifactAppUserLike>();
+        Db.DropTable<ArtifactAppUserReport>();
         Db.DropTable<CreativeArtifact>();
         Db.DropTable<CreativeArtist>();
         Db.DropTable<CreativeModifier>();

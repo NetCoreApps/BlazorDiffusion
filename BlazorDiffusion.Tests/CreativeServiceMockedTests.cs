@@ -222,5 +222,13 @@ public class CreativeServiceMockedTests
         Assert.That(queryResponse.Results[0].AppUserId, Is.Not.Null);
         Assert.That(queryResponse.Results[0].AppUserId, Is.GreaterThan(0));
         Assert.That(queryResponse.Results[0].CreatedBy, Is.EqualTo("1"));
+
+        var likeArtifactResponse = client.Post(new CreateArtifactAppUserLike
+        {
+            CreativeArtifactId = 1
+        });
+        
+        Assert.That(likeArtifactResponse, Is.Not.Null);
+        Assert.That(likeArtifactResponse.CreativeArtifactId, Is.EqualTo(1));
     }
 }
