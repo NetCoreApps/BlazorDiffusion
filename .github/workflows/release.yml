@@ -166,6 +166,16 @@ jobs:
           repository: NetCoreApps/BlazorDiffusionAssets
           path: BlazorDiffusionAssets
 
+      - name: Clean assets remotely during development
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.DEPLOY_API }}
+          username: ${{ secrets.DEPLOY_USERNAME }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          port: 22
+          script: |
+            rm -rf /var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data/artifacts
+
       - name: Copy BlazorDiffusion Assets to Remote Server
         uses: appleboy/scp-action@v0.1.1
         with:
@@ -177,7 +187,7 @@ jobs:
           source: "./BlazorDiffusionAssets/artifacts/*"
           target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data/"
 
-      - name: Clean db.sqlite
+      - name: Clean db.sqlite during development
         uses: appleboy/ssh-action@v0.1.4
         with:
           host: ${{ secrets.DEPLOY_API }}
