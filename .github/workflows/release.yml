@@ -167,6 +167,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USERNAME }}
           port: 22
           key: ${{ secrets.DEPLOY_KEY }}
+          strip_components: 2
           source: "./BlazorDiffusion/App_Data/db.sqlite"
           target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-mydb/_data/"
                
