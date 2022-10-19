@@ -118,6 +118,12 @@ public class DeleteCreative : IDeleteDb<Creative>, IReturnVoid
     public int Id { get; set; }
 }
 
+[ValidateIsAuthenticated]
+public class HardDeleteCreative : IDeleteDb<Creative>, IReturnVoid
+{
+    public int Id { get; set; }
+}
+
 public class QueryCreativeArtifacts : QueryDb<CreativeArtifact>
 {
     
