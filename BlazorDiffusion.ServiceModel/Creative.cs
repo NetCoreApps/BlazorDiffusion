@@ -5,6 +5,7 @@ using ServiceStack.DataAnnotations;
 
 namespace BlazorDiffusion.ServiceModel;
 
+[Icon(Svg = Icons.Creative)]
 public class Creative : AuditBase
 {
     [AutoIncrement]
@@ -48,6 +49,7 @@ public class Creative : AuditBase
     public string RefId { get; set; }
 }
 
+[Icon(Svg = Icons.Artifact)]
 [AutoApply(Behavior.AuditCreate)]
 public class CreativeArtifact : AuditBase
 {
@@ -118,6 +120,13 @@ public class DeleteCreative : IDeleteDb<Creative>, IReturnVoid
     public int Id { get; set; }
 }
 
+[AutoApply(Behavior.AuditDelete)]
+[ValidateIsAuthenticated]
+public class HardDeleteCreative : IDeleteDb<Creative>, IReturnVoid
+{
+    public int Id { get; set; }
+}
+
 public class QueryCreativeArtifacts : QueryDb<CreativeArtifact>
 {
     
@@ -157,6 +166,7 @@ public class DeleteArtist : IDeleteDb<Artist>, IReturnVoid
     public int Id { get; set; }
 }
 
+[Icon(Svg = Icons.Artist)]
 public class Artist
 {
     [AutoIncrement]
@@ -195,6 +205,7 @@ public class DeleteModifier : IDeleteDb<Modifier>, IReturnVoid
 }
 
 
+[Icon(Svg = Icons.Modifier)]
 public class Modifier
 {
     [AutoIncrement]

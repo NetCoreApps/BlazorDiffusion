@@ -3,6 +3,8 @@ using BlazorDiffusion.ServiceModel;
 using Gooseai;
 using Grpc.Core;
 using Grpc.Net.Client;
+using ServiceStack.IO;
+using static Grpc.Core.Metadata;
 
 namespace BlazorDiffusion;
 
@@ -99,10 +101,18 @@ public class DreamStudioClient : IStableDiffusionClient
         };
     }
 
-    public async Task SaveMetadata(ImageGenerationResponse response, Creative entry)
+    public async Task SaveMetadataAsync(Creative creative)
     {
-        var vfsPathSuffix = $"{response.Key}";
+        var vfsPathSuffix = creative.Key;
         var outputDir = new DirectoryInfo(Path.Join(OutputPathPrefix, vfsPathSuffix));
-        await File.WriteAllTextAsync(Path.Join(outputDir.FullName,"metadata.json"),entry.ToSafeJson());
+        await File.WriteAllTextAsync(Path.Join(outputDir.FullName,"metadata.json"),creative.ToSafeJson());
+    }
+
+    public Task DeleteFolderAsync(Creative creative)
+    {
+        var vfsPathSuffix = creative.Key;
+        var outputDir = new DirectoryInfo(Path.Join(OutputPathPrefix, vfsPathSuffix));
+        FileSystemVirtualFiles.DeleteDirectoryRecursive(Path.Join(outputDir.FullName));
+        return Task.CompletedTask;
     }
 }

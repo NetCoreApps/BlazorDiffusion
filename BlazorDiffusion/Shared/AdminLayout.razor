@@ -42,7 +42,7 @@
         await base.OnAfterRenderAsync(firstRender);
         if (firstRender)
         {
-            await JS.InvokeVoidAsync("JS.addClass", "html", "dark");
+            await JS.InvokeVoidAsync("JS.removeClass", "html", "dark");
         }
     }
 }

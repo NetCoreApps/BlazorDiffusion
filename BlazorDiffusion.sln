@@ -12,6 +12,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorDiffusion.Tests", "Bl
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{889D44FD-52E9-4E97-8AA6-EAD91B198025}"
 	ProjectSection(SolutionItems) = preProject
+		create-db.bat = create-db.bat
 		export.bat = export.bat
 		import.bat = import.bat
 	EndProjectSection

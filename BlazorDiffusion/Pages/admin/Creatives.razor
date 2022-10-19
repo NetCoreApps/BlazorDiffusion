@@ -1,0 +1,60 @@
+﻿@page "/admin/creatives"
+@attribute [Authorize(Roles = "Admin")]
+
+@inject NavigationManager NavigationManager
+
+<Breadcrumbs class="mb-8" HomeHref="/admin">
+    <Breadcrumb>
+        Creatives
+    </Breadcrumb>
+</Breadcrumbs>
+
+<AutoQueryGrid Model="Creative" Apis="Apis.AutoQuery<QueryCreatives,CreateCreative,UpdateCreative,HardDeleteCreative>()">
+    <Columns>
+        <Column Field="(Creative x) => x.Id" />
+        <Column Field="(Creative x) => x.Prompt" />
+        <Column Field="(Creative x) => x.Images" />
+        <Column Field="(Creative x) => x.Width" />
+        <Column Field="(Creative x) => x.Height" />
+        <Column Field="(Creative x) => x.Steps" />
+        <Column Field="(Creative x) => x.PrimaryArtifactId" Title="Primary Artifact" />
+        <Column Field="(Creative x) => x.Modifiers">
+            <Template>
+                @if (context.Modifiers?.Count > 0)
+                {
+                    <TextLink class="flex" href=@($"/admin/modifiers?Ids={string.Join(",", context.Modifiers.Select(x => x.ModifierId))}")>
+                        <Icon class="w-6 h-6 mr-1" Image=@typeof(Modifier).GetIcon() />
+                        @TextUtils.Pluralize("Modifier", context.Modifiers)
+                    </TextLink>
+                }
+            </Template>
+        </Column>
+        <Column Field="(Creative x) => x.Artists">
+            <Template>
+                @if (context.Artists?.Count > 0)
+                {
+                    <TextLink class="flex" href=@($"/admin/artists?Ids={string.Join(",", context.Artists.Select(x => x.ArtistId))}")>
+                        <Icon class="w-6 h-6 mr-1" Image=@typeof(Artist).GetIcon() />
+                        @TextUtils.Pluralize("Artist", context.Artists)
+                    </TextLink>
+                }
+            </Template>
+        </Column>
+        <Column Field="(Creative x) => x.Artifacts">
+            <Template>
+                @if (context.Artifacts?.Count > 0)
+                {
+                    <TextLink class="flex" href=@($"/admin/creative-artifacts?CreativeId={context.Id}")>
+                        <Icon class="w-6 h-6 mr-1" Image=@typeof(CreativeArtifact).GetIcon() />
+                        @TextUtils.Pluralize("Artifact", context.Artifacts)
+                    </TextLink>
+                }
+            </Template>
+        </Column>
+        <Column Field="(Creative x) => x.Key" />
+    </Columns>
+</AutoQueryGrid>
+
+@code {
+    [Parameter, SupplyParameterFromQuery] public string? Edit { get; set; }
+}

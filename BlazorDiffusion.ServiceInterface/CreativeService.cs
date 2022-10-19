@@ -32,7 +32,7 @@ public class CreativeService : Service
         
         var creative = await PersistCreative(request, imageGenerationResponse,modifiers,artists);
         
-        await StableDiffusionClient.SaveMetadata(imageGenerationResponse, creative);
+        await StableDiffusionClient.SaveMetadataAsync(creative);
 
         return creative;
     }
@@ -168,12 +168,33 @@ public class CreativeService : Service
             finalPrompt += $", {artistsSuffix}";
         return finalPrompt;
     }
+
+    public async Task Any(HardDeleteCreative request)
+    {
+        var creative = await Db.SingleByIdAsync<Creative>(request.Id);
+        if (creative == null)
+            throw HttpError.NotFound($"Creative {request.Id} does not exist");
+
+        var artifacts = await Db.SelectAsync<CreativeArtifact>(x => x.CreativeId == request.Id);
+
+        using var transaction = Db.OpenTransaction();
+
+        await Db.DeleteAsync<CreativeArtifact>(x => x.CreativeId == request.Id);
+        await Db.DeleteAsync<CreativeArtist>(x => x.CreativeId == request.Id);
+        await Db.DeleteAsync<CreativeModifier>(x => x.CreativeId == request.Id);
+        await Db.DeleteAsync<Creative>(x => x.Id == request.Id);
+
+        transaction.Commit();
+
+        await StableDiffusionClient.DeleteFolderAsync(creative);
+    }
 }
 
 public interface IStableDiffusionClient
 {
     Task<ImageGenerationResponse> GenerateImageAsync(ImageGeneration request);
-    Task SaveMetadata(ImageGenerationResponse response, Creative entry);
+    Task SaveMetadataAsync(Creative entry);
+    Task DeleteFolderAsync(Creative entry);
 }
 
 public class ImageGeneration
