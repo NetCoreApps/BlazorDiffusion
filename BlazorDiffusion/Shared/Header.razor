@@ -82,10 +82,11 @@
     string LoginUrl { get; set; } = "/signin";
 
 
-    List<NavItem> NavItems { get; set; } = new() {
-        //new NavItem { Label = "$0.40 /mo",     Href = "/docs/hosting" },
-        //new NavItem { Label = "Deployments",   Href = "/docs/deploy" },
-    };
+    List<NavItem> NavItems => User.HasRole("Admin")
+        ? new() {
+            new NavItem { Label = "Admin", Href = "/secure" },
+        }
+        : new() { };
 
     protected override Task OnParametersSetAsync()
     {

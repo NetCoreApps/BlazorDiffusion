@@ -47,7 +47,7 @@ public class CreativeServiceMockedTests
                 };
             }
 
-            public async Task SaveMetadata(ImageGenerationResponse response, Creative entry)
+            public async Task SaveMetadataAsync(ImageGenerationResponse response, Creative entry)
             {
                 
             }
