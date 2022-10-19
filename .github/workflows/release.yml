@@ -160,33 +160,6 @@ jobs:
           source: ".deploy/${{ github.event.repository.name }}-docker-compose.yml"
           target: "~/"
 
-      - name: Copy db.sqlite from source control
-        uses: appleboy/scp-action@v0.1.1
-        with:
-          host: ${{ secrets.DEPLOY_API }}
-          username: ${{ secrets.DEPLOY_USERNAME }}
-          port: 22
-          key: ${{ secrets.DEPLOY_KEY }}
-          strip_components: 3
-          source: "./BlazorDiffusion/App_Data/db.sqlite"
-          target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-mydb/_data/"
-               
-      - name: Run remote db migrations
-        uses: appleboy/ssh-action@v0.1.4
-        env:
-          APPTOKEN: ${{ secrets.GITHUB_TOKEN }}
-          USERNAME: ${{ secrets.DEPLOY_USERNAME }}
-        with:
-          host: ${{ secrets.DEPLOY_API }}
-          username: ${{ secrets.DEPLOY_USERNAME }}
-          key: ${{ secrets.DEPLOY_KEY }}
-          port: 22
-          envs: APPTOKEN,USERNAME
-          script: |
-            echo $APPTOKEN | docker login ghcr.io -u $USERNAME --password-stdin
-            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml pull
-            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-migration
-
       - name: checkout
         uses: actions/checkout@v3
         with:
@@ -203,7 +176,32 @@ jobs:
           strip_components: 1
           source: "./BlazorDiffusionAssets/artifacts/*"
           target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data/"
+
+      - name: Clean db.sqlite
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.DEPLOY_API }}
+          username: ${{ secrets.DEPLOY_USERNAME }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          port: 22
+          script: |
+            rm /var/lib/docker/volumes/deploy_BlazorDiffusion-mydb/_data/db.sqlite
       
+      - name: Run remote db migrations
+        uses: appleboy/ssh-action@v0.1.4
+        env:
+          APPTOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USERNAME: ${{ secrets.DEPLOY_USERNAME }}
+        with:
+          host: ${{ secrets.DEPLOY_API }}
+          username: ${{ secrets.DEPLOY_USERNAME }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          port: 22
+          envs: APPTOKEN,USERNAME
+          script: |
+            echo $APPTOKEN | docker login ghcr.io -u $USERNAME --password-stdin
+            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml pull
+            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-migration      
       
       # Deploy Docker image with ServiceStack application using `docker compose up` remotely
       - name: remote docker-compose up via ssh
