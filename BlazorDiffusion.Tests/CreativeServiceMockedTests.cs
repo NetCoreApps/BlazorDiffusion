@@ -47,12 +47,11 @@ public class CreativeServiceMockedTests
                 };
             }
 
-            public async Task SaveMetadataAsync(ImageGenerationResponse response, Creative entry)
-            {
-                
-            }
+            public Task SaveMetadataAsync(Creative entry) => Task.CompletedTask;
+            public Task DeleteFolderAsync(Creative entry) => Task.CompletedTask;
+
         }
-        
+
         public override void Configure(Container container)
         {
             container.Register<IDbConnectionFactory>(
