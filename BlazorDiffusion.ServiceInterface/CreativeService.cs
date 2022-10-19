@@ -163,7 +163,7 @@ public class CreativeService : Service
     {
         var finalPrompt = userPrompt;
         finalPrompt += $", {modifiers.Select(x => x.Name).Join(",").TrimEnd(',')}";
-        var artistsSuffix = artists.Select(x => $"inspired by {x.FirstName} {x.LastName}").Join(",").TrimEnd(',');
+        var artistsSuffix = artists.Select(x => $"by {x.FirstName} {x.LastName}").Join(",").TrimEnd(',');
         if(artists.Count > 0)
             finalPrompt += $", {artistsSuffix}";
         return finalPrompt;
