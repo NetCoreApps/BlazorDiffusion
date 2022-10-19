@@ -160,6 +160,16 @@ jobs:
           source: ".deploy/${{ github.event.repository.name }}-docker-compose.yml"
           target: "~/"
 
+      - name: Copy db.sqlite from source control
+        uses: appleboy/scp-action@v0.1.1
+        with:
+          host: ${{ secrets.DEPLOY_API }}
+          username: ${{ secrets.DEPLOY_USERNAME }}
+          port: 22
+          key: ${{ secrets.DEPLOY_KEY }}
+          source: "./BlazorDiffusion/App_Files/db.sqlite"
+          target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-mydb/_data/db.sqlite"
+               
       - name: Run remote db migrations
         uses: appleboy/ssh-action@v0.1.4
         env:
@@ -175,6 +185,20 @@ jobs:
             echo $APPTOKEN | docker login ghcr.io -u $USERNAME --password-stdin
             docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml pull
             docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-migration
+
+      - name: Pull in assets from BlazorDiffusionAssets
+        uses: appleboy/ssh-action@v0.1.4
+        env:
+          APPTOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USERNAME: ${{ secrets.DEPLOY_USERNAME }}
+        with:
+          host: ${{ secrets.DEPLOY_API }}
+          username: ${{ secrets.DEPLOY_USERNAME }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          port: 22
+          envs: APPTOKEN,USERNAME
+          script: |
+            git clone git@github.com:NetCoreApps/BlazorDiffusionAssets.git /var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data/
 
       # Deploy Docker image with ServiceStack application using `docker compose up` remotely
       - name: remote docker-compose up via ssh

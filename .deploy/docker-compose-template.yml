@@ -20,6 +20,7 @@ services:
       SERVICESTACK_LICENSE: ${SERVICESTACK_LICENSE}
     volumes:
       - ${APP_NAME}-mydb:/app/App_Data
+      - ${APP_DATA}-assets:/app/App_Files
   ${APP_NAME}-migration:
     image: ghcr.io/${IMAGE_REPO}:${RELEASE_VERSION}
     restart: "no"
@@ -31,3 +32,4 @@ services:
 
 volumes:
   ${APP_NAME}-mydb:
+  ${APP_DATA}-assets:
