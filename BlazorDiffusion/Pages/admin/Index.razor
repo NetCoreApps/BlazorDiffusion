@@ -17,98 +17,20 @@
             </div>
             <div class="mt-12">
 
-                <h2 class="text-base font-semibold text-gray-500 dark:text-gray-400">Creative APIs</h2>
-                <ul role="list" class="mt-4 divide-y divide-gray-200 dark:divide-gray-800 border-t border-b border-gray-200 dark:border-gray-800">
-
-                    <li class="relative flex items-start space-x-4 py-6">
-                        <div class="flex-shrink-0">
-                            <span class="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-900">
-                                <Icon class="w-6 h-6 text-indigo-700 dark:text-indigo-300" Image=@typeof(Creative).GetIcon() />
-                            </span>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <h3 class="text-base font-medium text-gray-900 dark:text-gray-100">
-                                <span class="rounded-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2">
-                                    <a href="/admin/creatives" class="focus:outline-none">
-                                        <span class="absolute inset-0" aria-hidden="true"></span>
-                                        Creatives
-                                    </a>
-                                </span>
-                            </h3>
-                            <p class="text-base text-gray-500">Create and Manage Creatives</p>
-                        </div>
-                        <div class="flex-shrink-0 self-center">
-                            <img class="h-5 w-5" src="/img/chevron-right.svg">
-                        </div>
-                    </li>
-
-                    <li class="relative flex items-start space-x-4 py-6">
-                        <div class="flex-shrink-0">
-                            <span class="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-900">
-                                <Icon class="w-6 h-6 text-indigo-700 dark:text-indigo-300" Image=@typeof(CreativeArtifact).GetIcon() />
-                            </span>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <h3 class="text-base font-medium text-gray-900 dark:text-gray-100">
-                                <span class="rounded-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2">
-                                    <a href="/admin/creative-artifacts" class="focus:outline-none">
-                                        <span class="absolute inset-0" aria-hidden="true"></span>
-                                        Artifacts
-                                    </a>
-                                </span>
-                            </h3>
-                            <p class="text-base text-gray-500">Create and Manage Creative Artifacts</p>
-                        </div>
-                        <div class="flex-shrink-0 self-center">
-                            <img class="h-5 w-5" src="/img/chevron-right.svg">
-                        </div>
-                    </li>
-
-                    <li class="relative flex items-start space-x-4 py-6">
-                        <div class="flex-shrink-0">
-                            <span class="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-900">
-                                <Icon class="w-6 h-6 text-indigo-700 dark:text-indigo-300" Image=@typeof(Artist).GetIcon() />
-                            </span>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <h3 class="text-base font-medium text-gray-900 dark:text-gray-100">
-                                <span class="rounded-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2">
-                                    <a href="/admin/artists" class="focus:outline-none">
-                                        <span class="absolute inset-0" aria-hidden="true"></span>
-                                        Artists
-                                    </a>
-                                </span>
-                            </h3>
-                            <p class="text-base text-gray-500">Create and Manage Artists</p>
-                        </div>
-                        <div class="flex-shrink-0 self-center">
-                            <img class="h-5 w-5" src="/img/chevron-right.svg">
-                        </div>
-                    </li>
-
-                    <li class="relative flex items-start space-x-4 py-6">
-                        <div class="flex-shrink-0">
-                            <span class="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-900">
-                                <Icon class="w-6 h-6 text-indigo-700 dark:text-indigo-300" Image=@typeof(Modifier).GetIcon() />
-                            </span>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <h3 class="text-base font-medium text-gray-900 dark:text-gray-100">
-                                <span class="rounded-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2">
-                                    <a href="/admin/modifiers" class="focus:outline-none">
-                                        <span class="absolute inset-0" aria-hidden="true"></span>
-                                        Modifiers
-                                    </a>
-                                </span>
-                            </h3>
-                            <p class="text-base text-gray-500">Create and Manage Modifier</p>
-                        </div>
-                        <div class="flex-shrink-0 self-center">
-                            <img class="h-5 w-5" src="/img/chevron-right.svg">
-                        </div>
-                    </li>
-
-                </ul>
+                <NavList Title="Creative Admin">
+                    <NavListItem Title="Creatives" href="/admin/creatives" Icon=@typeof(Creative).GetIcon()>
+                        Create and Manage Creatives
+                    </NavListItem>
+                    <NavListItem Title="Artifacts" href="/admin/creative-artifacts" Icon=@typeof(CreativeArtifact).GetIcon()>
+                        Create and Manage Creative Artifacts
+                    </NavListItem>
+                    <NavListItem Title="Artists" href="/admin/artists" Icon=@typeof(Artist).GetIcon()>
+                        Create and Manage Artists
+                    </NavListItem>
+                    <NavListItem Title="Modifiers" href="/admin/modifiers" Icon=@typeof(Modifier).GetIcon()>
+                        Create and Manage Modifiers
+                    </NavListItem>
+                </NavList>
 
             </div>
         </div>
