@@ -1,9 +1,9 @@
-﻿@page "/secure/creatives"
+﻿@page "/admin/creatives"
 @attribute [Authorize(Roles = "Admin")]
 
 @inject NavigationManager NavigationManager
 
-<Breadcrumbs class="mb-8" HomeHref="/secure">
+<Breadcrumbs class="mb-8" HomeHref="/admin">
     <Breadcrumb>
         Creatives
     </Breadcrumb>
@@ -22,7 +22,7 @@
             <Template>
                 @if (context.Modifiers?.Count > 0)
                 {
-                    <TextLink class="flex" href=@($"/secure/modifiers?Ids={string.Join(",", context.Modifiers.Select(x => x.ModifierId))}")>
+                    <TextLink class="flex" href=@($"/admin/modifiers?Ids={string.Join(",", context.Modifiers.Select(x => x.ModifierId))}")>
                         <Icon class="w-6 h-6 mr-1" Image=@typeof(Modifier).GetIcon() />
                         @TextUtils.Pluralize("Modifier", context.Modifiers)
                     </TextLink>
@@ -33,7 +33,7 @@
             <Template>
                 @if (context.Artists?.Count > 0)
                 {
-                    <TextLink class="flex" href=@($"/secure/artists?Ids={string.Join(",", context.Artists.Select(x => x.ArtistId))}")>
+                    <TextLink class="flex" href=@($"/admin/artists?Ids={string.Join(",", context.Artists.Select(x => x.ArtistId))}")>
                         <Icon class="w-6 h-6 mr-1" Image=@typeof(Artist).GetIcon() />
                         @TextUtils.Pluralize("Artist", context.Artists)
                     </TextLink>
@@ -44,7 +44,7 @@
             <Template>
                 @if (context.Artifacts?.Count > 0)
                 {
-                    <TextLink class="flex" href=@($"/secure/creative-artifacts?CreativeId={context.Id}")>
+                    <TextLink class="flex" href=@($"/admin/creative-artifacts?CreativeId={context.Id}")>
                         <Icon class="w-6 h-6 mr-1" Image=@typeof(CreativeArtifact).GetIcon() />
                         @TextUtils.Pluralize("Artifact", context.Artifacts)
                     </TextLink>

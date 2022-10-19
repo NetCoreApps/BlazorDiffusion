@@ -84,7 +84,7 @@
 
     List<NavItem> NavItems => User.HasRole("Admin")
         ? new() {
-            new NavItem { Label = "Admin", Href = "/secure" },
+            new NavItem { Label = "Admin", Href = "/admin" },
         }
         : new() { };
 
