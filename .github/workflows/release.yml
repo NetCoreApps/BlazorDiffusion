@@ -168,7 +168,7 @@ jobs:
           port: 22
           key: ${{ secrets.DEPLOY_KEY }}
           source: "./BlazorDiffusion/App_Data/db.sqlite"
-          target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-mydb/_data/db.sqlite"
+          target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-mydb/_data/"
                
       - name: Run remote db migrations
         uses: appleboy/ssh-action@v0.1.4
