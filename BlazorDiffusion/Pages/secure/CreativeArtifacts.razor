@@ -1,0 +1,12 @@
+﻿@page "/secure/creative-artifacts"
+@attribute [Authorize(Roles = "Admin")]
+
+@inject NavigationManager NavigationManager
+
+<Breadcrumbs class="mb-8" HomeHref="/secure">
+    <Breadcrumb>
+        Creative Artifacts
+    </Breadcrumb>
+</Breadcrumbs>
+
+<AutoQueryGrid Model="CreativeArtifact" Apis="Apis.AutoQuery<QueryCreativeArtifacts,UpdateCreativeArtifact>()" />

@@ -881,13 +881,6 @@ input[data-autocompleted] {
   left: 0px;
 }
 
-.-inset-px {
-  top: -1px;
-  right: -1px;
-  bottom: -1px;
-  left: -1px;
-}
-
 .inset-x-\[-50vw\] {
   left: -50vw;
   right: -50vw;
@@ -1212,12 +1205,16 @@ input[data-autocompleted] {
   margin-top: 1.5rem;
 }
 
-.mb-3 {
-  margin-bottom: 0.75rem;
-}
-
 .mr-1 {
   margin-right: 0.25rem;
+}
+
+.mt-12 {
+  margin-top: 3rem;
+}
+
+.mb-3 {
+  margin-bottom: 0.75rem;
 }
 
 .ml-0\.5 {
@@ -1314,6 +1311,10 @@ input[data-autocompleted] {
 
 .h-0 {
   height: 0px;
+}
+
+.h-20 {
+  height: 5rem;
 }
 
 .h-16 {
@@ -1420,6 +1421,10 @@ input[data-autocompleted] {
   width: 100vw;
 }
 
+.min-w-0 {
+  min-width: 0px;
+}
+
 .min-w-full {
   min-width: 100%;
 }
@@ -1444,6 +1449,10 @@ input[data-autocompleted] {
 
 .max-w-2xl {
   max-width: 42rem;
+}
+
+.max-w-7xl {
+  max-width: 80rem;
 }
 
 .max-w-full {
@@ -1773,12 +1782,12 @@ input[data-autocompleted] {
   border-radius: 0.5rem;
 }
 
-.rounded {
-  border-radius: 0.25rem;
+.rounded-sm {
+  border-radius: 0.125rem;
 }
 
-.rounded-xl {
-  border-radius: 0.75rem;
+.rounded {
+  border-radius: 0.25rem;
 }
 
 .rounded-l-md {
@@ -1796,12 +1805,12 @@ input[data-autocompleted] {
   border-bottom-left-radius: 0.5rem;
 }
 
-.border {
-  border-width: 1px;
-}
-
 .border-2 {
   border-width: 2px;
+}
+
+.border {
+  border-width: 1px;
 }
 
 .border-y {
@@ -1852,6 +1861,11 @@ input[data-autocompleted] {
   border-color: transparent;
 }
 
+.border-cyan-500 {
+  --tw-border-opacity: 1;
+  border-color: rgb(6 182 212 / var(--tw-border-opacity));
+}
+
 .border-blue-400 {
   --tw-border-opacity: 1;
   border-color: rgb(96 165 250 / var(--tw-border-opacity));
@@ -1875,11 +1889,6 @@ input[data-autocompleted] {
 .border-red-300 {
   --tw-border-opacity: 1;
   border-color: rgb(252 165 165 / var(--tw-border-opacity));
-}
-
-.border-cyan-500 {
-  --tw-border-opacity: 1;
-  border-color: rgb(6 182 212 / var(--tw-border-opacity));
 }
 
 .bg-white {
@@ -1925,6 +1934,11 @@ input[data-autocompleted] {
 .bg-gray-200 {
   --tw-bg-opacity: 1;
   background-color: rgb(229 231 235 / var(--tw-bg-opacity));
+}
+
+.bg-indigo-50 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(238 242 255 / var(--tw-bg-opacity));
 }
 
 .bg-indigo-600 {
@@ -2063,14 +2077,6 @@ input[data-autocompleted] {
   padding: 0.75rem;
 }
 
-.p-0\.5 {
-  padding: 0.125rem;
-}
-
-.p-0 {
-  padding: 0px;
-}
-
 .px-4 {
   padding-left: 1rem;
   padding-right: 1rem;
@@ -2198,6 +2204,10 @@ input[data-autocompleted] {
 
 .pb-4 {
   padding-bottom: 1rem;
+}
+
+.pt-8 {
+  padding-top: 2rem;
 }
 
 .pt-1 {
@@ -2780,6 +2790,21 @@ input[data-autocompleted] {
   color: rgb(109 40 217 / var(--tw-text-opacity));
 }
 
+.focus-within\:ring-2:focus-within {
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+}
+
+.focus-within\:ring-indigo-500:focus-within {
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(99 102 241 / var(--tw-ring-opacity));
+}
+
+.focus-within\:ring-offset-2:focus-within {
+  --tw-ring-offset-width: 2px;
+}
+
 .hover\:border-gray-300:hover {
   --tw-border-opacity: 1;
   border-color: rgb(209 213 219 / var(--tw-border-opacity));
@@ -2928,10 +2953,6 @@ input[data-autocompleted] {
 .hover\:no-underline:hover {
   -webkit-text-decoration-line: none;
           text-decoration-line: none;
-}
-
-.hover\:opacity-25:hover {
-  opacity: 0.25;
 }
 
 .hover\:opacity-40:hover {
@@ -3190,6 +3211,11 @@ input[data-autocompleted] {
 .dark .dark\:bg-gray-400 {
   --tw-bg-opacity: 1;
   background-color: rgb(156 163 175 / var(--tw-bg-opacity));
+}
+
+.dark .dark\:bg-indigo-900 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(49 46 129 / var(--tw-bg-opacity));
 }
 
 .dark .dark\:bg-indigo-400 {
@@ -3656,6 +3682,11 @@ input[data-autocompleted] {
   .sm\:px-2 {
     padding-left: 0.5rem;
     padding-right: 0.5rem;
+  }
+
+  .sm\:py-16 {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
   }
 
   .sm\:pl-6 {

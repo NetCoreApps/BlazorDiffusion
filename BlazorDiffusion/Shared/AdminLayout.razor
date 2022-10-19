@@ -1,0 +1,48 @@
+@inherits LayoutComponentBase
+@inject ServiceStackStateProvider AuthStateProvider;
+@inject NavigationManager NavigationManager;
+@inject IJSRuntime JS
+
+<div>
+    <Header />
+
+    <div class="flex flex-col flex-1">
+        <main class="flex-1">
+            <div class="py-6">
+                <div class="px-4 sm:px-6 md:px-8">
+                    @Body
+                </div>
+            </div>
+        </main>
+    </div>
+
+</div>
+
+@code {
+    [CascadingParameter] protected Task<AuthenticationState>? AuthenticationStateTask { get; set; }
+
+    bool CollapseSidebar = true;
+
+    string LoginUrl { get; set; } = "/signin";
+
+    protected override Task OnParametersSetAsync()
+    {
+        LoginUrl = NavigationManager.GetLoginUrl();
+        return Task.CompletedTask;
+    }
+
+    async Task logout()
+    {
+        await AuthStateProvider.LogoutAsync();
+        NavigationManager.NavigateTo(LoginUrl, true);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("JS.removeClass", "html", "dark");
+        }
+    }
+}
