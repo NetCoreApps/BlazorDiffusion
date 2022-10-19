@@ -197,7 +197,12 @@ public class Migration1001 : MigrationBase
             }
         }
 
+        var appFiles = new DirectoryInfo("./App_Files");
+        if(!appFiles.Exists)
+            appFiles.Create();
         var seedFromDirectory = new DirectoryInfo("./App_Files/artifacts");
+        if(!seedFromDirectory.Exists)
+            seedFromDirectory.Create();
         var filesToLoad = seedFromDirectory.GetMatchingFiles("*metadata.json");
         var creativeEntries = new List<Creative>();
         foreach (var file in filesToLoad)
