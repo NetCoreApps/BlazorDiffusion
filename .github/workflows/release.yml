@@ -167,7 +167,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USERNAME }}
           port: 22
           key: ${{ secrets.DEPLOY_KEY }}
-          strip_components: 2
+          strip_components: 3
           source: "./BlazorDiffusion/App_Data/db.sqlite"
           target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-mydb/_data/"
                
@@ -187,20 +187,24 @@ jobs:
             docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml pull
             docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-migration
 
-      - name: Pull in assets from BlazorDiffusionAssets
-        uses: appleboy/ssh-action@v0.1.4
-        env:
-          APPTOKEN: ${{ secrets.GITHUB_TOKEN }}
-          USERNAME: ${{ secrets.DEPLOY_USERNAME }}
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          repository: NetCoreApps/BlazorDiffusionAssets
+          path: BlazorDiffusionAssets
+
+      - name: Copy BlazorDiffusion Assets to Remote Server
+        uses: appleboy/scp-action@v0.1.1
         with:
           host: ${{ secrets.DEPLOY_API }}
           username: ${{ secrets.DEPLOY_USERNAME }}
-          key: ${{ secrets.DEPLOY_KEY }}
           port: 22
-          envs: APPTOKEN,USERNAME
-          script: |
-            git clone https://github.com/NetCoreApps/BlazorDiffusionAssets.git /var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data/
-
+          key: ${{ secrets.DEPLOY_KEY }}
+          strip_components: 2
+          source: "./BlazorDiffusionAssets/artifacts/*"
+          target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data/"
+      
+      
       # Deploy Docker image with ServiceStack application using `docker compose up` remotely
       - name: remote docker-compose up via ssh
         uses: appleboy/ssh-action@v0.1.4
