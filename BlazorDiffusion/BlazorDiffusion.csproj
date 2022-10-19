@@ -55,6 +55,15 @@
       <Folder Include="App_Data\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="App_Data\seed\artists.csv">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="App_Data\seed\modifiers.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
     <PropertyGroup>
         <ClientDir>$(MSBuildProjectDirectory)/../BlazorDiffusion.Client</ClientDir>
         <WwwRoot>$(ClientDir)/wwwroot</WwwRoot>
