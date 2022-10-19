@@ -43,6 +43,13 @@ public class Migration1001 : MigrationBase
         [References(typeof(AppUser))]
         public int? AppUserId { get; set; }
         public string? Key { get; set; }
+        
+        public bool Curated { get; set; }
+        public int? Rating { get; set; }
+        public bool Private { get; set; }
+        
+        public string RefId { get; set; }
+
     }
 
     public class CreativeArtifact : AuditBase

@@ -95,6 +95,7 @@ public class CreativeService : Service
         creative.ArtistNames = artists.Select(x => $"{x.FirstName} {x.LastName}").ToList();
         creative.ModifiersText = modifiers.Select(x => x.Name).ToList();
         creative.Prompt = ConstructPrompt(request.UserPrompt, modifiers, artists);
+        creative.RefId = Guid.NewGuid().ToString();
 
         using var db = DbConnectionFactory.OpenDbConnection();
         using var transaction = db.OpenTransaction();
