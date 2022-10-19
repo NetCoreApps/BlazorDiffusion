@@ -108,7 +108,6 @@ public class CreativeServiceTests
             UserPrompt = "A broken down building in a stunning landscape, overgrowth of vegetation",
             ModifierNames = new() {"3D","Bloom light effect","CryEngine"},
             ArtistsType = "3d",
-            Steps = 10
         },
         // new ImageGenerationTestCase
         // {
