@@ -1,9 +1,13 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Diagnostics;
 using ServiceStack;
 using ServiceStack.OrmLite;
 using BlazorDiffusion.ServiceModel;
+using CoenM.ImageHash;
+using Microsoft.Data.Sqlite;
 
 namespace BlazorDiffusion.ServiceInterface;
 
@@ -32,5 +36,32 @@ public class DataService : Service
                 .Select(x => new ModifierInfo { Id = x.Id, Name = x.Name, Category = x.Category }).ToList(),
         };
         return to;
+    }
+
+    public async Task<object> Any(FindSimilarArtifacts request)
+    {
+        var artifact = await Db.SingleAsync<CreativeArtifact>(request.CreativeArtifactId);
+        var perceptualHash = artifact.PerceptualHash;
+        if (perceptualHash == null)
+            // TODO just in time hash of request based image?
+            throw HttpError.BadRequest("Image not hashed.");
+        
+        var connection = (SqliteConnection)Db.ToDbConnection();
+        connection.CreateFunction(
+            "imgcompare",
+            (Int64 hash1, Int64 hash2)
+                => CompareHash.Similarity((ulong)hash1,(ulong)hash2));
+
+        var matches = await Db.SelectAsync<ImageCompareResult>($@"
+select rowid, PerceptualHash, imgcompare({perceptualHash},PerceptualHash) as Similarity from CreativeArtifact
+where Similarity > 70 and PerceptualHash != {perceptualHash}
+order by Similarity desc limit 50;
+");
+
+        var results = await Db.SelectAsync<CreativeArtifact>(x => Sql.In(x.Id, matches.Select(y => y.Id)));
+        return new FindSimilarArtifactsResponse
+        {
+            Results = results
+        };
     }
 }
