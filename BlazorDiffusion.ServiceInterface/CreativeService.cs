@@ -103,6 +103,7 @@ public class CreativeService : Service
         List<Modifier> modifiers, 
         List<Artist> artists)
     {
+        request.UserPrompt = request.UserPrompt.Trim();
         string userAuthId = (await GetSessionAsync()).UserAuthId;
         var userId = userAuthId?.ToInt();
         var now = DateTime.UtcNow;

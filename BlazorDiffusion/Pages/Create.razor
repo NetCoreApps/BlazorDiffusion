@@ -27,9 +27,10 @@
         @if (DataCache != null)
         {
             <div class="mx-auto w-[440px]">
-                <Autocomplete Id="ArtistIds" Options="ArtistOptions" Multiple=true @bind-Values="artists" placeholder="Select Artist Style"
-                    Match="(x, value) => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase) ||
-                                         x.Type?.Contains(value, StringComparison.OrdinalIgnoreCase) == true">
+                <Autocomplete Id="ArtistIds" Options="ArtistOptions" Multiple=true @bind-Values="artists" placeholder="Select Artist Style" @onclick="CloseDialogsAsync"
+                    Match="(x, value) => X.Map(value.Trim(), v => 
+                            x.Name.Contains(v, StringComparison.OrdinalIgnoreCase) ||
+                            x.Type?.Contains(v, StringComparison.OrdinalIgnoreCase) == true)">
                     <Item>
                         <div class="flex justify-between">
                             <span class="truncate">@context!.Name</span>
@@ -57,9 +58,10 @@
             }
 
             <div class="mt-8 mx-auto w-[440px]">
-                <Autocomplete Id="ModifierIds" Options="ModifierOptions" Multiple=true @bind-Values="modifiers" placeholder="Select Modifiers"
-                    Match="(x, value) => x.Name.Contains(value, StringComparison.OrdinalIgnoreCase) ||
-                                         x.Category.Contains(value, StringComparison.OrdinalIgnoreCase)">
+                <Autocomplete Id="ModifierIds" Options="ModifierOptions" Multiple=true @bind-Values="modifiers" placeholder="Select Modifiers" @onclick="CloseDialogsAsync"
+                    Match="(x, value) => X.Map(value.IndexOf('-') >= 0 ? value.Trim().Replace('-',' ') : value.Trim(), v => 
+                                         x.Name.Contains(v, StringComparison.OrdinalIgnoreCase) ||
+                                         x.Category.Contains(v, StringComparison.OrdinalIgnoreCase))">
                     <Item>
                         <div class="flex justify-between">
                             <span class="truncate">@context!.Name</span>
@@ -142,7 +144,7 @@
         }
 
         <div class="mt-4 p-2 flex flex-col gap-y-4">
-            <TextInput class="!text-lg" @bind-Value="request.UserPrompt" spellcheck="false" Placeholder="Description of Image" Label="" />
+            <TextInput class="!text-lg" @bind-Value="request.UserPrompt" spellcheck="false" Placeholder="Description of Image" Label="" @onclick="CloseDialogsAsync" />
         </div>
 
         <div class="mt-4 text-right">
