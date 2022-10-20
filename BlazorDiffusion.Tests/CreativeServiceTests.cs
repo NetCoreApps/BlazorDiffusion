@@ -161,7 +161,7 @@ public class CreativeServiceTests
     {
         var client = CreateClient();
 
-        var authResponse = client.Post(new Authenticate("credentials")
+        var authResponse = client.Send(new Authenticate("credentials")
         {
             UserName = "admin@email.com",
             Password = "p@55wOrd"
@@ -196,7 +196,7 @@ public class CreativeServiceTests
 
         var dimensions = GetDimensions(testCase.ImageType);
         var numberOfImages = testCase.Images ?? 4;
-        var response = client.Post(new CreateCreative()
+        var response = client.Send(new CreateCreative
         {
             UserPrompt = testCase.UserPrompt,
             ArtistIds = artistsIds,
@@ -211,13 +211,13 @@ public class CreativeServiceTests
         Assert.That(response.Artifacts, Is.Not.Null);
         Assert.That(response.Artifacts.Count, Is.EqualTo(numberOfImages));
 
-        var primaryArtifactResponse = client.Post(new UpdateCreative
+        var primaryArtifactResponse = client.Send(new UpdateCreative
         {
             Id = response.Id,
             PrimaryArtifactId = response.Artifacts[0].Id
         });
 
-        var nsfwArtifactResponse = client.Post(new UpdateCreativeArtifact
+        var nsfwArtifactResponse = client.Send(new UpdateCreativeArtifact
         {
             Id = response.Artifacts[1].Id,
             Nsfw = true

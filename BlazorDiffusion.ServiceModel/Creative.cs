@@ -110,7 +110,7 @@ public class UpdateCreative : IPatchDb<Creative>, IReturn<Creative>
 {
     public int Id { get; set; }
     
-    public int PrimaryArtifactId { get; set; }
+    public int? PrimaryArtifactId { get; set; }
 }
 
 [AutoApply(Behavior.AuditSoftDelete)]
@@ -138,7 +138,7 @@ public class UpdateCreativeArtifact : IPatchDb<CreativeArtifact>, IReturn<Creati
 {
     public int Id { get; set; }
     
-    public bool Nsfw { get; set; }
+    public bool? Nsfw { get; set; }
 }
 
 

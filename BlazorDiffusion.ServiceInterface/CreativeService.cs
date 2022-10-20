@@ -75,7 +75,7 @@ public class CreativeService : Service
                 throw HttpError.BadRequest("You don't own this Artifact");
         }
 
-        artifact.Nsfw = request.Nsfw;
+        artifact.Nsfw = request.Nsfw.GetValueOrDefault();
         artifact.WithAudit(Request);
         await Db.SaveAsync(artifact);
         return artifact;
