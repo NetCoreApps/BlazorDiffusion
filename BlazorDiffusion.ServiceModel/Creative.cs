@@ -172,7 +172,7 @@ public class DeleteArtist : IDeleteDb<Artist>, IReturnVoid
 }
 
 [Icon(Svg = Icons.Artist)]
-public class Artist
+public class Artist : AuditBase
 {
     [AutoIncrement]
     public int Id { get; set; }
@@ -211,7 +211,7 @@ public class DeleteModifier : IDeleteDb<Modifier>, IReturnVoid
 
 
 [Icon(Svg = Icons.Modifier)]
-public class Modifier
+public class Modifier : AuditBase
 {
     [AutoIncrement]
     public int Id { get; set; }
