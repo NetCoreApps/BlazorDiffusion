@@ -13,6 +13,7 @@ using ServiceStack.IO;
 using ServiceStack.OrmLite;
 using BlazorDiffusion.ServiceInterface;
 using AngleSharp.Diffing.Extensions;
+using System.Data;
 
 namespace BlazorDiffusion.Tests;
 
@@ -58,6 +59,35 @@ public class ImportTasks
     }
 
     [Test]
+    public void Sync_missing_modifiers()
+    {
+        var hostDir = GetHostDir();
+        var seedDir = Path.GetFullPath(Path.Combine(hostDir, "App_Data/seed").AssertDir());
+        var modifiersTxt = Path.Combine(seedDir, "modifiers.txt");
+        
+        using var db = ResolveDbFactory().OpenDbConnection();
+        var existingModifiers = db.Select<Modifier>();
+        var existingModifiersMap = existingModifiers.ToDictionary(x => x.Name);
+
+        foreach (var line in File.ReadAllLines(modifiersTxt))
+        {
+            var category = line.LeftPart(':').Trim();
+            var modifiers = line.RightPart(':').Split(',').Select(x => x.Trim()).ToList();
+            foreach (var modifier in modifiers)
+            {
+                if (existingModifiersMap.ContainsKey(modifier))
+                    continue;
+
+                Console.WriteLine($"Adding {modifier} in {category}");
+                db.Insert(new Modifier { Name = modifier, Category = category }.BySystemUser());
+            }
+        }
+    
+        var lines = ExportModifiers(db);
+        File.WriteAllLines(modifiersTxt, lines);
+    }
+
+    [Test]
     public void Export_Creatives()
     {
         var hostDir = GetHostDir();
@@ -94,6 +124,22 @@ public class ImportTasks
         ProcessUtils.Run("export.bat").Print();
     }
 
+    List<string> ExportModifiers(IDbConnection db)
+    {
+        var lines = new List<string>();
+        var modifiers = db.Select(db.From<Modifier>().SelectDistinct(x => new { x.Name, x.Category })).OrderBy(x => x.Category).ToList();
+
+        var categories = new List<string>();
+        DataService.CategoryGroups.Each(x => categories.AddRange(x.Items));
+
+        foreach (var category in categories)
+        {
+            var categoryModifiers = string.Join(", ", modifiers.Where(x => x.Category == category).OrderBy(x => x.Name).Select(x => x.Name));
+            lines.Add($"{(category + ':').PadRight(14, ' ')} {categoryModifiers}");
+        }
+        return lines;
+    }
+
 
     [Test]
     public void ExportData()
@@ -106,17 +152,7 @@ public class ImportTasks
         using var db = ResolveDbFactory().OpenDbConnection();
 
         // Export Modifiers
-        var lines = new List<string>();
-        var modifiers = db.Select<Modifier>().OrderBy(x => x.Category).ToList();
-
-        var categories = new List<string>();
-        DataService.CategoryGroups.Each(x => categories.AddRange(x.Items));
-
-        foreach (var category in categories)
-        {
-            var categoryModifiers = string.Join(", ", modifiers.Where(x => x.Category == category).OrderBy(x => x.Name).Select(x => x.Name));
-            lines.Add($"{(category + ':').PadRight(14, ' ')} {categoryModifiers}");
-        }
+        var lines = ExportModifiers(db);
         File.WriteAllLines(seedDir.CombineWith("modifiers.txt"), lines);
         File.WriteAllLines(testSeedDir.CombineWith("modifiers.txt"), lines);
 
