@@ -115,6 +115,11 @@ public class ImportTasks
             }
             else
             {
+                foreach (var artifact in creative.Artifacts)
+                {
+                    artifact.RefId = Guid.NewGuid().ToString("D");
+                }
+
                 Console.WriteLine($"Updating {metadataFile}...");
                 File.WriteAllText(metadataFile, creative.ToJson().IndentJson());
             }
@@ -161,6 +166,11 @@ public class ImportTasks
         string artistsCsv = artists.ToCsv();
         File.WriteAllText(seedDir.CombineWith("artists.csv"), artistsCsv);
         File.WriteAllText(testSeedDir.CombineWith("artists.csv"), artistsCsv);
+
+        var artifactLikes = db.Select<ArtifactLikeRef>(db.From<ArtifactLike>()
+            .Join<Artifact>()
+            .Select<ArtifactLike, Artifact>((l,a) => new { a.RefId, l.ArtifactId, l.AppUserId, l.CreatedDate }));
+        File.WriteAllText(seedDir.CombineWith("artifact-likes.csv"), artifactLikes.ToCsv());
     }
 
 }

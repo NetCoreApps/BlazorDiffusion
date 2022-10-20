@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Runtime.Serialization;
+using BlazorDiffusion.ServiceModel;
 using CoenM.ImageHash;
 using CoenM.ImageHash.HashAlgorithms;
 using Gooseai;
@@ -116,6 +117,7 @@ public class Migration1001 : MigrationBase
         public Int64? AverageHash { get; set; }
         public Int64? PerceptualHash { get; set; }
         public Int64? DifferenceHash { get; set; }
+        public string RefId { get; set; }
     }
 
     public class ArtifactFts
@@ -269,6 +271,9 @@ public class Migration1001 : MigrationBase
             }
         }
 
+        var allArtifactLikeRefs = File.ReadAllText(seedDir.CombineWith("artifact-likes.csv")).FromCsv<List<ArtifactLikeRef>>();
+
+
         var appFiles = new DirectoryInfo("./App_Files");
         if(!appFiles.Exists)
             appFiles.Create();
@@ -339,6 +344,10 @@ public class Migration1001 : MigrationBase
 
             var hashAlgorithm = new PerceptualHash();
 
+            var primaryArtifact = creative.PrimaryArtifactId != null 
+                ? creative.Artifacts.FirstOrDefault(x => x.Id == creative.PrimaryArtifactId)
+                : null;
+
             foreach (var artifact in creative.Artifacts)
             {
                 artifact.Id = 0;
@@ -346,7 +355,24 @@ public class Migration1001 : MigrationBase
                 var filePath = artifact.FilePath.Replace("/uploads/", "./App_Files/");
                 var filStream = File.OpenRead(filePath);
                 artifact.PerceptualHash = (Int64)hashAlgorithm.Hash(filStream);
-                Db.Save(artifact);
+                artifact.Id = (int)Db.Insert(artifact, selectIdentity: true);
+                
+                if (artifact.FileName == primaryArtifact?.FileName)
+                {
+                    creative.PrimaryArtifactId = artifact.Id;
+                    Db.UpdateOnly(() => new Creative { PrimaryArtifactId = artifact.Id }, 
+                        where: x => x.Id == artifact.Id);
+                }
+
+                var artifactLikeRefs = allArtifactLikeRefs.Where(x => x.RefId == artifact.RefId).ToList();
+                if (artifactLikeRefs.Count > 0)
+                {
+                    foreach (var artifactLikeRef in artifactLikeRefs)
+                    {
+                        var artistLike = X.Map(artifactLikeRef.ConvertTo<ArtifactLike>(), x => x.ArtifactId = artifact.Id);
+                        Db.Insert(artistLike);
+                    }
+                }
             }
         }
         
@@ -388,7 +414,7 @@ SELECT
 {nameof(Creative.Curated)},
 {nameof(Creative.Private)},
 {nameof(Creative.Rating)},
-{nameof(Creative.RefId)} FROM {nameof(Artifact)}
+{nameof(Creative)}.{nameof(Creative.RefId)} FROM {nameof(Artifact)}
 join {nameof(Creative)} on {nameof(Creative)}.Id = {nameof(Artifact)}.CreativeId;");
 
         var artifactTest = Db.Select<Artifact>(x => x.Id == 25).First();

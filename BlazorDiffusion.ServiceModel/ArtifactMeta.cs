@@ -16,6 +16,15 @@ public class ArtifactLike
     public DateTime CreatedDate { get; set; }
 }
 
+public class ArtifactLikeRef
+{
+    public string RefId { get; set; }
+    public int ArtifactId { get; set; }
+    public int AppUserId { get; set; }
+    public DateTime CreatedDate { get; set; }
+}
+
+
 [AutoFilter(QueryTerm.Ensure, nameof(ArtifactLike.AppUserId), Eval = "userAuthId")]
 [ValidateIsAuthenticated]
 public class QueryArtifactLikes : QueryDb<ArtifactLike>

@@ -27,8 +27,6 @@ public class CreativeService : Service
     public const int DefaultModeratorImages = 9;
     public const int DefaultModeratorSteps = 50;
 
-
-    
     public async Task<object> Post(CreateCreative request)
     {
         var modifiers = await Db.SelectAsync<Modifier>(x => Sql.In(x.Id, request.ModifierIds));
@@ -117,7 +115,7 @@ public class CreativeService : Service
         creative.ArtistNames = artists.Select(x => $"{x.FirstName} {x.LastName}").ToList();
         creative.ModifiersText = modifiers.Select(x => x.Name).ToList();
         creative.Prompt = ConstructPrompt(request.UserPrompt, modifiers, artists);
-        creative.RefId = Guid.NewGuid().ToString().ToLower();
+        creative.RefId = Guid.NewGuid().ToString("D");
 
         using var db = DbConnectionFactory.OpenDbConnection();
         using var transaction = db.OpenTransaction();
@@ -144,7 +142,8 @@ public class CreativeService : Service
             FileName = x.FileName,
             FilePath = x.FilePath,
             ContentType = MimeTypes.ImagePng,
-            ContentLength = x.ContentLength
+            ContentLength = x.ContentLength,
+            RefId = Guid.NewGuid().ToString("D"),
         }.WithAudit(userAuthId, now));
         await db.InsertAllAsync(artifacts);
         transaction.Commit();

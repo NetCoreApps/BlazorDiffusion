@@ -78,6 +78,7 @@ public class Artifact : AuditBase
     public Int64? AverageHash { get; set; }
     public Int64? PerceptualHash { get; set; }
     public Int64? DifferenceHash { get; set; }
+    public string RefId { get; set; }
 }
 
 public class QueryCreatives : QueryDb<Creative>
