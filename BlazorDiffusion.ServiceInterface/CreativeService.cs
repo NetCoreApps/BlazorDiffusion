@@ -51,10 +51,14 @@ public class CreativeService : Service
         if(artifact == null)
             throw HttpError.BadRequest($"No such Artifact ID {request.PrimaryArtifactId}");
 
-        creative.PrimaryArtifactId = request.PrimaryArtifactId;
-        await Db.SaveAsync(creative);
-        artifact.IsPrimaryArtifact = true;
-        await Db.SaveAsync(artifact);
+        var session = await GetSessionAsync();
+
+        await Db.UpdateOnlyAsync(() => 
+            new Creative { 
+                PrimaryArtifactId = request.PrimaryArtifactId,
+                ModifiedBy = session.UserAuthId,
+                ModifiedDate = DateTime.UtcNow,
+            }, where:x => x.Id == request.Id);
         
         return creative;
     }
@@ -75,9 +79,14 @@ public class CreativeService : Service
                 throw HttpError.BadRequest("You don't own this Artifact");
         }
 
-        artifact.Nsfw = request.Nsfw.GetValueOrDefault();
-        artifact.WithAudit(Request);
-        await Db.SaveAsync(artifact);
+        await Db.UpdateOnlyAsync(() =>
+            new CreativeArtifact
+            {
+                Nsfw = request.Nsfw,
+                ModifiedBy = session.UserAuthId,
+                ModifiedDate = DateTime.UtcNow,
+            }, where: x => x.Id == request.Id);
+
         return artifact;
     }
     

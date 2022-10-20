@@ -7,14 +7,12 @@ using Microsoft.Data.Sqlite;
 using ServiceStack;
 using ServiceStack.Auth;
 using ServiceStack.DataAnnotations;
-using ServiceStack.Logging;
 using ServiceStack.OrmLite;
 
 namespace BlazorDiffusion.Migrations;
 
 public class Migration1001 : MigrationBase
 {
-    public ILog Log { get; set; } = new ConsoleLogger(typeof(Migration1001));
     public class Creative : AuditBase
     {
         [AutoIncrement]
@@ -79,7 +77,7 @@ public class Migration1001 : MigrationBase
         [References(typeof(AppUser))]
         public int AppUserId { get; set; }
         
-        public bool Nsfw { get; set; }
+        public bool? Nsfw { get; set; }
         public bool Other { get; set; }
         public string? Description { get; set; }
     }
@@ -105,9 +103,8 @@ public class Migration1001 : MigrationBase
         public int Height { get; set; }
         public ulong Seed { get; set; }
         public string Prompt { get; set; }
-        public bool IsPrimaryArtifact { get; set; }
-        public bool Nsfw { get; set; }
-        
+        public bool? Nsfw { get; set; }
+
         public Int64? AverageHash { get; set; }
         public Int64? PerceptualHash { get; set; }
         public Int64? DifferenceHash { get; set; }
@@ -119,17 +116,13 @@ public class Migration1001 : MigrationBase
         public int Width { get; set; }
         public int Height { get; set; }
         public string Prompt { get; set; }
-        public bool Nsfw { get; set; }
+        public bool? Nsfw { get; set; }
         public DateTime CreatedDate { get; set; }
         public bool Curated { get; set; }
         public int? Rating { get; set; }
         public bool Private { get; set; }
         
         public string RefId { get; set; }
-        
-        public Int64? AverageHash { get; set; }
-        public Int64? PerceptualHash { get; set; }
-        public Int64? DifferenceHash { get; set; }
     }
     
     public class Artist : AuditBase

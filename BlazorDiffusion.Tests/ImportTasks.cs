@@ -69,19 +69,10 @@ public class ImportTasks
         {
             //var key = metadataFile.Replace('\\','/').Substring(artifactPaths.Length).LastLeftPart('/').TrimStart('/');
 
+            // Resave to remove removed columns
             var creative = File.ReadAllText(metadataFile).FromJson<Creative>();
-            if (creative.CreatedBy != null && (creative.CreatedBy == "1" || !int.TryParse(creative.CreatedBy, out _)))
-            {
-                creative.CreatedBy = "2";
-                creative.ModifiedBy = "2";
-            }
+            creative.Artifacts.Each(x => x.Nsfw = null);
 
-            //creative.Key = key;
-            //foreach (var artifact in creative.Artifacts)
-            //{
-            //    artifact.FilePath = $"/uploads/artifacts/{key}/{artifact.FileName}";
-            //}
-            //creative.ToJson().Print();
             File.WriteAllText(metadataFile, creative.ToJson().IndentJson());
         }
     }
