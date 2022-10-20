@@ -83,6 +83,7 @@ public class ImportTasks
     {
         var hostDir = GetHostDir();
         
+        var testSeedDir = Path.GetFullPath("../../../App_Data/seed");
         var seedDir = Path.GetFullPath(Path.Combine(hostDir, "App_Data/seed").AssertDir());
 
         using var db = ResolveDbFactory().OpenDbConnection();
@@ -100,10 +101,13 @@ public class ImportTasks
             lines.Add($"{(category + ':').PadRight(14, ' ')} {categoryModifiers}");
         }
         File.WriteAllLines(seedDir.CombineWith("modifiers.txt"), lines);
+        File.WriteAllLines(testSeedDir.CombineWith("modifiers.txt"), lines);
 
         // Export Artists
         var artists = db.Select<Artist>();
-        File.WriteAllText(seedDir.CombineWith("artists.csv"), artists.ToCsv());
+        string artistsCsv = artists.ToCsv();
+        File.WriteAllText(seedDir.CombineWith("artists.csv"), artistsCsv);
+        File.WriteAllText(testSeedDir.CombineWith("artists.csv"), artistsCsv);
     }
 
 }

@@ -10,7 +10,7 @@ namespace BlazorDiffusion.ServiceInterface;
 public class DataService : Service
 {
     public static List<Group> CategoryGroups = new Group[] {
-        new() { Name = "Scene",     Items = new[] { "Quality", "Style", "Aesthetic", "Medium", "Setting", "Theme" } },
+        new() { Name = "Scene",     Items = new[] { "Quality", "Style", "Aesthetic", "Features", "Medium", "Setting", "Theme" } },
         new() { Name = "Effects",   Items = new[] { "Effects", "CGI", "Filters", "Lenses", "Photography", "Lighting", "Color" } },
         new() { Name = "Art Style", Items = new[] { "Art Movement", "Art Style", "18 Century", "19 Century", "20 Century", "21 Century" } },
         new() { Name = "Mood",      Items = new[] { "Positive Mood", "Negative Mood" } },
