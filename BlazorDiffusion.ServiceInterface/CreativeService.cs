@@ -48,7 +48,7 @@ public class CreativeService : Service
             throw HttpError.NotFound($"Creative not found");
 
         var session = await GetSessionAsync();
-        if (!await session.IsOwnerOrModerator(AuthRepositoryAsync, creative.AppUserId))
+        if (!await session.IsOwnerOrModerator(AuthRepositoryAsync, creative.OwnerId))
             throw HttpError.Forbidden("You don't own this Creative");
 
         var artifactId = request.UnpinPrimaryArtifact == true
@@ -81,7 +81,7 @@ public class CreativeService : Service
         var creative = await Db.LoadSingleByIdAsync<Creative>(artifact.CreativeId);
         
         var session = await GetSessionAsync();
-        if (!await session.IsOwnerOrModerator(AuthRepositoryAsync, creative?.AppUserId))
+        if (!await session.IsOwnerOrModerator(AuthRepositoryAsync, creative?.OwnerId))
             throw HttpError.Forbidden("You don't own this Creative");
 
         await Db.UpdateOnlyAsync(() =>
@@ -108,7 +108,7 @@ public class CreativeService : Service
         creative.Width = request.Width ?? DefaultWidth;
         creative.Height = request.Height ?? DefaultHeight;
         creative.Steps = request.Steps ?? DefaultSteps;
-        creative.AppUserId = userId;
+        creative.OwnerId = userId;
         creative.Key = imageGenerationResponse.Key;
         creative.ArtistNames = artists.Select(x => $"{x.FirstName} {x.LastName}").ToList();
         creative.ModifiersText = modifiers.Select(x => x.Name).ToList();

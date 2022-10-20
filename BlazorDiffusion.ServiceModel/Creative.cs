@@ -39,7 +39,7 @@ public class Creative : AuditBase
     public string? Error { get; set; }
     
     [References(typeof(AppUser))]
-    public int? AppUserId { get; set; }
+    public int? OwnerId { get; set; }
     public string? Key { get; set; }
     
     public bool Curated { get; set; }
@@ -85,6 +85,7 @@ public class QueryCreatives : QueryDb<Creative>
     public int? Id { get; set; }
     public int? CreativeId { get; set; }
     public string? CreatedBy { get; set; }
+    public int? OwnerId { get; set; }
 }
 
 [AutoApply(Behavior.AuditCreate)]

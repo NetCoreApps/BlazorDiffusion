@@ -12,6 +12,7 @@
 <AutoQueryGrid Model="Creative" Apis="Apis.AutoQuery<QueryCreatives,CreateCreative,UpdateCreative,HardDeleteCreative>()">
     <Columns>
         <Column Field="(Creative x) => x.Id" />
+        <Column Title="User" Field="(Creative x) => x.OwnerId" />
         <Column Field="(Creative x) => x.Prompt" />
         <Column Field="(Creative x) => x.Images" />
         <Column Field="(Creative x) => x.Width" />

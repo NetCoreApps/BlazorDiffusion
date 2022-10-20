@@ -45,7 +45,7 @@ public class Migration1001 : MigrationBase
         public string? Error { get; set; }
         
         [References(typeof(AppUser))]
-        public int? AppUserId { get; set; }
+        public int? OwnerId { get; set; }
         public string? Key { get; set; }
         
         public bool Curated { get; set; }
@@ -269,7 +269,7 @@ public class Migration1001 : MigrationBase
             creativeEntries.Add(creative);
         }
 
-        var savedModifiers = new Dictionary<string, int>();
+        var savedModifiers = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         var allMods = Db.Select<Modifier>();
         foreach (var modifier in allMods)
         {
@@ -278,12 +278,12 @@ public class Migration1001 : MigrationBase
                 Console.WriteLine($"Duplicate - {modifier.Category}/{modifier.Name.ToLowerInvariant()}");
         }
 
-        var savedArtistIds = new Dictionary<string, int>();
+        var savedArtistIds = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         var allArtists = Db.Select<Artist>();
         foreach (var a in allArtists)
         {
             var isUnique = savedArtistIds.TryAdd($"{a.FirstName} {a.LastName}".ToLowerInvariant(), a.Id);
-            if(!isUnique)
+            if (!isUnique)
                 Console.WriteLine($"Duplicate - {a.FirstName} {a.LastName}");
         }
         
@@ -294,7 +294,7 @@ public class Migration1001 : MigrationBase
             creative.Modifiers = new List<CreativeModifier>();
             creative.ModifiersText ??= new List<string>();
             creative.ArtistNames ??= new List<string>();
-            creative.AppUserId = null;
+            creative.OwnerId = creative.CreatedBy != null ? creative.CreatedBy.ToInt() : 2;
             var id = creative.Id = (int)Db.Insert(creative, selectIdentity: true);
             foreach (var text in creative.ModifiersText)
             {
@@ -308,12 +308,18 @@ public class Migration1001 : MigrationBase
 
             foreach (var artistName in creative.ArtistNames)
             {
-                var artist = savedArtistIds[artistName.ToLowerInvariant()];
-                Db.Insert(new CreativeArtist
+                if (savedArtistIds.TryGetValue(artistName, out var artist))
                 {
-                    ArtistId = artist,
-                    CreativeId = id
-                });
+                    Db.Insert(new CreativeArtist
+                    {
+                        ArtistId = artist,
+                        CreativeId = id
+                    });
+                }
+                else
+                {
+                    Console.WriteLine($"NotFound: Artist {artistName}");
+                }
             }
 
             var hashAlgorithm = new PerceptualHash();
