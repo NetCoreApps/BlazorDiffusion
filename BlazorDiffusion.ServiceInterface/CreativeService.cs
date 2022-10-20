@@ -9,6 +9,7 @@ using ServiceStack.Auth;
 using ServiceStack.Configuration;
 using ServiceStack.Data;
 using ServiceStack.OrmLite;
+using ServiceStack.Text;
 
 namespace BlazorDiffusion.ServiceInterface;
 
@@ -21,6 +22,9 @@ public class CreativeService : Service
     public const int DefaultWidth = 512;
     public const int DefaultImages = 4;
     public const int DefaultSteps = 50;
+
+    public const int DefaultModeratorImages = 9;
+    public const int DefaultModeratorSteps = 50;
     
     public async Task<object> Post(CreateCreative request)
     {
@@ -134,6 +138,8 @@ public class CreativeService : Service
     private async Task<ImageGenerationResponse> GenerateImage(CreateCreative request,
         List<Modifier> modifiers, List<Artist> artists)
     {
+        var authSession = await GetSessionAsync().ConfigAwait();
+        var adminOrMod = await authSession.HasAllRolesAsync(new[] {AppRoles.Admin,AppRoles.Moderator}, AuthRepositoryAsync, Request);
         var apiPrompt = ConstructPrompt(request.UserPrompt, modifiers, artists);
         var imageGenOptions = new ImageGeneration
         {
@@ -141,8 +147,8 @@ public class CreativeService : Service
             Engine = DefaultEngine,
             Height = request.Height ?? DefaultHeight,
             Width = request.Width ?? DefaultWidth,
-            Images = request.Images ?? DefaultImages,
-            Steps = request.Steps ?? DefaultSteps,
+            Images = request.Images ?? (adminOrMod ? DefaultModeratorImages : DefaultImages),
+            Steps = request.Steps ?? (adminOrMod ? DefaultModeratorSteps : DefaultSteps),
             Seed = request.Seed
         };
 
