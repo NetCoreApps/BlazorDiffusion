@@ -6,6 +6,8 @@ using ServiceStack.Blazor;
 using ServiceStack.Blazor.Components.Tailwind;
 using ServiceStack.Blazor.Components;
 using static System.Net.Mime.MediaTypeNames;
+using Gooseai;
+using ServiceStack.Text;
 
 namespace BlazorDiffusion.Pages;
 
@@ -177,6 +179,19 @@ public partial class Create : AppAuthComponentBase
         creative = api.Response;
 
         await loadHistory();
+    }
+
+    async Task pinArtifact(CreativeArtifact artifact)
+    {
+        var hold = creative!.PrimaryArtifactId;
+        creative.PrimaryArtifactId = artifact.Id;
+
+        var api = await ApiAsync(new UpdateCreative { Id = artifact.CreativeId, PrimaryArtifactId = artifact.Id });
+        if (!api.Succeeded)
+        {
+            creative.PrimaryArtifactId = hold;
+        }
+        StateHasChanged();
     }
 
     void navTo(int? creativeId = null, int? artifactId = null)
