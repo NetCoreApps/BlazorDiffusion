@@ -76,9 +76,9 @@ public class CreativeArtifact : AuditBase
     public bool IsPrimaryArtifact { get; set; }
     public bool Nsfw { get; set; }
     
-    public string? AverageHash { get; set; }
-    public string? PerceptualHash { get; set; }
-    public string? DifferenceHash { get; set; }
+    public Int64? AverageHash { get; set; }
+    public Int64? PerceptualHash { get; set; }
+    public Int64? DifferenceHash { get; set; }
 }
 
 public class QueryCreatives : QueryDb<Creative>

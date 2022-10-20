@@ -1,14 +1,20 @@
-﻿using System.Runtime.Serialization;
+﻿using System.Diagnostics;
+using System.Runtime.Serialization;
+using CoenM.ImageHash;
+using CoenM.ImageHash.HashAlgorithms;
 using Gooseai;
+using Microsoft.Data.Sqlite;
 using ServiceStack;
 using ServiceStack.Auth;
 using ServiceStack.DataAnnotations;
+using ServiceStack.Logging;
 using ServiceStack.OrmLite;
 
 namespace BlazorDiffusion.Migrations;
 
 public class Migration1001 : MigrationBase
 {
+    public ILog Log { get; set; } = new ConsoleLogger(typeof(Migration1001));
     public class Creative : AuditBase
     {
         [AutoIncrement]
@@ -101,6 +107,10 @@ public class Migration1001 : MigrationBase
         public string Prompt { get; set; }
         public bool IsPrimaryArtifact { get; set; }
         public bool Nsfw { get; set; }
+        
+        public Int64? AverageHash { get; set; }
+        public Int64? PerceptualHash { get; set; }
+        public Int64? DifferenceHash { get; set; }
     }
 
     public class CreativeArtifactFts
@@ -116,6 +126,10 @@ public class Migration1001 : MigrationBase
         public bool Private { get; set; }
         
         public string RefId { get; set; }
+        
+        public Int64? AverageHash { get; set; }
+        public Int64? PerceptualHash { get; set; }
+        public Int64? DifferenceHash { get; set; }
     }
     
     public class Artist : AuditBase
@@ -309,10 +323,15 @@ public class Migration1001 : MigrationBase
                 });
             }
 
+            var hashAlgorithm = new PerceptualHash();
+
             foreach (var artifact in creative.Artifacts)
             {
                 artifact.Id = 0;
                 artifact.CreativeId = id;
+                var filePath = artifact.FilePath.Replace("/uploads/", "./App_Files/");
+                var filStream = File.OpenRead(filePath);
+                artifact.PerceptualHash = (long)hashAlgorithm.Hash(filStream);
                 Db.Save(artifact);
             }
         }
@@ -357,7 +376,30 @@ SELECT
 {nameof(Creative.Rating)},
 {nameof(Creative.RefId)} FROM {nameof(CreativeArtifact)}
 join {nameof(Creative)} on {nameof(Creative)}.Id = {nameof(CreativeArtifact)}.CreativeId;");
+
+        var connection = (SqliteConnection)Db.ToDbConnection();
+        connection.CreateFunction(
+            "imgcompare",
+            (Int64 hash1, Int64 hash2)
+                => CompareHash.Similarity((ulong)hash1,(ulong)hash2));
         
+        var sw = new Stopwatch();
+        sw.Start();
+        var result = Db.Select<ImageCompareResult>(@"
+select FilePath, PerceptualHash, imgcompare(-7875609833512585548,PerceptualHash) as Similarity from CreativeArtifact
+order by Similarity desc;
+");
+
+        sw.Stop();
+        
+        Console.WriteLine($"ImgSearch took: {sw.ElapsedMilliseconds}ms");
+    }
+
+    class ImageCompareResult
+    {
+        public string FilePath { get; set; }
+        public ulong PerceptualHash { get; set; }
+        public double Similarity { get; set; }
     }
     
     private string ConstructPrompt(string userPrompt, List<string> modifiers, List<string> artists)

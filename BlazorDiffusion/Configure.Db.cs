@@ -1,3 +1,5 @@
+using CoenM.ImageHash;
+using Microsoft.Data.Sqlite;
 using ServiceStack.Data;
 using ServiceStack.OrmLite;
 
@@ -11,5 +13,14 @@ public class ConfigureDb : IHostingStartup
     public void Configure(IWebHostBuilder builder) => builder
         .ConfigureServices((context,services) => services.AddSingleton<IDbConnectionFactory>(new OrmLiteConnectionFactory(
             context.Configuration.GetConnectionString("DefaultConnection") ?? "App_Data/db.sqlite",
-            SqliteDialect.Provider)));
+            SqliteDialect.Provider)))
+        .ConfigureAppHost(appHost =>
+        {
+            using var db = appHost.Resolve<IDbConnectionFactory>().OpenDbConnection();
+            var connection = (SqliteConnection)db.ToDbConnection();
+            connection.CreateFunction(
+                "imgcompare",
+                (UInt64 hash1, UInt64 hash2)
+                    => CompareHash.Similarity(hash1,hash2));
+        });
 }
