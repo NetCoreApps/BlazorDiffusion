@@ -102,6 +102,21 @@ public class Migration1001 : MigrationBase
         public bool IsPrimaryArtifact { get; set; }
         public bool Nsfw { get; set; }
     }
+
+    public class CreativeArtifactFts
+    {
+        public int CreativeId { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public string Prompt { get; set; }
+        public bool Nsfw { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public bool Curated { get; set; }
+        public int? Rating { get; set; }
+        public bool Private { get; set; }
+        
+        public string RefId { get; set; }
+    }
     
     public class Artist : AuditBase
     {
@@ -301,6 +316,48 @@ public class Migration1001 : MigrationBase
                 Db.Save(artifact);
             }
         }
+        
+        // Create virtual tables for SQLite Full Text Search
+        Db.ExecuteNonQuery($@"CREATE VIRTUAL TABLE {nameof(CreativeArtifactFts)}
+USING FTS5(
+{nameof(CreativeArtifactFts.Prompt)},
+{nameof(CreativeArtifactFts.CreativeId)},
+{nameof(CreativeArtifactFts.Width)},
+{nameof(CreativeArtifactFts.Height)},
+{nameof(CreativeArtifactFts.Nsfw)},
+{nameof(CreativeArtifactFts.CreatedDate)},
+{nameof(CreativeArtifactFts.Curated)},
+{nameof(CreativeArtifactFts.Private)},
+{nameof(CreativeArtifactFts.Rating)},
+{nameof(CreativeArtifactFts.RefId)});"
+        );
+
+        Db.ExecuteNonQuery($@"INSERT INTO {nameof(CreativeArtifactFts)} 
+(rowid,
+{nameof(CreativeArtifactFts.Prompt)},
+{nameof(CreativeArtifactFts.CreativeId)},
+{nameof(CreativeArtifactFts.Width)},
+{nameof(CreativeArtifactFts.Height)},
+{nameof(CreativeArtifactFts.Nsfw)},
+{nameof(CreativeArtifactFts.CreatedDate)},
+{nameof(CreativeArtifactFts.Curated)},
+{nameof(CreativeArtifactFts.Private)},
+{nameof(CreativeArtifactFts.Rating)},
+{nameof(CreativeArtifactFts.RefId)})
+SELECT 
+{nameof(CreativeArtifact)}.{nameof(CreativeArtifact.Id)},
+{nameof(CreativeArtifact)}.{nameof(CreativeArtifact.Prompt)},
+{nameof(CreativeArtifact)}.{nameof(CreativeArtifact.CreativeId)},
+{nameof(CreativeArtifact)}.{nameof(CreativeArtifact.Width)},
+{nameof(CreativeArtifact)}.{nameof(CreativeArtifact.Height)},
+{nameof(CreativeArtifact)}.{nameof(CreativeArtifact.Nsfw)},
+{nameof(CreativeArtifact)}.{nameof(CreativeArtifact.CreatedDate)},
+{nameof(Creative.Curated)},
+{nameof(Creative.Private)},
+{nameof(Creative.Rating)},
+{nameof(Creative.RefId)} FROM {nameof(CreativeArtifact)}
+join {nameof(Creative)} on {nameof(Creative)}.Id = {nameof(CreativeArtifact)}.CreativeId;");
+        
     }
     
     private string ConstructPrompt(string userPrompt, List<string> modifiers, List<string> artists)
@@ -325,6 +382,7 @@ public class Migration1001 : MigrationBase
         Db.DropTable<Modifier>();
         Db.DropTable<Artist>();
         Db.DropTable<AppUser>();
+        Db.DropTable<CreativeArtifactFts>();
     }
 
 }

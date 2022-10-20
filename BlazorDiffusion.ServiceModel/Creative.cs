@@ -284,3 +284,26 @@ public class CreativeModifier
     public Modifier Modifier { get; set; }
 }
 
+/// <summary>
+/// SQLite FTS table. Uses `rowid` as primary key
+/// which is the CreativeArtifact.Id primary key.
+///
+/// One entry per CreativeArtifact while also
+/// using data from Creative.
+/// </summary>
+public class CreativeArtifactFts
+{
+    public string rowid { get; set; }
+    public int CreativeId { get; set; }
+    public int Width { get; set; }
+    public int Height { get; set; }
+    public string Prompt { get; set; }
+    public bool Nsfw { get; set; }
+    public DateTime CreatedDate { get; set; }
+    public bool Curated { get; set; }
+    public int? Rating { get; set; }
+    public bool Private { get; set; }
+        
+    public string RefId { get; set; }
+}
+
