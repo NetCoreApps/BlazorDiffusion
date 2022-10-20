@@ -45,13 +45,15 @@ public class CreativeService : Service
     {
         var creative = await Db.LoadSingleByIdAsync<Creative>(request.Id);
         if (creative == null)
-            throw HttpError.NotFound($"Creative {request.Id} not found");
+            throw HttpError.NotFound($"Creative not found");
 
         var artifact = creative.Artifacts.SingleOrDefault(x => x.Id == request.PrimaryArtifactId);
-        if(artifact == null)
-            throw HttpError.BadRequest($"No such Artifact ID {request.PrimaryArtifactId}");
+        if (artifact == null)
+            throw HttpError.NotFound($"Artifact not found");
 
         var session = await GetSessionAsync();
+        if (!await session.IsOwnerOrModerator(AuthRepositoryAsync, creative.AppUserId))
+            throw HttpError.Forbidden("You don't own this Artifact");
 
         await Db.UpdateOnlyAsync(() => 
             new Creative { 
@@ -66,18 +68,14 @@ public class CreativeService : Service
     public async Task<object> Patch(UpdateCreativeArtifact request)
     {
         var artifact = await Db.LoadSingleByIdAsync<CreativeArtifact>(request.Id);
-        
-        if(artifact == null)
-            throw HttpError.NotFound("Artifact not found.");
+        if (artifact == null)
+            throw HttpError.NotFound("Artifact not found");
 
         var creative = await Db.LoadSingleByIdAsync<Creative>(artifact.CreativeId);
         
         var session = await GetSessionAsync();
-        if (!session.HasRole(RoleNames.Admin, AuthRepository))
-        {
-            if(creative?.AppUserId.ToString() != session.UserAuthId)
-                throw HttpError.BadRequest("You don't own this Artifact");
-        }
+        if (!await session.IsOwnerOrModerator(AuthRepositoryAsync, creative?.AppUserId))
+            throw HttpError.Forbidden("You don't own this Artifact");
 
         await Db.UpdateOnlyAsync(() =>
             new CreativeArtifact
@@ -203,6 +201,23 @@ public class CreativeService : Service
 
         await StableDiffusionClient.DeleteFolderAsync(creative);
     }
+}
+
+public static class CreateServiceUtils
+{
+    public static async Task<bool> IsUserAdminOrModerator(this Service service, int? userId) => 
+        await (await service.GetSessionAsync()).IsOwnerOrModerator(service.AuthRepositoryAsync, userId);
+
+    public static async Task<bool> IsOwnerOrModerator(this IAuthSession session, IAuthRepositoryAsync AuthRepositoryAsync, int? ownerId)
+    {
+        var roles = await session.GetRolesAsync(AuthRepositoryAsync);
+        if (!roles.Contains(AppRoles.Admin) && !roles.Contains(AppRoles.Moderator))
+        {
+            return ownerId != null && ownerId.ToString() == session.UserAuthId;
+        }
+        return true;
+    }
+
 }
 
 public interface IStableDiffusionClient
