@@ -15,6 +15,25 @@ public class SearchDataResponse
     public List<ModifierInfo> Modifiers { get; set; }
 }
 
+public class FindSimilarArtifacts
+{
+    public string CreativeArtifactId { get; set; }
+    public int? Skip { get; set; }
+    public int? Take { get; set; }
+}
+
+public class FindSimilarArtifactsResponse
+{
+    public List<CreativeArtifact> Results { get; set; }
+}
+
+public class ImageCompareResult
+{
+    public int Id { get; set; }
+    public Int64 PerceptualHash { get; set; }
+    public double Similarity { get; set; }
+}
+
 public class Group
 {
     public string Name { get; set; }

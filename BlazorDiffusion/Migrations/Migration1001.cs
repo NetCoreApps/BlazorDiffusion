@@ -226,6 +226,13 @@ public class Migration1001 : MigrationBase
         public DateTime CreatedDate { get; set; }
         public DateTime ModifiedDate { get; set; }
     }
+    
+    class ImageCompareResult
+    {
+        public int Id { get; set; }
+        public ulong PerceptualHash { get; set; }
+        public double Similarity { get; set; }
+    }
 
     public override void Up()
     {
@@ -330,7 +337,7 @@ public class Migration1001 : MigrationBase
                 artifact.CreativeId = id;
                 var filePath = artifact.FilePath.Replace("/uploads/", "./App_Files/");
                 var filStream = File.OpenRead(filePath);
-                artifact.PerceptualHash = (long)hashAlgorithm.Hash(filStream);
+                artifact.PerceptualHash = (Int64)hashAlgorithm.Hash(filStream);
                 Db.Save(artifact);
             }
         }
@@ -376,6 +383,7 @@ SELECT
 {nameof(Creative.RefId)} FROM {nameof(CreativeArtifact)}
 join {nameof(Creative)} on {nameof(Creative)}.Id = {nameof(CreativeArtifact)}.CreativeId;");
 
+        var artifactTest = Db.Select<CreativeArtifact>(x => x.Id == 25).First();
         var connection = (SqliteConnection)Db.ToDbConnection();
         connection.CreateFunction(
             "imgcompare",
@@ -384,23 +392,14 @@ join {nameof(Creative)} on {nameof(Creative)}.Id = {nameof(CreativeArtifact)}.Cr
         
         var sw = new Stopwatch();
         sw.Start();
-        var result = Db.Select<ImageCompareResult>(@"
-select FilePath, PerceptualHash, imgcompare(-7875609833512585548,PerceptualHash) as Similarity from CreativeArtifact
+        var result = Db.Select<ImageCompareResult>($@"
+select FilePath, PerceptualHash, imgcompare({artifactTest.PerceptualHash},PerceptualHash) as Similarity from CreativeArtifact
 order by Similarity desc;
 ");
 
         sw.Stop();
-        
-        Console.WriteLine($"ImgSearch took: {sw.ElapsedMilliseconds}ms");
     }
 
-    class ImageCompareResult
-    {
-        public string FilePath { get; set; }
-        public ulong PerceptualHash { get; set; }
-        public double Similarity { get; set; }
-    }
-    
     private string ConstructPrompt(string userPrompt, List<string> modifiers, List<string> artists)
     {
         var finalPrompt = userPrompt;

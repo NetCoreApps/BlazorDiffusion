@@ -20,7 +20,7 @@ public class ConfigureDb : IHostingStartup
             var connection = (SqliteConnection)db.ToDbConnection();
             connection.CreateFunction(
                 "imgcompare",
-                (UInt64 hash1, UInt64 hash2)
-                    => CompareHash.Similarity(hash1,hash2));
+                (Int64 hash1, Int64 hash2)
+                    => CompareHash.Similarity((ulong)hash1,(ulong)hash2));
         });
 }

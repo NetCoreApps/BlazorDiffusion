@@ -1,9 +1,13 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Diagnostics;
 using ServiceStack;
 using ServiceStack.OrmLite;
 using BlazorDiffusion.ServiceModel;
+using CoenM.ImageHash;
+using Microsoft.Data.Sqlite;
 
 namespace BlazorDiffusion.ServiceInterface;
 
@@ -32,5 +36,56 @@ public class DataService : Service
                 .Select(x => new ModifierInfo { Id = x.Id, Name = x.Name, Category = x.Category }).ToList(),
         };
         return to;
+    }
+
+    private const int LowestSimilarityThreshold = 60;
+    private const int StartingSimilarityThreshold = 90;
+    private const int SimilarityThresholdReductionIncrement = 5;
+    private const int DefaultFindSimilarityPageSize = 20;
+
+    public async Task<object> Any(FindSimilarArtifacts request)
+    {
+        var artifact = await Db.SingleAsync<CreativeArtifact>(request.CreativeArtifactId);
+        if (artifact == null)
+            throw HttpError.NotFound($"Artifact ID {request.CreativeArtifactId} not found.");
+        var perceptualHash = artifact.PerceptualHash;
+        if (perceptualHash == null)
+            // TODO just in time hash of request based image?
+            throw HttpError.BadRequest($"Artifact ID {artifact.Id} not hashed.");
+        
+        var connection = (SqliteConnection)Db.ToDbConnection();
+        connection.CreateFunction(
+            "imgcompare",
+            (Int64 hash1, Int64 hash2)
+                => CompareHash.Similarity((ulong)hash1,(ulong)hash2));
+
+        var skip = request.Skip ?? 0;
+        var take = request.Take ?? DefaultFindSimilarityPageSize;
+        var similarityThreshold = StartingSimilarityThreshold;
+        
+        var sql = BuildSimilaritySearchSql((long)perceptualHash, take, skip, similarityThreshold);
+        var matches = await Db.SelectAsync<ImageCompareResult>(sql);
+        
+        while (matches.Count < take && similarityThreshold >= LowestSimilarityThreshold)
+        {
+            similarityThreshold -= SimilarityThresholdReductionIncrement;
+            sql = BuildSimilaritySearchSql((long)perceptualHash, take, skip, similarityThreshold);
+            matches = await Db.SelectAsync<ImageCompareResult>(sql);
+        }
+
+        var results = await Db.SelectAsync<CreativeArtifact>(x => Sql.In(x.Id, matches.Select(y => y.Id)));
+        return new FindSimilarArtifactsResponse
+        {
+            Results = results
+        };
+    }
+
+    private string BuildSimilaritySearchSql(long perceptualHash, int take, int skip, int similarityThreshold)
+    {
+        return $@"
+select rowid, PerceptualHash, imgcompare({perceptualHash},PerceptualHash) as Similarity from CreativeArtifact
+where Similarity > {similarityThreshold} and PerceptualHash != {perceptualHash}
+order by Similarity desc limit {take} offset {skip};
+";
     }
 }
