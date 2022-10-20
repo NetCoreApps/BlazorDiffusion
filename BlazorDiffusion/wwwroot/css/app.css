@@ -899,10 +899,6 @@ input[data-autocompleted] {
   top: 0px;
 }
 
-.bottom-0 {
-  bottom: 0px;
-}
-
 .left-0 {
   left: 0px;
 }
@@ -917,6 +913,10 @@ input[data-autocompleted] {
 
 .top-24 {
   top: 6rem;
+}
+
+.bottom-0 {
+  bottom: 0px;
 }
 
 .bottom-full {
@@ -951,10 +951,6 @@ input[data-autocompleted] {
   right: -11rem;
 }
 
-.top-2 {
-  top: 0.5rem;
-}
-
 .z-10 {
   z-index: 10;
 }
@@ -975,6 +971,10 @@ input[data-autocompleted] {
   margin: 1rem;
 }
 
+.m-1 {
+  margin: 0.25rem;
+}
+
 .m-2 {
   margin: 0.5rem;
 }
@@ -987,18 +987,9 @@ input[data-autocompleted] {
   margin: 0px;
 }
 
-.m-1 {
-  margin: 0.25rem;
-}
-
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
-}
-
-.my-8 {
-  margin-top: 2rem;
-  margin-bottom: 2rem;
 }
 
 .my-2 {
@@ -1097,6 +1088,10 @@ input[data-autocompleted] {
   margin-bottom: -1px;
 }
 
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
 .mb-40 {
   margin-bottom: 10rem;
 }
@@ -1107,6 +1102,10 @@ input[data-autocompleted] {
 
 .mt-1 {
   margin-top: 0.25rem;
+}
+
+.mb-1 {
+  margin-bottom: 0.25rem;
 }
 
 .-mt-2 {
@@ -1151,10 +1150,6 @@ input[data-autocompleted] {
 
 .mb-8 {
   margin-bottom: 2rem;
-}
-
-.mb-2 {
-  margin-bottom: 0.5rem;
 }
 
 .ml-1 {
@@ -1221,10 +1216,6 @@ input[data-autocompleted] {
   margin-right: 0.75rem;
 }
 
-.mb-1 {
-  margin-bottom: 0.25rem;
-}
-
 .block {
   display: block;
 }
@@ -1281,16 +1272,16 @@ input[data-autocompleted] {
   height: 100%;
 }
 
+.h-6 {
+  height: 1.5rem;
+}
+
 .h-8 {
   height: 2rem;
 }
 
 .h-32 {
   height: 8rem;
-}
-
-.h-6 {
-  height: 1.5rem;
 }
 
 .h-5 {
@@ -1361,16 +1352,16 @@ input[data-autocompleted] {
   width: 15rem;
 }
 
+.w-6 {
+  width: 1.5rem;
+}
+
 .w-8 {
   width: 2rem;
 }
 
 .w-40 {
   width: 10rem;
-}
-
-.w-6 {
-  width: 1.5rem;
 }
 
 .w-5 {
@@ -1753,16 +1744,16 @@ input[data-autocompleted] {
   border-radius: 9999px !important;
 }
 
+.rounded-xl {
+  border-radius: 0.75rem;
+}
+
 .rounded-lg {
   border-radius: 0.5rem;
 }
 
 .rounded {
   border-radius: 0.25rem;
-}
-
-.rounded-xl {
-  border-radius: 0.75rem;
 }
 
 .rounded-l-md {
@@ -1830,6 +1821,11 @@ input[data-autocompleted] {
 
 .border-transparent {
   border-color: transparent;
+}
+
+.border-yellow-500 {
+  --tw-border-opacity: 1;
+  border-color: rgb(234 179 8 / var(--tw-border-opacity));
 }
 
 .border-cyan-500 {
@@ -2143,16 +2139,16 @@ input[data-autocompleted] {
   padding-left: 0.5rem;
 }
 
+.pb-2 {
+  padding-bottom: 0.5rem;
+}
+
 .pt-5 {
   padding-top: 1.25rem;
 }
 
 .pl-3 {
   padding-left: 0.75rem;
-}
-
-.pb-2 {
-  padding-bottom: 0.5rem;
 }
 
 .pr-3 {
@@ -2386,14 +2382,19 @@ input[data-autocompleted] {
   color: rgb(209 213 219 / var(--tw-text-opacity));
 }
 
-.text-gray-600 {
+.text-zinc-100 {
   --tw-text-opacity: 1;
-  color: rgb(75 85 99 / var(--tw-text-opacity));
+  color: rgb(244 244 245 / var(--tw-text-opacity));
 }
 
 .text-cyan-600 {
   --tw-text-opacity: 1;
   color: rgb(8 145 178 / var(--tw-text-opacity));
+}
+
+.text-gray-600 {
+  --tw-text-opacity: 1;
+  color: rgb(75 85 99 / var(--tw-text-opacity));
 }
 
 .text-green-600 {
@@ -2510,11 +2511,6 @@ input[data-autocompleted] {
   color: rgb(229 231 235 / var(--tw-text-opacity));
 }
 
-.text-zinc-100 {
-  --tw-text-opacity: 1;
-  color: rgb(244 244 245 / var(--tw-text-opacity));
-}
-
 .underline {
   -webkit-text-decoration-line: underline;
           text-decoration-line: underline;
@@ -2625,6 +2621,12 @@ input[data-autocompleted] {
   transition-duration: 150ms;
 }
 
+.transition-opacity {
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
 .transition-transform {
   transition-property: transform;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -2635,12 +2637,6 @@ input[data-autocompleted] {
   transition-property: color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-}
-
-.transition-opacity {
-  transition-property: opacity;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
@@ -2766,10 +2762,6 @@ input[data-autocompleted] {
   color: rgb(109 40 217 / var(--tw-text-opacity));
 }
 
-.hover\:block:hover {
-  display: block;
-}
-
 .hover\:border-gray-300:hover {
   --tw-border-opacity: 1;
   border-color: rgb(209 213 219 / var(--tw-border-opacity));
@@ -2885,6 +2877,11 @@ input[data-autocompleted] {
   color: rgb(17 24 39 / var(--tw-text-opacity));
 }
 
+.hover\:text-cyan-400:hover {
+  --tw-text-opacity: 1;
+  color: rgb(34 211 238 / var(--tw-text-opacity));
+}
+
 .hover\:text-gray-800:hover {
   --tw-text-opacity: 1;
   color: rgb(31 41 55 / var(--tw-text-opacity));
@@ -2915,23 +2912,9 @@ input[data-autocompleted] {
   color: rgb(30 64 175 / var(--tw-text-opacity));
 }
 
-.hover\:text-white:hover {
-  --tw-text-opacity: 1;
-  color: rgb(255 255 255 / var(--tw-text-opacity));
-}
-
-.hover\:text-cyan-400:hover {
-  --tw-text-opacity: 1;
-  color: rgb(34 211 238 / var(--tw-text-opacity));
-}
-
 .hover\:no-underline:hover {
   -webkit-text-decoration-line: none;
           text-decoration-line: none;
-}
-
-.hover\:opacity-40:hover {
-  opacity: 0.4;
 }
 
 .hover\:shadow-2xl:hover {
@@ -3077,10 +3060,6 @@ input[data-autocompleted] {
   visibility: visible;
 }
 
-.group:hover .group-hover\:block {
-  display: block;
-}
-
 .group:hover .group-hover\:inline {
   display: inline;
 }
@@ -3090,16 +3069,16 @@ input[data-autocompleted] {
   color: rgb(107 114 128 / var(--tw-text-opacity));
 }
 
-.group:hover .group-hover\:opacity-75 {
-  opacity: 0.75;
+.group:hover .group-hover\:opacity-40 {
+  opacity: 0.4;
 }
 
 .group:hover .group-hover\:opacity-100 {
   opacity: 1;
 }
 
-.group:hover .group-hover\:opacity-40 {
-  opacity: 0.4;
+.group:hover .group-hover\:opacity-75 {
+  opacity: 0.75;
 }
 
 .dark .dark\:divide-gray-800 > :not([hidden]) ~ :not([hidden]) {

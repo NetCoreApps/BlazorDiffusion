@@ -31,7 +31,7 @@ public static class CreativeExtensions
             ? creative.Artifacts.FirstOrDefault(x => x.Id == creative.PrimaryArtifactId)
             : null;
         if (primary == null)
-            return creative.Artifacts;
+            return creative.Artifacts ?? new();
 
         var to = new List<CreativeArtifact>(creative.Artifacts.Count) { primary };
         to.AddRange(creative.Artifacts.Where(x => x.Id != creative.PrimaryArtifactId));

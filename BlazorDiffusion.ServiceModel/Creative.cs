@@ -114,6 +114,7 @@ public class UpdateCreative : IPatchDb<Creative>, IReturn<Creative>
     public int Id { get; set; }
     
     public int? PrimaryArtifactId { get; set; }
+    public bool? UnpinPrimaryArtifact { get; set; }
 }
 
 [AutoApply(Behavior.AuditSoftDelete)]

@@ -8,6 +8,7 @@ using ServiceStack.Blazor.Components;
 using static System.Net.Mime.MediaTypeNames;
 using Gooseai;
 using ServiceStack.Text;
+using ServiceStack.Web;
 
 namespace BlazorDiffusion.Pages;
 
@@ -141,6 +142,21 @@ public partial class Create : AppAuthComponentBase
         }
     }
 
+    bool isDirty => !string.IsNullOrEmpty(request.UserPrompt)
+        || imageSize != ImageSize.Square
+        || artists.Count > 0
+        || modifiers.Count > 0;
+
+    void reset()
+    {
+        request.UserPrompt = "";
+        imageSize = ImageSize.Square;
+        artists.Clear();
+        modifiers.Clear();
+        StateHasChanged();
+    }
+
+
     async Task loadHistory()
     {
         if (User != null)
@@ -187,6 +203,23 @@ public partial class Create : AppAuthComponentBase
         creative.PrimaryArtifactId = artifact.Id;
 
         var api = await ApiAsync(new UpdateCreative { Id = artifact.CreativeId, PrimaryArtifactId = artifact.Id });
+        if (!api.Succeeded)
+        {
+            creative.PrimaryArtifactId = hold;
+        }
+        StateHasChanged();
+    }
+
+    async Task unpinArtifact(CreativeArtifact artifact)
+    {
+        var hold = creative!.PrimaryArtifactId;
+        creative.PrimaryArtifactId = null;
+
+        var api = await ApiAsync(new UpdateCreative { 
+            Id = artifact.CreativeId, 
+            PrimaryArtifactId = artifact.Id,
+            UnpinPrimaryArtifact = true,
+        });
         if (!api.Succeeded)
         {
             creative.PrimaryArtifactId = hold;

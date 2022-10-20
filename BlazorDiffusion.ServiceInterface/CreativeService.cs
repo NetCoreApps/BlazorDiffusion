@@ -47,17 +47,24 @@ public class CreativeService : Service
         if (creative == null)
             throw HttpError.NotFound($"Creative not found");
 
-        var artifact = creative.Artifacts.SingleOrDefault(x => x.Id == request.PrimaryArtifactId);
-        if (artifact == null)
-            throw HttpError.NotFound($"Artifact not found");
-
         var session = await GetSessionAsync();
         if (!await session.IsOwnerOrModerator(AuthRepositoryAsync, creative.AppUserId))
-            throw HttpError.Forbidden("You don't own this Artifact");
+            throw HttpError.Forbidden("You don't own this Creative");
+
+        var artifactId = request.UnpinPrimaryArtifact == true
+            ? null
+            : request.PrimaryArtifactId;
+
+        if (artifactId != null)
+        {
+            var artifact = creative.Artifacts.SingleOrDefault(x => x.Id == request.PrimaryArtifactId);
+            if (artifact == null)
+                throw HttpError.NotFound($"Artifact not found");
+        }
 
         await Db.UpdateOnlyAsync(() => 
             new Creative { 
-                PrimaryArtifactId = request.PrimaryArtifactId,
+                PrimaryArtifactId = artifactId,
                 ModifiedBy = session.UserAuthId,
                 ModifiedDate = DateTime.UtcNow,
             }, where:x => x.Id == request.Id);
@@ -75,7 +82,7 @@ public class CreativeService : Service
         
         var session = await GetSessionAsync();
         if (!await session.IsOwnerOrModerator(AuthRepositoryAsync, creative?.AppUserId))
-            throw HttpError.Forbidden("You don't own this Artifact");
+            throw HttpError.Forbidden("You don't own this Creative");
 
         await Db.UpdateOnlyAsync(() =>
             new CreativeArtifact
