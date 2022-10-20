@@ -4,6 +4,7 @@ using Gooseai;
 using Grpc.Core;
 using Grpc.Net.Client;
 using ServiceStack.IO;
+using ServiceStack.Text;
 using static Grpc.Core.Metadata;
 
 namespace BlazorDiffusion;
@@ -105,7 +106,7 @@ public class DreamStudioClient : IStableDiffusionClient
     {
         var vfsPathSuffix = creative.Key;
         var outputDir = new DirectoryInfo(Path.Join(OutputPathPrefix, vfsPathSuffix));
-        await File.WriteAllTextAsync(Path.Join(outputDir.FullName,"metadata.json"),creative.ToSafeJson());
+        await File.WriteAllTextAsync(Path.Join(outputDir.FullName,"metadata.json"),creative.ToJson().IndentJson());
     }
 
     public Task DeleteFolderAsync(Creative creative)

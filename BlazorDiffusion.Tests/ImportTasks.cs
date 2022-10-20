@@ -65,24 +65,15 @@ public class ImportTasks
         var artifactPaths = Path.Combine(hostDir, "App_Files/artifacts");
         var metadataFiles = Directory.GetFiles(artifactPaths, "metadata.json", SearchOption.AllDirectories);
 
-        var replaceBy = new Dictionary<string, string>
-        {
-            ["admin@email.com"] = "1",
-            ["manager@email.com"] = "2",
-        };
-        var nonUserIds = new HashSet<string>();
         foreach (var metadataFile in metadataFiles)
         {
             //var key = metadataFile.Replace('\\','/').Substring(artifactPaths.Length).LastLeftPart('/').TrimStart('/');
 
             var creative = File.ReadAllText(metadataFile).FromJson<Creative>();
-            if (creative.CreatedBy != null && !int.TryParse(creative.CreatedBy, out _))
+            if (creative.CreatedBy != null && (creative.CreatedBy == "1" || !int.TryParse(creative.CreatedBy, out _)))
             {
-                creative.CreatedBy = replaceBy[creative.CreatedBy];
-            }
-            if (creative.ModifiedBy != null && !int.TryParse(creative.ModifiedBy, out _))
-            {
-                creative.ModifiedBy = replaceBy[creative.ModifiedBy];
+                creative.CreatedBy = "2";
+                creative.ModifiedBy = "2";
             }
 
             //creative.Key = key;
@@ -91,10 +82,8 @@ public class ImportTasks
             //    artifact.FilePath = $"/uploads/artifacts/{key}/{artifact.FileName}";
             //}
             //creative.ToJson().Print();
-            File.WriteAllText(metadataFile, creative.ToJson());
+            File.WriteAllText(metadataFile, creative.ToJson().IndentJson());
         }
-
-        nonUserIds.PrintDump();
     }
 
 
