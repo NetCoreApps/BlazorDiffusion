@@ -18,6 +18,8 @@ public class SearchDataResponse
 public class FindSimilarArtifacts
 {
     public string CreativeArtifactId { get; set; }
+    public int? Skip { get; set; }
+    public int? Take { get; set; }
 }
 
 public class FindSimilarArtifactsResponse

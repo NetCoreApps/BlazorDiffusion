@@ -41,10 +41,12 @@ public class DataService : Service
     public async Task<object> Any(FindSimilarArtifacts request)
     {
         var artifact = await Db.SingleAsync<CreativeArtifact>(request.CreativeArtifactId);
+        if (artifact == null)
+            throw HttpError.NotFound($"Artifact ID {request.CreativeArtifactId} not found.");
         var perceptualHash = artifact.PerceptualHash;
         if (perceptualHash == null)
             // TODO just in time hash of request based image?
-            throw HttpError.BadRequest("Image not hashed.");
+            throw HttpError.BadRequest($"Artifact ID {artifact.Id} not hashed.");
         
         var connection = (SqliteConnection)Db.ToDbConnection();
         connection.CreateFunction(
@@ -52,10 +54,13 @@ public class DataService : Service
             (Int64 hash1, Int64 hash2)
                 => CompareHash.Similarity((ulong)hash1,(ulong)hash2));
 
+        var skip = request.Skip ?? 0;
+        var take = request.Take ?? 50;
+
         var matches = await Db.SelectAsync<ImageCompareResult>($@"
 select rowid, PerceptualHash, imgcompare({perceptualHash},PerceptualHash) as Similarity from CreativeArtifact
 where Similarity > 70 and PerceptualHash != {perceptualHash}
-order by Similarity desc limit 50;
+order by Similarity desc limit {take} offset {skip};
 ");
 
         var results = await Db.SelectAsync<CreativeArtifact>(x => Sql.In(x.Id, matches.Select(y => y.Id)));
