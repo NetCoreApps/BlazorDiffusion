@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,6 +26,8 @@ public class CreativeService : Service
 
     public const int DefaultModeratorImages = 9;
     public const int DefaultModeratorSteps = 50;
+
+
     
     public async Task<object> Post(CreateCreative request)
     {
@@ -33,12 +36,10 @@ public class CreativeService : Service
             await Db.SelectAsync<Artist>(x => Sql.In(x.Id, request.ArtistIds));
         
         var imageGenerationResponse = await GenerateImage(request,modifiers,artists);
-        
-        var creative = await PersistCreative(request, imageGenerationResponse,modifiers,artists);
-        
-        await StableDiffusionClient.SaveMetadataAsync(creative);
 
-        return creative;
+        var creativeId = await PersistCreative(request, imageGenerationResponse,modifiers,artists);
+
+        return await Db.SaveCreativeAsync(creativeId, StableDiffusionClient);
     }
     
     public async Task<object> Patch(UpdateCreative request)
@@ -68,17 +69,17 @@ public class CreativeService : Service
                 ModifiedBy = session.UserAuthId,
                 ModifiedDate = DateTime.UtcNow,
             }, where:x => x.Id == request.Id);
-        
-        return creative;
+
+        return await Db.SaveCreativeAsync(request.Id, StableDiffusionClient);
     }
 
     public async Task<object> Patch(UpdateCreativeArtifact request)
     {
-        var artifact = await Db.LoadSingleByIdAsync<CreativeArtifact>(request.Id);
+        var artifact = await Db.SingleByIdAsync<CreativeArtifact>(request.Id);
         if (artifact == null)
             throw HttpError.NotFound("Artifact not found");
 
-        var creative = await Db.LoadSingleByIdAsync<Creative>(artifact.CreativeId);
+        var creative = await Db.SingleByIdAsync<Creative>(artifact.CreativeId);
         
         var session = await GetSessionAsync();
         if (!await session.IsOwnerOrModerator(AuthRepositoryAsync, creative?.OwnerId))
@@ -92,10 +93,12 @@ public class CreativeService : Service
                 ModifiedDate = DateTime.UtcNow,
             }, where: x => x.Id == request.Id);
 
+        await Db.SaveCreativeAsync(artifact.CreativeId, StableDiffusionClient);
+
         return artifact;
     }
     
-    private async Task<Creative> PersistCreative(CreateCreative request, 
+    private async Task<int> PersistCreative(CreateCreative request, 
         ImageGenerationResponse imageGenerationResponse,
         List<Modifier> modifiers, 
         List<Artist> artists)
@@ -144,9 +147,8 @@ public class CreativeService : Service
         }.WithAudit(userAuthId, now));
         await db.InsertAllAsync(artifacts);
         transaction.Commit();
-        
-        var result = await Db.LoadSingleByIdAsync<Creative>(creative.Id);
-        return result;
+
+        return creative.Id;
     }
     
     private async Task<ImageGenerationResponse> GenerateImage(CreateCreative request,
@@ -189,7 +191,28 @@ public class CreativeService : Service
         return finalPrompt;
     }
 
-    public async Task Any(HardDeleteCreative request)
+    public async Task Delete(DeleteCreative request)
+    {
+        var creative = await Db.SingleByIdAsync<Creative>(request.Id);
+
+        var session = await GetSessionAsync();
+        if (!await session.IsOwnerOrModerator(AuthRepositoryAsync, creative?.OwnerId))
+            throw HttpError.Forbidden($"You don't own this Creative {session.UserAuthId} vs {creative.OwnerId}");
+
+        var now = DateTime.UtcNow;
+        await Db.UpdateOnlyAsync(() =>
+            new Creative {
+                OwnerId = 2, // transfer to system user
+                ModifiedBy = session.UserAuthId,
+                ModifiedDate = now,
+                DeletedBy = session.UserAuthId,
+                DeletedDate = now,
+            }, where: x => x.Id == request.Id);
+
+        await Db.SaveCreativeAsync(request.Id, StableDiffusionClient);
+    }
+
+    public async Task Delete(HardDeleteCreative request)
     {
         var creative = await Db.SingleByIdAsync<Creative>(request.Id);
         if (creative == null)
@@ -225,6 +248,12 @@ public static class CreateServiceUtils
         return true;
     }
 
+    public static async Task<Creative> SaveCreativeAsync(this IDbConnection db, int creativeId, IStableDiffusionClient client)
+    {
+        var creative = await db.LoadSingleByIdAsync<Creative>(creativeId);
+        await client.SaveMetadataAsync(creative);
+        return creative;
+    }
 }
 
 public interface IStableDiffusionClient

@@ -58,12 +58,16 @@ public class ImportTasks
     }
 
     [Test]
-    public void Rewrite_Creatives()
+    public void Export_Creatives()
     {
         var hostDir = GetHostDir();
 
-        var artifactPaths = Path.Combine(hostDir, "App_Files/artifacts");
+        var slnDir = Path.GetFullPath($"../{hostDir}");
+
+        var artifactPaths = Path.GetFullPath(Path.Combine(hostDir, "App_Files/artifacts"));
         var metadataFiles = Directory.GetFiles(artifactPaths, "metadata.json", SearchOption.AllDirectories);
+
+        using var db = ResolveDbFactory().OpenDbConnection();
 
         foreach (var metadataFile in metadataFiles)
         {
@@ -71,10 +75,23 @@ public class ImportTasks
 
             // Resave to remove removed columns
             var creative = File.ReadAllText(metadataFile).FromJson<Creative>();
-            creative.Artifacts.Each(x => x.Nsfw = null);
 
-            File.WriteAllText(metadataFile, creative.ToJson().IndentJson());
+            // Update from DB
+            var creativeId = creative.Id;
+            creative = db.LoadSelect<Creative>(x => x.RefId == creative.RefId).FirstOrDefault();
+            if (creative == null)
+            {
+                Console.WriteLine($"Creative {creativeId} not found");
+            }
+            else
+            {
+                Console.WriteLine($"Updating {metadataFile}...");
+                File.WriteAllText(metadataFile, creative.ToJson().IndentJson());
+            }
         }
+
+        Directory.SetCurrentDirectory(slnDir);
+        ProcessUtils.Run("export.bat").Print();
     }
 
 
