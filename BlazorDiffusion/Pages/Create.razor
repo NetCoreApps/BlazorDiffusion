@@ -145,19 +145,21 @@
             <TextInput class="!text-lg" @bind-Value="request.UserPrompt" spellcheck="false" Placeholder="Description of Image" Label="" />
         </div>
 
-        <div class="text-right">
+        <div class="mt-4 text-right">
             <div class="flex flex-col justify-center">
-                <button class=@ClassNames("mb-2", isDirty ? "" : "invisible") @onclick="reset" @onclick:stopPropagation>reset</button>
 
                 <PrimaryButton @onclick="submit" Style="ButtonStyle.Sky" class="!rounded-full text-lg font-normal" disabled=@api.IsLoading>
                     Generate
                 </PrimaryButton>
+
+                <button class=@ClassNames("mt-2 mb-4", isDirty ? "" : "invisible") @onclick="reset" @onclick:stopPropagation>reset</button>
+
             </div>
         </div>
     </CascadingValue>
     </form>
 
-    <div class="mt-8 mb-40">
+    <div class="mt-16 mb-40">
         @if (api.IsLoading)
         {
             <div class="flex justify-center">
@@ -169,42 +171,55 @@
             <div class="flex flex-wrap flex justify-evenly">
             @foreach (var artifact in creative.GetArtifacts())
             {
-                    var isPrimary = artifact.Id == creative.PrimaryArtifactId;
+                var isPrimary = artifact.Id == creative.PrimaryArtifactId;
+                <NavLink href=@($"/create?id={creative.Id}&view={artifact.Id}") class="overflow-hidden">
+                    <div class="relative p-2 flex flex-col cursor-pointer w-60 sm:w-80">
+                        <img class=@ClassNames("rounded-xl border-2", isPrimary ? "border-yellow-500" : artifact.Id == View ? "border-cyan-500" : "border-transparent") src=@artifact.FilePath alt=@artifact.FileName width=@artifact.Width height=@artifact.Height />
 
-                    <NavLink href=@($"/create?id={creative.Id}&view={artifact.Id}") class="overflow-hidden">
-                        <div class="relative p-2 flex flex-col cursor-pointer w-60 sm:w-80">
-                            <img class=@ClassNames("rounded-xl border-2", isPrimary ? "border-yellow-500" : artifact.Id == View ? "border-cyan-500" : "border-transparent") src=@artifact.FilePath alt=@artifact.FileName width=@artifact.Width height=@artifact.Height />
+                        <div class="absolute top-0 left-0 w-full h-full group select-none overflow-hidden m-1 rounded-xl">
+                            <div class="w-full h-full absolute inset-0 z-10 block text-zinc-100 drop-shadow pointer-events-none line-clamp px-2 pb-2 text-sm px-2 opacity-0 group-hover:opacity-40 transition duration-300 ease-in-out bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-700 via-gray-900 to-black"></div>
 
-                            <div class="absolute top-0 left-0 w-full h-full group select-none overflow-hidden m-1 rounded-xl">
-                                <div class="w-full h-full absolute inset-0 z-10 block text-zinc-100 drop-shadow pointer-events-none line-clamp px-2 pb-2 text-sm px-2 opacity-0 group-hover:opacity-40 transition duration-300 ease-in-out bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-700 via-gray-900 to-black"></div>
-
-                                <div class="absolute w-full flex z-10 text-zinc-100 justify-between drop-shadow opacity-0 group-hover:opacity-100 transition-opacity px-2 mb-1 text-sm p-4">
-                                    @if (isPrimary)
-                                    {
-                                        <svg @onclick="_ => unpinArtifact(artifact)" @onclick:stopPropagation @onclick:preventDefault
-                                            class="ml-2 w-6 h-6 text-cyan-600 hover:text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-                                            <path fill="#ffce31" d="M62 25.2H39.1L32 3l-7.1 22.2H2l18.5 13.7l-7 22.1L32 47.3L50.5 61l-7.1-22.2L62 25.2z"/>
-                                        </svg>
-                                    }
-                                    else
-                                    {
-                                        <svg @onclick="_ => pinArtifact(artifact)" @onclick:stopPropagation @onclick:preventDefault
-                                             class="ml-2 w-6 h-6 text-cyan-600 hover:text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                            <path fill="currentColor" d="M18.27 9.81h-2.82L9.77 4.13l.71-.71l-1.42-1.41l-7.07 7.07l1.42 1.41l.71-.71l5.67 5.68h-.01v2.83l1.42 1.42l3.54-3.55l4.77 4.77l1.41-1.41l-4.77-4.77l3.53-3.53l-1.41-1.41z" />
-                                        </svg>
-                                    }
-                                </div>
-
+                            <div class="absolute w-full flex z-10 text-zinc-100 justify-between drop-shadow opacity-0 group-hover:opacity-100 transition-opacity px-2 mb-1 text-sm p-4">
+                                @if (isPrimary)
+                                {
+                                    <svg @onclick="_ => unpinArtifact(artifact)" @onclick:stopPropagation @onclick:preventDefault
+                                class="ml-2 w-6 h-6 text-cyan-600 hover:text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+                                        <path fill="#ffce31" d="M62 25.2H39.1L32 3l-7.1 22.2H2l18.5 13.7l-7 22.1L32 47.3L50.5 61l-7.1-22.2L62 25.2z" />
+                                    </svg>
+                                }
+                                else
+                                {
+                                    <svg @onclick="_ => pinArtifact(artifact)" @onclick:stopPropagation @onclick:preventDefault
+                                class="ml-2 w-6 h-6 text-cyan-600 hover:text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                        <path fill="currentColor" d="M18.27 9.81h-2.82L9.77 4.13l.71-.71l-1.42-1.41l-7.07 7.07l1.42 1.41l.71-.71l5.67 5.68h-.01v2.83l1.42 1.42l3.54-3.55l4.77 4.77l1.41-1.41l-4.77-4.77l3.53-3.53l-1.41-1.41z" />
+                                    </svg>
+                                }
                             </div>
 
                         </div>
-                            <div class="flex justify-between">
-                                <span class="m-2 text-sm text-gray-600 dark:text-gray-400">@artifact.Height x @artifact.Width</span>
-                                <span class="m-2 text-sm text-gray-600 dark:text-gray-400">@TextUtils.FormatBytes(artifact.ContentLength)</span>
-                            </div>
-                    </NavLink>
 
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="m-2 text-sm text-gray-600 dark:text-gray-400">@artifact.Height x @artifact.Width</span>
+                        <span class="m-2 text-sm text-gray-600 dark:text-gray-400">@TextUtils.FormatBytes(artifact.ContentLength)</span>
+                    </div>
+                </NavLink>
             }
+            </div>
+            
+            <div class="flex flex-col justify-center">
+                <div class="mt-16 flex flex-col items-center cursor-pointer text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                     @onclick="softDelete">
+                    <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill="currentColor" d="M12 12h2v12h-2zm6 0h2v12h-2z"/><path fill="currentColor" d="M4 6v2h2v20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8h2V6zm4 22V8h16v20zm4-26h8v2h-8z"/></svg>
+                    <span class="text-sm">discard</span>
+                </div>
+
+                @if (User.HasRole(AppRoles.Moderator))
+                {
+                    <div class="mt-16 text-center">
+                        <ConfirmDelete OnDelete="hardDelete" />
+                    </div>
+                }
             </div>
         }
     </div>

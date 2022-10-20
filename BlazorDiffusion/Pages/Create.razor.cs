@@ -161,9 +161,8 @@ public partial class Create : AppAuthComponentBase
     {
         if (User != null)
         {
-            apiHistory = await ApiAsync(new QueryCreatives
-            {
-                CreatedBy = User.GetUserId(),
+            apiHistory = await ApiAsync(new QueryCreatives {
+                OwnerId = User.GetUserId().ToInt(),
                 Take = 30,
                 OrderByDesc = nameof(Creative.Id),
             });
@@ -226,6 +225,35 @@ public partial class Create : AppAuthComponentBase
         }
         StateHasChanged();
     }
+
+    async Task softDelete()
+    {
+        if (creative == null) return;
+        var api = await ApiAsync(new DeleteCreative
+        {
+            Id = creative.Id,
+        });
+        if (api.Succeeded)
+        {
+            this.creative = null;
+            navTo();
+        }
+    }
+
+    async Task hardDelete()
+    {
+        if (creative == null) return;
+        var api = await ApiAsync(new HardDeleteCreative
+        {
+            Id = creative.Id,
+        });
+        if (api.Succeeded)
+        {
+            this.creative = null;
+            navTo();
+        }
+    }
+
 
     void navTo(int? creativeId = null, int? artifactId = null)
     {
