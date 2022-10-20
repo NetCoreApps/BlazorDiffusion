@@ -29,6 +29,8 @@ public partial class Create : AppAuthComponentBase
     [Parameter, SupplyParameterFromQuery] public int? Id { get; set; }
     [Parameter, SupplyParameterFromQuery] public int? View { get; set; }
 
+    public SlideOver? SlideOver { get; set; }
+
 
     ImageSize imageSize;
     enum ImageSize
@@ -318,11 +320,12 @@ public partial class Create : AppAuthComponentBase
                 case KeyCodes.ArrowRight:
                     if (creative != null)
                     {
+                        var artifacts = creative.GetArtifacts();
                         if (View == null)
                         {
                             if (key == KeyCodes.ArrowRight)
                             {
-                                var artifact = creative.Artifacts.FirstOrDefault();
+                                var artifact = artifacts.FirstOrDefault();
                                 if (artifact != null)
                                 {
                                     navTo(Id, artifact.Id);
@@ -331,7 +334,7 @@ public partial class Create : AppAuthComponentBase
                         }
                         else
                         {
-                            activeIndex = creative.Artifacts.FindIndex(x => x.Id == View);
+                            activeIndex = artifacts.FindIndex(x => x.Id == View);
                             if (activeIndex >= 0)
                             {
                                 var nextIndex = key switch
@@ -342,9 +345,9 @@ public partial class Create : AppAuthComponentBase
                                 };
                                 if (nextIndex < 0)
                                 {
-                                    nextIndex = creative.Artifacts.Count - 1;
+                                    nextIndex = artifacts.Count - 1;
                                 }
-                                var next = creative.Artifacts[nextIndex % creative.Artifacts.Count];
+                                var next = artifacts[nextIndex % artifacts.Count];
                                 navTo(Id, next.Id);
                             }
                         }

@@ -147,8 +147,8 @@
             <TextInput class="!text-lg" @bind-Value="request.UserPrompt" spellcheck="false" Placeholder="Description of Image" Label="" @onclick="CloseDialogsAsync" />
         </div>
 
-        <div class="mt-4 text-right">
-            <div class="flex flex-col justify-center">
+        <div class="mt-4 mx-auto flex justify-center">
+            <div class="flex flex-col">
 
                 <PrimaryButton @onclick="submit" Style="ButtonStyle.Sky" class="!rounded-full text-lg font-normal" disabled=@api.IsLoading>
                     Generate
@@ -263,9 +263,34 @@
     var artifact = creative.Artifacts?.FirstOrDefault(x => x.Id == View);
     if (artifact != null)
     {
-        <SlideOver Done=@(() => NavigationManager.NavigateTo($"/create?id={creative.Id}")) Title=@creative.UserPrompt 
-                   TitlebarClass="bg-gray-50 dark:bg-black px-4 py-6 sm:px-6" HeadingClass="text-lg font-normal text-gray-900 dark:text-gray-100"
-                   ShowFooter=@false>
+        <SlideOver @ref="SlideOver" Done=@(() => NavigationManager.NavigateTo($"/create?id={creative.Id}"))
+                   ShowTitlebar="false" ShowFooter="false">
+
+            <div class=@CssDefaults.SlideOver.TitlebarClass>
+                <div class="flex items-start justify-between space-x-3">
+                    <div class="space-y-1">
+                        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-200">@creative.UserPrompt</h2>
+                        <div class="mt-1">
+                            <p class="notes text-sm text-gray-500">
+                                @string.Join(", ", modifiers.Select(x => x.Name))
+                                @if (artists.Count > 0)
+                                {
+                                    @($" by {string.Join(", ", artists.Select(x => x.Name))}")
+                                }
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex h-7 items-center">
+                        <button type="button" @onclick="SlideOver!.CloseAsync" class=@CssDefaults.SlideOver.CloseButtonClass.Replace("dark:bg-black", "dark:bg-gray-900")>
+                            <span class="sr-only">Close panel</span>
+                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="p-2 mt-4 flex flex-col items-center">
 
                 <div class="relative p-2 flex flex-col cursor-pointer">
@@ -297,6 +322,12 @@
                 <div class="flex">
                     <span class="my-2 mx-4 text-sm text-gray-600 dark:text-gray-400">@artifact.Height x @artifact.Width</span>
                     <span class="my-2 mx-4 text-sm text-gray-600 dark:text-gray-400">@TextUtils.FormatBytes(artifact.ContentLength)</span>
+                </div>
+                <div>
+                    <a class="mb-4 flex text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" href=@artifact.FilePath target="_blank">
+                        <svg class="w-5 h-5 mr-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 20h12M12 4v12m0 0l3.5-3.5M12 16l-3.5-3.5"/></svg>
+                        download
+                    </a>
                 </div>
             </div>
             
