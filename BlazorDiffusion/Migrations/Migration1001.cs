@@ -73,7 +73,7 @@ public class Migration1001 : MigrationBase
         [References(typeof(AppUser))]
         public int AppUserId { get; set; }
         
-        public bool Nsfw { get; set; }
+        public bool? Nsfw { get; set; }
         public bool Other { get; set; }
         public string? Description { get; set; }
     }
@@ -99,8 +99,11 @@ public class Migration1001 : MigrationBase
         public int Height { get; set; }
         public ulong Seed { get; set; }
         public string Prompt { get; set; }
-        public bool IsPrimaryArtifact { get; set; }
-        public bool Nsfw { get; set; }
+        public bool? Nsfw { get; set; }
+
+        public string? AverageHash { get; set; }
+        public string? PerceptualHash { get; set; }
+        public string? DifferenceHash { get; set; }
     }
 
     public class CreativeArtifactFts
@@ -109,7 +112,7 @@ public class Migration1001 : MigrationBase
         public int Width { get; set; }
         public int Height { get; set; }
         public string Prompt { get; set; }
-        public bool Nsfw { get; set; }
+        public bool? Nsfw { get; set; }
         public DateTime CreatedDate { get; set; }
         public bool Curated { get; set; }
         public int? Rating { get; set; }

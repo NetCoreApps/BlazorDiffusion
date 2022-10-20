@@ -73,8 +73,7 @@ public class CreativeArtifact : AuditBase
     public ulong Seed { get; set; }
     public string Prompt { get; set; }
     
-    public bool IsPrimaryArtifact { get; set; }
-    public bool Nsfw { get; set; }
+    public bool? Nsfw { get; set; }
     
     public string? AverageHash { get; set; }
     public string? PerceptualHash { get; set; }
@@ -302,7 +301,7 @@ public class CreativeArtifactFts
     public int Width { get; set; }
     public int Height { get; set; }
     public string Prompt { get; set; }
-    public bool Nsfw { get; set; }
+    public bool? Nsfw { get; set; }
     public DateTime CreatedDate { get; set; }
     public bool Curated { get; set; }
     public int? Rating { get; set; }
