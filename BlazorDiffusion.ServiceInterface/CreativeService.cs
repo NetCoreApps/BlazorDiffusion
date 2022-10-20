@@ -156,7 +156,8 @@ public class CreativeService : Service
         List<Modifier> modifiers, List<Artist> artists)
     {
         var authSession = await GetSessionAsync().ConfigAwait();
-        var adminOrMod = await authSession.HasAllRolesAsync(new[] {AppRoles.Admin,AppRoles.Moderator}, AuthRepositoryAsync, Request);
+        var userRoles = await authSession.GetRolesAsync(AuthRepositoryAsync);
+        var adminOrMod = userRoles.Contains(AppRoles.Admin) || userRoles.Contains(AppRoles.Moderator);
         var apiPrompt = ConstructPrompt(request.UserPrompt, modifiers, artists);
         var imageGenOptions = new ImageGeneration
         {
