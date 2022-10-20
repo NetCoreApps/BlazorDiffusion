@@ -41,7 +41,7 @@ public class CreativeService : Service
         return creative;
     }
     
-    public async Task<object> Post(UpdateCreative request)
+    public async Task<object> Patch(UpdateCreative request)
     {
         var creative = await Db.LoadSingleByIdAsync<Creative>(request.Id);
         if (creative == null)
@@ -59,7 +59,7 @@ public class CreativeService : Service
         return creative;
     }
 
-    public async Task<object> Post(UpdateCreativeArtifact request)
+    public async Task<object> Patch(UpdateCreativeArtifact request)
     {
         var artifact = await Db.LoadSingleByIdAsync<CreativeArtifact>(request.Id);
         
