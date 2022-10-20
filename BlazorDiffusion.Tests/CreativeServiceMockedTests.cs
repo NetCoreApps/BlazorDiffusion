@@ -201,7 +201,7 @@ public class CreativeServiceMockedTests
             PrimaryArtifactId = response.Artifacts[0].Id
         });
 
-        var nsfwArtifactResponse = client.Send(new UpdateCreativeArtifact
+        var nsfwArtifactResponse = client.Send(new UpdateArtifact
         {
             Id = response.Artifacts[0].Id,
             Nsfw = true
@@ -222,12 +222,12 @@ public class CreativeServiceMockedTests
         Assert.That(queryResponse.Results[0].OwnerId, Is.GreaterThan(0));
         Assert.That(queryResponse.Results[0].CreatedBy, Is.EqualTo("1"));
 
-        // var likeArtifactResponse = client.Send(new CreateArtifactAppUserLike
+        // var likeArtifactResponse = client.Send(new CreateArtifactLike
         // {
-        //     CreativeArtifactId = 1
+        //     ArtifactId = 1
         // });
         //
         // Assert.That(likeArtifactResponse, Is.Not.Null);
-        // Assert.That(likeArtifactResponse.CreativeArtifactId, Is.EqualTo(1));
+        // Assert.That(likeArtifactResponse.ArtifactId, Is.EqualTo(1));
     }
 }

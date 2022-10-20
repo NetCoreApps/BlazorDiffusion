@@ -40,7 +40,7 @@ public class Migration1001 : MigrationBase
         public List<CreativeModifier> Modifiers { get; set; }
 
         [Reference]
-        public List<CreativeArtifact> Artifacts { get; set; }
+        public List<Artifact> Artifacts { get; set; }
         
         public string? Error { get; set; }
         
@@ -56,33 +56,41 @@ public class Migration1001 : MigrationBase
 
     }
 
-    public class ArtifactAppUserLike : AuditBase
+    public class ArtifactLike
     {
         [AutoIncrement]
         public long Id { get; set; }
         
-        [References(typeof(CreativeArtifact))]
-        public int CreativeArtifactId { get; set; }
+        [References(typeof(Artifact))]
+        public int ArtifactId { get; set; }
         [References(typeof(AppUser))]
         public int AppUserId { get; set; }
+        public DateTime CreatedDate { get; set; }
     }
 
-    public class ArtifactAppUserReport : AuditBase
+    public class ArtifactReport
     {
         [AutoIncrement]
         public long Id { get; set; }
         
-        [References(typeof(CreativeArtifact))]
-        public int CreativeArtifactId { get; set; }
+        [References(typeof(Artifact))]
+        public int ArtifactId { get; set; }
         [References(typeof(AppUser))]
         public int AppUserId { get; set; }
         
-        public bool? Nsfw { get; set; }
-        public bool Other { get; set; }
+        public ReportType Type { get; set; }
         public string? Description { get; set; }
+        public DateTime CreatedDate { get; set; }
     }
 
-    public class CreativeArtifact : AuditBase
+    public enum ReportType
+    {
+        Nsfw,
+        Other,
+    }
+
+
+    public class Artifact : AuditBase
     {
         [AutoIncrement] 
         public int Id { get; set; }
@@ -110,7 +118,7 @@ public class Migration1001 : MigrationBase
         public Int64? DifferenceHash { get; set; }
     }
 
-    public class CreativeArtifactFts
+    public class ArtifactFts
     {
         public int CreativeId { get; set; }
         public int Width { get; set; }
@@ -242,9 +250,9 @@ public class Migration1001 : MigrationBase
         Db.CreateTable<Creative>();
         Db.CreateTable<CreativeArtist>();
         Db.CreateTable<CreativeModifier>();
-        Db.CreateTable<CreativeArtifact>();
-        Db.CreateTable<ArtifactAppUserLike>();
-        Db.CreateTable<ArtifactAppUserReport>();
+        Db.CreateTable<Artifact>();
+        Db.CreateTable<ArtifactLike>();
+        Db.CreateTable<ArtifactReport>();
 
         var seedDir = Path.GetFullPath(Path.Combine("./App_Data/seed"));
 
@@ -343,47 +351,47 @@ public class Migration1001 : MigrationBase
         }
         
         // Create virtual tables for SQLite Full Text Search
-        Db.ExecuteNonQuery($@"CREATE VIRTUAL TABLE {nameof(CreativeArtifactFts)}
+        Db.ExecuteNonQuery($@"CREATE VIRTUAL TABLE {nameof(ArtifactFts)}
 USING FTS5(
-{nameof(CreativeArtifactFts.Prompt)},
-{nameof(CreativeArtifactFts.CreativeId)},
-{nameof(CreativeArtifactFts.Width)},
-{nameof(CreativeArtifactFts.Height)},
-{nameof(CreativeArtifactFts.Nsfw)},
-{nameof(CreativeArtifactFts.CreatedDate)},
-{nameof(CreativeArtifactFts.Curated)},
-{nameof(CreativeArtifactFts.Private)},
-{nameof(CreativeArtifactFts.Rating)},
-{nameof(CreativeArtifactFts.RefId)});"
+{nameof(ArtifactFts.Prompt)},
+{nameof(ArtifactFts.CreativeId)},
+{nameof(ArtifactFts.Width)},
+{nameof(ArtifactFts.Height)},
+{nameof(ArtifactFts.Nsfw)},
+{nameof(ArtifactFts.CreatedDate)},
+{nameof(ArtifactFts.Curated)},
+{nameof(ArtifactFts.Private)},
+{nameof(ArtifactFts.Rating)},
+{nameof(ArtifactFts.RefId)});"
         );
 
-        Db.ExecuteNonQuery($@"INSERT INTO {nameof(CreativeArtifactFts)} 
+        Db.ExecuteNonQuery($@"INSERT INTO {nameof(ArtifactFts)} 
 (rowid,
-{nameof(CreativeArtifactFts.Prompt)},
-{nameof(CreativeArtifactFts.CreativeId)},
-{nameof(CreativeArtifactFts.Width)},
-{nameof(CreativeArtifactFts.Height)},
-{nameof(CreativeArtifactFts.Nsfw)},
-{nameof(CreativeArtifactFts.CreatedDate)},
-{nameof(CreativeArtifactFts.Curated)},
-{nameof(CreativeArtifactFts.Private)},
-{nameof(CreativeArtifactFts.Rating)},
-{nameof(CreativeArtifactFts.RefId)})
+{nameof(ArtifactFts.Prompt)},
+{nameof(ArtifactFts.CreativeId)},
+{nameof(ArtifactFts.Width)},
+{nameof(ArtifactFts.Height)},
+{nameof(ArtifactFts.Nsfw)},
+{nameof(ArtifactFts.CreatedDate)},
+{nameof(ArtifactFts.Curated)},
+{nameof(ArtifactFts.Private)},
+{nameof(ArtifactFts.Rating)},
+{nameof(ArtifactFts.RefId)})
 SELECT 
-{nameof(CreativeArtifact)}.{nameof(CreativeArtifact.Id)},
-{nameof(CreativeArtifact)}.{nameof(CreativeArtifact.Prompt)},
-{nameof(CreativeArtifact)}.{nameof(CreativeArtifact.CreativeId)},
-{nameof(CreativeArtifact)}.{nameof(CreativeArtifact.Width)},
-{nameof(CreativeArtifact)}.{nameof(CreativeArtifact.Height)},
-{nameof(CreativeArtifact)}.{nameof(CreativeArtifact.Nsfw)},
-{nameof(CreativeArtifact)}.{nameof(CreativeArtifact.CreatedDate)},
+{nameof(Artifact)}.{nameof(Artifact.Id)},
+{nameof(Artifact)}.{nameof(Artifact.Prompt)},
+{nameof(Artifact)}.{nameof(Artifact.CreativeId)},
+{nameof(Artifact)}.{nameof(Artifact.Width)},
+{nameof(Artifact)}.{nameof(Artifact.Height)},
+{nameof(Artifact)}.{nameof(Artifact.Nsfw)},
+{nameof(Artifact)}.{nameof(Artifact.CreatedDate)},
 {nameof(Creative.Curated)},
 {nameof(Creative.Private)},
 {nameof(Creative.Rating)},
-{nameof(Creative.RefId)} FROM {nameof(CreativeArtifact)}
-join {nameof(Creative)} on {nameof(Creative)}.Id = {nameof(CreativeArtifact)}.CreativeId;");
+{nameof(Creative.RefId)} FROM {nameof(Artifact)}
+join {nameof(Creative)} on {nameof(Creative)}.Id = {nameof(Artifact)}.CreativeId;");
 
-        var artifactTest = Db.Select<CreativeArtifact>(x => x.Id == 25).First();
+        var artifactTest = Db.Select<Artifact>(x => x.Id == 25).First();
         var connection = (SqliteConnection)Db.ToDbConnection();
         connection.CreateFunction(
             "imgcompare",
@@ -393,7 +401,7 @@ join {nameof(Creative)} on {nameof(Creative)}.Id = {nameof(CreativeArtifact)}.Cr
         var sw = new Stopwatch();
         sw.Start();
         var result = Db.Select<ImageCompareResult>($@"
-select FilePath, PerceptualHash, imgcompare({artifactTest.PerceptualHash},PerceptualHash) as Similarity from CreativeArtifact
+select FilePath, PerceptualHash, imgcompare({artifactTest.PerceptualHash},PerceptualHash) as Similarity from Artifact
 order by Similarity desc;
 ");
 
@@ -412,9 +420,9 @@ order by Similarity desc;
 
     public override void Down()
     {
-        Db.DropTable<ArtifactAppUserLike>();
-        Db.DropTable<ArtifactAppUserReport>();
-        Db.DropTable<CreativeArtifact>();
+        Db.DropTable<ArtifactLike>();
+        Db.DropTable<ArtifactReport>();
+        Db.DropTable<Artifact>();
         Db.DropTable<CreativeArtist>();
         Db.DropTable<CreativeModifier>();
         Db.DropTable<Creative>();
@@ -422,7 +430,7 @@ order by Similarity desc;
         Db.DropTable<Modifier>();
         Db.DropTable<Artist>();
         Db.DropTable<AppUser>();
-        Db.DropTable<CreativeArtifactFts>();
+        Db.DropTable<ArtifactFts>();
     }
 
 }

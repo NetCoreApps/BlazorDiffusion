@@ -51,7 +51,7 @@
     [Parameter]
     public string CreativeId { get; set; }
 
-    List<CreativeArtifact> files = new();
+    List<Artifact> files = new();
 
 
     private void RowSelected(Creative obj)
@@ -60,7 +60,7 @@
         files.AddRange(obj.Artifacts);
     }
 
-    private void ImageSelected(CreativeArtifact file)
+    private void ImageSelected(Artifact file)
     {
         
     }

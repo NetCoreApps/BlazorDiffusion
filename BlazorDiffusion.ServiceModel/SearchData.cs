@@ -17,14 +17,14 @@ public class SearchDataResponse
 
 public class FindSimilarArtifacts
 {
-    public string CreativeArtifactId { get; set; }
+    public string ArtifactId { get; set; }
     public int? Skip { get; set; }
     public int? Take { get; set; }
 }
 
 public class FindSimilarArtifactsResponse
 {
-    public List<CreativeArtifact> Results { get; set; }
+    public List<Artifact> Results { get; set; }
 }
 
 public class ImageCompareResult

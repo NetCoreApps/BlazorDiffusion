@@ -46,7 +46,7 @@
                 @if (context.Artifacts?.Count > 0)
                 {
                     <TextLink class="flex" href=@($"/admin/creative-artifacts?CreativeId={context.Id}")>
-                        <Icon class="w-6 h-6 mr-1" Image=@typeof(CreativeArtifact).GetIcon() />
+                        <Icon class="w-6 h-6 mr-1" Image=@typeof(Artifact).GetIcon() />
                         @TextUtils.Pluralize("Artifact", context.Artifacts)
                     </TextLink>
                 }

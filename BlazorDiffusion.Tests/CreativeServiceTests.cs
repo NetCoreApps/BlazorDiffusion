@@ -217,7 +217,7 @@ public class CreativeServiceTests
             PrimaryArtifactId = response.Artifacts[0].Id
         });
 
-        var nsfwArtifactResponse = client.Send(new UpdateCreativeArtifact
+        var nsfwArtifactResponse = client.Send(new UpdateArtifact
         {
             Id = response.Artifacts[1].Id,
             Nsfw = true

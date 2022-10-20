@@ -73,9 +73,9 @@ public class CreativeService : Service
         return await Db.SaveCreativeAsync(request.Id, StableDiffusionClient);
     }
 
-    public async Task<object> Patch(UpdateCreativeArtifact request)
+    public async Task<object> Patch(UpdateArtifact request)
     {
-        var artifact = await Db.SingleByIdAsync<CreativeArtifact>(request.Id);
+        var artifact = await Db.SingleByIdAsync<Artifact>(request.Id);
         if (artifact == null)
             throw HttpError.NotFound("Artifact not found");
 
@@ -86,7 +86,7 @@ public class CreativeService : Service
             throw HttpError.Forbidden("You don't own this Creative");
 
         await Db.UpdateOnlyAsync(() =>
-            new CreativeArtifact
+            new Artifact
             {
                 Nsfw = request.Nsfw,
                 ModifiedBy = session.UserAuthId,
@@ -135,7 +135,7 @@ public class CreativeService : Service
         await db.InsertAllAsync(creativeArtists);
         await db.InsertAllAsync(creativeModifiers);
 
-        var artifacts = imageGenerationResponse.Results.Select(x => new CreativeArtifact {
+        var artifacts = imageGenerationResponse.Results.Select(x => new Artifact {
             CreativeId = creative.Id,
             Width = x.Width,
             Height = x.Height,
@@ -220,11 +220,11 @@ public class CreativeService : Service
         if (creative == null)
             throw HttpError.NotFound($"Creative {request.Id} does not exist");
 
-        var artifacts = await Db.SelectAsync<CreativeArtifact>(x => x.CreativeId == request.Id);
+        var artifacts = await Db.SelectAsync<Artifact>(x => x.CreativeId == request.Id);
 
         using var transaction = Db.OpenTransaction();
 
-        await Db.DeleteAsync<CreativeArtifact>(x => x.CreativeId == request.Id);
+        await Db.DeleteAsync<Artifact>(x => x.CreativeId == request.Id);
         await Db.DeleteAsync<CreativeArtist>(x => x.CreativeId == request.Id);
         await Db.DeleteAsync<CreativeModifier>(x => x.CreativeId == request.Id);
         await Db.DeleteAsync<Creative>(x => x.Id == request.Id);

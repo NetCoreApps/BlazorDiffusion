@@ -25,7 +25,7 @@ public static class CreativeExtensions
         return row;
     }
 
-    public static List<CreativeArtifact> GetArtifacts(this Creative creative)
+    public static List<Artifact> GetArtifacts(this Creative creative)
     {
         var primary = creative.PrimaryArtifactId != null 
             ? creative.Artifacts.FirstOrDefault(x => x.Id == creative.PrimaryArtifactId)
@@ -33,7 +33,7 @@ public static class CreativeExtensions
         if (primary == null)
             return creative.Artifacts ?? new();
 
-        var to = new List<CreativeArtifact>(creative.Artifacts.Count) { primary };
+        var to = new List<Artifact>(creative.Artifacts.Count) { primary };
         to.AddRange(creative.Artifacts.Where(x => x.Id != creative.PrimaryArtifactId));
         return to;
     }

@@ -5,8 +5,6 @@ using ServiceStack;
 using ServiceStack.Blazor;
 using ServiceStack.Blazor.Components.Tailwind;
 using ServiceStack.Blazor.Components;
-using static System.Net.Mime.MediaTypeNames;
-using Gooseai;
 using ServiceStack.Text;
 using ServiceStack.Web;
 
@@ -57,6 +55,7 @@ public partial class Create : AppAuthComponentBase
 
     List<ArtistInfo>? ArtistOptions => DataCache?.Artists;
     List<ArtistInfo> artists = new();
+    HashSet<int> likedArtifactIds = new();
 
     void removeArtist(ArtistInfo artist) => artists.Remove(artist);
 
@@ -168,6 +167,12 @@ public partial class Create : AppAuthComponentBase
                 Take = 30,
                 OrderByDesc = nameof(Creative.Id),
             });
+
+            var apiLikes = await ApiAsync(new QueryArtifactLikes());
+            if (apiLikes.Succeeded)
+            {
+                likedArtifactIds = apiLikes.Response!.Results.Select(x => x.ArtifactId).ToSet();
+            }
         }
     }
 
@@ -198,7 +203,7 @@ public partial class Create : AppAuthComponentBase
         await loadHistory();
     }
 
-    async Task pinArtifact(CreativeArtifact artifact)
+    async Task pinArtifact(Artifact artifact)
     {
         var hold = creative!.PrimaryArtifactId;
         creative.PrimaryArtifactId = artifact.Id;
@@ -211,7 +216,7 @@ public partial class Create : AppAuthComponentBase
         StateHasChanged();
     }
 
-    async Task unpinArtifact(CreativeArtifact artifact)
+    async Task unpinArtifact(Artifact artifact)
     {
         var hold = creative!.PrimaryArtifactId;
         creative.PrimaryArtifactId = null;
@@ -227,6 +232,36 @@ public partial class Create : AppAuthComponentBase
         }
         StateHasChanged();
     }
+
+    bool hasLiked(Artifact artifact) => likedArtifactIds.Contains(artifact.Id);
+
+    async Task likeArtifact(Artifact artifact)
+    {
+        likedArtifactIds.Add(artifact.Id);
+        var api = await ApiAsync(new CreateArtifactLike {
+            ArtifactId = artifact.Id,
+        });
+        if (!api.Succeeded)
+        {
+            likedArtifactIds.Remove(artifact.Id);
+        }
+        StateHasChanged();
+    }
+
+    async Task unlikeArtifact(Artifact artifact)
+    {
+        likedArtifactIds.Remove(artifact.Id);
+        var api = await ApiAsync(new DeleteArtifactLike
+        {
+            ArtifactId = artifact.Id,
+        });
+        if (!api.Succeeded)
+        {
+            likedArtifactIds.Add(artifact.Id);
+        }
+        StateHasChanged();
+    }
+
 
     async Task softDelete()
     {
@@ -255,7 +290,6 @@ public partial class Create : AppAuthComponentBase
             navTo();
         }
     }
-
 
     void navTo(int? creativeId = null, int? artifactId = null)
     {

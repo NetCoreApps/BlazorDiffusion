@@ -34,7 +34,7 @@ public class Creative : AuditBase
 
     [Reference]
     [Format("presentFilesPreview")]
-    public List<CreativeArtifact> Artifacts { get; set; }
+    public List<Artifact> Artifacts { get; set; }
     
     public string? Error { get; set; }
     
@@ -51,7 +51,7 @@ public class Creative : AuditBase
 
 [Icon(Svg = Icons.Artifact)]
 [AutoApply(Behavior.AuditCreate)]
-public class CreativeArtifact : AuditBase
+public class Artifact : AuditBase
 {
     [AutoIncrement]
     public int Id { get; set; }
@@ -132,14 +132,14 @@ public class HardDeleteCreative : IDeleteDb<Creative>, IReturnVoid
     public int Id { get; set; }
 }
 
-public class QueryCreativeArtifacts : QueryDb<CreativeArtifact>
+public class QueryArtifacts : QueryDb<Artifact>
 {
     
 }
 
 [AutoApply(Behavior.AuditModify)]
 [ValidateIsAuthenticated]
-public class UpdateCreativeArtifact : IPatchDb<CreativeArtifact>, IReturn<CreativeArtifact>
+public class UpdateArtifact : IPatchDb<Artifact>, IReturn<Artifact>
 {
     public int Id { get; set; }
     
@@ -291,12 +291,12 @@ public class CreativeModifier
 
 /// <summary>
 /// SQLite FTS table. Uses `rowid` as primary key
-/// which is the CreativeArtifact.Id primary key.
+/// which is the Artifact.Id primary key.
 ///
-/// One entry per CreativeArtifact while also
+/// One entry per Artifact while also
 /// using data from Creative.
 /// </summary>
-public class CreativeArtifactFts
+public class ArtifactFts
 {
     public string rowid { get; set; }
     public int CreativeId { get; set; }
