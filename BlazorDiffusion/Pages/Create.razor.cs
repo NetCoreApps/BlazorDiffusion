@@ -281,6 +281,20 @@ public partial class Create : AppAuthComponentBase
         }
 
         var results = UserState.CreativeHistory;
+        if (Id == null)
+        {
+            if (key == KeyCodes.ArrowDown)
+            {
+                var artifact = results.FirstOrDefault();
+                if (artifact != null)
+                {
+                    navTo(artifact.Id);
+                }
+            }
+            return;
+        }
+
+
         if (Id != null && results?.Count > 0)
         {
             switch (key)

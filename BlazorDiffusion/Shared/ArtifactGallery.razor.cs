@@ -84,7 +84,7 @@ public partial class ArtifactGallery : AppAuthComponentBase
 
         if (Id == null)
         {
-            if (key == KeyCodes.ArrowRight)
+            if (key == KeyCodes.ArrowRight || key == KeyCodes.ArrowDown)
             {
                 var artifact = Artifacts.FirstOrDefault();
                 if (artifact != null)
