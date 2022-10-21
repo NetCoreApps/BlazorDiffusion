@@ -1,14 +1,13 @@
-﻿using System.Diagnostics;
+﻿using System.Data;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using BlazorDiffusion.ServiceModel;
 using CoenM.ImageHash;
 using CoenM.ImageHash.HashAlgorithms;
-using Gooseai;
 using Microsoft.Data.Sqlite;
 using ServiceStack;
 using ServiceStack.Auth;
 using ServiceStack.Configuration;
-using ServiceStack.Data;
 using ServiceStack.DataAnnotations;
 using ServiceStack.OrmLite;
 using ServiceStack.Text;
@@ -188,15 +187,17 @@ public class Migration1001 : MigrationBase
 
     public class AppUser : IUserAuth
     {
+        [AutoIncrement]
+        public int Id { get; set; }
         public string UserName { get; set; }
         public string DisplayName { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Company { get; set; }
-    
+
         [Index]
         public string Email { get; set; }
-    
+
         public string? ProfileUrl { get; set; }
         public string? LastLoginIp { get; set; }
 
@@ -221,7 +222,6 @@ public class Migration1001 : MigrationBase
         public string PostalCode { get; set; }
         public string TimeZone { get; set; }
         public Dictionary<string, string> Meta { get; set; }
-        public int Id { get; set; }
         public string PrimaryEmail { get; set; }
         [IgnoreDataMember]
         public string Salt { get; set; }
@@ -239,7 +239,7 @@ public class Migration1001 : MigrationBase
         public DateTime CreatedDate { get; set; }
         public DateTime ModifiedDate { get; set; }
     }
-    
+
     class ImageCompareResult
     {
         public int Id { get; set; }
@@ -247,27 +247,29 @@ public class Migration1001 : MigrationBase
         public double Similarity { get; set; }
     }
 
-    public void CreateUser(IAuthRepository authRepo, string email, string name, string password, string[]? roles = null)
-    {
-        if (authRepo.GetUserAuthByUserName(email) == null)
-        {
-            var newAdmin = new AppUser { Email = email, DisplayName = name };
-            var user = authRepo.CreateUserAuth(newAdmin, password);
-            if (roles?.Length > 0)
-            {
-                authRepo.AssignRoles(user, roles);
-            }
-        }
-    }
+    OrmLiteAuthRepository<AppUser, UserAuthDetails> CreateAuthRepo() => new(DbFactory) { UseDistinctRoleTables = true };
 
     public override void Up()
     {
-        var authRepo = new OrmLiteAuthRepository<AppUser, UserAuthDetails>(DbFactory)
-        {
-            UseDistinctRoleTables = true
-        };
-        authRepo.InitSchema();
+        var authRepo = CreateAuthRepo();
+        authRepo.InitSchema(Db);
 
+        void CreateUser(string email, string name, string password, string[]? roles = null)
+        {
+            var newAdmin = new AppUser { Email = email, DisplayName = name };
+            var user = authRepo.CreateUserAuth(Db, newAdmin, password);
+            if (roles?.Length > 0)
+            {
+                authRepo.AssignRoles(Db, user.Id.ToString(), roles);
+            }
+        }
+
+        CreateUser("admin@email.com", "Admin User", "p@55wOrd", roles: new[] { RoleNames.Admin });
+        CreateUser("system@email.com", "System", "p@55wOrd", roles: new[] { AppRoles.Moderator });
+        CreateUser("demis@servicestack.com", "Demis", "p@55wOrd", roles: new[] { AppRoles.Moderator });
+        CreateUser("darren@servicestack.com", "Darren", "p@55wOrd", roles: new[] { AppRoles.Moderator });
+        CreateUser("test@user.com", "Test", "p@55wOrd");
+        
         Db.CreateTable<Artist>();
         Db.CreateTable<Modifier>();
         Db.CreateTable<Creative>();
@@ -276,12 +278,6 @@ public class Migration1001 : MigrationBase
         Db.CreateTable<Artifact>();
         Db.CreateTable<ArtifactLike>();
         Db.CreateTable<ArtifactReport>();
-
-        CreateUser(authRepo, "admin@email.com",         "Admin User", "p@55wOrd",  roles: new[] { RoleNames.Admin });
-        CreateUser(authRepo, "system@email.com",        "System",     "p@55wOrd",  roles: new[] { AppRoles.Moderator });
-        CreateUser(authRepo, "demis@servicestack.com",  "Demis",      "p@55wOrd",  roles: new[] { AppRoles.Moderator });
-        CreateUser(authRepo, "darren@servicestack.com", "Darren",     "p@55wOrd",  roles: new[] { AppRoles.Moderator });
-        CreateUser(authRepo, "test@user.com",           "Test",       "p@55wOrd");
 
         var seedDir = Path.GetFullPath(Path.Combine("./App_Data/seed"));
 
@@ -396,15 +392,8 @@ public class Migration1001 : MigrationBase
                 {
                     foreach (var artifactLikeRef in artifactLikeRefs)
                     {
-                        try
-                        {
-                            var artistLike = X.Map(artifactLikeRef.ConvertTo<ArtifactLike>(), x => x.ArtifactId = artifact.Id);
-                            Db.Insert(artistLike);
-                        }
-                        catch (Exception e)
-                        {
-                            e.ToString().Print();
-                        }
+                        var artistLike = X.Apply(artifactLikeRef.ConvertTo<ArtifactLike>(), x => x.ArtifactId = artifact.Id);
+                        Db.Insert(artistLike);
                     }
                 }
             }
@@ -491,9 +480,8 @@ order by Similarity desc;
         Db.DropTable<Artist>();
         Db.DropTable<ArtifactFts>();
 
-        Db.DropTable<UserAuthRole>();
-        Db.DropTable<UserAuthDetails>();
-        Db.DropTable<AppUser>();
+        var authRepo = CreateAuthRepo();
+        authRepo.DropSchema(Db);
     }
 
 }
