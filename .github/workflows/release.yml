@@ -194,7 +194,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USERNAME }}
           port: 22
           key: ${{ secrets.DEPLOY_KEY }}
-          strip_components: 1
+          strip_components: 3
           source: "./BlazorDiffusion/App_Data/seed/*"
           target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-mydb/_data/seed/"
 
@@ -222,7 +222,7 @@ jobs:
           script: |
             echo $APPTOKEN | docker login ghcr.io -u $USERNAME --password-stdin
             docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml pull
-            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-migration  --exit-code-from ${{ github.event.repository.name }}-migration     
+            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-migration --exit-code-from ${{ github.event.repository.name }}-migration     
       
       # Deploy Docker image with ServiceStack application using `docker compose up` remotely
       - name: remote docker-compose up via ssh
