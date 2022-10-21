@@ -14,6 +14,7 @@ public partial class Create : AppAuthComponentBase
 {
     [Inject] public NavigationManager NavigationManager { get; set; }
     [Inject] public IJSRuntime JS { get; set; }
+    [Inject] public UserState UserState { get; set; }
 
     static SearchDataResponse? DataCache;
 
@@ -51,11 +52,9 @@ public partial class Create : AppAuthComponentBase
 
     CreateCreative request = new();
     ApiResult<Creative> api = new();
-    ApiResult<QueryResponse<Creative>> apiHistory = new();
 
     List<ArtistInfo>? ArtistOptions => DataCache?.Artists;
     List<ArtistInfo> artists = new();
-    HashSet<int> likedArtifactIds = new();
 
     void removeArtist(ArtistInfo artist) => artists.Remove(artist);
 
@@ -94,6 +93,8 @@ public partial class Create : AppAuthComponentBase
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+        UserState.OnChange += StateHasChanged;
+
         if (DataCache == null)
         {
             DataCache = await Client!.SendAsync(new SearchData());
@@ -107,15 +108,12 @@ public partial class Create : AppAuthComponentBase
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
-
-        await loadHistory();
+        await loadUserState();
 
         if (Id != null)
         {
-            if (apiHistory.Response != null)
-            {
-                creative = apiHistory.Response.Results.FirstOrDefault(x => x.Id == Id);
-            }
+            creative = UserState.CreativeHistory.FirstOrDefault(x => x.Id == Id);
+            
             if (creative == null)
             {
                 var api = await ApiAsync(new QueryCreatives { Id = Id });
@@ -158,21 +156,11 @@ public partial class Create : AppAuthComponentBase
     }
 
 
-    async Task loadHistory()
+    async Task loadUserState()
     {
         if (User != null)
         {
-            apiHistory = await ApiAsync(new QueryCreatives {
-                OwnerId = User.GetUserId().ToInt(),
-                Take = 30,
-                OrderByDesc = nameof(Creative.Id),
-            });
-
-            var apiLikes = await ApiAsync(new QueryArtifactLikes());
-            if (apiLikes.Succeeded)
-            {
-                likedArtifactIds = apiLikes.Response!.Results.Select(x => x.ArtifactId).ToSet();
-            }
+            await UserState.LoadAsync(User.GetUserId().ToInt());
         }
     }
 
@@ -200,7 +188,7 @@ public partial class Create : AppAuthComponentBase
         api = await ApiAsync(request);
         creative = api.Response;
 
-        await loadHistory();
+        await loadUserState();
     }
 
     async Task pinArtifact(Artifact artifact)
@@ -232,36 +220,6 @@ public partial class Create : AppAuthComponentBase
         }
         StateHasChanged();
     }
-
-    bool hasLiked(Artifact artifact) => likedArtifactIds.Contains(artifact.Id);
-
-    async Task likeArtifact(Artifact artifact)
-    {
-        likedArtifactIds.Add(artifact.Id);
-        var api = await ApiAsync(new CreateArtifactLike {
-            ArtifactId = artifact.Id,
-        });
-        if (!api.Succeeded)
-        {
-            likedArtifactIds.Remove(artifact.Id);
-        }
-        StateHasChanged();
-    }
-
-    async Task unlikeArtifact(Artifact artifact)
-    {
-        likedArtifactIds.Remove(artifact.Id);
-        var api = await ApiAsync(new DeleteArtifactLike
-        {
-            ArtifactId = artifact.Id,
-        });
-        if (!api.Succeeded)
-        {
-            likedArtifactIds.Add(artifact.Id);
-        }
-        StateHasChanged();
-    }
-
 
     async Task softDelete()
     {
@@ -320,8 +278,8 @@ public partial class Create : AppAuthComponentBase
             return;
         }
 
-        var results = apiHistory?.Response?.Results;
-        if (Id != null && results != null)
+        var results = UserState.CreativeHistory;
+        if (Id != null && results?.Count > 0)
         {
             switch (key)
             {
@@ -401,6 +359,9 @@ public partial class Create : AppAuthComponentBase
             await JS.InvokeVoidAsync("JS.registerKeyNav", dotnetRef);
         }
     }
-    public void Dispose() => dotnetRef?.Dispose();
-
+    public void Dispose()
+    {
+        dotnetRef?.Dispose();
+        UserState.OnChange -= StateHasChanged;
+    }
 }

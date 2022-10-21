@@ -135,7 +135,8 @@ public class HardDeleteCreative : IDeleteDb<Creative>, IReturnVoid
 
 public class QueryArtifacts : QueryDb<Artifact>
 {
-    
+    public int? Id { get; set; }
+    public List<int>? Ids { get; set; }
 }
 
 [AutoApply(Behavior.AuditModify)]

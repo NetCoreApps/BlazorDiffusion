@@ -21,3 +21,10 @@ public abstract class AppComponentBase : ServiceStack.Blazor.BlazorComponentBase
 public abstract class AppAuthComponentBase : AuthBlazorComponentBase
 {
 }
+
+public enum AppPage
+{
+    Search,
+    Create,
+    Likes,
+}

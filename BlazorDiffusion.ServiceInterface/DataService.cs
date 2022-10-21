@@ -80,6 +80,22 @@ public class DataService : Service
         };
     }
 
+    public IAutoQueryDb AutoQuery { get; set; }
+    public async Task<object> Any(QueryLikedArtifacts query)
+    {
+        var session = await GetSessionAsync();
+        var userId = session.UserAuthId.ToInt();
+
+        using var db = AutoQuery.GetDb(query, base.Request);
+        var q = AutoQuery.CreateQuery(query, base.Request, db);
+        q.Join<ArtifactLike>((a, l) => a.Id == l.ArtifactId && l.AppUserId == userId);
+        if (query.OrderBy == null)
+            q.OrderByDescending<ArtifactLike>(x => x.Id);
+
+        return await AutoQuery.ExecuteAsync(query, q, base.Request, db);
+    }
+
+
     private string BuildSimilaritySearchSql(long perceptualHash, int take, int skip, int similarityThreshold)
     {
         return $@"

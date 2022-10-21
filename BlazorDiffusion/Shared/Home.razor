@@ -1,4 +1,6 @@
-﻿@inject NavigationManager NavigationManager
+﻿@inherits AppAuthComponentBase
+@inject ServiceStackStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
 
 <div class="overflow-hidden absolute w-full left-0 -mt-6">
     <div class="py-16 sm:px-2 lg:relative lg:py-20 lg:px-0">
@@ -28,14 +30,29 @@
                         Stable Diffusion Image Search
                     </p>
                     <div class="mt-8 flex gap-4 justify-center">
-                        @if (Search) {
-                            <PrimaryButton @onclick="navToSearch" class="!rounded-full py-2 px-4" Style="ButtonStyle.Sky">Search</PrimaryButton>
+                        @if (Page == AppPage.Search)
+                        {
+                            <PrimaryButton @onclick="navToSearch"   class="!rounded-full py-2 px-4" Style="ButtonStyle.Sky">Search</PrimaryButton>
                             <SecondaryButton @onclick="navToCreate" class="!rounded-full py-2 px-4">Create</SecondaryButton>
+                            @if (IsAuthenticated)
+                            {
+                                <SecondaryButton @onclick="navToLikes" class="!rounded-full py-2 px-4">Likes</SecondaryButton>
+                            }
                         }
-                        else
+                        else if (Page == AppPage.Create)
                         {
                             <SecondaryButton @onclick="navToSearch" class="!rounded-full py-2 px-4">Search</SecondaryButton>
                             <PrimaryButton @onclick="navToCreate" class="!rounded-full py-2 px-4" Style="ButtonStyle.Sky">Create</PrimaryButton>
+                            @if (IsAuthenticated)
+                            {
+                                <SecondaryButton @onclick="navToLikes" class="!rounded-full py-2 px-4">Likes</SecondaryButton>
+                            }
+                        }
+                        else if (Page == AppPage.Likes)
+                        {
+                            <SecondaryButton @onclick="navToSearch" class="!rounded-full py-2 px-4">Search</SecondaryButton>
+                            <SecondaryButton @onclick="navToCreate" class="!rounded-full py-2 px-4" Style="ButtonStyle.Sky">Create</SecondaryButton>
+                            <PrimaryButton @onclick="navToLikes" class="!rounded-full py-2 px-4">Likes</PrimaryButton>
                         }
                     </div>
                 </div>
@@ -49,9 +66,10 @@
 
 @code 
 {
-    [Parameter] public RenderFragment? ChildContent { get; set; }
-    [Parameter] public bool Search { get; set; }
+    [Parameter, EditorRequired] public RenderFragment? ChildContent { get; set; }
+    [Parameter, EditorRequired] public AppPage Page { get; set; }
 
-    void navToCreate() => NavigationManager.NavigateTo("/create");
     void navToSearch() => NavigationManager.NavigateTo("/");
+    void navToCreate() => NavigationManager.NavigateTo("/create");
+    void navToLikes() => NavigationManager.NavigateTo("/likes");
 }

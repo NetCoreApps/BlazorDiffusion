@@ -1,0 +1,13 @@
+﻿@page "/likes"
+@attribute [Authorize]
+@inherits AppAuthComponentBase
+
+<Home Page="AppPage.Likes">
+
+    <div class="mt-8 mx-auto shadow overflow-hidden sm:rounded-md w-[450px] sm:w-[600px]">
+        
+    </div>
+
+    <ArtifactGallery Artifacts=@UserState.LikedArtifacts />
+
+</Home>
