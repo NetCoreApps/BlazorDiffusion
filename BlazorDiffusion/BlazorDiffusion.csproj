@@ -59,6 +59,9 @@
       <None Update="App_Data\seed\modifiers.txt">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="App_Data\seed\artifact-likes.csv">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
     <PropertyGroup>
