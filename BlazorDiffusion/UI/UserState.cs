@@ -1,7 +1,7 @@
 ﻿using BlazorDiffusion.ServiceModel;
 using ServiceStack.Blazor;
 
-namespace BlazorDiffusion;
+namespace BlazorDiffusion.UI;
 
 public class UserState
 {

@@ -2,8 +2,8 @@ using System.Net;
 using Microsoft.AspNetCore.Components.Authorization;
 using ServiceStack;
 using ServiceStack.Blazor;
-using BlazorDiffusion;
 using Microsoft.Net.Http.Headers;
+using BlazorDiffusion.UI;
 
 AppHost.RegisterKey();
 
@@ -21,6 +21,7 @@ builder.Services.AddBlazorApiClient(baseUrl);
 
 builder.Services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<ServiceStackStateProvider>());
 builder.Services.AddScoped<ServiceStackStateProvider>();
+builder.Services.AddScoped<KeyboardNavigation>();
 builder.Services.AddScoped<UserState>();
 
 

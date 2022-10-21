@@ -1,4 +1,5 @@
 ﻿using BlazorDiffusion.ServiceModel;
+using BlazorDiffusion.UI;
 using Microsoft.AspNetCore.Components;
 using ServiceStack.Blazor;
 
@@ -22,7 +23,6 @@ public partial class Likes : AppAuthComponentBase
     {
         await base.OnParametersSetAsync();
         await loadUserState();
-        api = await ApiAsync(new QueryLikedArtifacts());
     }
 
     void OnStateChange()

@@ -7,12 +7,14 @@ using ServiceStack.Blazor.Components.Tailwind;
 using ServiceStack.Blazor.Components;
 using ServiceStack.Text;
 using ServiceStack.Web;
+using BlazorDiffusion.UI;
 
 namespace BlazorDiffusion.Pages;
 
 public partial class Create : AppAuthComponentBase
 {
     [Inject] public NavigationManager NavigationManager { get; set; }
+    [Inject] public KeyboardNavigation KeyboardNavigation { get; set; }
     [Inject] public IJSRuntime JS { get; set; }
     [Inject] public UserState UserState { get; set; }
 
@@ -109,6 +111,7 @@ public partial class Create : AppAuthComponentBase
     {
         await base.OnParametersSetAsync();
         await loadUserState();
+        KeyboardNavigation.Register(this.OnNavKeyAsync);
 
         if (Id != null)
         {
@@ -269,8 +272,7 @@ public partial class Create : AppAuthComponentBase
             navTo(Id);
     }
 
-    [JSInvokable]
-    public async Task OnKeyNav(string key)
+    public async Task OnNavKeyAsync(string key)
     {
         if (key == KeyCodes.Escape)
         {
@@ -350,18 +352,9 @@ public partial class Create : AppAuthComponentBase
         }
     }
 
-    private DotNetObjectReference<Create>? dotnetRef;
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            dotnetRef = DotNetObjectReference.Create(this);
-            await JS.InvokeVoidAsync("JS.registerKeyNav", dotnetRef);
-        }
-    }
     public void Dispose()
     {
-        dotnetRef?.Dispose();
         UserState.OnChange -= StateHasChanged;
+        KeyboardNavigation.Deregister(this.OnNavKeyAsync);
     }
 }

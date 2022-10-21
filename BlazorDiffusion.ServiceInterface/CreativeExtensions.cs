@@ -27,6 +27,9 @@ public static class CreativeExtensions
 
     public static List<Artifact> GetArtifacts(this Creative creative)
     {
+        if (creative == null)
+            return TypeConstants<Artifact>.EmptyList;
+
         var primary = creative.PrimaryArtifactId != null 
             ? creative.Artifacts.FirstOrDefault(x => x.Id == creative.PrimaryArtifactId)
             : null;
