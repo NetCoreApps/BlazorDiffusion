@@ -115,11 +115,10 @@ public class ImportTasks
             }
             else
             {
-                foreach (var artifact in creative.Artifacts)
-                {
-                    artifact.RefId = Guid.NewGuid().ToString("D");
-                }
-
+                //foreach (var artifact in creative.Artifacts)
+                //{
+                //    artifact.RefId = Guid.NewGuid().ToString("D");
+                //}
                 Console.WriteLine($"Updating {metadataFile}...");
                 File.WriteAllText(metadataFile, creative.ToJson().IndentJson());
             }
