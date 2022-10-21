@@ -951,14 +951,6 @@ input[data-autocompleted] {
   right: -11rem;
 }
 
-.bottom-8 {
-  bottom: 2rem;
-}
-
-.bottom-4 {
-  bottom: 1rem;
-}
-
 .z-10 {
   z-index: 10;
 }
@@ -1164,10 +1156,6 @@ input[data-autocompleted] {
   margin-left: auto;
 }
 
-.-mt-12 {
-  margin-top: -3rem;
-}
-
 .mb-8 {
   margin-bottom: 2rem;
 }
@@ -1238,10 +1226,6 @@ input[data-autocompleted] {
 
 .mr-3 {
   margin-right: 0.75rem;
-}
-
-.-mt-16 {
-  margin-top: -4rem;
 }
 
 .block {
@@ -1398,6 +1382,10 @@ input[data-autocompleted] {
 
 .w-5 {
   width: 1.25rem;
+}
+
+.w-\[320px\] {
+  width: 320px;
 }
 
 .w-14 {
@@ -1595,8 +1583,44 @@ input[data-autocompleted] {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.grid-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
 .grid-cols-2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.grid-cols-5 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.grid-cols-6 {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.grid-cols-7 {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.grid-cols-8 {
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+}
+
+.grid-cols-9 {
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+
+.grid-cols-10 {
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+}
+
+.grid-cols-11 {
+  grid-template-columns: repeat(11, minmax(0, 1fr));
 }
 
 .grid-cols-12 {
@@ -1915,6 +1939,11 @@ input[data-autocompleted] {
   background-color: rgb(254 252 232 / var(--tw-bg-opacity));
 }
 
+.bg-gray-200 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(229 231 235 / var(--tw-bg-opacity));
+}
+
 .bg-gray-700 {
   --tw-bg-opacity: 1;
   background-color: rgb(55 65 81 / var(--tw-bg-opacity));
@@ -1923,11 +1952,6 @@ input[data-autocompleted] {
 .bg-green-50 {
   --tw-bg-opacity: 1;
   background-color: rgb(240 253 244 / var(--tw-bg-opacity));
-}
-
-.bg-gray-200 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(229 231 235 / var(--tw-bg-opacity));
 }
 
 .bg-indigo-600 {

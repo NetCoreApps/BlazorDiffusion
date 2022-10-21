@@ -1,10 +1,32 @@
 ﻿@inherits AppAuthComponentBase
 
-<div class="flex flex-wrap">
+<div class="mb-4 mx-auto overflow-hidden sm:rounded-md w-[320px] text-center">
+    <label for="steps-range" class="block text-sm font-medium text-gray-600 dark:text-gray-400">@columns columns</label>
+    <input id="steps-range" @bind="columns" type="range" min="1" max="12" step="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+</div>
+
+@{
+    var colCls = new Dictionary<string, string> {
+        ["1"] = "grid-cols-1",
+        ["2"] = "grid-cols-2",
+        ["3"] = "grid-cols-3",
+        ["4"] = "grid-cols-4",
+        ["5"] = "grid-cols-5",
+        ["6"] = "grid-cols-6",
+        ["7"] = "grid-cols-7",
+        ["8"] = "grid-cols-8",
+        ["9"] = "grid-cols-9",
+        ["10"] = "grid-cols-10",
+        ["11"] = "grid-cols-11",
+        ["12"] = "grid-cols-12",
+    };
+}
+
+<div class=@ClassNames("grid", !string.IsNullOrEmpty(columns) && colCls.TryGetValue(columns, out var cls) ? cls : "grid-cols-6")>
 @foreach (var artifact in Artifacts.OrEmpty())
 {
-    <NavLink @key=@artifact.Id href=@(NavigationManager.Uri.SetQueryParam("id", $"{artifact.Id}")) class="overflow-hidden">
-        <div class="relative p-2 flex flex-col cursor-pointer w-60 sm:w-80">
+    <NavLink @key=@artifact.Id href=@(NavigationManager.Uri.SetQueryParam("id", $"{artifact.Id}")) class="overflow-hidden flex justify-center">
+        <div class="relative p-2 flex flex-col cursor-pointer items-center" style=@($"max-width:{artifact.Width}px")    >
             <img class=@ClassNames("rounded-xl border-2", artifact.Id == Id ? "border-cyan-500" : "border-transparent") src=@artifact.FilePath alt=@artifact.FileName width=@artifact.Width height=@artifact.Height />
 
             <div class="absolute top-0 left-0 w-full h-full group select-none overflow-hidden m-1 rounded-xl">
