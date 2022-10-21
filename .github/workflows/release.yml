@@ -186,6 +186,17 @@ jobs:
           strip_components: 1
           source: "./BlazorDiffusionAssets/artifacts/*"
           target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data/"
+          
+      - name: Copy BlazorDiffusion Seed Data to Remote Server
+        uses: appleboy/scp-action@v0.1.1
+        with:
+          host: ${{ secrets.DEPLOY_API }}
+          username: ${{ secrets.DEPLOY_USERNAME }}
+          port: 22
+          key: ${{ secrets.DEPLOY_KEY }}
+          strip_components: 2
+          source: "./BlazorDiffusion/App_Data/seed/*"
+          target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data/seed/"
 
       - name: Clean db.sqlite during development
         uses: appleboy/ssh-action@v0.1.4
