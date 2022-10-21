@@ -7,8 +7,11 @@ using Gooseai;
 using Microsoft.Data.Sqlite;
 using ServiceStack;
 using ServiceStack.Auth;
+using ServiceStack.Configuration;
+using ServiceStack.Data;
 using ServiceStack.DataAnnotations;
 using ServiceStack.OrmLite;
+using ServiceStack.Text;
 
 namespace BlazorDiffusion.Migrations;
 
@@ -244,9 +247,27 @@ public class Migration1001 : MigrationBase
         public double Similarity { get; set; }
     }
 
+    public void CreateUser(IAuthRepository authRepo, string email, string name, string password, string[]? roles = null)
+    {
+        if (authRepo.GetUserAuthByUserName(email) == null)
+        {
+            var newAdmin = new AppUser { Email = email, DisplayName = name };
+            var user = authRepo.CreateUserAuth(newAdmin, password);
+            if (roles?.Length > 0)
+            {
+                authRepo.AssignRoles(user, roles);
+            }
+        }
+    }
+
     public override void Up()
     {
-        Db.CreateTable<AppUser>();
+        var authRepo = new OrmLiteAuthRepository<AppUser, UserAuthDetails>(DbFactory)
+        {
+            UseDistinctRoleTables = true
+        };
+        authRepo.InitSchema();
+
         Db.CreateTable<Artist>();
         Db.CreateTable<Modifier>();
         Db.CreateTable<Creative>();
@@ -255,6 +276,12 @@ public class Migration1001 : MigrationBase
         Db.CreateTable<Artifact>();
         Db.CreateTable<ArtifactLike>();
         Db.CreateTable<ArtifactReport>();
+
+        CreateUser(authRepo, "admin@email.com",         "Admin User", "p@55wOrd",  roles: new[] { RoleNames.Admin });
+        CreateUser(authRepo, "system@email.com",        "System",     "p@55wOrd",  roles: new[] { AppRoles.Moderator });
+        CreateUser(authRepo, "demis@servicestack.com",  "Demis",      "p@55wOrd",  roles: new[] { AppRoles.Moderator });
+        CreateUser(authRepo, "darren@servicestack.com", "Darren",     "p@55wOrd",  roles: new[] { AppRoles.Moderator });
+        CreateUser(authRepo, "test@user.com",           "Test",       "p@55wOrd");
 
         var seedDir = Path.GetFullPath(Path.Combine("./App_Data/seed"));
 
@@ -369,8 +396,15 @@ public class Migration1001 : MigrationBase
                 {
                     foreach (var artifactLikeRef in artifactLikeRefs)
                     {
-                        var artistLike = X.Map(artifactLikeRef.ConvertTo<ArtifactLike>(), x => x.ArtifactId = artifact.Id);
-                        Db.Insert(artistLike);
+                        try
+                        {
+                            var artistLike = X.Map(artifactLikeRef.ConvertTo<ArtifactLike>(), x => x.ArtifactId = artifact.Id);
+                            Db.Insert(artistLike);
+                        }
+                        catch (Exception e)
+                        {
+                            e.ToString().Print();
+                        }
                     }
                 }
             }
@@ -455,8 +489,11 @@ order by Similarity desc;
         Db.DropTable<AppUser>();
         Db.DropTable<Modifier>();
         Db.DropTable<Artist>();
-        Db.DropTable<AppUser>();
         Db.DropTable<ArtifactFts>();
+
+        Db.DropTable<UserAuthRole>();
+        Db.DropTable<UserAuthDetails>();
+        Db.DropTable<AppUser>();
     }
 
 }
