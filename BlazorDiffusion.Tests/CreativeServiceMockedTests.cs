@@ -95,21 +95,22 @@ public class CreativeServiceMockedTests
             container.Resolve<ICrudEvents>().InitSchema();
         }
     }
+    
+    const string BaseUri = "http://localhost:2001/";
+    private ServiceStackHost appHost;
+    public IServiceClient CreateClient() => new JsonServiceClient(BaseUri);
+    
+    [OneTimeTearDown]
+    public void OneTimeTearDown() => appHost.Dispose();
 
-    public CreativeServiceMockedTests()
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
     {
         BlazorDiffusion.AppHost.RegisterKey();
         appHost = new AppHost()
             .Init()
             .Start(BaseUri);
     }
-    
-    const string BaseUri = "http://localhost:2001/";
-    private readonly ServiceStackHost appHost;
-    public IServiceClient CreateClient() => new JsonServiceClient(BaseUri);
-    
-    [OneTimeTearDown]
-    public void OneTimeTearDown() => appHost.Dispose();
     
     public static List<ImageGenerationTestCase> AllGenerationCases = new()
     {
