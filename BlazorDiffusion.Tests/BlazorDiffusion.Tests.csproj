@@ -21,6 +21,13 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Content Remove="App_Files\artifacts\**\*" />
+        <Content Include="App_Files\artifacts\**\*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
       <Content Include="appsettings.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
@@ -42,8 +49,6 @@
         <PackageReference Include="ServiceStack.Kestrel" Version="6.*" />
     </ItemGroup>
 
-    <Target Name="CreateAppFilesFolder" AfterTargets="AfterBuild">
-        <MakeDir Directories="$(BuildDir)App_Files/artifacts" Condition="!Exists('$(BuildDir)App_Files/artifacts')" />
-    </Target>
+    
 
 </Project>

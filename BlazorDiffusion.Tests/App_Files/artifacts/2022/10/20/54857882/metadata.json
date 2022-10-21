@@ -1,0 +1,258 @@
+{
+    "Id": 76,
+    "UserPrompt": "Headshot of Salma Hayek Ice Queen",
+    "Prompt": "Headshot of Salma Hayek Ice Queen, 8k,Intricate Details,Beautiful,Snow,Winter,Cinematic Lighting,Octane Render,Unreal Engine,Fantasy, inspired by Artgerm,inspired by Alphonse Mucha,inspired by Greg Rutkowski",
+    "Images": 0,
+    "Width": 512,
+    "Height": 512,
+    "Steps": 50,
+    "PrimaryArtifactId": 408,
+    "ModifiersText": [
+        "8k",
+        "Intricate Details",
+        "Beautiful",
+        "Snow",
+        "Winter",
+        "Cinematic Lighting",
+        "Octane Render",
+        "Unreal Engine",
+        "Fantasy"
+    ],
+    "ArtistNames": [
+        "Artgerm",
+        "Alphonse Mucha",
+        "Greg Rutkowski"
+    ],
+    "Artists": [
+        {
+            "Id": 114,
+            "CreativeId": 76,
+            "ArtistId": 1231
+        },
+        {
+            "Id": 115,
+            "CreativeId": 76,
+            "ArtistId": 1320
+        }
+    ],
+    "Modifiers": [
+        {
+            "Id": 595,
+            "CreativeId": 76,
+            "ModifierId": 4
+        },
+        {
+            "Id": 596,
+            "CreativeId": 76,
+            "ModifierId": 29
+        },
+        {
+            "Id": 597,
+            "CreativeId": 76,
+            "ModifierId": 83
+        },
+        {
+            "Id": 598,
+            "CreativeId": 76,
+            "ModifierId": 203
+        },
+        {
+            "Id": 599,
+            "CreativeId": 76,
+            "ModifierId": 210
+        },
+        {
+            "Id": 600,
+            "CreativeId": 76,
+            "ModifierId": 229
+        },
+        {
+            "Id": 601,
+            "CreativeId": 76,
+            "ModifierId": 251
+        },
+        {
+            "Id": 602,
+            "CreativeId": 76,
+            "ModifierId": 257
+        },
+        {
+            "Id": 603,
+            "CreativeId": 76,
+            "ModifierId": 510
+        }
+    ],
+    "Artifacts": [
+        {
+            "Id": 402,
+            "CreativeId": 76,
+            "FileName": "output_2633527491.png",
+            "FilePath": "/uploads/artifacts/2022/10/20/54857882/output_2633527491.png",
+            "ContentType": "image/png",
+            "ContentLength": 470467,
+            "Width": 512,
+            "Height": 512,
+            "Seed": 2633527491,
+            "Prompt": "Headshot of Salma Hayek Ice Queen, 8k,Intricate Details,Beautiful,Snow,Winter,Cinematic Lighting,Octane Render,Unreal Engine,Fantasy, by  Artgerm,by Alphonse Mucha,by Greg Rutkowski",
+            "PerceptualHash": -2946783400037632829,
+            "RefId": "6c86e522-1e9a-429e-84e2-7bac55d1d0b9",
+            "CreatedDate": "\/Date(1666250064321-0000)\/",
+            "CreatedBy": "3",
+            "ModifiedDate": "\/Date(1666250064321-0000)\/",
+            "ModifiedBy": "3"
+        },
+        {
+            "Id": 403,
+            "CreativeId": 76,
+            "FileName": "output_1312358835.png",
+            "FilePath": "/uploads/artifacts/2022/10/20/54857882/output_1312358835.png",
+            "ContentType": "image/png",
+            "ContentLength": 419804,
+            "Width": 512,
+            "Height": 512,
+            "Seed": 1312358835,
+            "Prompt": "Headshot of Salma Hayek Ice Queen, 8k,Intricate Details,Beautiful,Snow,Winter,Cinematic Lighting,Octane Render,Unreal Engine,Fantasy, by  Artgerm,by Alphonse Mucha,by Greg Rutkowski",
+            "PerceptualHash": -3173414299293162783,
+            "RefId": "50d92cb4-fdc1-442c-887e-8f2cb22da3a1",
+            "CreatedDate": "\/Date(1666250064321-0000)\/",
+            "CreatedBy": "3",
+            "ModifiedDate": "\/Date(1666250064321-0000)\/",
+            "ModifiedBy": "3"
+        },
+        {
+            "Id": 404,
+            "CreativeId": 76,
+            "FileName": "output_1515285252.png",
+            "FilePath": "/uploads/artifacts/2022/10/20/54857882/output_1515285252.png",
+            "ContentType": "image/png",
+            "ContentLength": 476000,
+            "Width": 512,
+            "Height": 512,
+            "Seed": 1515285252,
+            "Prompt": "Headshot of Salma Hayek Ice Queen, 8k,Intricate Details,Beautiful,Snow,Winter,Cinematic Lighting,Octane Render,Unreal Engine,Fantasy, by  Artgerm,by Alphonse Mucha,by Greg Rutkowski",
+            "PerceptualHash": -7546439927226427877,
+            "RefId": "87c71081-5fc1-4b7a-af40-ab2da26e13a8",
+            "CreatedDate": "\/Date(1666250064321-0000)\/",
+            "CreatedBy": "3",
+            "ModifiedDate": "\/Date(1666250064321-0000)\/",
+            "ModifiedBy": "3"
+        },
+        {
+            "Id": 405,
+            "CreativeId": 76,
+            "FileName": "output_2248701330.png",
+            "FilePath": "/uploads/artifacts/2022/10/20/54857882/output_2248701330.png",
+            "ContentType": "image/png",
+            "ContentLength": 449204,
+            "Width": 512,
+            "Height": 512,
+            "Seed": 2248701330,
+            "Prompt": "Headshot of Salma Hayek Ice Queen, 8k,Intricate Details,Beautiful,Snow,Winter,Cinematic Lighting,Octane Render,Unreal Engine,Fantasy, by  Artgerm,by Alphonse Mucha,by Greg Rutkowski",
+            "PerceptualHash": -6441825800853000017,
+            "RefId": "1c450b47-50e2-4e8a-a378-715a251b8ed3",
+            "CreatedDate": "\/Date(1666250064321-0000)\/",
+            "CreatedBy": "3",
+            "ModifiedDate": "\/Date(1666250064321-0000)\/",
+            "ModifiedBy": "3"
+        },
+        {
+            "Id": 406,
+            "CreativeId": 76,
+            "FileName": "output_4023030651.png",
+            "FilePath": "/uploads/artifacts/2022/10/20/54857882/output_4023030651.png",
+            "ContentType": "image/png",
+            "ContentLength": 452132,
+            "Width": 512,
+            "Height": 512,
+            "Seed": 4023030651,
+            "Prompt": "Headshot of Salma Hayek Ice Queen, 8k,Intricate Details,Beautiful,Snow,Winter,Cinematic Lighting,Octane Render,Unreal Engine,Fantasy, by  Artgerm,by Alphonse Mucha,by Greg Rutkowski",
+            "PerceptualHash": -6427495267578910171,
+            "RefId": "78b04ff3-c535-471b-b2eb-4bf7e9b15a6e",
+            "CreatedDate": "\/Date(1666250064321-0000)\/",
+            "CreatedBy": "3",
+            "ModifiedDate": "\/Date(1666250064321-0000)\/",
+            "ModifiedBy": "3"
+        },
+        {
+            "Id": 407,
+            "CreativeId": 76,
+            "FileName": "output_1290639599.png",
+            "FilePath": "/uploads/artifacts/2022/10/20/54857882/output_1290639599.png",
+            "ContentType": "image/png",
+            "ContentLength": 423789,
+            "Width": 512,
+            "Height": 512,
+            "Seed": 1290639599,
+            "Prompt": "Headshot of Salma Hayek Ice Queen, 8k,Intricate Details,Beautiful,Snow,Winter,Cinematic Lighting,Octane Render,Unreal Engine,Fantasy, by  Artgerm,by Alphonse Mucha,by Greg Rutkowski",
+            "PerceptualHash": -7620411872790632712,
+            "RefId": "e0c63980-fc7e-447f-bf1d-c461d516e6ce",
+            "CreatedDate": "\/Date(1666250064321-0000)\/",
+            "CreatedBy": "3",
+            "ModifiedDate": "\/Date(1666250064321-0000)\/",
+            "ModifiedBy": "3"
+        },
+        {
+            "Id": 408,
+            "CreativeId": 76,
+            "FileName": "output_1676765929.png",
+            "FilePath": "/uploads/artifacts/2022/10/20/54857882/output_1676765929.png",
+            "ContentType": "image/png",
+            "ContentLength": 406402,
+            "Width": 512,
+            "Height": 512,
+            "Seed": 1676765929,
+            "Prompt": "Headshot of Salma Hayek Ice Queen, 8k,Intricate Details,Beautiful,Snow,Winter,Cinematic Lighting,Octane Render,Unreal Engine,Fantasy, by  Artgerm,by Alphonse Mucha,by Greg Rutkowski",
+            "PerceptualHash": -8134335639979890630,
+            "RefId": "1fdfe228-7ab1-441a-a222-e0c9c27d3a81",
+            "CreatedDate": "\/Date(1666250064321-0000)\/",
+            "CreatedBy": "3",
+            "ModifiedDate": "\/Date(1666250064321-0000)\/",
+            "ModifiedBy": "3"
+        },
+        {
+            "Id": 409,
+            "CreativeId": 76,
+            "FileName": "output_4097140727.png",
+            "FilePath": "/uploads/artifacts/2022/10/20/54857882/output_4097140727.png",
+            "ContentType": "image/png",
+            "ContentLength": 473200,
+            "Width": 512,
+            "Height": 512,
+            "Seed": 4097140727,
+            "Prompt": "Headshot of Salma Hayek Ice Queen, 8k,Intricate Details,Beautiful,Snow,Winter,Cinematic Lighting,Octane Render,Unreal Engine,Fantasy, by  Artgerm,by Alphonse Mucha,by Greg Rutkowski",
+            "PerceptualHash": -7095422867543670631,
+            "RefId": "acbd4ac2-66d7-4442-bb70-cf654e924d34",
+            "CreatedDate": "\/Date(1666250064321-0000)\/",
+            "CreatedBy": "3",
+            "ModifiedDate": "\/Date(1666250064321-0000)\/",
+            "ModifiedBy": "3"
+        },
+        {
+            "Id": 410,
+            "CreativeId": 76,
+            "FileName": "output_4294945848.png",
+            "FilePath": "/uploads/artifacts/2022/10/20/54857882/output_4294945848.png",
+            "ContentType": "image/png",
+            "ContentLength": 467394,
+            "Width": 512,
+            "Height": 512,
+            "Seed": 4294945848,
+            "Prompt": "Headshot of Salma Hayek Ice Queen, 8k,Intricate Details,Beautiful,Snow,Winter,Cinematic Lighting,Octane Render,Unreal Engine,Fantasy, by  Artgerm,by Alphonse Mucha,by Greg Rutkowski",
+            "PerceptualHash": -1761799485147380420,
+            "RefId": "5721783c-a3ff-4176-85a5-4af16e5af6ce",
+            "CreatedDate": "\/Date(1666250064321-0000)\/",
+            "CreatedBy": "3",
+            "ModifiedDate": "\/Date(1666250064321-0000)\/",
+            "ModifiedBy": "3"
+        }
+    ],
+    "OwnerId": 3,
+    "Key": "2022/10/20/54857882",
+    "Curated": false,
+    "Private": false,
+    "RefId": "7587c21e-759d-44b6-9c45-6285092c7c42",
+    "CreatedDate": "\/Date(1666250064321-0000)\/",
+    "CreatedBy": "3",
+    "ModifiedDate": "\/Date(1666251623368-0000)\/",
+    "ModifiedBy": "3"
+}
