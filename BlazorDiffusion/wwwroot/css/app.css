@@ -1184,6 +1184,10 @@ input[data-autocompleted] {
   margin-top: 0.75rem;
 }
 
+.-mt-8 {
+  margin-top: -2rem;
+}
+
 .-mt-1 {
   margin-top: -0.25rem;
 }
@@ -1218,10 +1222,6 @@ input[data-autocompleted] {
 
 .ml-0 {
   margin-left: 0px;
-}
-
-.-mt-8 {
-  margin-top: -2rem;
 }
 
 .mr-3 {
@@ -1326,6 +1326,10 @@ input[data-autocompleted] {
 
 .min-h-0 {
   min-height: 0px;
+}
+
+.min-h-screen {
+  min-height: 100vh;
 }
 
 .w-\[450px\] {
@@ -2167,10 +2171,6 @@ input[data-autocompleted] {
   padding-right: 0.75rem;
 }
 
-.pb-4 {
-  padding-bottom: 1rem;
-}
-
 .pl-5 {
   padding-left: 1.25rem;
 }
@@ -2189,6 +2189,10 @@ input[data-autocompleted] {
 
 .pt-4 {
   padding-top: 1rem;
+}
+
+.pb-4 {
+  padding-bottom: 1rem;
 }
 
 .pr-10 {
