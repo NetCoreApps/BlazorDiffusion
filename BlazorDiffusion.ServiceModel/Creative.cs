@@ -82,6 +82,11 @@ public class Artifact : AuditBase
     public string RefId { get; set; }
 }
 
+public class SearchArtifacts : QueryDb<Artifact>
+{
+    public string Query { get; set; }
+}
+
 public class QueryCreatives : QueryDb<Creative>
 {
     public int? Id { get; set; }

@@ -8,11 +8,49 @@ using ServiceStack.OrmLite;
 using BlazorDiffusion.ServiceModel;
 using CoenM.ImageHash;
 using Microsoft.Data.Sqlite;
+using System.Collections;
 
 namespace BlazorDiffusion.ServiceInterface;
 
 public class DataService : Service
 {
+    public IAutoQueryDb AutoQuery { get; set; }
+
+    // TODO Home page search
+    public async Task<object> Any(SearchArtifacts query)
+    {
+        var search = query.Query ?? "";
+        var creative = search.Length == 32 
+            ? await Db.SingleAsync<Creative>(x => x.RefId == search)
+        : null;
+
+        using var db = AutoQuery.GetDb(query, base.Request);
+        var q = AutoQuery.CreateQuery(query, base.Request, db);
+
+        var isGuid = creative != null;
+        if (isGuid)
+        {
+            //TODO implement properly
+            q.Where(x => x.CreativeId == creative.Id);
+        }
+        else
+        {
+            // Only return pinned artifacts
+            q.Join<Creative>((a, c) => a.Id == c.PrimaryArtifactId);
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                q.Where<Creative>(x => x.Prompt.Contains(search));
+            }
+
+            q.SelectDistinct(x => new { x }); // Blazor @key throws when returning dupes
+        }
+
+        q.OrderByDescending(x => x.Score);
+
+        return AutoQuery.Execute(query, q, base.Request, db);
+    }
+
     public static List<Group> CategoryGroups = new Group[] {
         new() { Name = "Scene",     Items = new[] { "Quality", "Style", "Aesthetic", "Features", "Medium", "Setting", "Theme" } },
         new() { Name = "Effects",   Items = new[] { "Effects", "CGI", "Filters", "Lenses", "Photography", "Lighting", "Color" } },
@@ -80,7 +118,6 @@ public class DataService : Service
         };
     }
 
-    public IAutoQueryDb AutoQuery { get; set; }
     public async Task<object> Any(QueryLikedArtifacts query)
     {
         var session = await GetSessionAsync();

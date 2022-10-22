@@ -25,19 +25,14 @@ public partial class Likes : AppAuthComponentBase
         await loadUserState();
     }
 
-    void OnStateChange()
-    {
-        StateHasChanged();
-    }
-
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        UserState.OnChange += OnStateChange;
+        UserState.OnChange += StateHasChanged;
     }
 
     public void Dispose()
     {
-        UserState.OnChange -= OnStateChange;
+        UserState.OnChange -= StateHasChanged;
     }
 }

@@ -19,8 +19,7 @@ public class AlbumServices : Service
         var album = request.ConvertTo<Album>();
         album.Name ??= "New Album";
         album.OwnerId = session.UserAuthId.ToInt();
-        album.CreatedBy = album.ModifiedBy = session.UserAuthId;
-        album.CreatedDate = album.ModifiedDate = DateTime.Now;
+        album.WithAudit(session.UserAuthId);
 
         using var trans = Db.OpenTransaction();
 
@@ -34,10 +33,13 @@ public class AlbumServices : Service
                 AlbumId = album.Id,
                 ArtifactId = x,
                 CreatedDate = album.CreatedDate,
-                ModifiedDate = album.CreatedDate,
+                ModifiedDate = album.ModifiedDate,
             });
             await Db.InsertAllAsync(albumArtifacts);
         }
+
+        var crudContext = CrudContext.Create<Album>(Request, Db, request, AutoCrudOperation.Create);
+        await CrudEvents.RecordAsync(crudContext);
 
         trans.Commit();
 
@@ -55,11 +57,10 @@ public class AlbumServices : Service
         if (!await session.IsOwnerOrModerator(AuthRepositoryAsync, album.OwnerId))
             throw HttpError.Forbidden("You don't own this Album");
 
-        album.CreatedBy = album.ModifiedBy = session.UserAuthId;
-        album.CreatedDate = album.ModifiedDate = DateTime.Now;
+        album.WithAudit(session.UserAuthId);
         
         using var trans = Db.OpenTransaction();
-        album.PopulateWithNonDefaultValues(request);
+        await Db.UpdateNonDefaultsAsync(album, x => x.Id == album.Id);
 
         if (request.AddArtifactIds?.Count > 0)
         {
@@ -68,7 +69,7 @@ public class AlbumServices : Service
                     AlbumId = album.Id,
                     ArtifactId = x,
                     CreatedDate = album.CreatedDate,
-                    ModifiedDate = album.CreatedDate,
+                    ModifiedDate = album.ModifiedDate,
                 });
             await Db.InsertAllAsync(albumArtifacts);
         }
@@ -76,6 +77,9 @@ public class AlbumServices : Service
         {
             await Db.DeleteAsync<AlbumArtifact>(x => x.AlbumId == album.Id && request.RemoveArtifactIds.Contains(x.ArtifactId));
         }
+
+        var crudContext = CrudContext.Create<Album>(Request, Db, request, AutoCrudOperation.Patch);
+        await CrudEvents.RecordAsync(crudContext);
 
         trans.Commit();
 
