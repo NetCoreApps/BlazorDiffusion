@@ -15,7 +15,7 @@ public class Album : AuditBase
     public List<string> Tags { get; set; }
     public string RefId { get; set; }
     [References(typeof(AppUser))]
-    public int AppUserId { get; set; }
+    public int OwnerId { get; set; }
     public int? PrimaryArtifactId { get; set; }
     public bool Private { get; set; }
     public int? Rating { get; set; }
@@ -57,7 +57,7 @@ public class QueryAlbums : QueryDb<Album> { }
 
 [ValidateIsAuthenticated]
 [AutoPopulate(nameof(Album.RefId), Eval = "nguid")]
-[AutoPopulate(nameof(Album.AppUserId), Eval = "userAuthId")]
+[AutoPopulate(nameof(Album.OwnerId), Eval = "userAuthId")]
 public class CreateAlbum : ICreateDb<Album>, IReturn<Album>
 {
     [ValidateNotEmpty]
@@ -70,7 +70,7 @@ public class CreateAlbum : ICreateDb<Album>, IReturn<Album>
 }
 
 [ValidateIsAuthenticated]
-[AutoPopulate(nameof(Album.AppUserId), Eval = "userAuthId")]
+[AutoPopulate(nameof(Album.OwnerId), Eval = "userAuthId")]
 public class UpdateAlbum : IPatchDb<Album>, IReturn<Album>
 {
     public int Id { get; set; }
@@ -84,7 +84,7 @@ public class UpdateAlbum : IPatchDb<Album>, IReturn<Album>
 }
 
 [ValidateIsAuthenticated]
-[AutoPopulate(nameof(Album.AppUserId), Eval = "userAuthId")]
+[AutoPopulate(nameof(Album.OwnerId), Eval = "userAuthId")]
 public class DeleteAlbum : IDeleteDb<Album>, IReturnVoid
 {
     public int Id { get; set; }
@@ -93,7 +93,7 @@ public class DeleteAlbum : IDeleteDb<Album>, IReturnVoid
 
 
 [ValidateIsAuthenticated]
-[AutoPopulate(nameof(Album.AppUserId), Eval = "userAuthId")]
+[AutoPopulate(nameof(Album.OwnerId), Eval = "userAuthId")]
 public class UpdateAlbumArtifact : IPatchDb<Album>, IReturn<Album>
 {
     public long Id { get; set; }

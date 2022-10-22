@@ -44,7 +44,7 @@ public class CreativeService : Service
     {
         var creative = await Db.LoadSingleByIdAsync<Creative>(request.Id);
         if (creative == null)
-            throw HttpError.NotFound($"Creative not found");
+            throw HttpError.NotFound("Creative not found");
 
         var session = await GetSessionAsync();
         if (!await session.IsOwnerOrModerator(AuthRepositoryAsync, creative.OwnerId))
@@ -236,7 +236,7 @@ public class CreativeService : Service
 
 public static class CreateServiceUtils
 {
-    public static async Task<bool> IsUserAdminOrModerator(this Service service, int? userId) => 
+    public static async Task<bool> IsOwnerOrModerator(this Service service, int? userId) => 
         await (await service.GetSessionAsync()).IsOwnerOrModerator(service.AuthRepositoryAsync, userId);
 
     public static async Task<bool> IsOwnerOrModerator(this IAuthSession session, IAuthRepositoryAsync AuthRepositoryAsync, int? ownerId)

@@ -248,7 +248,7 @@ public class Migration1001 : MigrationBase
         public List<string> Tags { get; set; }
         public string RefId { get; set; }
         [References(typeof(AppUser))]
-        public int AppUserId { get; set; }
+        public int OwnerId { get; set; }
         public int? PrimaryArtifactId { get; set; }
         public bool Private { get; set; }
         public int? Rating { get; set; }
