@@ -30,8 +30,7 @@ public class DataService : Service
         var isGuid = creative != null;
         if (isGuid)
         {
-            //TODO implement properly
-            q.Where(x => x.CreativeId == creative.Id);
+            q.Join<Creative>((a, c) => a.CreativeId == creative.Id);
         }
         else
         {
@@ -42,13 +41,13 @@ public class DataService : Service
             {
                 q.Where<Creative>(x => x.Prompt.Contains(search));
             }
-
-            q.SelectDistinct(x => new { x }); // Blazor @key throws when returning dupes
         }
 
         q.OrderByDescending(x => x.Score);
+        // Blazor @key throws when returning dupes
+        q.SelectDistinct<Artifact, Creative>((a,c) => new { a, c.UserPrompt, c.ArtistNames, c.ModifierNames, c.PrimaryArtifactId });
 
-        return AutoQuery.Execute(query, q, base.Request, db);
+        return AutoQuery.ExecuteAsync(query, q, base.Request, db);
     }
 
     public static List<Group> CategoryGroups = new Group[] {

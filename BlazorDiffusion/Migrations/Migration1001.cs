@@ -34,8 +34,8 @@ public class Migration1001 : MigrationBase
 
         public int? PrimaryArtifactId { get; set; }
 
-        public List<string> ModifiersText { get; set; }
         public List<string> ArtistNames { get; set; }
+        public List<string> ModifierNames { get; set; }
 
         [Reference]
         public List<CreativeArtist> Artists { get; set; }
@@ -361,7 +361,7 @@ public class Migration1001 : MigrationBase
         foreach (var file in filesToLoad)
         {
             var creative = File.ReadAllText(file).FromJson<Creative>();
-            creative.Prompt = ConstructPrompt(creative.UserPrompt, creative.ModifiersText, creative.ArtistNames);
+            creative.Prompt = ConstructPrompt(creative.UserPrompt, creative.ModifierNames, creative.ArtistNames);
             creativeEntries.Add(creative);
         }
 
@@ -388,11 +388,11 @@ public class Migration1001 : MigrationBase
         {
             creative.Id = 0;
             creative.Modifiers = new List<CreativeModifier>();
-            creative.ModifiersText ??= new List<string>();
+            creative.ModifierNames ??= new List<string>();
             creative.ArtistNames ??= new List<string>();
             creative.OwnerId = creative.CreatedBy != null ? creative.CreatedBy.ToInt() : 2;
             var id = creative.Id = (int)Db.Insert(creative, selectIdentity: true);
-            foreach (var text in creative.ModifiersText)
+            foreach (var text in creative.ModifierNames)
             {
                 var mod = savedModifiers[text.ToLowerInvariant()];
                 Db.Insert(new CreativeModifier

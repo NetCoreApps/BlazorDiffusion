@@ -6,7 +6,7 @@ namespace BlazorDiffusion.Pages;
 
 public partial class Index : AppComponentBase
 {
-    ApiResult<QueryResponse<Artifact>> api = new();
+    ApiResult<QueryResponse<ArtifactResult>> api = new();
 
     [Parameter, SupplyParameterFromQuery] public string q { get; set; }
 
@@ -47,7 +47,7 @@ public partial class Index : AppComponentBase
         resultIds.Clear();
     }
 
-    void addResults(List<Artifact> artifacts)
+    void addResults(List<ArtifactResult> artifacts)
     {
         foreach (var artifact in artifacts)
         {

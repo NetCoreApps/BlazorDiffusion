@@ -6,6 +6,7 @@
 </div>
 
 @{
+    // tailwind needs to see full classses
     var colCls = new Dictionary<string, string> {
         ["1"] = "grid-cols-1",
         ["2"] = "grid-cols-2",
@@ -50,6 +51,9 @@
                         </svg>
                     }
                 </div>
+                
+
+
             </div>
 
         </div>
@@ -68,7 +72,7 @@
                 <h2 class="text-lg font-medium text-gray-900 dark:text-gray-200">@creative.UserPrompt</h2>
                 <div class="mt-1">
                     <p class="notes text-sm text-gray-500">
-                        @string.Join(", ", creative.ModifiersText)
+                        @string.Join(", ", creative.ModifierNames)
                         @if (creative.ArtistNames.Count > 0)
                         {
                             @($" by {string.Join(", ", creative.ArtistNames)}")

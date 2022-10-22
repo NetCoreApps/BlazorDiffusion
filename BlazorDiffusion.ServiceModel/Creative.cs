@@ -24,8 +24,8 @@ public class Creative : AuditBase
 
     public int? PrimaryArtifactId { get; set; }
     
-    public List<string> ModifiersText { get; set; }
     public List<string> ArtistNames { get; set; }
+    public List<string> ModifierNames { get; set; }
 
     [Reference]
     public List<CreativeArtist> Artists { get; set; }
@@ -82,7 +82,15 @@ public class Artifact : AuditBase
     public string RefId { get; set; }
 }
 
-public class SearchArtifacts : QueryDb<Artifact>
+public class ArtifactResult : Artifact
+{
+    public string UserPrompt { get; set; }
+    public List<string> ArtistNames { get; set; }
+    public List<string> ModifierNames { get; set; }
+    public int? PrimaryArtifactId { get; set; }
+}
+
+public class SearchArtifacts : QueryDb<Artifact,ArtifactResult>
 {
     public string Query { get; set; }
 }

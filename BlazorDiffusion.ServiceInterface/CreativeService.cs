@@ -113,7 +113,7 @@ public class CreativeService : Service
         creative.OwnerId = userId;
         creative.Key = imageGenerationResponse.Key;
         creative.ArtistNames = artists.Select(x => $"{x.FirstName} {x.LastName}").ToList();
-        creative.ModifiersText = modifiers.Select(x => x.Name).ToList();
+        creative.ModifierNames = modifiers.Select(x => x.Name).ToList();
         creative.Prompt = ConstructPrompt(request.UserPrompt, modifiers, artists);
         creative.RefId = Guid.NewGuid().ToString("D");
 
