@@ -20,40 +20,43 @@ public class Migration1001 : MigrationBase
     {
         [AutoIncrement]
         public int Id { get; set; }
-    
+
         public string UserPrompt { get; set; }
         public string Prompt { get; set; }
-    
+
         public int Images { get; set; }
-    
+
         public int Width { get; set; }
-    
+
         public int Height { get; set; }
-    
+
         public int Steps { get; set; }
 
         public int? PrimaryArtifactId { get; set; }
-        
+
         public List<string> ModifiersText { get; set; }
         public List<string> ArtistNames { get; set; }
-        
+
         [Reference]
         public List<CreativeArtist> Artists { get; set; }
         [Reference]
         public List<CreativeModifier> Modifiers { get; set; }
 
         [Reference]
+        [Format("presentFilesPreview")]
         public List<Artifact> Artifacts { get; set; }
-        
+
         public string? Error { get; set; }
-        
+
         [References(typeof(AppUser))]
         public int? OwnerId { get; set; }
         public string? Key { get; set; }
-        
+
         public bool Curated { get; set; }
         public int? Rating { get; set; }
         public bool Private { get; set; }
+        public int Score { get; set; }
+        public int Rank { get; set; }
         public string RefId { get; set; }
     }
 
@@ -90,10 +93,9 @@ public class Migration1001 : MigrationBase
         Other,
     }
 
-
     public class Artifact : AuditBase
     {
-        [AutoIncrement] 
+        [AutoIncrement]
         public int Id { get; set; }
 
         [References(typeof(Creative))]
@@ -101,22 +103,23 @@ public class Migration1001 : MigrationBase
 
         public string FileName { get; set; }
 
-        [Format(FormatMethods.Attachment)] 
+        [Format(FormatMethods.Attachment)]
         public string FilePath { get; set; }
         public string ContentType { get; set; }
 
-        [Format(FormatMethods.Bytes)] 
+        [Format(FormatMethods.Bytes)]
         public long ContentLength { get; set; }
-    
+
         public int Width { get; set; }
         public int Height { get; set; }
         public ulong Seed { get; set; }
         public string Prompt { get; set; }
         public bool? Nsfw { get; set; }
-
         public Int64? AverageHash { get; set; }
         public Int64? PerceptualHash { get; set; }
         public Int64? DifferenceHash { get; set; }
+        public int Score { get; set; }
+        public int Rank { get; set; }
         public string RefId { get; set; }
     }
 

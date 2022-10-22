@@ -45,7 +45,8 @@ public class Creative : AuditBase
     public bool Curated { get; set; }
     public int? Rating { get; set; }
     public bool Private { get; set; }
-        
+    public int Score { get; set; }
+    public int Rank { get; set; }
     public string RefId { get; set; }
 }
 
@@ -72,12 +73,12 @@ public class Artifact : AuditBase
     public int Height { get; set; }
     public ulong Seed { get; set; }
     public string Prompt { get; set; }
-    
     public bool? Nsfw { get; set; }
-    
     public Int64? AverageHash { get; set; }
     public Int64? PerceptualHash { get; set; }
     public Int64? DifferenceHash { get; set; }
+    public int Score { get; set; }
+    public int Rank { get; set; }
     public string RefId { get; set; }
 }
 
