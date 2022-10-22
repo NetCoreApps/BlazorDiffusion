@@ -125,20 +125,20 @@ public partial class Create : AppAuthComponentBase
             if (creative != null)
             {
                 request.UserPrompt = creative.UserPrompt;
-                imageSize = creative.Height == 768
+                imageSize = creative.Height > creative.Width
                     ? ImageSize.Portrait
-                    : creative.Width == 768
+                    : creative.Width > creative.Height
                         ? ImageSize.Landscape
                         : ImageSize.Square;
 
-                var artistIds = creative.Artists?.Select(x => x.ArtistId).ToSet() ?? new();
-                artists = artistIds.Count > 0
-                    ? ArtistOptions!.Where(x => artistIds.Contains(x.Id)).ToList()
+                var artistIds = creative.Artists?.OrderBy(x => x.Id).Select(x => x.ArtistId).ToList() ?? new();
+                artists = ArtistOptions?.Count > 0 && artistIds.Count > 0
+                    ? artistIds.Select(x => ArtistOptions.FirstOrDefault(m => m.Id == x)).Where(x => x != null).Cast<ArtistInfo>().ToList()
                     : new();
 
-                var modifierIds = creative.Modifiers?.Select(x => x.ModifierId).ToSet() ?? new();
-                modifiers = modifierIds.Count > 0
-                    ? ModifierOptions!.Where(x => modifierIds.Contains(x.Id)).ToList()
+                var modifierIds = creative.Modifiers?.OrderBy(x => x.Id).Select(x => x.ModifierId).ToList() ?? new();
+                modifiers = ModifierOptions?.Count > 0 && modifierIds.Count > 0
+                    ? modifierIds.Select(x => ModifierOptions.FirstOrDefault(m => m.Id == x)).Where(x => x != null).Cast<ModifierInfo>().ToList()
                     : new();
             }
         }
@@ -174,12 +174,12 @@ public partial class Create : AppAuthComponentBase
         request.Width = imageSize switch
         {
             ImageSize.Portrait => 512,
-            ImageSize.Landscape => 768,
+            ImageSize.Landscape => 896,
             _ => 512,
         };
         request.Height = imageSize switch
         {
-            ImageSize.Portrait => 768,
+            ImageSize.Portrait => 896,
             ImageSize.Landscape => 512,
             _ => 512,
         };

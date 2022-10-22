@@ -244,9 +244,9 @@ public class CreativeServiceTests
         switch (orientation)
         {
             case ImageType.Landscape:
-                return new ImageSize(768, 512);
+                return new ImageSize(896, 512);
             case ImageType.Portrait:
-                return new ImageSize(512, 768);
+                return new ImageSize(512, 896);
             case ImageType.Square:
             default:
                 return new ImageSize(512, 512);

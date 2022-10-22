@@ -27,6 +27,10 @@ public class CreativeService : Service
     public const int DefaultModeratorImages = 9;
     public const int DefaultModeratorSteps = 50;
 
+    public const int DefaultMaxWidth = 896;
+    public const int DefaultMaxHeight = 896;
+
+
     public async Task<object> Post(CreateCreative request)
     {
         var modifiers = await Db.SelectAsync<Modifier>(x => Sql.In(x.Id, request.ModifierIds));
@@ -158,12 +162,24 @@ public class CreativeService : Service
         var userRoles = await authSession.GetRolesAsync(AuthRepositoryAsync);
         var adminOrMod = userRoles.Contains(AppRoles.Admin) || userRoles.Contains(AppRoles.Moderator);
         var apiPrompt = ConstructPrompt(request.UserPrompt, modifiers, artists);
+
+        var maxHeight = adminOrMod
+            ? request.Height ?? DefaultHeight
+            : request.Height > request.Width
+                ? DefaultMaxHeight
+                : DefaultHeight;
+        var maxWidth = adminOrMod
+            ? request.Width ?? DefaultWidth
+            : request.Width > request.Height
+               ? DefaultMaxWidth
+               : DefaultWidth;
+
         var imageGenOptions = new ImageGeneration
         {
             Prompt = apiPrompt,
             Engine = DefaultEngine,
-            Height = request.Height ?? DefaultHeight,
-            Width = request.Width ?? DefaultWidth,
+            Height = Math.Min(request.Height ?? DefaultHeight, maxHeight),
+            Width = Math.Min(request.Width ?? DefaultWidth, maxWidth),
             Images = request.Images ?? (adminOrMod ? DefaultModeratorImages : DefaultImages),
             Steps = request.Steps ?? (adminOrMod ? DefaultModeratorSteps : DefaultSteps),
             Seed = request.Seed
@@ -220,9 +236,13 @@ public class CreativeService : Service
             throw HttpError.NotFound($"Creative {request.Id} does not exist");
 
         var artifacts = await Db.SelectAsync<Artifact>(x => x.CreativeId == request.Id);
+        var artifactIds = artifacts.Select(x => x.Id).ToList();
 
         using var transaction = Db.OpenTransaction();
 
+        await Db.DeleteAsync<AlbumArtifact>(x => artifactIds.Contains(x.ArtifactId));
+        await Db.DeleteAsync<ArtifactReport>(x => artifactIds.Contains(x.ArtifactId));
+        await Db.DeleteAsync<ArtifactLike>(x => artifactIds.Contains(x.ArtifactId));
         await Db.DeleteAsync<Artifact>(x => x.CreativeId == request.Id);
         await Db.DeleteAsync<CreativeArtist>(x => x.CreativeId == request.Id);
         await Db.DeleteAsync<CreativeModifier>(x => x.CreativeId == request.Id);
