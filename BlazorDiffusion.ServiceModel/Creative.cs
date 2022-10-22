@@ -93,6 +93,7 @@ public class ArtifactResult : Artifact
 public class SearchArtifacts : QueryDb<Artifact,ArtifactResult>
 {
     public string Query { get; set; }
+    public int? User { get; set; }
 }
 
 public class QueryCreatives : QueryDb<Creative>

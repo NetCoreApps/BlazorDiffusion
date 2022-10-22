@@ -8,6 +8,7 @@
         class="mt-8 p-4 mx-auto shadow overflow-hidden sm:rounded-md w-[450px] sm:w-[600px]">
     <CascadingValue Value="api.Error">
         <input class="hidden" type="submit" />
+        <ErrorSummary Except=@VisibleFields />
 
         <TextInput @bind-Value="request.Query" Label="" placeholder="Search existing images" @onkeypress="OnKeyPress" />
 

@@ -259,8 +259,8 @@
 
 @if (createMenu == CreateMenu.History && UserState.CreativeHistory.Count > 0)
 {
-    <div class="rounded-md absolute top-24 mt-2 right-2 shadow bg-white dark:bg-black flex flex-col z-10 p-2">
-        <nav class="space-y-1" aria-label="Sidebar">
+    <div class="rounded-md absolute top-24 mt-2 right-2 shadow bg-white dark:bg-black flex flex-col z-10">        
+        <nav class="p-2 space-y-1" aria-label="Sidebar">
         @foreach (var item in UserState.CreativeHistory)
         {
             <NavLink href=@($"/create?id={item.Id}") class=@ClassNames("flex items-center px-3 py-2 text-sm font-medium", Id == item.Id
@@ -270,6 +270,10 @@
             </NavLink>
         }
         </nav>
+        <NavLink href=@($"/?user={User.GetUserId()}") class=@ClassNames("flex items-center px-3 py-2 text-sm", 
+            "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100")>
+            <span class="w-40 text-center">view all</span>
+        </NavLink>
     </div>
 }
 

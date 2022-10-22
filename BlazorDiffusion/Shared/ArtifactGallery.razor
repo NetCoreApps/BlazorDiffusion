@@ -26,7 +26,8 @@
 <div class=@ClassNames("grid", !string.IsNullOrEmpty(columns) && colCls.TryGetValue(columns, out var cls) ? cls : "grid-cols-6")>
 @foreach (var artifact in Artifacts.OrEmpty())
 {
-    <NavLink @key=@artifact.Id href=@(NavigationManager.Uri.SetQueryParam("id", $"{artifact.Id}")) class="overflow-hidden flex justify-center">
+    <NavLink @key=@artifact.Id href=@(NavigationManager.Uri.SetQueryParam("id", $"{artifact.Id}")) 
+            class=@ClassNames("overflow-hidden flex justify-center", artifact.Width > artifact.Height ? "col-span-2" : artifact.Height > artifact.Width ? "row-span-2" : "")>
         <div class="relative p-2 flex flex-col cursor-pointer items-center" style=@($"max-width:{artifact.Width}px")    >
             <img class=@ClassNames("rounded-xl border-2", artifact.Id == Id ? "border-cyan-500" : "border-transparent") src=@artifact.FilePath alt=@artifact.FileName width=@artifact.Width height=@artifact.Height />
 

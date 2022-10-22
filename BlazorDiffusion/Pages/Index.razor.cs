@@ -8,7 +8,12 @@ public partial class Index : AppComponentBase
 {
     ApiResult<QueryResponse<ArtifactResult>> api = new();
 
+    string[] VisibleFields => new[] { 
+        nameof(SearchArtifacts.Query), 
+    };
+
     [Parameter, SupplyParameterFromQuery] public string q { get; set; }
+    [Parameter, SupplyParameterFromQuery] public int? user { get; set; }
 
     SearchArtifacts request = new();
 
@@ -16,18 +21,21 @@ public partial class Index : AppComponentBase
     HashSet<int> resultIds = new();
 
     string lastSearch = "";
-    int lastSkip = 0;
+    int? lastUser;
+    int? lastSkip;
 
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
         request.Query = q;
+        request.User = user;
+
         await updateAsync();
     }
 
     async Task updateAsync()
     {
-        var existingQuery = lastSearch == request.Query;
+        var existingQuery = lastSearch == request.Query && lastUser == request.User;
         if (existingQuery && lastSkip == request.Skip)
             return;
 
@@ -38,6 +46,10 @@ public partial class Index : AppComponentBase
                 clearResults();
 
             addResults(api.Response?.Results ?? new());
+
+            lastSearch = request.Query;
+            lastUser = request.User;
+            lastSkip = request.Skip;
         }
     }
 

@@ -32,7 +32,7 @@ public class UserState
         apiHistory = await Client.ApiAsync(new QueryCreatives
         {
             OwnerId = userId,
-            Take = 30,
+            Take = 28,
             OrderByDesc = nameof(Creative.Id),
         });
         await LoadLikesAsync(userId);

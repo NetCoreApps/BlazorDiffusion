@@ -41,6 +41,10 @@ public class DataService : Service
             {
                 q.Where<Creative>(x => x.Prompt.Contains(search));
             }
+            if (query.User != null)
+            {
+                q.Where<Creative>(x => x.OwnerId == query.User);
+            }
         }
 
         q.OrderByDescending(x => x.Score);

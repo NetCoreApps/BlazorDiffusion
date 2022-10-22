@@ -967,6 +967,14 @@ input[data-autocompleted] {
   grid-column: span 12 / span 12;
 }
 
+.col-span-2 {
+  grid-column: span 2 / span 2;
+}
+
+.row-span-2 {
+  grid-row: span 2 / span 2;
+}
+
 .m-4 {
   margin: 1rem;
 }
