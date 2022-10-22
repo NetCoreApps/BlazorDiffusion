@@ -162,6 +162,7 @@ public class ImportTasks
 
         // Export Artists
         var artists = db.Select<Artist>();
+        artists.Each(x => x.CreatedDate = x.ModifiedDate = DateTime.MinValue);
         string artistsCsv = artists.ToCsv();
         File.WriteAllText(seedDir.CombineWith("artists.csv"), artistsCsv);
         File.WriteAllText(testSeedDir.CombineWith("artists.csv"), artistsCsv);
@@ -169,6 +170,7 @@ public class ImportTasks
         var artifactLikes = db.Select<ArtifactLikeRef>(db.From<ArtifactLike>()
             .Join<Artifact>()
             .Select<ArtifactLike, Artifact>((l,a) => new { a.RefId, l.ArtifactId, l.AppUserId, l.CreatedDate }));
+        artifactLikes.Each(x => x.CreatedDate = DateTime.MinValue);
         File.WriteAllText(seedDir.CombineWith("artifact-likes.csv"), artifactLikes.ToCsv());
     }
 
