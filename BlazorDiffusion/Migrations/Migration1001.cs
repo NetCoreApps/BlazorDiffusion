@@ -54,9 +54,7 @@ public class Migration1001 : MigrationBase
         public bool Curated { get; set; }
         public int? Rating { get; set; }
         public bool Private { get; set; }
-        
         public string RefId { get; set; }
-
     }
 
     public class ArtifactLike
@@ -133,7 +131,6 @@ public class Migration1001 : MigrationBase
         public bool Curated { get; set; }
         public int? Rating { get; set; }
         public bool Private { get; set; }
-        
         public string RefId { get; set; }
     }
     
@@ -193,6 +190,7 @@ public class Migration1001 : MigrationBase
         public string DisplayName { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public string Handle { get; set; }
         public string Company { get; set; }
 
         [Index]
@@ -240,6 +238,54 @@ public class Migration1001 : MigrationBase
         public DateTime ModifiedDate { get; set; }
     }
 
+    public class Album : AuditBase
+    {
+        [AutoIncrement]
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string Slug { get; set; }
+        public List<string> Tags { get; set; }
+        public string RefId { get; set; }
+        [References(typeof(AppUser))]
+        public int AppUserId { get; set; }
+        public int? PrimaryArtifactId { get; set; }
+        public bool Private { get; set; }
+        public int? Rating { get; set; }
+        public int Score { get; set; }
+        public int Rank { get; set; }
+        [Reference]
+        public List<AlbumArtifact> Artifacts { get; set; }
+    }
+
+    public class AlbumArtifact
+    {
+        [AutoIncrement]
+        public long Id { get; set; }
+
+        [References(typeof(Album))]
+        public int AlbumId { get; set; }
+        [References(typeof(Artifact))]
+        public int ArtifactId { get; set; }
+        public string? Description { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime ModifiedDate { get; set; }
+        [Reference]
+        public List<Artifact> Artifact { get; set; }
+    }
+
+    public class AlbumLike
+    {
+        [AutoIncrement]
+        public long Id { get; set; }
+
+        [References(typeof(Album))]
+        public int AlbumId { get; set; }
+        [References(typeof(AppUser))]
+        public int AppUserId { get; set; }
+        public DateTime CreatedDate { get; set; }
+    }
+
     class ImageCompareResult
     {
         public int Id { get; set; }
@@ -278,6 +324,10 @@ public class Migration1001 : MigrationBase
         Db.CreateTable<Artifact>();
         Db.CreateTable<ArtifactLike>();
         Db.CreateTable<ArtifactReport>();
+        Db.CreateTable<Album>();
+        Db.CreateTable<AlbumArtifact>();
+        Db.CreateTable<AlbumLike>();
+
 
         var seedDir = Path.GetFullPath(Path.Combine("./App_Data/seed"));
 
@@ -469,6 +519,9 @@ order by Similarity desc;
 
     public override void Down()
     {
+        Db.DropTable<AlbumLike>();
+        Db.DropTable<AlbumArtifact>();
+        Db.DropTable<Album>();
         Db.DropTable<ArtifactLike>();
         Db.DropTable<ArtifactReport>();
         Db.DropTable<Artifact>();
