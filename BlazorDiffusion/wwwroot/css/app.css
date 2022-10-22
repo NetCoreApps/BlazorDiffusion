@@ -1944,6 +1944,10 @@ input[data-autocompleted] {
   background-color: rgb(229 231 235 / var(--tw-bg-opacity));
 }
 
+.bg-white\/50 {
+  background-color: rgb(255 255 255 / 0.5);
+}
+
 .bg-gray-700 {
   --tw-bg-opacity: 1;
   background-color: rgb(55 65 81 / var(--tw-bg-opacity));
@@ -2207,6 +2211,18 @@ input[data-autocompleted] {
   padding-left: 0.75rem;
 }
 
+.pl-4 {
+  padding-left: 1rem;
+}
+
+.pb-4 {
+  padding-bottom: 1rem;
+}
+
+.pr-4 {
+  padding-right: 1rem;
+}
+
 .pr-3 {
   padding-right: 0.75rem;
 }
@@ -2223,16 +2239,8 @@ input[data-autocompleted] {
   padding-top: 0.25rem;
 }
 
-.pr-4 {
-  padding-right: 1rem;
-}
-
 .pt-4 {
   padding-top: 1rem;
-}
-
-.pb-4 {
-  padding-bottom: 1rem;
 }
 
 .pr-10 {
@@ -3224,6 +3232,10 @@ input[data-autocompleted] {
 .dark .dark\:bg-gray-700 {
   --tw-bg-opacity: 1;
   background-color: rgb(55 65 81 / var(--tw-bg-opacity));
+}
+
+.dark .dark\:bg-black\/50 {
+  background-color: rgb(0 0 0 / 0.5);
 }
 
 .dark .dark\:bg-indigo-400 {

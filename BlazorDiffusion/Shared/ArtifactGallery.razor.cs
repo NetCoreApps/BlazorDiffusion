@@ -57,14 +57,13 @@ public partial class ArtifactGallery : AppAuthComponentBase
 
     void navTo(int? artifactId = null, int? viewArtifactId = null)
     {
-        var path = NavigationManager.Uri.LeftPart('?');
         if (artifactId == null && viewArtifactId == null)
         {
-            NavigationManager.NavigateTo(path);
+            NavigationManager.NavigateTo(NavigationManager.Uri.SetQueryParam("id", artifactId?.ToString()));
         }
         else
         {
-            NavigationManager.NavigateTo(path.SetQueryParam("id", artifactId?.ToString()).SetQueryParam("view", viewArtifactId?.ToString()));
+            NavigationManager.NavigateTo(NavigationManager.Uri.SetQueryParam("id", artifactId?.ToString()).SetQueryParam("view", viewArtifactId?.ToString()));
         }
     }
 
