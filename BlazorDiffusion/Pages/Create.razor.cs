@@ -110,6 +110,13 @@ public partial class Create : AppAuthComponentBase
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
+        if (User == null)
+        {
+            // TODO find out why it keeps losing Authentication
+            NavigationManager.NavigateTo(NavigationManager.GetLoginUrl(), true);
+            return;
+        }
+
         await loadUserState();
         KeyboardNavigation.Register(this.OnNavKeyAsync);
 
