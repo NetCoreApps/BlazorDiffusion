@@ -23,6 +23,10 @@ public class ImportTasks
     IDbConnectionFactory ResolveDbFactory() => new ConfigureDb().ConfigureAndResolve<IDbConnectionFactory>();
     public string GetHostDir()
     {
+        JsConfig.Init(new Config {
+            TextCase = TextCase.CamelCase,
+        });
+
         var appSettings = JSON.parse(File.ReadAllText(Path.GetFullPath("appsettings.json")));
         return appSettings.ToObjectDictionary()["HostDir"].ToString()!;
     }
