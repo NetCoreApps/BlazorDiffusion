@@ -25,6 +25,7 @@
 @code {
     [CascadingParameter] protected Task<AuthenticationState>? AuthenticationStateTask { get; set; }
     [Inject] KeyboardNavigation KeyboardNavigation { get; set; } = default!;
+    [Inject] UserState UserState { get; set; } = default!;
 
     bool CollapseSidebar = true;
 
@@ -50,6 +51,7 @@
             dotnetRef = DotNetObjectReference.Create(this);
             await JS.InvokeVoidAsync("JS.registerKeyNav", dotnetRef);
             await JS.InvokeVoidAsync("JS.addClass", "html", "dark");
+            await UserState.LoadAppPrefs();
         }
     }
 

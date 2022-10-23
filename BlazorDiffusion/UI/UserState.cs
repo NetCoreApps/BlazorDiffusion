@@ -7,6 +7,7 @@ public class UserState
 {
     public CachedLocalStorage LocalStorage { get; }
     public JsonApiClient Client { get; }
+    public AppPrefs AppPrefs { get; internal set; } = new();
 
     public HashSet<int> LikedArtifactIds { get; private set; } = new();
 
@@ -23,6 +24,17 @@ public class UserState
     {
         LocalStorage = localStorage;
         Client = client;
+    }
+
+    public async Task SaveAppPrefs()
+    {
+        await LocalStorage.SetItemAsync(nameof(AppPrefs), AppPrefs);
+    }
+
+    public async Task LoadAppPrefs()
+    {
+        AppPrefs = await LocalStorage.GetItemAsync<AppPrefs>(nameof(AppPrefs)) ?? new AppPrefs();
+        NotifyStateChanged();
     }
 
     public async Task LoadAsync(int userId)
@@ -185,4 +197,9 @@ public class UserState
 
     public event Action? OnChange;
     private void NotifyStateChanged() => OnChange?.Invoke();
+}
+
+public class AppPrefs
+{
+    public string ArtifactGalleryColumns { get; set; } = "5";
 }
