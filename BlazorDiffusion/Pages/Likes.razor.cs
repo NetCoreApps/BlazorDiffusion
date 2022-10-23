@@ -13,9 +13,9 @@ public partial class Likes : AppAuthComponentBase
 
     async Task loadUserState()
     {
-        if (User != null)
+        if (IsAuthenticated)
         {
-            await UserState.LoadUserData(User.GetUserId().ToInt());
+            await UserState.LoadUserDataAsync();
         }
     }
 

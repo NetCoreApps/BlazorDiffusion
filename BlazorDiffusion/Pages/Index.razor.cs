@@ -1,12 +1,14 @@
 ﻿using BlazorDiffusion.ServiceModel;
+using BlazorDiffusion.UI;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
 namespace BlazorDiffusion.Pages;
 
-public partial class Index : AppComponentBase
+public partial class Index : AppAuthComponentBase
 {
     ApiResult<QueryResponse<ArtifactResult>> api = new();
+    [Inject] UserState UserState { get; set; } = default!;
 
     string[] VisibleFields => new[] { 
         nameof(SearchArtifacts.Query), 
@@ -24,11 +26,21 @@ public partial class Index : AppComponentBase
     int? lastUser;
     int? lastSkip;
 
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
         request.Query = q;
         request.User = user;
+
+        if (IsAuthenticated)
+        {
+            await UserState.LoadUserDataAsync();
+        }
 
         await updateAsync();
     }

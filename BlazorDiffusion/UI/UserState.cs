@@ -53,10 +53,10 @@ public class UserState
         {
             CreativeHistory = apiHistory.Response?.Results ?? new();
         }
-        await LoadUserData(userId);
+        await LoadUserDataAsync();
     }
 
-    public async Task LoadUserData(int userId)
+    public async Task LoadUserDataAsync()
     {
         var api = await Client.ApiAsync(new UserData());
         if (api.Succeeded)

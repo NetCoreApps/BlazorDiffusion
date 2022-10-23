@@ -163,20 +163,24 @@ public partial class ArtifactGallery : AppAuthComponentBase
         }
     }
 
+    const int DefaultArtifactOffsetX = 60;
     Artifact? artifactMenu;
-    MouseEventArgs? artifactMenuArgs;
+    MouseEventArgs? artifactMenuArgs;   
+    int artifactOffsetX = DefaultArtifactOffsetX;
 
     public async Task hideArtifactMenu()
     {
         artifactMenu = null;
         artifactMenuArgs = null;
+        artifactOffsetX = DefaultArtifactOffsetX;
     }
 
-    public async Task showArtifactMenu(MouseEventArgs e, Artifact artifact)
+    public async Task showArtifactMenu(MouseEventArgs e, Artifact artifact, int offsetX = DefaultArtifactOffsetX)
     {
         artifactMenuArgs = e;
         artifactMenu = artifact;
-        //Console.WriteLine($"showArtifactMenu:{e.ToJsv()}");
+        artifactOffsetX = offsetX;
+        Console.WriteLine($"showArtifactMenu:{e.ToJsv()}");
     }
 
     public void Dispose()

@@ -10,9 +10,12 @@ public partial class ArtifactMenu : AppAuthComponentBase
 {
     [Inject] public NavigationManager NavigationManager { get; set; } = default!;
     [Inject] public UserState UserState { get; set; }
-
-    const int OffsetY = 60;
-    const int OffsetX = 60;
+    [Parameter, EditorRequired] public Artifact Artifact { get; set; } = default!;
+    [Parameter, EditorRequired] public MouseEventArgs Position { get; set; } = default!;
+    [Parameter] public int OffsetX { get; set; } = 60;
+    [Parameter] public int OffsetY { get; set; } = 60;
+    [Parameter] public bool Show { get; set; }
+    [Parameter] public EventCallback Done { get; set; }
 
     enum ArtifactView
     {
@@ -82,18 +85,11 @@ public partial class ArtifactMenu : AppAuthComponentBase
         apiNewAlbum = await ApiAsync(newAlbumRequest);
         if (apiNewAlbum.Succeeded)
         {
+            await UserState.LoadUserDataAsync();
             await OnDone();
         }
     }
 
-
-
-    [Parameter, EditorRequired] public Artifact Artifact { get; set; } = default!;
-    [Parameter, EditorRequired] public MouseEventArgs Position { get; set; } = default!;
-
-    [Parameter] public bool Show { get; set; }
-
-    [Parameter] public EventCallback Done { get; set; }
 
     async Task addToAlbum()
     {
