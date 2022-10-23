@@ -20,7 +20,7 @@ public partial class ArtifactGallery : AppAuthComponentBase
     [Parameter] public int? Id { get; set; }
     [Parameter] public int? View { get; set; }
 
-    string columns = "6";
+    string columns = "5";
 
     public SlideOver? SlideOver { get; set; }
 
