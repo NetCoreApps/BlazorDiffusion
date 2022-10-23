@@ -5,6 +5,7 @@ using ServiceStack.DataAnnotations;
 
 namespace BlazorDiffusion.ServiceModel;
 
+[Icon(Svg = Icons.Album)]
 public class Album : AuditBase
 {
     [AutoIncrement]
@@ -53,7 +54,11 @@ public class AlbumLike
     public DateTime CreatedDate { get; set; }
 }
 
-public class QueryAlbums : QueryDb<Album> { }
+public class QueryAlbums : QueryDb<Album> 
+{
+    public int? Id { get; set; }
+    public List<int>? Ids { get; set; }
+}
 
 [ValidateIsAuthenticated]
 [AutoPopulate(nameof(Album.RefId), Eval = "nguid")]

@@ -2,6 +2,7 @@
 using BlazorDiffusion.UI;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
+using Microsoft.AspNetCore.Components.Web;
 using ServiceStack;
 using ServiceStack.Blazor;
 using ServiceStack.Blazor.Components.Tailwind;
@@ -160,7 +161,22 @@ public partial class ArtifactGallery : AppAuthComponentBase
                 }
             }
         }
+    }
 
+    Artifact? artifactMenu;
+    MouseEventArgs? artifactMenuArgs;
+
+    public async Task hideArtifactMenu()
+    {
+        artifactMenu = null;
+        artifactMenuArgs = null;
+    }
+
+    public async Task showArtifactMenu(MouseEventArgs e, Artifact artifact)
+    {
+        artifactMenuArgs = e;
+        artifactMenu = artifact;
+        //Console.WriteLine($"showArtifactMenu:{e.ToJsv()}");
     }
 
     public void Dispose()

@@ -1,4 +1,5 @@
 ﻿using BlazorDiffusion.ServiceModel;
+using ServiceStack;
 using ServiceStack.Blazor;
 
 namespace BlazorDiffusion.UI;
@@ -10,12 +11,15 @@ public class UserState
     public AppPrefs AppPrefs { get; internal set; } = new();
 
     public HashSet<int> LikedArtifactIds { get; private set; } = new();
+    public HashSet<int> LikedAlbumIds { get; private set; } = new();
 
     public List<Creative> CreativeHistory { get; private set; } = new();
 
+    public Dictionary<int, Album> AlbumsMap { get; } = new();
     public Dictionary<int, Artifact> ArtifactsMap { get; } = new();
 
     public Dictionary<int, Creative> CreativesMap { get; } = new();
+    public List<Album> UserAlbums { get; private set; } = new();
 
     public List<Artifact> LikedArtifacts => LikedArtifactIds.Select(x => ArtifactsMap.TryGetValue(x, out var a) ? a : null)
         .Where(x => x != null).Cast<Artifact>().ToList();
@@ -49,15 +53,18 @@ public class UserState
         {
             CreativeHistory = apiHistory.Response?.Results ?? new();
         }
-        await LoadLikesAsync(userId);
+        await LoadUserData(userId);
     }
 
-    public async Task LoadLikesAsync(int userId)
+    public async Task LoadUserData(int userId)
     {
-        var apiLikes = await Client.ApiAsync(new QueryArtifactLikes());
-        if (apiLikes.Succeeded)
+        var api = await Client.ApiAsync(new UserData());
+        if (api.Succeeded)
         {
-            LikedArtifactIds = apiLikes.Response!.Results.Select(x => x.ArtifactId).ToSet();
+            LikedArtifactIds = api.Response!.Likes.ArtifactIds.ToSet();
+            LikedAlbumIds = api.Response!.Likes.AlbumIds.ToSet();
+            UserAlbums = api.Response!.Albums ?? new();
+            LoadAlbums(UserAlbums);
         }
 
         var missingIds = new List<int>();
@@ -68,8 +75,20 @@ public class UserState
         }
         if (missingIds.Count > 0)
         {
-            var api = await Client.ApiAsync(new QueryArtifacts { Ids = missingIds });
-            if (api.Response?.Results != null) LoadArtifacts(api.Response.Results);
+            var apiArtifacts = await Client.ApiAsync(new QueryArtifacts { Ids = missingIds });
+            if (apiArtifacts.Response?.Results != null) LoadArtifacts(apiArtifacts.Response.Results);
+        }
+
+        missingIds = new();
+        foreach (var albumId in LikedAlbumIds)
+        {
+            if (GetCachedAlbum(albumId) == null)
+                missingIds.Add(albumId);
+        }
+        if (missingIds.Count > 0)
+        {
+            var apiAlbums = await Client.ApiAsync(new QueryAlbums { Ids = missingIds });
+            if (apiAlbums.Response?.Results != null) LoadAlbums(apiAlbums.Response.Results);
         }
 
         NotifyStateChanged();
@@ -85,8 +104,14 @@ public class UserState
         }
     }
 
+    public void LoadAlbums(IEnumerable<Album> albums) => albums.Each(LoadAlbum);
+    public void LoadAlbum(Album album) => AlbumsMap[album.Id] = album;
     public void LoadArtifacts(IEnumerable<Artifact> artifacts) => artifacts.Each(LoadArtifact);
     public void LoadArtifact(Artifact artifact) => ArtifactsMap[artifact.Id] = artifact;
+
+    public Album? GetCachedAlbum(int? id) => id != null
+        ? AlbumsMap.TryGetValue(id.Value, out var a) ? a : null
+        : null;
 
     public Artifact? GetCachedArtifact(int? id) => id != null
         ? ArtifactsMap.TryGetValue(id.Value, out var a) ? a : null

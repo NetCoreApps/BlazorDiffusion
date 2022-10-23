@@ -110,7 +110,7 @@ public partial class Create : AppAuthComponentBase
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
-        if (User == null)
+        if (!IsAuthenticated)
         {
             // TODO find out why it keeps losing Authentication
             NavigationManager.NavigateTo(NavigationManager.GetLoginUrl(), true);
@@ -122,13 +122,7 @@ public partial class Create : AppAuthComponentBase
 
         if (Id != null)
         {
-            creative = UserState.CreativeHistory.FirstOrDefault(x => x.Id == Id);
-            
-            if (creative == null)
-            {
-                var api = await ApiAsync(new QueryCreatives { Id = Id });
-                creative = api.Response?.Results.FirstOrDefault();
-            }
+            creative = await UserState.GetCreativeAsync(Id);
             if (creative != null)
             {
                 request.UserPrompt = creative.UserPrompt;

@@ -1,0 +1,104 @@
+﻿@inherits AppAuthComponentBase
+
+<div class="absolute z-10 top-0 left-0 w-full h-full" @onmouseover="OnDone">
+
+    <div class="absolute p-8" style=@($"top:{Position.PageY-OffsetY}px;left:{Position.PageX-OffsetX}px")
+         @onmouseover:stopPropagation @onmouseover:preventDefault>
+        <!--
+          Dropdown menu, show/hide based on menu state.
+
+          Entering: "transition ease-out duration-100"
+            From: "transform opacity-0 scale-95"
+            To: "transform opacity-100 scale-100"
+          Leaving: "transition ease-in duration-75"
+            From: "transform opacity-100 scale-100"
+            To: "transform opacity-0 scale-95"
+        -->
+        <div class="rounded-md bg-white dark:bg-black shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+            <div class="py-1" role="none">
+                <div @onclick="openReport" class="cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">
+                    Report
+                </div>
+
+                <div class="whitespace-nowrap text-gray-700 dark:text-gray-100 bg-gray-300 dark:bg-gray-700 px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">Add to Album</div>
+
+                <div @onclick="openNewAlbum" class="group whitespace-nowrap flex items-center cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-0">
+                    New Album
+                </div>
+
+                @foreach (var album in UserState.UserAlbums)
+                {
+                    <div @onclick="addToAlbum" class="group whitespace-nowrap flex items-center cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-0">
+                        <svg class="mr-2 h-5 w-5 text-gray-400 group-hover:text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M11.975 17.025L16 13l-4.025-4.025l-1.4 1.4L12.2 12H8v2h4.2l-1.625 1.625ZM2 20V4h8l2 2h10v14Zm2-2h16V8h-8.825l-2-2H4Zm0 0V6v2Z" /></svg>
+                        @album.Name
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@if (artifactView == ArtifactView.Report)
+{
+    <ModalForm>
+        <form @onsubmit="submitReport" @onsubmit:preventDefault>
+            <CascadingValue Value=@apiReport.Error>
+                <div class="shadow overflow-hidden sm:rounded-md bg-white dark:bg-black">
+                    <div class="relative px-4 py-5 sm:p-6">
+                        <fieldset>
+                            <legend class=@CssDefaults.Form.LegendClass>Report Image</legend>
+
+                            <ErrorSummary Except=@ReportVisibleFields />
+
+                            <div class="grid grid-cols-6 gap-6">
+                                <div class="col-span-6">
+                                    <SelectInput @bind-Value="requestReport.Type" Options=@(Enum.GetValues<ReportType>()) />
+                                </div>
+                                <div class="col-span-6">
+                                    <TextInput @bind-Value="requestReport.Description" type="textarea" />
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="mt-4 px-4 py-3 bg-gray-50 dark:bg-gray-900 text-right sm:px-6">
+                        <div class="flex justify-end items-center">
+                            <SecondaryButton class="mr-2" @onclick="OnDone">Cancel</SecondaryButton>
+                            <PrimaryButton type="submit">Submit</PrimaryButton>
+                        </div>
+                    </div>
+                </div>
+            </CascadingValue>
+        </form>
+    </ModalForm>
+}
+else if (artifactView == ArtifactView.NewAlbum)
+{
+        <ModalForm>
+            <form @onsubmit="submitNewAlbum" @onsubmit:preventDefault>
+            <CascadingValue Value=@apiNewAlbum.Error>
+                    <div class="shadow overflow-hidden sm:rounded-md bg-white dark:bg-black">
+                        <div class="relative px-4 py-5 sm:p-6">
+                            <fieldset>
+                                <legend class=@CssDefaults.Form.LegendClass>Create new Album</legend>
+
+                                <ErrorSummary Except=@NewAlbumVisibleFields />
+
+                                <div class="grid grid-cols-6 gap-6">
+                                    <div class="col-span-6">
+                                        <TextInput @bind-Value="newAlbumRequest.Name" />
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="mt-4 px-4 py-3 bg-gray-50 dark:bg-gray-900 text-right sm:px-6">
+                            <div class="flex justify-end items-center">
+                                <SecondaryButton class="mr-2" @onclick="OnDone">Cancel</SecondaryButton>
+                                <PrimaryButton type="submit">Submit</PrimaryButton>
+                            </div>
+                        </div>
+                    </div>
+                </CascadingValue>
+            </form>
+        </ModalForm>
+}

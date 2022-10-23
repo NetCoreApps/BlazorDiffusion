@@ -79,6 +79,25 @@ public class DataService : Service
         return to;
     }
 
+    public async Task<object> Any(UserData request)
+    {
+        var session = await GetSessionAsync();
+        var userId = session.UserAuthId.ToInt();
+        var likes = new Likes
+        {
+            ArtifactIds = await Db.ColumnAsync<int>(Db.From<ArtifactLike>().Where(x => x.AppUserId == userId).Select(x => x.ArtifactId)),
+            AlbumIds = await Db.ColumnAsync<int>(Db.From<AlbumLike>().Where(x => x.AppUserId == userId).Select(x => x.AlbumId)),
+        };
+
+        var albums = await Db.SelectAsync<Album>(x => x.OwnerId == userId && x.DeletedDate == null);
+
+        return new UserDataResponse
+        {
+            Likes = likes,
+            Albums = albums,
+        };
+    }
+
     private const int LowestSimilarityThreshold = 60;
     private const int StartingSimilarityThreshold = 90;
     private const int SimilarityThresholdReductionIncrement = 5;

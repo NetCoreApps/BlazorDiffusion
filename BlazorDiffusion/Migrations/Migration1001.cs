@@ -76,15 +76,18 @@ public class Migration1001 : MigrationBase
     {
         [AutoIncrement]
         public long Id { get; set; }
-        
+
         [References(typeof(Artifact))]
         public int ArtifactId { get; set; }
         [References(typeof(AppUser))]
         public int AppUserId { get; set; }
-        
+
         public ReportType Type { get; set; }
         public string? Description { get; set; }
         public DateTime CreatedDate { get; set; }
+        public string? Notes { get; set; }
+        public DateTime? ActionedDate { get; set; }
+        public string? ActionedBy { get; set; }
     }
 
     public enum ReportType
@@ -433,11 +436,11 @@ public class Migration1001 : MigrationBase
                 artifact.PerceptualHash = (Int64)hashAlgorithm.Hash(filStream);
                 artifact.Id = (int)Db.Insert(artifact, selectIdentity: true);
                 
-                if (artifact.FileName == primaryArtifact?.FileName)
+                if (artifact == primaryArtifact)
                 {
                     creative.PrimaryArtifactId = artifact.Id;
                     Db.UpdateOnly(() => new Creative { PrimaryArtifactId = artifact.Id }, 
-                        where: x => x.Id == artifact.Id);
+                        where: x => x.Id == creative.Id);
                 }
 
                 var artifactLikeRefs = allArtifactLikeRefs.Where(x => x.RefId == artifact.RefId).ToList();

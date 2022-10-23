@@ -50,7 +50,7 @@ public class DeleteArtifactLike : IDeleteDb<ArtifactLike>, IReturnVoid
     public int ArtifactId { get; set; }
 }
 
-
+[Icon(Svg = Icons.Report)]
 public class ArtifactReport
 {
     [AutoIncrement]
@@ -64,6 +64,9 @@ public class ArtifactReport
     public ReportType Type { get; set; }
     public string? Description { get; set; }
     public DateTime CreatedDate { get; set; }
+    public string? Notes { get; set; }
+    public DateTime? ActionedDate { get; set; }
+    public string? ActionedBy { get; set; }
 }
 public enum ReportType
 {
@@ -71,25 +74,36 @@ public enum ReportType
     Other,
 }
 
-[AutoFilter(QueryTerm.Ensure, nameof(ArtifactLike.AppUserId), Eval = "userAuthId")]
 [ValidateIsAuthenticated]
+[ValidateIsAdmin]
 public class QueryArtifactReports : QueryDb<ArtifactReport>
 {
     public int? ArtifactId { get; set; }
 }
 
-[AutoPopulate(nameof(ArtifactLike.AppUserId), Eval = "userAuthId")]
+[AutoPopulate(nameof(ArtifactReport.AppUserId), Eval = "userAuthId")]
+[AutoPopulate(nameof(ArtifactReport.CreatedDate), Eval = "utcNow")]
 [ValidateIsAuthenticated]
 public class CreateArtifactReport : ICreateDb<ArtifactReport>, IReturn<ArtifactReport>
 {
     [ValidateGreaterThan(0)]
     public int ArtifactId { get; set; }
-    [ValidateGreaterThan(0)]
     public ReportType Type { get; set; }
     public string? Description { get; set; }
 }
 
+[AutoPopulate(nameof(ArtifactReport.AppUserId), Eval = "userAuthId")]
+[ValidateIsAdmin]
+public class UpdateArtifactReport : IPatchDb<ArtifactReport>, IReturn<ArtifactReport>
+{
+    [ValidateGreaterThan(0)]
+    public int ArtifactId { get; set; }
+    public ReportType? Type { get; set; }
+    public string? Description { get; set; }
+}
+
 [ValidateIsAuthenticated]
+[ValidateIsAdmin]
 public class DeleteArtifactReport : IDeleteDb<ArtifactReport>, IReturnVoid
 {
     [ValidateGreaterThan(0)]

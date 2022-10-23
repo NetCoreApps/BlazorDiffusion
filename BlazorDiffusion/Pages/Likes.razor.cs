@@ -15,7 +15,7 @@ public partial class Likes : AppAuthComponentBase
     {
         if (User != null)
         {
-            await UserState.LoadLikesAsync(User.GetUserId().ToInt());
+            await UserState.LoadUserData(User.GetUserId().ToInt());
         }
     }
 

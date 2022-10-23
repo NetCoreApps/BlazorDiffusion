@@ -1,0 +1,12 @@
+﻿@page "/admin/albums"
+@attribute [Authorize(Roles = "Admin")]
+
+@inject NavigationManager NavigationManager
+
+<Breadcrumbs class="mb-8" HomeHref="/admin">
+    <Breadcrumb>
+        Albums
+    </Breadcrumb>
+</Breadcrumbs>
+
+<AutoQueryGrid Model="Album" Apis="Apis.AutoQuery<QueryAlbums,CreateAlbum,UpdateAlbum,DeleteAlbum>()" />
