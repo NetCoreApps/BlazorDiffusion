@@ -8,11 +8,9 @@ public class UserState
     public CachedLocalStorage LocalStorage { get; }
     public JsonApiClient Client { get; }
 
-    ApiResult<QueryResponse<Creative>> apiHistory = new();
-
     public HashSet<int> LikedArtifactIds { get; private set; } = new();
 
-    public List<Creative> CreativeHistory => apiHistory.Response?.Results ?? new();
+    public List<Creative> CreativeHistory { get; private set; } = new();
 
     public Dictionary<int, Artifact> ArtifactsMap { get; } = new();
 
@@ -29,12 +27,16 @@ public class UserState
 
     public async Task LoadAsync(int userId)
     {
-        apiHistory = await Client.ApiAsync(new QueryCreatives
+        var apiHistory = await Client.ApiAsync(new QueryCreatives
         {
             OwnerId = userId,
             Take = 28,
             OrderByDesc = nameof(Creative.Id),
         });
+        if (apiHistory.Succeeded)
+        {
+            CreativeHistory = apiHistory.Response?.Results ?? new();
+        }
         await LoadLikesAsync(userId);
     }
 
@@ -141,6 +143,43 @@ public class UserState
             LikedArtifactIds.Add(artifact.Id);
         }
         NotifyStateChanged();
+    }
+
+    public void RemoveArtifact(Artifact artifact)
+    {
+        if (artifact == null) return;
+        LikedArtifactIds.Remove(artifact.Id);
+        ArtifactsMap.Remove(artifact.Id);
+    }
+
+    public void RemoveCreative(Creative creative)
+    {
+        if (creative == null) return;
+        creative.Artifacts.Each(RemoveArtifact);
+        CreativeHistory.RemoveAll(x => x.Id == creative.Id);
+        CreativesMap.Remove(creative.Id);
+    }
+
+    public async Task<ApiResult<EmptyResponse>> HardDeleteCreativeByIdAsync(int creativeId)
+    {
+        var creative = GetCachedCreative(creativeId);
+        return creative != null
+            ? await HardDeleteCreativeAsync(creative)
+            : new();
+    }
+
+    public async Task<ApiResult<EmptyResponse>> HardDeleteCreativeAsync(Creative creative)
+    {
+        var creativeId = creative.Id;
+        var api = await Client.ApiAsync(new HardDeleteCreative {
+            Id = creativeId,
+        });
+        if (api.Succeeded)
+        {
+            RemoveCreative(creative);
+            NotifyStateChanged();
+        }
+        return api;
     }
 
 

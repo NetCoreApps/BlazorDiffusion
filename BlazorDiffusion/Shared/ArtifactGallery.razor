@@ -77,6 +77,7 @@
                                 </div>
                             </div>
                         }
+
                     </div>
 
                 </div>
@@ -184,5 +185,13 @@
             </NavLink>
         }
     </div>
+
+    @if (User.HasRole(AppRoles.Moderator))
+    {
+        <div class="mt-16 text-center">
+            <ConfirmDelete OnDelete="async () => await hardDelete(artifact.CreativeId)" />
+        </div>
+    }
+
 </SlideOver>
 }

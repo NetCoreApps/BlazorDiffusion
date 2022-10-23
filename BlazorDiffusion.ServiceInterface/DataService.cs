@@ -30,12 +30,12 @@ public class DataService : Service
         var isGuid = creative != null;
         if (isGuid)
         {
-            q.Join<Creative>((a, c) => a.CreativeId == creative.Id);
+            q.Join<Creative>((a, c) => c.Id == a.CreativeId && a.CreativeId == creative.Id);
         }
         else
         {
             // Only return pinned artifacts
-            q.Join<Creative>((a, c) => a.Id == c.PrimaryArtifactId);
+            q.Join<Creative>((a, c) => c.Id == a.CreativeId && a.Id == c.PrimaryArtifactId);
 
             if (!string.IsNullOrEmpty(search))
             {

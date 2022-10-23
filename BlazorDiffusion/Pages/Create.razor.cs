@@ -241,10 +241,7 @@ public partial class Create : AppAuthComponentBase
     async Task hardDelete()
     {
         if (creative == null) return;
-        var api = await ApiAsync(new HardDeleteCreative
-        {
-            Id = creative.Id,
-        });
+        var api = await UserState.HardDeleteCreativeAsync(creative);
         if (api.Succeeded)
         {
             this.creative = null;

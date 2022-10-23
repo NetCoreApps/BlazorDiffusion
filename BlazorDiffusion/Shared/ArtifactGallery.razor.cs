@@ -67,6 +67,16 @@ public partial class ArtifactGallery : AppAuthComponentBase
         }
     }
 
+    async Task hardDelete(int creativeId)
+    {
+        var api = await UserState.HardDeleteCreativeByIdAsync(creativeId);
+        if (api.Succeeded)
+        {
+            Artifacts.RemoveAll(x => x.CreativeId == creativeId);
+            navTo();
+            StateHasChanged();
+        }
+    }
 
     async Task CloseDialogsAsync()
     {
@@ -155,12 +165,10 @@ public partial class ArtifactGallery : AppAuthComponentBase
 
     }
 
-
     public void Dispose()
     {
         UserState.OnChange -= StateHasChanged;
         NavigationManager.LocationChanged -= HandleLocationChanged;
         KeyboardNavigation.Deregister(OnNavKeyAsync);
     }
-
 }
