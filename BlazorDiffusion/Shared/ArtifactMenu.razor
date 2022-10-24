@@ -18,19 +18,28 @@
             <div class="py-1" role="none">
                 @if (IsModerator)
                 {
+                    if (Artifact is ArtifactResult result && result.Similarity > 0)
+                    {
+                        <div class="whitespace-nowrap text-gray-700 dark:text-gray-100 bg-gray-300 dark:bg-gray-700 px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">Similarity @(result.Similarity)%</div>
+                    }
                     <div @onclick="toggleNsfw" class="cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">
                         @(Artifact.Nsfw == true ? "Unmark" : "Mark") as NSFW
                     </div>
                 }
                 
-                <div @onclick="openReport" class="cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">
-                    Report
+                <div @onclick="findSimilar" class="flex flex cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 pl-2 pr-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">
+                    <svg class="w-5 h-5 mr-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M9.5 4a6.5 6.5 0 0 1 4.932 10.734l5.644 5.644l-.707.707l-5.645-5.645A6.5 6.5 0 1 1 9.5 4Zm0 1a5.5 5.5 0 1 0 0 11a5.5 5.5 0 0 0 0-11Z" /></svg>
+                    Explore
                 </div>
 
                 <a href=@Artifact.GetDownloadUrl() target="_blank" class="flex flex cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 pl-2 pr-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">
                     <svg class="w-5 h-5 mr-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 20h12M12 4v12m0 0l3.5-3.5M12 16l-3.5-3.5" /></svg>
                     Download
                 </a>
+
+                <div @onclick="openReport" class="cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">
+                    Report
+                </div>
 
                 <div class="whitespace-nowrap text-gray-700 dark:text-gray-100 bg-gray-300 dark:bg-gray-700 px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">Add to Album</div>
 

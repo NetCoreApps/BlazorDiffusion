@@ -25,9 +25,23 @@ public class DataService : Service
         var q = AutoQuery.CreateQuery(query, base.Request, db);
 
         var similar = query.Similar?.Trim();
-        if (!string.IsNullOrEmpty(similar))
+        var similarToArtifact = !string.IsNullOrEmpty(similar)
+            ? await Db.SingleAsync<Artifact>(x => x.RefId == similar)
+            : null;
+        if (similarToArtifact != null)
         {
-            
+            db.RegisterImgCompare();
+
+            q.Join<Creative>();
+            q.SelectDistinct<Artifact, Creative>((a, c) => new { 
+                a, 
+                c.UserPrompt, 
+                c.ArtistNames, 
+                c.ModifierNames, 
+                c.PrimaryArtifactId,
+                Similarity = Sql.Custom($"imgcompare('{similarToArtifact.PerceptualHash}',PerceptualHash)"),
+            });
+            q.OrderByDescending("Similarity");
         }
         else
         {
@@ -40,13 +54,14 @@ public class DataService : Service
             }
             if (query.User != null)
             {
-                q.Where<Creative>(x => x.OwnerId == query.User);
+                q.Join<Creative, AppUser>((c, a) => c.OwnerId == a.Id && a.RefIdStr == query.User);
             }
+
+            // Blazor @key throws when returning dupes
+            q.OrderByDescending(x => x.Score);
+            q.SelectDistinct<Artifact, Creative>((a, c) => new { a, c.UserPrompt, c.ArtistNames, c.ModifierNames, c.PrimaryArtifactId });
         }
 
-        q.OrderByDescending(x => x.Score);
-        // Blazor @key throws when returning dupes
-        q.SelectDistinct<Artifact, Creative>((a,c) => new { a, c.UserPrompt, c.ArtistNames, c.ModifierNames, c.PrimaryArtifactId });
 
         return AutoQuery.ExecuteAsync(query, q, base.Request, db);
     }
@@ -78,7 +93,7 @@ public class DataService : Service
 
     public async Task<object> Any(UserData request)
     {
-        var session = await GetSessionAsync();
+        var session = (CustomUserSession)await GetSessionAsync();
         var userId = session.UserAuthId.ToInt();
         var likes = new Likes
         {
@@ -90,6 +105,7 @@ public class DataService : Service
 
         return new UserDataResponse
         {
+            RefId = session.RefIdStr,
             Likes = likes,
             Albums = albums,
         };
@@ -107,12 +123,8 @@ public class DataService : Service
         if (perceptualHash == null)
             // TODO just in time hash of request based image?
             throw HttpError.BadRequest($"Artifact Id {artifactSource.Id} not hashed.");
-        
-        var connection = (SqliteConnection)Db.ToDbConnection();
-        connection.CreateFunction(
-            "imgcompare",
-            (Int64 hash1, Int64 hash2)
-                => CompareHash.Similarity((ulong)hash1,(ulong)hash2));
+
+        Db.RegisterImgCompare();
 
         var qskip = skip ?? 0;
         var qtake = take ?? MaxLimit ?? DefaultFindSimilarityPageSize;

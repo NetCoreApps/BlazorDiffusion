@@ -14,16 +14,18 @@ public partial class Index : AppAuthComponentBase
         nameof(SearchArtifacts.Query), 
     };
 
-    [Parameter, SupplyParameterFromQuery] public string q { get; set; }
-    [Parameter, SupplyParameterFromQuery] public int? user { get; set; }
+    [Parameter, SupplyParameterFromQuery] public string? q { get; set; }
+    [Parameter, SupplyParameterFromQuery] public string? user { get; set; }
+    [Parameter, SupplyParameterFromQuery] public string? similar { get; set; }
+    [Parameter, SupplyParameterFromQuery] public string? modifier { get; set; }
 
     SearchArtifacts request = new();
 
     List<Artifact> results = new();
     HashSet<int> resultIds = new();
 
-    string lastSearch = "";
-    int? lastUser;
+    string? lastSearch;
+    string? lastUser;
     int? lastSkip;
 
     protected override async Task OnInitializedAsync()
@@ -36,6 +38,8 @@ public partial class Index : AppAuthComponentBase
         await base.OnParametersSetAsync();
         request.Query = q;
         request.User = user;
+        request.Similar = similar;
+        request.Modifier = modifier;
 
         if (IsAuthenticated)
         {

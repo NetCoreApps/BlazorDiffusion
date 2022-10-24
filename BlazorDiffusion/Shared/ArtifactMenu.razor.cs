@@ -65,6 +65,12 @@ public partial class ArtifactMenu : AppAuthComponentBase
         }
     }
 
+    async Task findSimilar()
+    {
+        NavigationManager.NavigateTo($"/?similar={Artifact.RefId}");
+        await OnDone();
+    }
+
     async Task openReport()
     {
         if (!await assertAuth())

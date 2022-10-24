@@ -88,13 +88,15 @@ public class ArtifactResult : Artifact
     public List<string> ArtistNames { get; set; }
     public List<string> ModifierNames { get; set; }
     public int? PrimaryArtifactId { get; set; }
+    public double? Similarity { get; set; }
 }
 
 public class SearchArtifacts : QueryDb<Artifact,ArtifactResult>
 {
-    public string Query { get; set; }
-    public string Similar { get; set; }
-    public int? User { get; set; }
+    public string? Query { get; set; }
+    public string? Similar { get; set; }
+    public string? User { get; set; }
+    public string? Modifier { get; set; }
 }
 
 public class QueryCreatives : QueryDb<Creative>
