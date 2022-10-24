@@ -8,6 +8,7 @@ using ServiceStack.Blazor.Components;
 using ServiceStack.Text;
 using ServiceStack.Web;
 using BlazorDiffusion.UI;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace BlazorDiffusion.Pages;
 
@@ -362,6 +363,25 @@ public partial class Create : AppAuthComponentBase
                     break;
             }
         }
+    }
+
+    const int DefaultArtifactOffsetX = 60;
+    Artifact? artifactMenu;
+    MouseEventArgs? artifactMenuArgs;
+    int artifactOffsetX = DefaultArtifactOffsetX;
+
+    public async Task hideArtifactMenu()
+    {
+        artifactMenu = null;
+        artifactMenuArgs = null;
+        artifactOffsetX = DefaultArtifactOffsetX;
+    }
+
+    public async Task showArtifactMenu(MouseEventArgs e, Artifact artifact, int offsetX = DefaultArtifactOffsetX)
+    {
+        artifactMenuArgs = e;
+        artifactMenu = artifact;
+        artifactOffsetX = offsetX;
     }
 
     public void Dispose()

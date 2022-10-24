@@ -1,0 +1,31 @@
+﻿@inherits UiComponentBase
+
+@if (Artifact != null)
+{
+    <img class=@Class src=@(useSrc ?? Artifact.GetPublicUrl()) alt=@Artifact.FileName width=@width height=@height
+         @onerror=@(() => useSrc = Artifact.GetFallbackUrl())>
+}
+
+
+@code {
+    [Parameter, EditorRequired] public Artifact? Artifact { get; set; } = default!;
+    [Parameter] public int? MinSize { get; set; }
+
+    int width => MinSize == null ? Artifact!.Width
+        : (int)(Artifact.Width > Artifact.Height
+            ? (Artifact.Width / (double)Artifact.Height) * MinSize.Value
+            : MinSize.Value);
+
+    int height => MinSize == null ? Artifact!.Height
+        : (int)(Artifact.Height > Artifact.Width
+            ? (Artifact.Height / (double)Artifact.Width) * MinSize.Value
+            : MinSize.Value);
+
+    string? useSrc;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        useSrc = null;
+    }
+}

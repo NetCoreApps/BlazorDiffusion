@@ -256,3 +256,17 @@ public class CreativeModifier
     [Reference]
     public Modifier Modifier { get; set; }
 }
+
+public class SaveMetadata : IReturnVoid
+{
+    public int? CreativeId { get; set; }
+    public Creative Creative { get; set; }
+}
+
+[Route("/creative/metadata/{CreativeId}")]
+[ValidateHasRole(AppRoles.Moderator)]
+public class ViewCreativeMetadata : IReturn<Creative>
+{
+    [ValidateGreaterThan(0)]
+    public int CreativeId { get; set; }
+}

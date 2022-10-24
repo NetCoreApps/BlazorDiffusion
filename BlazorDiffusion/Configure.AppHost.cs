@@ -36,6 +36,7 @@ public class AppHost : AppHostBase, IHostingStartup
             ArtifactBucket = AppSettings.Get<string>("r2Bucket"),
             R2Account = AppSettings.Get<string>("r2Account"),
             AssetsBasePath = AppSettings.Get<string>("cdnBasePath"),
+            FallbackAssetsBasePath = AppSettings.Get<string>("r2PublicBasePath"),           
         });
         
         container.Register(appConfig);

@@ -9,6 +9,7 @@ using ServiceStack;
 using ServiceStack.Auth;
 using ServiceStack.Configuration;
 using ServiceStack.Data;
+using ServiceStack.IO;
 using ServiceStack.OrmLite;
 using ServiceStack.Text;
 
@@ -17,7 +18,6 @@ namespace BlazorDiffusion.ServiceInterface;
 public class CreativeService : Service
 {
     public IStableDiffusionClient StableDiffusionClient { get; set; }
-    public IDbConnectionFactory DbConnectionFactory { get; set; }
     public const string DefaultEngine = "stable-diffusion-v1-5";
     public const int DefaultHeight = 512;
     public const int DefaultWidth = 512;
@@ -39,9 +39,13 @@ public class CreativeService : Service
         
         var imageGenerationResponse = await GenerateImage(request,modifiers,artists);
 
-        var creativeId = await PersistCreative(request, imageGenerationResponse,modifiers,artists);
+        var creativeId = await PersistCreative(request, imageGenerationResponse, modifiers, artists);
 
-        return await Db.SaveCreativeAsync(creativeId, StableDiffusionClient);
+        var creative = await Db.LoadSingleByIdAsync<Creative>(creativeId);
+
+        PublishMessage(new SaveMetadata { Creative = creative });
+
+        return creative;
     }
     
     public async Task<object> Patch(UpdateCreative request)
@@ -72,7 +76,10 @@ public class CreativeService : Service
                 ModifiedDate = DateTime.UtcNow,
             }, where:x => x.Id == request.Id);
 
-        return await Db.SaveCreativeAsync(request.Id, StableDiffusionClient);
+        PublishMessage(new SaveMetadata { CreativeId = creative.Id });
+
+        creative.PrimaryArtifactId = artifactId;
+        return creative;
     }
 
     public async Task<object> Patch(UpdateArtifact request)
@@ -94,6 +101,7 @@ public class CreativeService : Service
                 ModifiedBy = session.UserAuthId,
                 ModifiedDate = DateTime.UtcNow,
             }, where: x => x.Id == request.Id);
+            artifact.Nsfw = request.Nsfw;
         }
         if (request.Quality != null)
         {
@@ -102,9 +110,10 @@ public class CreativeService : Service
                 ModifiedBy = session.UserAuthId,
                 ModifiedDate = DateTime.UtcNow,
             }, where: x => x.Id == request.Id);
+            artifact.Quality = request.Quality.Value;
         }
 
-        await Db.SaveCreativeAsync(artifact.CreativeId, StableDiffusionClient);
+        PublishMessage(new SaveMetadata { CreativeId = creative.Id });
 
         return artifact;
     }
@@ -130,7 +139,7 @@ public class CreativeService : Service
         creative.Prompt = ConstructPrompt(request.UserPrompt, modifiers, artists);
         creative.RefId = Guid.NewGuid().ToString("D");
 
-        using var db = DbConnectionFactory.OpenDbConnection();
+        using var db = HostContext.AppHost.GetDbConnection();
         using var transaction = db.OpenTransaction();
         await db.SaveAsync(creative);
         
@@ -235,7 +244,7 @@ public class CreativeService : Service
                 DeletedDate = now,
             }, where: x => x.Id == request.Id);
 
-        await Db.SaveCreativeAsync(request.Id, StableDiffusionClient);
+        PublishMessage(new SaveMetadata { CreativeId = creative.Id });
     }
 
     public async Task Delete(HardDeleteCreative request)
@@ -281,6 +290,11 @@ public static class CreateServiceUtils
     public static async Task<Creative> SaveCreativeAsync(this IDbConnection db, int creativeId, IStableDiffusionClient client)
     {
         var creative = await db.LoadSingleByIdAsync<Creative>(creativeId);
+        return await client.SaveCreativeAsync(creative);
+    }
+
+    public static async Task<Creative> SaveCreativeAsync(this IStableDiffusionClient client, Creative creative)
+    {
         await client.SaveMetadataAsync(creative);
         return creative;
     }
@@ -289,6 +303,7 @@ public static class CreateServiceUtils
 public interface IStableDiffusionClient
 {
     Task<ImageGenerationResponse> GenerateImageAsync(ImageGeneration request);
+    IVirtualFile? GetMetadataFile(Creative creative);
     Task SaveMetadataAsync(Creative entry);
     Task DeleteFolderAsync(Creative entry);
 }

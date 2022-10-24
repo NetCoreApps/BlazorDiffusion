@@ -11,6 +11,7 @@ using ServiceStack;
 using ServiceStack.Auth;
 using ServiceStack.Configuration;
 using ServiceStack.Data;
+using ServiceStack.IO;
 using ServiceStack.OrmLite;
 
 namespace BlazorDiffusion.Tests;
@@ -50,6 +51,7 @@ public class CreativeServiceMockedTests
             public Task SaveMetadataAsync(Creative entry) => Task.CompletedTask;
             public Task DeleteFolderAsync(Creative entry) => Task.CompletedTask;
 
+            public IVirtualFile? GetMetadataFile(Creative creative) => null;
         }
 
         public override void Configure(Container container)

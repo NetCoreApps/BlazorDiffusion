@@ -180,7 +180,6 @@ public partial class ArtifactGallery : AppAuthComponentBase
         artifactMenuArgs = e;
         artifactMenu = artifact;
         artifactOffsetX = offsetX;
-        Console.WriteLine($"showArtifactMenu:{e.ToJsv()}");
     }
 
     public void Dispose()

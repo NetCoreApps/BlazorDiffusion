@@ -5,7 +5,6 @@ using Grpc.Core;
 using Grpc.Net.Client;
 using ServiceStack.IO;
 using ServiceStack.Text;
-using static Grpc.Core.Metadata;
 
 namespace BlazorDiffusion;
 
@@ -103,11 +102,14 @@ public class DreamStudioClient : IStableDiffusionClient
         };
     }
 
+    public string GetMetadataPath(Creative creative) => OutputPathPrefix.CombineWith(creative.Key, "metadata.json");
+    public IVirtualFile GetMetadataFile(Creative creative) => VirtualFiles.GetFile(GetMetadataPath(creative));
+
     public async Task SaveMetadataAsync(Creative creative)
     {
         var vfsPathSuffix = creative.Key;
         var outputDir = Path.Join(OutputPathPrefix, vfsPathSuffix);
-        await VirtualFiles.WriteFileAsync(Path.Join(outputDir,"metadata.json"),creative.ToJson().IndentJson());
+        await VirtualFiles.WriteFileAsync(Path.Join(outputDir,"metadata.json"), creative.ToJson().IndentJson());
     }
 
     public Task DeleteFolderAsync(Creative creative)
