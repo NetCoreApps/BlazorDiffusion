@@ -231,7 +231,7 @@
                     <span class="text-sm">discard</span>
                 </div>
 
-                @if (User.HasRole(AppRoles.Moderator))
+                @if (IsModerator)
                 {
                     <div class="mt-16 text-center">
                         <ConfirmDelete OnDelete="hardDelete" />

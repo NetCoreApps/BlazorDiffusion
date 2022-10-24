@@ -296,7 +296,7 @@ public class Migration1001 : MigrationBase
     class ImageCompareResult
     {
         public int Id { get; set; }
-        public ulong PerceptualHash { get; set; }
+        public long PerceptualHash { get; set; }
         public double Similarity { get; set; }
     }
 
