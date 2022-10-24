@@ -109,7 +109,6 @@ public class Migration1001 : MigrationBase
         [Format(FormatMethods.Attachment)]
         public string FilePath { get; set; }
         public string ContentType { get; set; }
-        public string? PublicPath { get; set; }
 
         [Format(FormatMethods.Bytes)]
         public long ContentLength { get; set; }
@@ -432,12 +431,10 @@ public class Migration1001 : MigrationBase
             {
                 artifact.Id = 0;
                 artifact.CreativeId = id;
-                var filePath = artifact.FilePath.Replace("/uploads/", "./App_Files/");
+                var filePath = artifact.FilePath;
                 var filStream = File.OpenRead(filePath);
                 artifact.PerceptualHash = (Int64)hashAlgorithm.Hash(filStream);
                 artifact.Id = (int)Db.Insert(artifact, selectIdentity: true);
-                artifact.PublicPath =
-                    $"https://pub-97bba6b94a944260b10a6e7d4bf98053.r2.dev{artifact.FilePath.Replace("/uploads", "")}";
                 
                 if (artifact == primaryArtifact)
                 {

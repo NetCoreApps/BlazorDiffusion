@@ -25,6 +25,12 @@ public static class CreativeExtensions
         return row;
     }
 
+    public static string GetPublicUrl(this Artifact artifact)
+    {
+        return HostContext.AppSettings.Get<string>("r2PublicPrefix")
+               + artifact.FilePath;
+    }
+
     public static List<Artifact> GetArtifacts(this Creative creative)
     {
         if (creative == null)

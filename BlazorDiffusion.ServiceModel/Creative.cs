@@ -65,7 +65,6 @@ public class Artifact : AuditBase
     [Format(FormatMethods.Attachment)]
     public string FilePath { get; set; }
     public string ContentType { get; set; }
-    public string? PublicPath { get; set; }
 
     [Format(FormatMethods.Bytes)]
     public long ContentLength { get; set; }

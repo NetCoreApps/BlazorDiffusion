@@ -88,7 +88,7 @@ public class DreamStudioClient : IStableDiffusionClient
                     Prompt = request.Prompt,
                     Seed = artifact.Seed,
                     AnswerId = item.AnswerId,
-                    FilePath = $"/uploads/artifacts/{key}/output_{artifact.Seed}.png",
+                    FilePath = $"/artifacts/{key}/output_{artifact.Seed}.png",
                     FileName = $"output_{artifact.Seed}.png",
                     ContentLength = bytes.Length,
                     Width = request.Width,
