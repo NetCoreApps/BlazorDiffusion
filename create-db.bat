@@ -1,4 +1,3 @@
-RD /q /s BlazorDiffusion\App_Files\artifacts
 if not exist BlazorDiffusion\App_Files\artifacts md BlazorDiffusion\App_Files\artifacts
 
 IF EXIST BlazorDiffusion\App_Data\db.sqlite DEL BlazorDiffusion\App_Data\db.sqlite
