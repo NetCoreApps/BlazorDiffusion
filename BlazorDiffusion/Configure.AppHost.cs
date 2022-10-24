@@ -1,3 +1,4 @@
+using Amazon.S3;
 using Funq;
 using ServiceStack;
 using BlazorDiffusion.ServiceInterface;
@@ -29,7 +30,13 @@ public class AppHost : AppHostBase, IHostingStartup
             "https://" + Environment.GetEnvironmentVariable("DEPLOY_CDN")
         }, allowCredentials: true));
 
-        var appFs = new FileSystemVirtualFiles(ContentRootDirectory.RealPath.CombineWith("App_Files").AssertDir());
+        var r2AccessKey = Environment.GetEnvironmentVariable("R2_ACCESS_KEY_ID");
+        var r2Secret = Environment.GetEnvironmentVariable("R2_SECRET_ACCESS_KEY");
+        var s3Client = new AmazonS3Client(r2AccessKey,r2Secret,new AmazonS3Config
+        {
+            ServiceURL = "https://b11552d3e64ded113a5586b495407acf.r2.cloudflarestorage.com"
+        });
+        var appFs = new S3VirtualFiles(s3Client, "blazor-diffusion-test");
         Plugins.Add(new FilesUploadFeature(
             new UploadLocation("artifacts", appFs,
                 readAccessRole: RoleNames.AllowAnon,
