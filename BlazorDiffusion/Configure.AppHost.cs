@@ -32,11 +32,13 @@ public class AppHost : AppHostBase, IHostingStartup
 
         var r2AccessKey = Environment.GetEnvironmentVariable("R2_ACCESS_KEY_ID");
         var r2Secret = Environment.GetEnvironmentVariable("R2_SECRET_ACCESS_KEY");
+        var r2Account = AppSettings.Get<string>("r2Account");
+        var r2Bucket = AppSettings.Get<string>("r2Bucket");
         var s3Client = new AmazonS3Client(r2AccessKey,r2Secret,new AmazonS3Config
         {
-            ServiceURL = "https://b11552d3e64ded113a5586b495407acf.r2.cloudflarestorage.com"
+            ServiceURL = $"https://{r2Account}.r2.cloudflarestorage.com"
         });
-        var appFs = new S3VirtualFiles(s3Client, "blazor-diffusion-test");
+        var appFs = new S3VirtualFiles(s3Client, $"{r2Bucket}");
         Plugins.Add(new FilesUploadFeature(
             new UploadLocation("artifacts", appFs,
                 readAccessRole: RoleNames.AllowAnon,
