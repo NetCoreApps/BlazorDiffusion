@@ -122,11 +122,13 @@ public class Migration1001 : MigrationBase
         public Int64? AverageHash { get; set; }
         public Int64? PerceptualHash { get; set; }
         public Int64? DifferenceHash { get; set; }
-        /// <summary>
-        /// Set Low Quality images to:
-        ///  - deformed: -1
-        ///  - blurred: -2
-        /// </summary>
+        // Dominant Color to show before download
+        public string Background { get; set; }
+        // Low Quality Image Placeholder for fast load in
+        public string Lqip { get; set; }
+        // Set Low Quality images to:
+        //  - deformed: -1
+        //  - blurred: -2
         public int Quality { get; set; }
         public int Score { get; set; }
         public int Rank { get; set; }
