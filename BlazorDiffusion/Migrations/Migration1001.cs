@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using BlazorDiffusion.ServiceInterface;
 using BlazorDiffusion.ServiceModel;
 using CoenM.ImageHash;
 using CoenM.ImageHash.HashAlgorithms;
@@ -497,12 +498,9 @@ SELECT
 join {nameof(Creative)} on {nameof(Creative)}.Id = {nameof(Artifact)}.CreativeId;");
 
         var artifactTest = Db.Select<Artifact>(x => x.Id == 25).First();
-        var connection = (SqliteConnection)Db.ToDbConnection();
-        connection.CreateFunction(
-            "imgcompare",
-            (Int64 hash1, Int64 hash2)
-                => CompareHash.Similarity((ulong)hash1,(ulong)hash2));
-        
+
+        Db.RegisterImgCompare();
+           
         var sw = new Stopwatch();
         sw.Start();
         var result = Db.Select<ImageCompareResult>($@"

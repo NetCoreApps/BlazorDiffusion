@@ -34,14 +34,15 @@ public class AppHost : AppHostBase, IHostingStartup
         var r2Secret = Environment.GetEnvironmentVariable("R2_SECRET_ACCESS_KEY");
         var appConfig = AppConfig.Set(new AppConfig {
             ArtifactBucket = AppSettings.Get<string>("r2Bucket"),
-            AssetsBasePath = AppSettings.Get<string>("r2Account"),
+            R2Account = AppSettings.Get<string>("r2Account"),
+            AssetsBasePath = AppSettings.Get<string>("r2PublicBasePath"),
         });
         
         container.Register(appConfig);
 
         var s3Client = new AmazonS3Client(r2AccessKey,r2Secret,new AmazonS3Config
         {
-            ServiceURL = $"https://{appConfig.AssetsBasePath}.r2.cloudflarestorage.com"
+            ServiceURL = $"https://{appConfig.R2Account}.r2.cloudflarestorage.com"
         });
         var appFs = new R2VirtualFilesProvider(s3Client, appConfig.ArtifactBucket);
         Plugins.Add(new FilesUploadFeature(
