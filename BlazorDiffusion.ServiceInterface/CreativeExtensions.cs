@@ -28,8 +28,7 @@ public static class CreativeExtensions
 
     public static string GetDownloadUrl(this Artifact artifact)
     {
-        //TODO change to ?download + record stat
-        return AppConfig.Instance.AssetsBasePath + artifact.FilePath;
+        return $"/download/{artifact.RefId}";
     }
 
     public static string GetPublicUrl(this Artifact artifact)

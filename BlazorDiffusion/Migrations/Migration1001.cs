@@ -302,6 +302,29 @@ public class Migration1001 : MigrationBase
         public DateTime CreatedDate { get; set; }
     }
 
+    public enum StatType
+    {
+        Download,
+    }
+
+    public class ArtifactStat
+    {
+        [AutoIncrement]
+        public int Id { get; set; }
+
+        public StatType Type { get; set; }
+        public int ArtifactId { get; set; }
+
+        [References(typeof(AppUser))]
+        public int? AppUserId { get; set; }
+        public string RefId { get; set; }
+        public string Source { get; set; }
+        public string Version { get; set; }
+        public string RawUrl { get; set; }
+        public string RemoteIp { get; set; }
+        public DateTime CreatedDate { get; set; }
+    }
+
     public class ImageCompareResult
     {
         public int Id { get; set; }
@@ -343,7 +366,7 @@ public class Migration1001 : MigrationBase
         Db.CreateTable<Album>();
         Db.CreateTable<AlbumArtifact>();
         Db.CreateTable<AlbumLike>();
-
+        Db.CreateTable<ArtifactStat>();
 
         var seedDir = Path.GetFullPath(Path.Combine("./App_Data/seed"));
 
@@ -532,6 +555,7 @@ order by Similarity desc;
 
     public override void Down()
     {
+        Db.DropTable<ArtifactStat>();
         Db.DropTable<AlbumLike>();
         Db.DropTable<AlbumArtifact>();
         Db.DropTable<Album>();

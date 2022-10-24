@@ -1,0 +1,12 @@
+﻿@page "/admin/artifact-stats"
+@attribute [Authorize(Roles = "Admin")]
+
+@inject NavigationManager NavigationManager
+
+<Breadcrumbs class="mb-8" HomeHref="/admin">
+    <Breadcrumb>
+        Artifact Stats
+    </Breadcrumb>
+</Breadcrumbs>
+
+<AutoQueryGrid Model="ArtifactStat" Apis="Apis.AutoQuery<QueryArtifactStats>()" />

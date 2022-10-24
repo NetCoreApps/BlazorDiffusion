@@ -41,7 +41,8 @@ public class DataService : Service
                 c.PrimaryArtifactId,
                 Similarity = Sql.Custom($"imgcompare('{similarToArtifact.PerceptualHash}',PerceptualHash)"),
             });
-            q.OrderByFields("-Quality", "-Similarity");
+            q.Where("Similarity >= 60");
+            q.OrderByDescending("Quality").ThenByDescending("Similarity");
         }
         else
         {

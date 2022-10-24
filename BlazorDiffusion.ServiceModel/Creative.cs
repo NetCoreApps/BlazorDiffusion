@@ -50,96 +50,6 @@ public class Creative : AuditBase
     public string RefId { get; set; }
 }
 
-[Icon(Svg = Icons.Artifact)]
-[AutoApply(Behavior.AuditCreate)]
-public class Artifact : AuditBase
-{
-    [AutoIncrement]
-    public int Id { get; set; }
-
-    [References(typeof(Creative))]
-    public int CreativeId { get; set; }
-
-    public string FileName { get; set; }
-
-    [Format(FormatMethods.Attachment)]
-    public string FilePath { get; set; }
-    public string ContentType { get; set; }
-
-    [Format(FormatMethods.Bytes)]
-    public long ContentLength { get; set; }
-
-    public int Width { get; set; }
-    public int Height { get; set; }
-    public ulong Seed { get; set; }
-    public string Prompt { get; set; }
-    public bool? Nsfw { get; set; }
-    public Int64? AverageHash { get; set; }
-    public Int64? PerceptualHash { get; set; }
-    public Int64? DifferenceHash { get; set; }
-    // Dominant Color to show before download
-    public string Background { get; set; }
-    // Low Quality Image Placeholder for fast load in
-    public string Lqip { get; set; }
-    // Set Low Quality images to:
-    //  - Malformed: -1
-    //  - Blurred: -2
-    //  - LowQuality: -3
-    public int Quality { get; set; }
-    public int Score { get; set; }
-    public int Rank { get; set; }
-    public string RefId { get; set; }
-}
-
-public class ArtifactResult : Artifact
-{
-    public string UserPrompt { get; set; }
-    public List<string> ArtistNames { get; set; }
-    public List<string> ModifierNames { get; set; }
-    public int? PrimaryArtifactId { get; set; }
-    public double? Similarity { get; set; }
-}
-
-public class SearchArtifacts : QueryDb<Artifact,ArtifactResult>
-{
-    public string? Query { get; set; }
-    public string? Similar { get; set; }
-    public string? User { get; set; }
-    public string? Modifier { get; set; }
-
-    public override bool Equals(object? obj)
-    {
-        return obj is SearchArtifacts artifacts &&
-               Skip == artifacts.Skip &&
-               Take == artifacts.Take &&
-               OrderBy == artifacts.OrderBy &&
-               OrderByDesc == artifacts.OrderByDesc &&
-               Include == artifacts.Include &&
-               Fields == artifacts.Fields &&
-               EqualityComparer<Dictionary<string, string>>.Default.Equals(Meta, artifacts.Meta) &&
-               EqualityComparer<Dictionary<string, string>>.Default.Equals(QueryParams, artifacts.QueryParams) &&
-               Query == artifacts.Query &&
-               Similar == artifacts.Similar &&
-               User == artifacts.User &&
-               Modifier == artifacts.Modifier;
-    }
-
-    public SearchArtifacts Clone() => new()
-    {
-        Skip = Skip,
-        Take = Take,
-        OrderBy = OrderBy,
-        OrderByDesc = OrderByDesc,
-        Include = Include,
-        Fields = Fields,
-        Meta = Meta == null ? null : new(Meta),
-        QueryParams = QueryParams == null ? null : new(QueryParams),
-        Query = Query,
-        Similar = Similar,
-        User = User,
-        Modifier = Modifier,
-    };
-}
 
 public class QueryCreatives : QueryDb<Creative>
 {
@@ -192,23 +102,6 @@ public class HardDeleteCreative : IDeleteDb<Creative>, IReturnVoid
 {
     public int Id { get; set; }
 }
-
-public class QueryArtifacts : QueryDb<Artifact>
-{
-    public int? Id { get; set; }
-    public List<int>? Ids { get; set; }
-}
-
-[AutoApply(Behavior.AuditModify)]
-[ValidateHasRole(AppRoles.Moderator)]
-public class UpdateArtifact : IPatchDb<Artifact>, IReturn<Artifact>
-{
-    public int Id { get; set; }
-    
-    public bool? Nsfw { get; set; }
-    public int? Quality { get; set; }
-}
-
 
 public class QueryArtists : QueryDb<Artist> {}
 
@@ -363,27 +256,3 @@ public class CreativeModifier
     [Reference]
     public Modifier Modifier { get; set; }
 }
-
-/// <summary>
-/// SQLite FTS table. Uses `rowid` as primary key
-/// which is the Artifact.Id primary key.
-///
-/// One entry per Artifact while also
-/// using data from Creative.
-/// </summary>
-public class ArtifactFts
-{
-    public string rowid { get; set; }
-    public int CreativeId { get; set; }
-    public int Width { get; set; }
-    public int Height { get; set; }
-    public string Prompt { get; set; }
-    public bool? Nsfw { get; set; }
-    public DateTime CreatedDate { get; set; }
-    public bool Curated { get; set; }
-    public int? Rating { get; set; }
-    public bool Private { get; set; }
-        
-    public string RefId { get; set; }
-}
-
