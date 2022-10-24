@@ -38,7 +38,7 @@ public class AppHost : AppHostBase, IHostingStartup
         {
             ServiceURL = $"https://{r2Account}.r2.cloudflarestorage.com"
         });
-        var appFs = new S3VirtualFiles(s3Client, $"{r2Bucket}");
+        var appFs = new R2VirtualFilesProvider(s3Client, $"{r2Bucket}");
         Plugins.Add(new FilesUploadFeature(
             new UploadLocation("artifacts", appFs,
                 readAccessRole: RoleNames.AllowAnon,

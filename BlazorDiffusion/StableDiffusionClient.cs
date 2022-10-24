@@ -107,8 +107,8 @@ public class DreamStudioClient : IStableDiffusionClient
     public async Task SaveMetadataAsync(Creative creative)
     {
         var vfsPathSuffix = creative.Key;
-        var outputDir = new DirectoryInfo(Path.Join(OutputPathPrefix, vfsPathSuffix));
-        await VirtualFiles.WriteFileAsync(Path.Join(outputDir.FullName,"metadata.json"),creative.ToJson().IndentJson());
+        var outputDir = Path.Join(OutputPathPrefix, vfsPathSuffix);
+        await VirtualFiles.WriteFileAsync(Path.Join(outputDir,"metadata.json"),creative.ToJson().IndentJson());
     }
 
     public Task DeleteFolderAsync(Creative creative)
