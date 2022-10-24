@@ -25,6 +25,15 @@
                     <div @onclick="toggleNsfw" class="cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">
                         @(Artifact.Nsfw == true ? "Unmark" : "Mark") as NSFW
                     </div>
+                    <div @onclick="_ => setQuality(-1)" class="cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">
+                        Mark as Malformed
+                    </div>
+                    <div @onclick="_ => setQuality(-2)" class="cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">
+                        Mark as Blurred
+                    </div>
+                    <div @onclick="_ => setQuality(-3)" class="cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">
+                        Mark as Low Quality
+                    </div>
                 }
                 
                 <div @onclick="findSimilar" class="flex flex cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 pl-2 pr-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">

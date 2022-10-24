@@ -55,9 +55,26 @@ public partial class ArtifactMenu : AppAuthComponentBase
         if (!IsModerator)
             return;
 
-        var api = await ApiAsync(new UpdateArtifact {
+        var api = await ApiAsync(new UpdateArtifact
+        {
             Id = Artifact.Id,
             Nsfw = !Artifact.Nsfw,
+        });
+        if (api.Succeeded)
+        {
+            await OnDone();
+        }
+    }
+
+    async Task setQuality(int quality)
+    {
+        if (!IsModerator)
+            return;
+
+        var api = await ApiAsync(new UpdateArtifact
+        {
+            Id = Artifact.Id,
+            Quality = quality,
         });
         if (api.Succeeded)
         {

@@ -82,8 +82,9 @@ public class Artifact : AuditBase
     // Low Quality Image Placeholder for fast load in
     public string Lqip { get; set; }
     // Set Low Quality images to:
-    //  - deformed: -1
-    //  - blurred: -2
+    //  - Malformed: -1
+    //  - Blurred: -2
+    //  - LowQuality: -3
     public int Quality { get; set; }
     public int Score { get; set; }
     public int Rank { get; set; }
@@ -105,6 +106,39 @@ public class SearchArtifacts : QueryDb<Artifact,ArtifactResult>
     public string? Similar { get; set; }
     public string? User { get; set; }
     public string? Modifier { get; set; }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is SearchArtifacts artifacts &&
+               Skip == artifacts.Skip &&
+               Take == artifacts.Take &&
+               OrderBy == artifacts.OrderBy &&
+               OrderByDesc == artifacts.OrderByDesc &&
+               Include == artifacts.Include &&
+               Fields == artifacts.Fields &&
+               EqualityComparer<Dictionary<string, string>>.Default.Equals(Meta, artifacts.Meta) &&
+               EqualityComparer<Dictionary<string, string>>.Default.Equals(QueryParams, artifacts.QueryParams) &&
+               Query == artifacts.Query &&
+               Similar == artifacts.Similar &&
+               User == artifacts.User &&
+               Modifier == artifacts.Modifier;
+    }
+
+    public SearchArtifacts Clone() => new()
+    {
+        Skip = Skip,
+        Take = Take,
+        OrderBy = OrderBy,
+        OrderByDesc = OrderByDesc,
+        Include = Include,
+        Fields = Fields,
+        Meta = Meta == null ? null : new(Meta),
+        QueryParams = QueryParams == null ? null : new(QueryParams),
+        Query = Query,
+        Similar = Similar,
+        User = User,
+        Modifier = Modifier,
+    };
 }
 
 public class QueryCreatives : QueryDb<Creative>
@@ -166,17 +200,19 @@ public class QueryArtifacts : QueryDb<Artifact>
 }
 
 [AutoApply(Behavior.AuditModify)]
-[ValidateIsAdmin]
+[ValidateHasRole(AppRoles.Moderator)]
 public class UpdateArtifact : IPatchDb<Artifact>, IReturn<Artifact>
 {
     public int Id { get; set; }
     
     public bool? Nsfw { get; set; }
+    public int? Quality { get; set; }
 }
 
 
 public class QueryArtists : QueryDb<Artist> {}
 
+[ValidateHasRole(AppRoles.Moderator)]
 public class CreateArtist : ICreateDb<Artist>, IReturn<Artist>
 {
     public string? FirstName { get; set; }
@@ -186,6 +222,7 @@ public class CreateArtist : ICreateDb<Artist>, IReturn<Artist>
     public List<string>? Type { get; set; }
 }
 
+[ValidateHasRole(AppRoles.Moderator)]
 public class UpdateArtist : IPatchDb<Artist>, IReturn<Artist>
 {
     public int Id { get; set; }
@@ -194,6 +231,7 @@ public class UpdateArtist : IPatchDb<Artist>, IReturn<Artist>
     public int? YearDied { get; set; }
     public List<string>? Type { get; set; }
 }
+[ValidateHasRole(AppRoles.Moderator)]
 public class DeleteArtist : IDeleteDb<Artist>, IReturnVoid 
 {
     public int Id { get; set; }
@@ -215,6 +253,7 @@ public class Artist : AuditBase
 
 public class QueryModifiers : QueryDb<Modifier> { }
 
+[ValidateHasRole(AppRoles.Moderator)]
 public class CreateModifier : ICreateDb<Modifier>, IReturn<Modifier>
 {
     [ValidateNotEmpty, Required]
@@ -224,6 +263,7 @@ public class CreateModifier : ICreateDb<Modifier>, IReturn<Modifier>
     public string? Description { get; set; }
 }
 
+[ValidateHasRole(AppRoles.Moderator)]
 public class UpdateModifier : ICreateDb<Modifier>, IReturn<Modifier>
 {
     public int Id { get; set; }
@@ -232,6 +272,7 @@ public class UpdateModifier : ICreateDb<Modifier>, IReturn<Modifier>
     public string? Description { get; set; }
 }
 
+[ValidateHasRole(AppRoles.Moderator)]
 public class DeleteModifier : IDeleteDb<Modifier>, IReturnVoid
 {
     public int Id { get; set; }
@@ -257,6 +298,7 @@ public class QueryCreativeArtists : QueryDb<CreativeArtist>
     public int? ModifierId { get; set; }
 }
 
+[ValidateHasRole(AppRoles.Moderator)]
 public class CreateCreativeArtist : ICreateDb<CreativeArtist>, IReturn<CreativeArtist>
 {
     [ValidateGreaterThan(0)]
@@ -265,11 +307,13 @@ public class CreateCreativeArtist : ICreateDb<CreativeArtist>, IReturn<CreativeA
     public int? ModifierId { get; set; }
 }
 
+[ValidateHasRole(AppRoles.Moderator)]
 public class DeleteCreativeArtist : IDeleteDb<CreativeArtist>, IReturnVoid
 {
     public int? Id { get; set; }
     public int[]? Ids { get; set; }
 }
+[ValidateHasRole(AppRoles.Moderator)]
 public class CreativeArtist
 {
     [AutoIncrement]
@@ -290,6 +334,7 @@ public class QueryCreativeModifiers : QueryDb<CreativeModifier>
     public int? ModifierId { get; set; }
 }
 
+[ValidateHasRole(AppRoles.Moderator)]
 public class CreateCreativeModifier : ICreateDb<CreativeModifier>, IReturn<CreativeModifier>
 {
     [ValidateGreaterThan(0)]
@@ -298,12 +343,14 @@ public class CreateCreativeModifier : ICreateDb<CreativeModifier>, IReturn<Creat
     public int? ModifierId { get; set; }
 }
 
+[ValidateHasRole(AppRoles.Moderator)]
 public class DeleteCreativeModifier : IDeleteDb<CreativeModifier>, IReturnVoid
 {
     public int? Id { get; set; }
     public int[]? Ids { get; set; }
 }
 
+[ValidateHasRole(AppRoles.Moderator)]
 public class CreativeModifier
 {
     [AutoIncrement]

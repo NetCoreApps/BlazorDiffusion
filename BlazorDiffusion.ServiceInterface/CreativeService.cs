@@ -87,13 +87,22 @@ public class CreativeService : Service
         if (!await session.IsOwnerOrModerator(AuthRepositoryAsync, creative?.OwnerId))
             throw HttpError.Forbidden("You don't own this Creative");
 
-        await Db.UpdateOnlyAsync(() =>
-            new Artifact
-            {
+        if (request.Nsfw != null)
+        {
+            await Db.UpdateOnlyAsync(() => new Artifact {
                 Nsfw = request.Nsfw,
                 ModifiedBy = session.UserAuthId,
                 ModifiedDate = DateTime.UtcNow,
             }, where: x => x.Id == request.Id);
+        }
+        if (request.Quality != null)
+        {
+            await Db.UpdateOnlyAsync(() => new Artifact {
+                Quality = request.Quality.Value,
+                ModifiedBy = session.UserAuthId,
+                ModifiedDate = DateTime.UtcNow,
+            }, where: x => x.Id == request.Id);
+        }
 
         await Db.SaveCreativeAsync(artifact.CreativeId, StableDiffusionClient);
 

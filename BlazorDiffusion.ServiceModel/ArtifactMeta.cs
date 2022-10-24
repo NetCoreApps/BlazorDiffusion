@@ -71,6 +71,9 @@ public class ArtifactReport
 public enum ReportType
 {
     Nsfw,
+    Malformed,
+    Blurred,
+    LowQuality,
     Other,
 }
 

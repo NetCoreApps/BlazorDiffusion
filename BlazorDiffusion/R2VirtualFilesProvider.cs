@@ -19,7 +19,18 @@ public class R2VirtualFilesProvider : S3VirtualFiles
             Key = SanitizePath(filePath),
             BucketName = BucketName,
             InputStream = stream,
-            DisablePayloadSigning = true
+            DisablePayloadSigning = true,
         });
     }
+
+    public override void WriteFile(string filePath, string contents)
+    {
+        AmazonS3.PutObject(new PutObjectRequest
+        {
+            Key = SanitizePath(filePath),
+            BucketName = BucketName,
+            ContentBody = contents,
+            DisablePayloadSigning = true,
+        });
+    }    
 }

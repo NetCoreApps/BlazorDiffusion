@@ -127,8 +127,9 @@ public class Migration1001 : MigrationBase
         // Low Quality Image Placeholder for fast load in
         public string Lqip { get; set; }
         // Set Low Quality images to:
-        //  - deformed: -1
-        //  - blurred: -2
+        //  - Malformed: -1
+        //  - Blurred: -2
+        //  - LowQuality: -3
         public int Quality { get; set; }
         public int Score { get; set; }
         public int Rank { get; set; }

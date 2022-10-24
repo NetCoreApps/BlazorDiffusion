@@ -24,9 +24,8 @@ public partial class Index : AppAuthComponentBase
     List<Artifact> results = new();
     HashSet<int> resultIds = new();
 
-    string? lastSearch;
-    string? lastUser;
-    int? lastSkip;
+
+    SearchArtifacts? lastRequest;
 
     protected override async Task OnInitializedAsync()
     {
@@ -51,8 +50,8 @@ public partial class Index : AppAuthComponentBase
 
     async Task updateAsync()
     {
-        var existingQuery = lastSearch == request.Query && lastUser == request.User;
-        if (existingQuery && lastSkip == request.Skip)
+        var existingQuery = lastRequest != null && lastRequest.Equals(request);
+        if (existingQuery)
             return;
 
         api = await ApiAsync(request);
@@ -63,9 +62,7 @@ public partial class Index : AppAuthComponentBase
 
             addResults(api.Response?.Results ?? new());
 
-            lastSearch = request.Query;
-            lastUser = request.User;
-            lastSkip = request.Skip;
+            lastRequest = request.Clone();
         }
     }
 

@@ -41,7 +41,7 @@ public class DataService : Service
                 c.PrimaryArtifactId,
                 Similarity = Sql.Custom($"imgcompare('{similarToArtifact.PerceptualHash}',PerceptualHash)"),
             });
-            q.OrderByDescending("Similarity");
+            q.OrderByFields("-Quality", "-Similarity");
         }
         else
         {
@@ -58,7 +58,7 @@ public class DataService : Service
             }
 
             // Blazor @key throws when returning dupes
-            q.OrderByDescending(x => x.Score);
+            q.OrderByDescending(x => new { x.Quality, x.Score });
             q.SelectDistinct<Artifact, Creative>((a, c) => new { a, c.UserPrompt, c.ArtistNames, c.ModifierNames, c.PrimaryArtifactId });
         }
 
