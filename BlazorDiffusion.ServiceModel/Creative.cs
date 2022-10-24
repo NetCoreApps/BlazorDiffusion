@@ -143,7 +143,7 @@ public class DeleteCreative : IDeleteDb<Creative>, IReturnVoid
 }
 
 [AutoApply(Behavior.AuditDelete)]
-[ValidateIsAuthenticated]
+[ValidateIsAdmin]
 public class HardDeleteCreative : IDeleteDb<Creative>, IReturnVoid
 {
     public int Id { get; set; }
@@ -156,7 +156,7 @@ public class QueryArtifacts : QueryDb<Artifact>
 }
 
 [AutoApply(Behavior.AuditModify)]
-[ValidateIsAuthenticated]
+[ValidateIsAdmin]
 public class UpdateArtifact : IPatchDb<Artifact>, IReturn<Artifact>
 {
     public int Id { get; set; }

@@ -50,6 +50,21 @@ public partial class ArtifactMenu : AppAuthComponentBase
         return true;
     }
 
+    async Task toggleNsfw()
+    {
+        if (!IsModerator)
+            return;
+
+        var api = await ApiAsync(new UpdateArtifact {
+            Id = Artifact.Id,
+            Nsfw = !Artifact.Nsfw,
+        });
+        if (api.Succeeded)
+        {
+            await OnDone();
+        }
+    }
+
     async Task openReport()
     {
         if (!await assertAuth())
