@@ -62,5 +62,15 @@
 <script type="text/javascript" src="/js/servicestack-blazor.js"></script>
 <script>JS.init({ colorScheme: location.search === '?light' ? 'light' : 'dark' })</script>
 
+<script>
+const origScrollTo = window.scrollTo;
+window.scrollTo = (x, y) => {
+    const shouldSkip = true; // TODO: Insert your own logic here
+    if (x === 0 && y === 0 && shouldSkip)
+        return;
+    return origScrollTo.apply(this, arguments);
+};
+</script>
+
 </body>
 </html>

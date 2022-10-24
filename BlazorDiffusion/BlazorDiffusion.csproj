@@ -21,7 +21,7 @@
         <PackageReference Include="Markdig" Version="0.30.3" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="6.0.9" />
-        <!--<PackageReference Include="BlazorIntersectionObserver" Version="3.1.0" />-->
+        <PackageReference Include="BlazorIntersectionObserver" Version="3.1.0" />
         <PackageReference Include="ServiceStack" Version="6.*" />
         <PackageReference Include="ServiceStack.Aws" Version="6.4.1" />
         <PackageReference Include="ServiceStack.Blazor" Version="6.*" />

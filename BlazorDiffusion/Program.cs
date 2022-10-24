@@ -5,7 +5,7 @@ using ServiceStack.Blazor;
 using Microsoft.Net.Http.Headers;
 using BlazorDiffusion.UI;
 using BlazorDiffusion.ServiceModel;
-//using Ljbc1994.Blazor.IntersectionObserver;
+using Ljbc1994.Blazor.IntersectionObserver;
 
 AppHost.RegisterKey();
 
@@ -25,7 +25,7 @@ builder.Services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredServic
 builder.Services.AddScoped<ServiceStackStateProvider>();
 builder.Services.AddScoped<KeyboardNavigation>();
 builder.Services.AddScoped<UserState>();
-//builder.Services.AddIntersectionObserver();
+builder.Services.AddIntersectionObserver();
 
 
 var app = builder.Build();

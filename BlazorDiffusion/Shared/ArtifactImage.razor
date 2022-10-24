@@ -1,29 +1,31 @@
-﻿@*@using Ljbc1994.Blazor.IntersectionObserver.Components*@
+﻿@using Ljbc1994.Blazor.IntersectionObserver.Components
 @inherits UiComponentBase
 
 @if (Artifact != null)
 {
-    <img class=@Class alt=@Artifact.FileName width=@width height=@height
-         src=@(useSrc ?? Artifact.GetPublicUrl())
-         @onerror=@(() => useSrc = Artifact.GetFallbackUrl())>
+    if (LazyLoad)
+    {
+        <IntersectionObserve>
+            @{
+                if (context.IsIntersecting) useSrc = Artifact.GetPublicUrl();
+            }
+            <img @ref="context.Ref.Current" class=@Class alt=@Artifact.FileName width=@width height=@height
+                 src=@(useSrc ?? (!context.IsIntersecting ? BlackBlacground : Artifact.GetPublicUrl()))
+                 @onerror=@(() => useSrc = Artifact.GetFallbackUrl())>
+        </IntersectionObserve>
+    }
+    else
+    {
+        <img class=@Class alt=@Artifact.FileName width=@width height=@height
+             src=@(useSrc ?? Artifact.GetPublicUrl())
+             @onerror=@(() => useSrc = Artifact.GetFallbackUrl())>
+    }
 }
 
 @code {
-/*
-<IntersectionObserve>
-    @{
-        if (context.IsIntersecting) useSrc = Artifact.GetPublicUrl();
-    }
-    <img @ref="context.Ref.Current" class=@Class alt=@Artifact.FileName width=@width height=@height
-        src=@(useSrc ?? (!context.IsIntersecting ? BlackBlacground : Artifact.GetPublicUrl()))
-        @onerror=@(() => useSrc = Artifact.GetFallbackUrl())>
-</IntersectionObserve>
-*/
-
     [Parameter, EditorRequired] public Artifact? Artifact { get; set; } = default!;
     [Parameter] public int? MinSize { get; set; }
-
-    bool UseIntersectionObserve;
+    [Parameter] public bool LazyLoad { get; set; }
 
     const string BlackBlacground = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23000' d='M2 2h60v60H2z'/%3E%3C/svg%3E";
 
