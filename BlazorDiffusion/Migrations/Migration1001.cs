@@ -431,7 +431,7 @@ public class Migration1001 : MigrationBase
             {
                 artifact.Id = 0;
                 artifact.CreativeId = id;
-                var filePath = artifact.FilePath;
+                var filePath = $"./App_Files/{artifact.FilePath}";
                 var filStream = File.OpenRead(filePath);
                 artifact.PerceptualHash = (Int64)hashAlgorithm.Hash(filStream);
                 artifact.Id = (int)Db.Insert(artifact, selectIdentity: true);
