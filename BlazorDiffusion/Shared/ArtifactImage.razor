@@ -7,10 +7,13 @@
     {
         <IntersectionObserve>
             @{
-                if (context.IsIntersecting) useSrc = Artifact.GetPublicUrl();
+                if (context.IsIntersecting) 
+                {
+                    hasIntersected.Add(Artifact.Id);
+                }
             }
             <img @ref="context.Ref.Current" class=@Class alt=@Artifact.FileName width=@width height=@height
-                 src=@(useSrc ?? (!context.IsIntersecting ? BlackBlacground : Artifact.GetPublicUrl()))
+                 src=@(useSrc ?? (!context.IsIntersecting && !hasIntersected.Contains(Artifact.Id) ? BlackBlacground : Artifact.GetPublicUrl()))
                  @onerror=@(() => useSrc = Artifact.GetFallbackUrl())>
         </IntersectionObserve>
     }
@@ -26,6 +29,7 @@
     [Parameter, EditorRequired] public Artifact? Artifact { get; set; } = default!;
     [Parameter] public int? MinSize { get; set; }
     [Parameter] public bool LazyLoad { get; set; }
+    HashSet<int> hasIntersected = new();
 
     const string BlackBlacground = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23000' d='M2 2h60v60H2z'/%3E%3C/svg%3E";
 
