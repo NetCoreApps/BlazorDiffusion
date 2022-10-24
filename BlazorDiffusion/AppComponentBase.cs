@@ -20,6 +20,7 @@ public abstract class AppComponentBase : ServiceStack.Blazor.BlazorComponentBase
 /// </summary>
 public abstract class AppAuthComponentBase : AuthBlazorComponentBase
 {
+    public bool IsModerator => IsAuthenticated && User.HasRole(AppRoles.Moderator);
 }
 
 public enum AppPage

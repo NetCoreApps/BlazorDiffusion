@@ -16,6 +16,14 @@
         -->
         <div class="rounded-md bg-white dark:bg-black shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
             <div class="py-1" role="none">
+                @if (IsModerator)
+                {
+
+                    <div @onclick="toggleNsfw" class="cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">
+                        @(Artifact.Nsfw == true ? "Unmark" : "Mark") as NSFW
+                    </div>
+                }
+                
                 <div @onclick="openReport" class="cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">
                     Report
                 </div>
