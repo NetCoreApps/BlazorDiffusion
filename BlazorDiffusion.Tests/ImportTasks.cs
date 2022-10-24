@@ -32,37 +32,6 @@ public class ImportTasks
     }
 
     [Test]
-    public void Rename_Artifacts()
-    {
-        var hostDir = GetHostDir();
-
-        var artifactPaths = Path.Combine(hostDir, "App_Files/artifacts");
-        foreach (var dir in Directory.GetDirectories(artifactPaths))
-        {
-            var dirInfo = new DirectoryInfo(dir);
-            dirInfo.FullName.Print();
-            string metadataPath = Path.Combine(dirInfo.FullName, "metadata.json");
-
-            var creative = File.ReadAllText(metadataPath).FromJson<Creative>();
-            var key = $"{creative.CreatedDate:yyyy/MM/dd}/{(long)creative.CreatedDate.TimeOfDay.TotalMilliseconds}";
-            creative.Key = key;
-            var vfsDirPath = $"/uploads/fs/{key}";
-            foreach (var artifact in creative.Artifacts)
-            {
-                artifact.FilePath = vfsDirPath.CombineWith(artifact.FileName);
-            }
-            //File.WriteAllText(metadataPath, creative.ToJson());
-            creative.PrintDump();
-
-            var newDirPath = dirInfo.Parent!.FullName.CombineWith(key);
-            $"{dirInfo.Name} -> {newDirPath}".Print();
-            FileSystemVirtualFiles.AssertDirectory(newDirPath);
-            Directory.Delete(newDirPath);
-            Directory.Move(dirInfo.FullName, newDirPath);
-        }
-    }
-
-    [Test]
     public void Sync_missing_modifiers()
     {
         var hostDir = GetHostDir();
@@ -119,10 +88,11 @@ public class ImportTasks
             }
             else
             {
-                //foreach (var artifact in creative.Artifacts)
-                //{
-                //    artifact.RefId = Guid.NewGuid().ToString("D");
-                //}
+                foreach (var artifact in creative.Artifacts)
+                {
+                    if (artifact.FilePath.StartsWith("/uploads"))
+                        artifact.FilePath = artifact.FilePath.Substring("/uploads".Length);
+                }
                 Console.WriteLine($"Updating {metadataFile}...");
                 File.WriteAllText(metadataFile, creative.ToJson().IndentJson());
             }

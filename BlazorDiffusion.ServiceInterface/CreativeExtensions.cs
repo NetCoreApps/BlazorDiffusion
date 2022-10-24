@@ -25,10 +25,16 @@ public static class CreativeExtensions
         return row;
     }
 
+
+    public static string GetDownloadUrl(this Artifact artifact)
+    {
+        //TODO change to ?download + record stat
+        return AppConfig.Instance.AssetsBasePath + artifact.FilePath;
+    }
+
     public static string GetPublicUrl(this Artifact artifact)
     {
-        return HostContext.AppSettings.Get<string>("r2PublicPrefix")
-               + artifact.FilePath;
+        return AppConfig.Instance.AssetsBasePath + artifact.FilePath;
     }
 
     public static List<Artifact> GetArtifacts(this Creative creative)

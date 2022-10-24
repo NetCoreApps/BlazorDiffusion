@@ -93,7 +93,6 @@ public class DreamStudioClient : IStableDiffusionClient
                     ContentLength = bytes.Length,
                     Width = request.Width,
                     Height = request.Height,
-                    PublicPath = PublicPrefix + $"artifacts/{key}/output_{artifact.Seed}.png"
                 });
             }
         }

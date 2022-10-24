@@ -32,25 +32,29 @@ public class AppHost : AppHostBase, IHostingStartup
 
         var r2AccessKey = Environment.GetEnvironmentVariable("R2_ACCESS_KEY_ID");
         var r2Secret = Environment.GetEnvironmentVariable("R2_SECRET_ACCESS_KEY");
-        var r2Account = AppSettings.Get<string>("r2Account");
-        var r2Bucket = AppSettings.Get<string>("r2Bucket");
+        var appConfig = AppConfig.Set(new AppConfig {
+            ArtifactBucket = AppSettings.Get<string>("r2Bucket"),
+            AssetsBasePath = AppSettings.Get<string>("r2Account"),
+        });
+        
+        container.Register(appConfig);
+
         var s3Client = new AmazonS3Client(r2AccessKey,r2Secret,new AmazonS3Config
         {
-            ServiceURL = $"https://{r2Account}.r2.cloudflarestorage.com"
+            ServiceURL = $"https://{appConfig.AssetsBasePath}.r2.cloudflarestorage.com"
         });
-        var appFs = new R2VirtualFilesProvider(s3Client, $"{r2Bucket}");
+        var appFs = new R2VirtualFilesProvider(s3Client, appConfig.ArtifactBucket);
         Plugins.Add(new FilesUploadFeature(
             new UploadLocation("artifacts", appFs,
                 readAccessRole: RoleNames.AllowAnon,
                 maxFileBytes: 10 * 1024 * 1024)));
 
         // Don't use public prefix if working locally
-        var publicPrefix = this.IsDevelopmentEnvironment() ? null : AppSettings.Get<string>("r2PublicPrefix");
         Register<IStableDiffusionClient>(new DreamStudioClient
         {
             ApiKey = Environment.GetEnvironmentVariable("DREAMAI_APIKEY") ?? "<your_api_key>",
             OutputPathPrefix = "artifacts",
-            PublicPrefix = publicPrefix,
+            PublicPrefix = appConfig.AssetsBasePath,
             VirtualFiles = appFs
         });
     }

@@ -4,6 +4,7 @@ using ServiceStack;
 using ServiceStack.Blazor;
 using Microsoft.Net.Http.Headers;
 using BlazorDiffusion.UI;
+using BlazorDiffusion.ServiceModel;
 
 AppHost.RegisterKey();
 
@@ -51,6 +52,7 @@ BlazorConfig.Set(new()
     JSParseObject = JS.ParseObject,
     EnableLogging = app.Environment.IsDevelopment(),
     EnableVerboseLogging = app.Environment.IsDevelopment(),
+    AssetsBasePath = AppConfig.Instance.AssetsBasePath,
 });
 
 app.Run();

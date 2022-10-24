@@ -27,10 +27,10 @@
                 {
                     <div class="group relative">
                         <div class="w-full overflow-hidden rounded-md bg-gray-200 group-hover:opacity-75">
-                            <img src="@(preview.FilePath)" alt="@(preview.FileName)" class="h-full w-full object-cover object-center">
+                            <img src="@(preview.GetPublicUrl())" alt="@(preview.FileName)" class="h-full w-full object-cover object-center">
                         </div>
                         <h3 class="mt-4 text-sm">
-                            <a href="@(preview.FilePath)" target="_blank">
+                            <a href="@(preview.GetPublicUrl())" target="_blank">
                                 <span class="absolute inset-0"></span>
                         
                             </a>
