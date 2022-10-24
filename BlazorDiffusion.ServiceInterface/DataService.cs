@@ -20,17 +20,14 @@ public class DataService : Service
     public async Task<object> Any(SearchArtifacts query)
     {
         var search = query.Query ?? "";
-        var creative = search.Length == 32 
-            ? await Db.SingleAsync<Creative>(x => x.RefId == search)
-        : null;
 
         using var db = AutoQuery.GetDb(query, base.Request);
         var q = AutoQuery.CreateQuery(query, base.Request, db);
 
-        var isGuid = creative != null;
-        if (isGuid)
+        var similar = query.Similar?.Trim();
+        if (!string.IsNullOrEmpty(similar))
         {
-            q.Join<Creative>((a, c) => c.Id == a.CreativeId && a.CreativeId == creative.Id);
+            q.Join<Creative>((a, c) => c.Id == a.CreativeId && a.RefId == similar);
         }
         else
         {

@@ -94,6 +94,7 @@ public class ArtifactResult : Artifact
 public class SearchArtifacts : QueryDb<Artifact,ArtifactResult>
 {
     public string Query { get; set; }
+    public string Similar { get; set; }
     public int? User { get; set; }
 }
 
