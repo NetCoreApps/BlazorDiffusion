@@ -72,7 +72,6 @@ public class DreamStudioClient : IStableDiffusionClient
 
         var now = DateTime.UtcNow;
         var key = $"{now:yyyy/MM/dd}/{(long)now.TimeOfDay.TotalMilliseconds}";
-        var outputDir = new DirectoryInfo(Path.Join(OutputPathPrefix, key).AssertDir());
 
         var results = new List<ImageGenerationResult>();
         await foreach (var item in response.ResponseStream.ReadAllAsync())
@@ -81,7 +80,7 @@ public class DreamStudioClient : IStableDiffusionClient
             if (hasArtifact)
             {
                 var artifact = item.Artifacts.First();
-                var output = Path.Join(outputDir.FullName, $"output_{artifact.Seed}.png");
+                var output = Path.Join(OutputPathPrefix, key, $"output_{artifact.Seed}.png");
                 var bytes = artifact.Binary.ToByteArray();
                 await VirtualFiles.WriteFileAsync(output, bytes);
                 results.Add(new()

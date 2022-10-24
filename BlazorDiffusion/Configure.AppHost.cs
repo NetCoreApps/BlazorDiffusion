@@ -49,7 +49,7 @@ public class AppHost : AppHostBase, IHostingStartup
         Register<IStableDiffusionClient>(new DreamStudioClient
         {
             ApiKey = Environment.GetEnvironmentVariable("DREAMAI_APIKEY") ?? "<your_api_key>",
-            OutputPathPrefix = Path.Join(ContentRootDirectory.RealPath.CombineWith("App_Files"), "artifacts"),
+            OutputPathPrefix = "artifacts",
             PublicPrefix = publicPrefix,
             VirtualFiles = appFs
         });
