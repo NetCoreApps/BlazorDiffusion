@@ -94,6 +94,7 @@ public class ArtifactResult : Artifact
 public class SearchArtifacts : QueryDb<Artifact,ArtifactResult>
 {
     public string Query { get; set; }
+    public string Similar { get; set; }
     public int? User { get; set; }
 }
 
@@ -143,7 +144,7 @@ public class DeleteCreative : IDeleteDb<Creative>, IReturnVoid
 }
 
 [AutoApply(Behavior.AuditDelete)]
-[ValidateIsAdmin]
+[ValidateHasRole(AppRoles.Moderator)]
 public class HardDeleteCreative : IDeleteDb<Creative>, IReturnVoid
 {
     public int Id { get; set; }
