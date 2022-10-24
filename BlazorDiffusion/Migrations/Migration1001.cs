@@ -293,7 +293,7 @@ public class Migration1001 : MigrationBase
         public DateTime CreatedDate { get; set; }
     }
 
-    class ImageCompareResult
+    public class ImageCompareResult
     {
         public int Id { get; set; }
         public long PerceptualHash { get; set; }
@@ -309,7 +309,7 @@ public class Migration1001 : MigrationBase
 
         void CreateUser(string email, string name, string password, string[]? roles = null)
         {
-            var newAdmin = new AppUser { Email = email, DisplayName = name };
+            var newAdmin = new AppUser { Email = email, DisplayName = name, RefIdStr = Guid.NewGuid().ToString("D") };
             var user = authRepo.CreateUserAuth(Db, newAdmin, password);
             if (roles?.Length > 0)
             {
