@@ -144,7 +144,7 @@ public class DeleteCreative : IDeleteDb<Creative>, IReturnVoid
 }
 
 [AutoApply(Behavior.AuditDelete)]
-[ValidateIsAdmin]
+[ValidateHasRole(AppRoles.Moderator)]
 public class HardDeleteCreative : IDeleteDb<Creative>, IReturnVoid
 {
     public int Id { get; set; }
