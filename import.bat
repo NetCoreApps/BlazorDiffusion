@@ -1,2 +1,1 @@
-RD /q /s BlazorDiffusion\App_Files\artifacts
-XCOPY /Y /E /H /C /I ..\BlazorDiffusionAssets\artifacts BlazorDiffusion\App_Files\artifacts
+aws s3 sync s3://diffusion/artifacts BlazorDiffusion\App_Files\artifacts --profile r2 --endpoint-url https://b95f38ca3a6ac31ea582cd624e6eb385.r2.cloudflarestorage.com --size-only
