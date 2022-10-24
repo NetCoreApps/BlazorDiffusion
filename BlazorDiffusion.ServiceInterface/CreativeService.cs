@@ -148,6 +148,7 @@ public class CreativeService : Service
             ContentType = MimeTypes.ImagePng,
             ContentLength = x.ContentLength,
             RefId = Guid.NewGuid().ToString("D"),
+            PublicPath = x.PublicPath
         }.WithAudit(userAuthId, now));
         await db.InsertAllAsync(artifacts);
         transaction.Commit();
@@ -311,7 +312,7 @@ public class ImageGenerationResponse
 {
     public List<ImageGenerationResult> Results { get; set; }
     public string Key { get; set; }
-    public string? Error { get; set; }
+    public string Error { get; set; }
 }
 
 public class ImageGenerationResult
@@ -324,4 +325,5 @@ public class ImageGenerationResult
     public long ContentLength { get; set; }
     public int Width { get; set; }
     public int Height { get; set; }
+    public string PublicPath { get; set; }
 }

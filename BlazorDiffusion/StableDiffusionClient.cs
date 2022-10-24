@@ -18,6 +18,8 @@ public class DreamStudioClient : IStableDiffusionClient
     public string ApiKey { get; set; }
     public string OutputPathPrefix { get; set; }
     public string EngineId { get; set; }
+    public string? PublicPrefix { get; set; }
+    public IVirtualFiles VirtualFiles { get; set; }
     
     public DreamStudioClient()
     {
@@ -81,7 +83,7 @@ public class DreamStudioClient : IStableDiffusionClient
                 var artifact = item.Artifacts.First();
                 var output = Path.Join(outputDir.FullName, $"output_{artifact.Seed}.png");
                 var bytes = artifact.Binary.ToByteArray();
-                await File.WriteAllBytesAsync(output,bytes);
+                await VirtualFiles.WriteFileAsync(output, bytes);
                 results.Add(new()
                 {
                     Prompt = request.Prompt,
@@ -91,7 +93,8 @@ public class DreamStudioClient : IStableDiffusionClient
                     FileName = $"output_{artifact.Seed}.png",
                     ContentLength = bytes.Length,
                     Width = request.Width,
-                    Height = request.Height
+                    Height = request.Height,
+                    PublicPath = PublicPrefix + $"artifacts/{key}/output_{artifact.Seed}.png"
                 });
             }
         }
@@ -106,14 +109,15 @@ public class DreamStudioClient : IStableDiffusionClient
     {
         var vfsPathSuffix = creative.Key;
         var outputDir = new DirectoryInfo(Path.Join(OutputPathPrefix, vfsPathSuffix));
-        await File.WriteAllTextAsync(Path.Join(outputDir.FullName,"metadata.json"),creative.ToJson().IndentJson());
+        await VirtualFiles.WriteFileAsync(Path.Join(outputDir.FullName,"metadata.json"),creative.ToJson().IndentJson());
     }
 
     public Task DeleteFolderAsync(Creative creative)
     {
         var vfsPathSuffix = creative.Key;
-        var outputDir = new DirectoryInfo(Path.Join(OutputPathPrefix, vfsPathSuffix));
-        FileSystemVirtualFiles.DeleteDirectoryRecursive(Path.Join(outputDir.FullName));
+        var directory = VirtualFiles.GetDirectory(Path.Join(OutputPathPrefix,vfsPathSuffix));
+        var allFiles = directory.GetAllFiles();
+        VirtualFiles.DeleteFiles(allFiles);
         return Task.CompletedTask;
     }
 }

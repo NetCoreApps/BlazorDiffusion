@@ -30,25 +30,40 @@ public class AppHost : AppHostBase, IHostingStartup
             "https://" + Environment.GetEnvironmentVariable("DEPLOY_CDN")
         }, allowCredentials: true));
 
-        var r2AccessKey = Environment.GetEnvironmentVariable("R2_ACCESS_KEY_ID");
-        var r2Secret = Environment.GetEnvironmentVariable("R2_SECRET_ACCESS_KEY");
-        var r2Account = AppSettings.Get<string>("r2Account");
-        var r2Bucket = AppSettings.Get<string>("r2Bucket");
-        var s3Client = new AmazonS3Client(r2AccessKey,r2Secret,new AmazonS3Config
-        {
-            ServiceURL = $"https://{r2Account}.r2.cloudflarestorage.com"
-        });
-        var appFs = new S3VirtualFiles(s3Client, $"{r2Bucket}");
+        var appFs = ConfigureVirtualFiles();
         Plugins.Add(new FilesUploadFeature(
             new UploadLocation("artifacts", appFs,
                 readAccessRole: RoleNames.AllowAnon,
                 maxFileBytes: 10 * 1024 * 1024)));
 
+        // Don't use public prefix if working locally
+        var publicPrefix = this.IsDevelopmentEnvironment() ? null : AppSettings.Get<string>("r2PublicPrefix");
         Register<IStableDiffusionClient>(new DreamStudioClient
         {
             ApiKey = Environment.GetEnvironmentVariable("DREAMAI_APIKEY") ?? "<your_api_key>",
-            OutputPathPrefix = Path.Join(ContentRootDirectory.RealPath.CombineWith("App_Files"), "artifacts")
+            OutputPathPrefix = Path.Join(ContentRootDirectory.RealPath.CombineWith("App_Files"), "artifacts"),
+            PublicPrefix = publicPrefix,
+            VirtualFiles = appFs
         });
+    }
+
+    public IVirtualFiles ConfigureVirtualFiles()
+    {
+        if (!this.IsDevelopmentEnvironment())
+        {
+            var r2AccessKey = Environment.GetEnvironmentVariable("R2_ACCESS_KEY_ID");
+            var r2Secret = Environment.GetEnvironmentVariable("R2_SECRET_ACCESS_KEY");
+            var r2Account = AppSettings.Get<string>("r2Account");
+            var r2Bucket = AppSettings.Get<string>("r2Bucket");
+            var s3Client = new AmazonS3Client(r2AccessKey,r2Secret,new AmazonS3Config
+            {
+                ServiceURL = $"https://{r2Account}.r2.cloudflarestorage.com"
+            });
+            var appFs = new S3VirtualFiles(s3Client, $"{r2Bucket}");
+            return appFs;
+        }
+        
+        return new FileSystemVirtualFiles(ContentRootDirectory.RealPath.CombineWith("App_Files").AssertDir());
     }
 
     public void Configure(IWebHostBuilder builder) => builder
