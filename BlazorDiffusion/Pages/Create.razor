@@ -270,7 +270,7 @@
             </NavLink>
         }
         </nav>
-        <NavLink href=@($"/?user={User.GetUserId()}") class=@ClassNames("flex items-center px-3 py-2 text-sm", 
+        <NavLink href=@($"/?user={UserState.RefId}") class=@ClassNames("flex items-center px-3 py-2 text-sm", 
             "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100")>
             <span class="w-40 text-center">view all</span>
         </NavLink>

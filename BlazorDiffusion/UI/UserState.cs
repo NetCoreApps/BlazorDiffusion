@@ -10,6 +10,7 @@ public class UserState
     public JsonApiClient Client { get; }
     public AppPrefs AppPrefs { get; internal set; } = new();
 
+    public string? RefId { get; set; }
     public HashSet<int> LikedArtifactIds { get; private set; } = new();
     public HashSet<int> LikedAlbumIds { get; private set; } = new();
 
@@ -61,9 +62,11 @@ public class UserState
         var api = await Client.ApiAsync(new UserData());
         if (api.Succeeded)
         {
-            LikedArtifactIds = api.Response!.Likes.ArtifactIds.ToSet();
-            LikedAlbumIds = api.Response!.Likes.AlbumIds.ToSet();
-            UserAlbums = api.Response!.Albums ?? new();
+            var r = api.Response!;
+            RefId = r.RefId;
+            LikedArtifactIds = r.Likes.ArtifactIds.ToSet();
+            LikedAlbumIds = r.Likes.AlbumIds.ToSet();
+            UserAlbums = r.Albums ?? new();
             LoadAlbums(UserAlbums);
         }
 

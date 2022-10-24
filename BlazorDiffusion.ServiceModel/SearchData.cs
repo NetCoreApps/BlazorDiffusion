@@ -74,6 +74,7 @@ public class Likes
 
 public class UserDataResponse
 {
+    public string RefId { get; set; }
     public Likes Likes { get; set; }
     public List<Album> Albums { get; set; }
 }

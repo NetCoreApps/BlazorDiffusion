@@ -54,6 +54,7 @@ public class ConfigureAuthRepository : IHostingStartup
                 // Show custom fields in Search Results
                 QueryUserAuthProperties = new() {
                     nameof(AppUser.Id),
+                    nameof(AppUser.RefIdStr),
                     nameof(AppUser.Email),
                     nameof(AppUser.DisplayName),
                     nameof(AppUser.CreatedDate),
@@ -69,6 +70,7 @@ public class ConfigureAuthRepository : IHostingStartup
                 FormLayout = new() {
                     Input.For<AppUser>(x => x.Email),
                     Input.For<AppUser>(x => x.DisplayName),
+                    Input.For<AppUser>(x => x.RefIdStr),
                     Input.For<AppUser>(x => x.Company),
                     Input.For<AppUser>(x => x.PhoneNumber, c => {
                         c.Type = Input.Types.Tel;

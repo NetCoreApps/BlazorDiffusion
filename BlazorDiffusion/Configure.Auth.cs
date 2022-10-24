@@ -1,16 +1,13 @@
+using BlazorDiffusion.ServiceInterface;
 using Microsoft.AspNetCore.Hosting;
 using ServiceStack;
 using ServiceStack.Auth;
 using ServiceStack.FluentValidation;
+using ServiceStack.Text;
 
 [assembly: HostingStartup(typeof(BlazorDiffusion.ConfigureAuth))]
 
 namespace BlazorDiffusion;
-
-// Add any additional metadata properties you want to store in the Users Typed Session
-public class CustomUserSession : AuthUserSession
-{
-}
 
 // Custom Validator to add custom validators to built-in /register Service requiring DisplayName and ConfirmPassword
 public class CustomRegistrationValidator : RegistrationValidator
@@ -36,6 +33,12 @@ public class ConfigureAuth : IHostingStartup
                 new IAuthProvider[] {
                     new JwtAuthProvider(appSettings) {
                         AuthKeyBase64 = appSettings.GetString("AuthKeyBase64") ?? "cARl12kvS/Ra4moVBIaVsrWwTpXYuZ0mZf/gNLUhDW5=",
+                        CreatePayloadFilter = (payload,session) => {
+                            payload["ref"] = ((CustomUserSession)session).RefIdStr;
+                        },
+                        PopulateSessionFilter = (session,payload,req) => {
+                            ((CustomUserSession)session).RefIdStr = payload["ref"];
+                        },
                     },
                     new CredentialsAuthProvider(appSettings),     /* Sign In with Username / Password credentials */
                     new FacebookAuthProvider(appSettings),        /* Create App https://developers.facebook.com/apps */
