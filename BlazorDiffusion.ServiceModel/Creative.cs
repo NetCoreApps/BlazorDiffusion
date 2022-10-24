@@ -77,6 +77,12 @@ public class Artifact : AuditBase
     public Int64? AverageHash { get; set; }
     public Int64? PerceptualHash { get; set; }
     public Int64? DifferenceHash { get; set; }
+    /// <summary>
+    /// Set Low Quality images to:
+    ///  - deformed: -1
+    ///  - blurred: -2
+    /// </summary>
+    public int Quality { get; set; }
     public int Score { get; set; }
     public int Rank { get; set; }
     public string RefId { get; set; }
