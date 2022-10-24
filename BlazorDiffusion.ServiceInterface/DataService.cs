@@ -27,7 +27,7 @@ public class DataService : Service
         var similar = query.Similar?.Trim();
         if (!string.IsNullOrEmpty(similar))
         {
-            q.Join<Creative>((a, c) => c.Id == a.CreativeId && a.RefId == similar);
+            
         }
         else
         {
@@ -99,16 +99,14 @@ public class DataService : Service
     private const int StartingSimilarityThreshold = 90;
     private const int SimilarityThresholdReductionIncrement = 5;
     private const int DefaultFindSimilarityPageSize = 20;
+    private int? MaxLimit { get; } = HostContext.AssertPlugin<AutoQueryFeature>().MaxLimit;
 
-    public async Task<object> Any(FindSimilarArtifacts request)
+    private async Task<List<Artifact>> FindSimilar(Artifact artifactSource, int? skip = null, int? take = null)
     {
-        var artifact = await Db.SingleAsync<Artifact>(request.ArtifactId);
-        if (artifact == null)
-            throw HttpError.NotFound($"Artifact Id {request.ArtifactId} not found.");
-        var perceptualHash = artifact.PerceptualHash;
+        var perceptualHash = artifactSource.PerceptualHash;
         if (perceptualHash == null)
             // TODO just in time hash of request based image?
-            throw HttpError.BadRequest($"Artifact Id {artifact.Id} not hashed.");
+            throw HttpError.BadRequest($"Artifact Id {artifactSource.Id} not hashed.");
         
         var connection = (SqliteConnection)Db.ToDbConnection();
         connection.CreateFunction(
@@ -116,25 +114,22 @@ public class DataService : Service
             (Int64 hash1, Int64 hash2)
                 => CompareHash.Similarity((ulong)hash1,(ulong)hash2));
 
-        var skip = request.Skip ?? 0;
-        var take = request.Take ?? DefaultFindSimilarityPageSize;
+        var qskip = skip ?? 0;
+        var qtake = take ?? MaxLimit ?? DefaultFindSimilarityPageSize;
         var similarityThreshold = StartingSimilarityThreshold;
         
-        var sql = BuildSimilaritySearchSql((long)perceptualHash, take, skip, similarityThreshold);
+        var sql = BuildSimilaritySearchSql((long)perceptualHash, qtake, qskip, similarityThreshold);
         var matches = await Db.SelectAsync<ImageCompareResult>(sql);
         
         while (matches.Count < take && similarityThreshold >= LowestSimilarityThreshold)
         {
             similarityThreshold -= SimilarityThresholdReductionIncrement;
-            sql = BuildSimilaritySearchSql((long)perceptualHash, take, skip, similarityThreshold);
+            sql = BuildSimilaritySearchSql((long)perceptualHash, qtake, qskip, similarityThreshold);
             matches = await Db.SelectAsync<ImageCompareResult>(sql);
         }
 
         var results = await Db.SelectAsync<Artifact>(x => Sql.In(x.Id, matches.Select(y => y.Id)));
-        return new FindSimilarArtifactsResponse
-        {
-            Results = results
-        };
+        return results;
     }
 
     public async Task<object> Any(QueryLikedArtifacts query)
