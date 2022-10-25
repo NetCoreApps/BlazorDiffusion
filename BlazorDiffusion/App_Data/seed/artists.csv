@@ -99,7 +99,7 @@ Id,FirstName,LastName,YearDied,Type,Score,Rank,CreatedDate,CreatedBy,ModifiedDat
 98,Jean,Arp,1966,"[abstract,high contrast]",0,0,0001-01-01,2,0001-01-01,2,,
 99,Agostino,Arrivabene,,"[renaissance,dark,surrealism,low contrast]",0,0,0001-01-01,2,0001-01-01,2,,
 100,Daniel,Arsham,,"[sculpture,installation]",0,0,0001-01-01,2,0001-01-01,2,,
-101,,Artgerm,,"[character]",0,0,0001-01-01,2,0001-01-01,2,,
+101,Stanley,Artgerm Lau,,"[character]",0,0,0001-01-01,2,0001-01-01,2,,
 102,Miki,Asai,,"[photography,vibrant]",0,0,0001-01-01,2,0001-01-01,2,,
 103,Inio,Asano,,"[manga,scene]",0,0,0001-01-01,2,0001-01-01,2,,
 104,Clemens,Ascher,,"[photography,vibrant,high contrast]",0,0,0001-01-01,2,0001-01-01,2,,
