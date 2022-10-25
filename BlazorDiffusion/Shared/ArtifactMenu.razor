@@ -94,62 +94,62 @@
 {
     <ModalForm>
         <form @onsubmit="submitReport" @onsubmit:preventDefault>
-            <CascadingValue Value=@apiReport.Error>
-                <div class="shadow overflow-hidden sm:rounded-md bg-white dark:bg-black">
-                    <div class="relative px-4 py-5 sm:p-6">
-                        <fieldset>
-                            <legend class=@CssDefaults.Form.LegendClass>Report Image</legend>
+        <CascadingValue Value=@apiReport.Error>
+            <div class="shadow overflow-hidden sm:rounded-md bg-white dark:bg-black">
+                <div class="relative px-4 py-5 sm:p-6">
+                    <fieldset>
+                        <legend class=@CssDefaults.Form.LegendClass>Report Image</legend>
 
-                            <ErrorSummary Except=@ReportVisibleFields />
+                        <ErrorSummary Except=@ReportVisibleFields />
 
-                            <div class="grid grid-cols-6 gap-6">
-                                <div class="col-span-6">
-                                    <SelectInput @bind-Value="requestReport.Type" Options=@(Enum.GetValues<ReportType>()) />
-                                </div>
-                                <div class="col-span-6">
-                                    <TextInput @bind-Value="requestReport.Description" type="textarea" />
-                                </div>
+                        <div class="grid grid-cols-6 gap-6">
+                            <div class="col-span-6">
+                                <SelectInput @bind-Value="requestReport.Type" Options=@(Enum.GetValues<ReportType>()) />
                             </div>
-                        </fieldset>
-                    </div>
-                    <div class="mt-4 px-4 py-3 bg-gray-50 dark:bg-gray-900 text-right sm:px-6">
-                        <div class="flex justify-end items-center">
-                            <SecondaryButton class="mr-2" @onclick="OnDone">Cancel</SecondaryButton>
-                            <PrimaryButton type="submit">Submit</PrimaryButton>
+                            <div class="col-span-6">
+                                <TextInput @bind-Value="requestReport.Description" type="textarea" />
+                            </div>
                         </div>
+                    </fieldset>
+                </div>
+                <div class="mt-4 px-4 py-3 bg-gray-50 dark:bg-gray-900 text-right sm:px-6">
+                    <div class="flex justify-end items-center">
+                        <SecondaryButton class="mr-2" @onclick="OnDone">Cancel</SecondaryButton>
+                        <PrimaryButton type="submit">Submit</PrimaryButton>
                     </div>
                 </div>
-            </CascadingValue>
+            </div>
+        </CascadingValue>
         </form>
     </ModalForm>
 }
 else if (artifactView == ArtifactView.NewAlbum)
 {
-        <ModalForm>
-            <form @onsubmit="submitNewAlbum" @onsubmit:preventDefault>
-            <CascadingValue Value=@apiNewAlbum.Error>
-                    <div class="shadow overflow-hidden sm:rounded-md bg-white dark:bg-black">
-                        <div class="relative px-4 py-5 sm:p-6">
-                            <fieldset>
-                                <legend class=@CssDefaults.Form.LegendClass>Create new Album</legend>
+    <ModalForm>
+        <form @onsubmit="submitNewAlbum" @onsubmit:preventDefault>
+        <CascadingValue Value=@apiNewAlbum.Error>
+            <div class="shadow overflow-hidden sm:rounded-md bg-white dark:bg-black">
+                <div class="relative px-4 py-5 sm:p-6">
+                    <fieldset>
+                        <legend class=@CssDefaults.Form.LegendClass>Create new Album</legend>
 
-                                <ErrorSummary Except=@NewAlbumVisibleFields />
+                        <ErrorSummary Except=@NewAlbumVisibleFields />
 
-                                <div class="grid grid-cols-6 gap-6">
-                                    <div class="col-span-6">
-                                        <TextInput @bind-Value="newAlbumRequest.Name" />
-                                    </div>
-                                </div>
-                            </fieldset>
-                        </div>
-                        <div class="mt-4 px-4 py-3 bg-gray-50 dark:bg-gray-900 text-right sm:px-6">
-                            <div class="flex justify-end items-center">
-                                <SecondaryButton class="mr-2" @onclick="OnDone">Cancel</SecondaryButton>
-                                <PrimaryButton type="submit">Submit</PrimaryButton>
+                        <div class="grid grid-cols-6 gap-6">
+                            <div class="col-span-6">
+                                <TextInput @bind-Value="newAlbumRequest.Name" />
                             </div>
                         </div>
+                    </fieldset>
+                </div>
+                <div class="mt-4 px-4 py-3 bg-gray-50 dark:bg-gray-900 text-right sm:px-6">
+                    <div class="flex justify-end items-center">
+                        <SecondaryButton class="mr-2" @onclick="OnDone">Cancel</SecondaryButton>
+                        <PrimaryButton type="submit">Submit</PrimaryButton>
                     </div>
-                </CascadingValue>
-            </form>
-        </ModalForm>
+                </div>
+            </div>
+        </CascadingValue>
+        </form>
+    </ModalForm>
 }

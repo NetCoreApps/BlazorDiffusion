@@ -2,6 +2,7 @@
 using BlazorDiffusion.UI;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using ServiceStack.Blazor;
 
 namespace BlazorDiffusion.Shared;
@@ -10,6 +11,7 @@ public partial class ArtifactMenu : AppAuthComponentBase
 {
     [Inject] public NavigationManager NavigationManager { get; set; } = default!;
     [Inject] public UserState UserState { get; set; }
+    [Inject] IJSRuntime JS { get; set; }
     [Parameter, EditorRequired] public Artifact Artifact { get; set; } = default!;
     [Parameter, EditorRequired] public MouseEventArgs Position { get; set; } = default!;
     [Parameter] public int OffsetX { get; set; } = 60;
@@ -95,6 +97,8 @@ public partial class ArtifactMenu : AppAuthComponentBase
 
         requestReport = new();
         artifactView = ArtifactView.Report;
+        await Task.Delay(1);
+        await JS.InvokeVoidAsync("JS.elInvoke", "#Type", "focus");
     }
 
     async Task submitReport()
@@ -114,6 +118,8 @@ public partial class ArtifactMenu : AppAuthComponentBase
 
         newAlbumRequest = new();
         artifactView = ArtifactView.NewAlbum;
+        await Task.Delay(1);
+        await JS.InvokeVoidAsync("JS.elInvoke", "#Name", "focus");
     }
 
     async Task submitNewAlbum()
@@ -123,7 +129,7 @@ public partial class ArtifactMenu : AppAuthComponentBase
         apiNewAlbum = await ApiAsync(newAlbumRequest);
         if (apiNewAlbum.Succeeded)
         {
-            await UserState.LoadUserDataAsync();
+            await UserState.LoadUserDataAsync();            
             await OnDone();
         }
     }
