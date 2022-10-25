@@ -64,6 +64,7 @@ public partial class ArtifactMenu : AppAuthComponentBase
         });
         if (api.Succeeded)
         {
+            Artifact.Nsfw = !Artifact.Nsfw;
             await OnDone();
         }
     }
@@ -80,6 +81,7 @@ public partial class ArtifactMenu : AppAuthComponentBase
         });
         if (api.Succeeded)
         {
+            Artifact.Quality = quality;
             await OnDone();
         }
     }
