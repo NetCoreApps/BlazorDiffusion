@@ -1,6 +1,8 @@
+using BlazorDiffusion.UI;
 using Microsoft.AspNetCore.Components.Authorization;
 using ServiceStack;
 using ServiceStack.Blazor;
+using ServiceStack.Text;
 
 namespace BlazorDiffusion;
 
@@ -9,13 +11,23 @@ namespace BlazorDiffusion;
 /// </summary>
 public class ServiceStackStateProvider : ServiceStackAuthenticationStateProvider
 {
-    public ServiceStackStateProvider(JsonApiClient client, ILogger<ServiceStackAuthenticationStateProvider> log)
-        : base(client, log) { }
+    UserState userState;
+    public ServiceStackStateProvider(JsonApiClient client, ILogger<ServiceStackAuthenticationStateProvider> log, UserState userState)
+        : base(client, log) 
+    { 
+        this.userState = userState;
+    }
 
-    public override Task<AuthenticationState> GetAuthenticationStateAsync()
+    public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         Log.LogDebug("GetAuthenticationStateAsync()");
-        return base.GetAuthenticationStateAsync();
+        var authState = await base.GetAuthenticationStateAsync();
+        System.Security.Claims.ClaimsPrincipal? user = authState.AuthenticatedUser();
+        
+        Log.LogDebug("AuthenticationState {0}, {1}", user.GetUserId(), user.GetDisplayName());
+        Log.LogDebug("GetCookieValues() {0}", client.GetCookieValues().Dump());
+
+        return authState;
     }
 
     public override Task<ApiResult<AuthenticateResponse>> LoginAsync(string email, string password)
