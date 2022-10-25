@@ -2,6 +2,7 @@
 @inject ServiceStackStateProvider AuthStateProvider;
 @inject NavigationManager NavigationManager;
 @inject IJSRuntime JS
+@inject ILogger<MainLayout> log
 
 <div class="min-h-screen">
     <Header />
@@ -28,8 +29,21 @@
     [Inject] UserState UserState { get; set; } = default!;
 
     bool CollapseSidebar = true;
+    Task<AuthenticationState>? authStateTask;
 
     string LoginUrl { get; set; } = "/signin";
+
+    protected override void OnInitialized()
+    {
+        AuthStateProvider.AuthenticationStateChanged += AuthenticationStateChanged;
+        base.OnInitialized();
+    }
+
+    public void AuthenticationStateChanged(Task<AuthenticationState> authStateTask)
+    {
+        log.LogDebug("AuthenticationStateChanged");
+        this.authStateTask = authStateTask;
+    }
 
     protected override Task OnParametersSetAsync()
     {

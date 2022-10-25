@@ -22,7 +22,7 @@ var baseUrl = builder.Configuration["ApiBaseUrl"] ??
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(baseUrl) });
 builder.Services.AddBlazorApiClient(baseUrl);
 
-builder.Services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<ServiceStackStateProvider>());
+builder.Services.AddScoped<AuthenticationStateProvider, ServiceStackStateProvider>();
 builder.Services.AddScoped<ServiceStackStateProvider>();
 builder.Services.AddScoped<KeyboardNavigation>();
 builder.Services.AddScoped<UserState>();
