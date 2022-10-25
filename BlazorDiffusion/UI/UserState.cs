@@ -11,6 +11,7 @@ public class UserState
     public AppPrefs AppPrefs { get; internal set; } = new();
 
     public string? RefId { get; set; }
+    public List<string> Roles { get; set; } = new();
     public HashSet<int> LikedArtifactIds { get; private set; } = new();
     public HashSet<int> LikedAlbumIds { get; private set; } = new();
 
@@ -64,6 +65,7 @@ public class UserState
         {
             var r = api.Response!;
             RefId = r.RefId;
+            Roles = r.Roles ?? new();
             LikedArtifactIds = r.Likes.ArtifactIds.ToSet();
             LikedAlbumIds = r.Likes.AlbumIds.ToSet();
             UserAlbums = r.Albums ?? new();
@@ -96,6 +98,8 @@ public class UserState
 
         NotifyStateChanged();
     }
+
+    public bool IsModerator() => Roles.Contains(AppRoles.Moderator);
 
     public void LoadCreatives(IEnumerable<Creative> creatives) => creatives.Each(LoadCreative);
     public void LoadCreative(Creative creative)

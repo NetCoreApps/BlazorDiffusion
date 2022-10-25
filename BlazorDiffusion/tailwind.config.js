@@ -1,5 +1,5 @@
 module.exports = {
-  content: ["**/*.razor", "**/*.cshtml", "**/*.html", "wwwroot/modules/locode/*.js"],
+    content: ["**/*.razor", "**/*.cshtml", "**/*.cs", "**/*.html", "wwwroot/modules/locode/*.js"],
   darkMode: 'class',
   theme: {
     extend: {},

@@ -34,7 +34,7 @@ public class DataService : Service
                 c.ArtistNames, 
                 c.ModifierNames, 
                 c.PrimaryArtifactId,
-                Similarity = Sql.Custom($"imgcompare('{similarToArtifact.PerceptualHash}',PerceptualHash)"),
+                Similarity = Sql.Custom($"imgcompare({similarToArtifact.PerceptualHash},PerceptualHash)"),
             });
             q.Where("Similarity >= 60");
             q.OrderByDescending("Quality").ThenByDescending("Similarity");
@@ -102,6 +102,7 @@ public class DataService : Service
         return new UserDataResponse
         {
             RefId = session.RefIdStr,
+            Roles = (await session.GetRolesAsync(AuthRepositoryAsync)).ToList(),
             Likes = likes,
             Albums = albums,
         };

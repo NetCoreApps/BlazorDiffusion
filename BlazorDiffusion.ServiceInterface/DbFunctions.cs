@@ -12,7 +12,9 @@ public static class DbFunctions
         var connection = (SqliteConnection)db.ToDbConnection();
         connection.CreateFunction(
             "imgcompare",
-            (Int64 hash1, Int64 hash2)
-                => CompareHash.Similarity((ulong)hash1, (ulong)hash2));
+            (Int64? hash1, Int64? hash2)
+                => hash1 == null || hash2 == null
+                    ? 0 
+                    : CompareHash.Similarity((ulong)hash1, (ulong)hash2));
     }
 }

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using BlazorDiffusion.ServiceModel;
 using ServiceStack;
 using ServiceStack.Web;
+using BlazorDiffusion.ServiceModel;
 
 namespace BlazorDiffusion;
 
@@ -46,4 +46,5 @@ public static class CreativeExtensions
         to.AddRange(creative.Artifacts.Where(x => x.Id != creative.PrimaryArtifactId));
         return to;
     }
+
 }

@@ -34,7 +34,7 @@
              @oncontextmenu="e => showArtifactMenu(e, artifact)" @oncontextmenu:preventDefault>
 
             <ArtifactImage Artifact="artifact" LazyLoad="true" 
-                class=@ClassNames("rounded-xl border-2", artifact.Id == Id ? "border-cyan-500" : "border-transparent") />
+                class=@ClassNames("rounded-xl border-2", artifact.GetBorderColor(Id, UserState)) />
 
             <div class="absolute top-0 left-0 w-full h-full group select-none overflow-hidden m-1 rounded-xl">
                 <div class="w-full h-full absolute inset-0 z-10 block text-zinc-100 drop-shadow pointer-events-none line-clamp px-2 pb-2 text-sm px-2 opacity-0 group-hover:opacity-40 transition duration-300 ease-in-out bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-700 via-gray-900 to-black"></div>
@@ -195,8 +195,7 @@
         {
             <NavLink @key=@a.Id href=@(NavigationManager.Uri.SetQueryParam("view", $"{a.Id}")) class="relative overflow-hidden">
                 <div class="relative flex justify-center mr-4 mb-4">
-                    <ArtifactImage Artifact="a" MinSize="128"
-                        class=@ClassNames("rounded-xl mx-2 border-2", a.Id == View ? "border-cyan-500" : "border-transparent") />
+                    <ArtifactImage Artifact="a" MinSize="128" class=@ClassNames("rounded-xl border-2", a.GetBorderColor(View, UserState)) />
 
                     <div class="absolute top-0 left-0 w-full h-full group select-none overflow-hidden rounded-xl">
                         <div class="w-full h-full absolute inset-0 z-10 block text-zinc-100 drop-shadow pointer-events-none line-clamp px-2 pb-2 text-sm px-2 opacity-0 group-hover:opacity-40 transition duration-300 ease-in-out bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-700 via-gray-900 to-black"></div>
