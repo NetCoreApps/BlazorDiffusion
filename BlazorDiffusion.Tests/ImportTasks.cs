@@ -105,14 +105,17 @@ public class ImportTasks
     List<string> ExportModifiers(IDbConnection db)
     {
         var lines = new List<string>();
-        var modifiers = db.Select(db.From<Modifier>().SelectDistinct(x => new { x.Name, x.Category })).OrderBy(x => x.Category).ToList();
+        var modifiers = db.Select(db.From<Modifier>()
+            .SelectDistinct(x => new { x.Name, x.Category }))
+            .OrderBy(x => x.Category).ToList();
 
         var categories = new List<string>();
         DataService.CategoryGroups.Each(x => categories.AddRange(x.Items));
 
         foreach (var category in categories)
         {
-            var categoryModifiers = string.Join(", ", modifiers.Where(x => x.Category == category).OrderBy(x => x.Name).Select(x => x.Name));
+            var categoryModifiers = string.Join(", ", modifiers.Where(x => x.Category == category)
+                .OrderBy(x => x.Name).Select(x => x.Name));
             lines.Add($"{(category + ':').PadRight(14, ' ')} {categoryModifiers}");
         }
         return lines;
@@ -135,7 +138,8 @@ public class ImportTasks
         File.WriteAllLines(testSeedDir.CombineWith("modifiers.txt"), lines);
 
         // Export Artists
-        var artists = db.Select<Artist>();
+        var artists = db.Select<Artist>()
+            .OrderByDescending(x => x.Score);
         artists.Each(x => x.CreatedDate = x.ModifiedDate = DateTime.MinValue);
         string artistsCsv = artists.ToCsv();
         File.WriteAllText(seedDir.CombineWith("artists.csv"), artistsCsv);
@@ -143,6 +147,7 @@ public class ImportTasks
 
         var artifactLikes = db.Select<ArtifactLikeRef>(db.From<ArtifactLike>()
             .Join<Artifact>()
+            .OrderBy(x => x.Id)
             .Select<ArtifactLike, Artifact>((l,a) => new { a.RefId, l.ArtifactId, l.AppUserId, l.CreatedDate }));
         artifactLikes.Each(x => x.CreatedDate = DateTime.MinValue);
         File.WriteAllText(seedDir.CombineWith("artifact-likes.csv"), artifactLikes.ToCsv());

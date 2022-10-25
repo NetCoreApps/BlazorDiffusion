@@ -79,8 +79,10 @@ public partial class ArtifactGallery : AppAuthComponentBase
 
     async Task CloseDialogsAsync()
     {
+        await hideArtifactMenu();
         if (Id != null)
             navTo();
+        StateHasChanged();
     }
 
 
@@ -161,6 +163,12 @@ public partial class ArtifactGallery : AppAuthComponentBase
                 }
             }
         }
+    }
+
+    public Task exploreSimilar(Artifact artifact)
+    {
+        NavigationManager.NavigateTo($"/?similar={artifact.RefId}");
+        return Task.CompletedTask;
     }
 
     const int DefaultArtifactOffsetX = 60;

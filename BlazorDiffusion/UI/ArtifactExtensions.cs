@@ -7,6 +7,8 @@ namespace BlazorDiffusion.UI;
 public static class ArtifactExtensions
 {
 
+    public static bool CanExploreSimilarTo(this Artifact artifact) => artifact.PerceptualHash != null;
+
     public static bool IsModerated(this Artifact artifact) => artifact.Nsfw == true || artifact.Quality < 0;
 
     public static string GetBorderColor(this Artifact artifact, int? activeId, UserState userState)
