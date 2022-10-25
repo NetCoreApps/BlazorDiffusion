@@ -47,7 +47,7 @@ public class ArtifactServices : Service
         await Db.DeleteAsync<ArtifactReport>(x => x.ArtifactId == request.ArtifactId && x.AppUserId == userId);
     }
 
-    public async Task<object> Get(Download request)
+    public async Task<object> Get(DownloadArtifact request)
     {
         var artifact = !string.IsNullOrEmpty(request.RefId)
             ? await Db.SingleAsync<Artifact>(x => x.RefId == request.RefId)
@@ -59,18 +59,14 @@ public class ArtifactServices : Service
         if (file == null)
             return HttpError.NotFound("File not found");
 
-        var session = await GetSessionAsync();
-
-        await Db.InsertAsync(new ArtifactStat {
-            Type = StatType.Download,
-            ArtifactId = artifact.Id,
-            AppUserId = session.UserAuthId?.ToInt(),
-            RefId = artifact.RefId,
-            Source = nameof(Download),
-            Version = ServiceStack.Text.Env.VersionString,
-            RawUrl = Request.RawUrl,
-            RemoteIp = Request.RemoteIp,
-            CreatedDate = DateTime.UtcNow,
+        PublishMessage(new BackgroundTasks {
+            RecordArtifactStat = new ArtifactStat {
+                Type = StatType.Download,
+                ArtifactId = artifact!.Id,
+                RefId = artifact.RefId,
+                Source = nameof(DownloadArtifact),
+                Version = ServiceStack.Text.Env.VersionString,
+            }.WithRequest(Request, await GetSessionAsync())
         });
 
         return new HttpResult(file, asAttachment:true);

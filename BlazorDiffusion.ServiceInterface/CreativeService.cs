@@ -52,11 +52,11 @@ public class CreativeService : Service
     {
         var creative = await Db.LoadSingleByIdAsync<Creative>(request.Id);
         if (creative == null)
-            throw HttpError.NotFound("Creative not found");
+            return HttpError.NotFound("Creative not found");
 
         var session = await GetSessionAsync();
         if (!await session.IsOwnerOrModerator(AuthRepositoryAsync, creative.OwnerId))
-            throw HttpError.Forbidden("You don't own this Creative");
+            return HttpError.Forbidden("You don't own this Creative");
 
         var artifactId = request.UnpinPrimaryArtifact == true
             ? null
@@ -86,13 +86,15 @@ public class CreativeService : Service
     {
         var artifact = await Db.SingleByIdAsync<Artifact>(request.Id);
         if (artifact == null)
-            throw HttpError.NotFound("Artifact not found");
+            return HttpError.NotFound("Artifact not found");
 
         var creative = await Db.SingleByIdAsync<Creative>(artifact.CreativeId);
-        
+        if (creative == null)
+            return HttpError.NotFound("Creative not found");
+
         var session = await GetSessionAsync();
-        if (!await session.IsOwnerOrModerator(AuthRepositoryAsync, creative?.OwnerId))
-            throw HttpError.Forbidden("You don't own this Creative");
+        if (!await session.IsOwnerOrModerator(AuthRepositoryAsync, creative.OwnerId))
+            return HttpError.Forbidden("You don't own this Creative");
 
         if (request.Nsfw != null)
         {
@@ -229,9 +231,11 @@ public class CreativeService : Service
     public async Task Delete(DeleteCreative request)
     {
         var creative = await Db.SingleByIdAsync<Creative>(request.Id);
+        if (creative == null)
+            return;
 
         var session = await GetSessionAsync();
-        if (!await session.IsOwnerOrModerator(AuthRepositoryAsync, creative?.OwnerId))
+        if (!await session.IsOwnerOrModerator(AuthRepositoryAsync, creative.OwnerId))
             throw HttpError.Forbidden($"You don't own this Creative {session.UserAuthId} vs {creative.OwnerId}");
 
         var now = DateTime.UtcNow;
@@ -258,6 +262,7 @@ public class CreativeService : Service
 
         using var transaction = Db.OpenTransaction();
 
+        await Db.DeleteAsync<ArtifactStat>(x => artifactIds.Contains(x.ArtifactId));
         await Db.DeleteAsync<AlbumArtifact>(x => artifactIds.Contains(x.ArtifactId));
         await Db.DeleteAsync<ArtifactReport>(x => artifactIds.Contains(x.ArtifactId));
         await Db.DeleteAsync<ArtifactLike>(x => artifactIds.Contains(x.ArtifactId));
@@ -333,6 +338,8 @@ public struct ImageSize
 
 public class ImageGenerationResponse
 {
+    public string RequestId { get; set; }
+    public string EngineId { get; set; }
     public List<ImageGenerationResult> Results { get; set; }
     public string Key { get; set; }
     public string Error { get; set; }

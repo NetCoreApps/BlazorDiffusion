@@ -48,6 +48,8 @@ public class Creative : AuditBase
     public int Score { get; set; }
     public int Rank { get; set; }
     public string RefId { get; set; }
+    public string RequestId { get; set; }
+    public string EngineId { get; set; }
 }
 
 
@@ -255,6 +257,12 @@ public class CreativeModifier
     
     [Reference]
     public Modifier Modifier { get; set; }
+}
+
+public class BackgroundTasks
+{
+    public SearchStat? RecordSearchStat { get; set; }
+    public ArtifactStat? RecordArtifactStat { get; set; }
 }
 
 public class SaveMetadata : IReturnVoid

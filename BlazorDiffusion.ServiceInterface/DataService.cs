@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using ServiceStack;
 using ServiceStack.OrmLite;
 using BlazorDiffusion.ServiceModel;
+using System;
 
 namespace BlazorDiffusion.ServiceInterface;
 
@@ -58,6 +59,15 @@ public class DataService : Service
             q.SelectDistinct<Artifact, Creative>((a, c) => new { a, c.UserPrompt, c.ArtistNames, c.ModifierNames, c.PrimaryArtifactId });
         }
 
+        PublishMessage(new BackgroundTasks {
+            RecordSearchStat = new SearchStat {
+                Query = query.Query,
+                Similar = query.Similar,
+                User = query.User,
+                Modifier = query.Modifier,
+                Artist = query.Artist,
+            }.WithRequest(Request, await GetSessionAsync()),
+        });
 
         return AutoQuery.ExecuteAsync(query, q, base.Request, db);
     }
@@ -97,7 +107,7 @@ public class DataService : Service
             AlbumIds = await Db.ColumnAsync<int>(Db.From<AlbumLike>().Where(x => x.AppUserId == userId).Select(x => x.AlbumId)),
         };
 
-        var albums = await Db.SelectAsync<Album>(x => x.OwnerId == userId && x.DeletedDate == null);
+        var albums = await Db.LoadSelectAsync<Album>(x => x.OwnerId == userId && x.DeletedDate == null);
 
         return new UserDataResponse
         {

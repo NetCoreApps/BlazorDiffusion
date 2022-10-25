@@ -59,13 +59,15 @@ public class Migration1001 : MigrationBase
         public int Score { get; set; }
         public int Rank { get; set; }
         public string RefId { get; set; }
+        public string RequestId { get; set; }
+        public string EngineId { get; set; }
     }
 
     public class ArtifactLike
     {
         [AutoIncrement]
-        public long Id { get; set; }
-        
+        public int Id { get; set; }
+
         [References(typeof(Artifact))]
         public int ArtifactId { get; set; }
         [References(typeof(AppUser))]
@@ -76,7 +78,7 @@ public class Migration1001 : MigrationBase
     public class ArtifactReport
     {
         [AutoIncrement]
-        public long Id { get; set; }
+        public int Id { get; set; }
 
         [References(typeof(Artifact))]
         public int ArtifactId { get; set; }
@@ -277,7 +279,7 @@ public class Migration1001 : MigrationBase
     public class AlbumArtifact
     {
         [AutoIncrement]
-        public long Id { get; set; }
+        public int Id { get; set; }
 
         [References(typeof(Album))]
         public int AlbumId { get; set; }
@@ -293,7 +295,7 @@ public class Migration1001 : MigrationBase
     public class AlbumLike
     {
         [AutoIncrement]
-        public long Id { get; set; }
+        public int Id { get; set; }
 
         [References(typeof(Album))]
         public int AlbumId { get; set; }
@@ -302,27 +304,41 @@ public class Migration1001 : MigrationBase
         public DateTime CreatedDate { get; set; }
     }
 
+    public class StatBase
+    {
+        public string RefId { get; set; }
+        [References(typeof(AppUser))]
+        public int? AppUserId { get; set; }
+        public string RawUrl { get; set; }
+        public string RemoteIp { get; set; }
+        public DateTime CreatedDate { get; set; }
+    }
+
     public enum StatType
     {
         Download,
     }
 
-    public class ArtifactStat
+    public class ArtifactStat : StatBase
     {
         [AutoIncrement]
         public int Id { get; set; }
 
         public StatType Type { get; set; }
         public int ArtifactId { get; set; }
-
-        [References(typeof(AppUser))]
-        public int? AppUserId { get; set; }
-        public string RefId { get; set; }
         public string Source { get; set; }
         public string Version { get; set; }
-        public string RawUrl { get; set; }
-        public string RemoteIp { get; set; }
-        public DateTime CreatedDate { get; set; }
+    }
+
+    public class SearchStat : StatBase
+    {
+        [AutoIncrement]
+        public int Id { get; set; }
+        public string? Query { get; set; }
+        public string? Similar { get; set; }
+        public string? User { get; set; }
+        public string? Modifier { get; set; }
+        public string? Artist { get; set; }
     }
 
     public class ImageCompareResult
@@ -354,7 +370,7 @@ public class Migration1001 : MigrationBase
         CreateUser("demis@servicestack.com", "Demis", "p@55wOrd", roles: new[] { AppRoles.Moderator });
         CreateUser("darren@servicestack.com", "Darren", "p@55wOrd", roles: new[] { AppRoles.Moderator });
         CreateUser("test@user.com", "Test", "p@55wOrd");
-        
+
         Db.CreateTable<Artist>();
         Db.CreateTable<Modifier>();
         Db.CreateTable<Creative>();
@@ -367,12 +383,12 @@ public class Migration1001 : MigrationBase
         Db.CreateTable<AlbumArtifact>();
         Db.CreateTable<AlbumLike>();
         Db.CreateTable<ArtifactStat>();
+        Db.CreateTable<SearchStat>();
 
         var seedDir = Path.GetFullPath(Path.Combine("./App_Data/seed"));
 
-        var Artists = File.ReadAllText(seedDir.CombineWith("artists.csv")).FromCsv<List<Artist>>().Select(x => x.BySystemUser()).ToList();
-        Db.InsertAll(Artists);
 
+        // Import Modifiers
         foreach (var line in File.ReadAllLines(seedDir.CombineWith("modifiers.txt")))
         {
             var category = line.LeftPart(':').Trim();
@@ -382,15 +398,39 @@ public class Migration1001 : MigrationBase
                 Db.Insert(new Modifier { Name = modifier, Category = category }.BySystemUser());
             }
         }
+        /// Check for duplicates
+        var savedModifiers = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        var allMods = Db.Select<Modifier>();
+        foreach (var modifier in allMods)
+        {
+            var isUnique = savedModifiers.TryAdd(modifier.Name.ToLowerInvariant(), modifier.Id);
+            if (!isUnique)
+                Console.WriteLine($"Duplicate - {modifier.Category}/{modifier.Name.ToLowerInvariant()}");
+        }
 
+        // Import Artists
+        var Artists = File.ReadAllText(seedDir.CombineWith("artists.csv")).FromCsv<List<Artist>>().Select(x => x.BySystemUser()).ToList();
+        Db.InsertAll(Artists);
+        /// Check for duplicates
+        var savedArtistIds = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        var allArtists = Db.Select<Artist>();
+        foreach (var a in allArtists)
+        {
+            var isUnique = savedArtistIds.TryAdd($"{a.FirstName} {a.LastName}".ToLowerInvariant(), a.Id);
+            if (!isUnique)
+                Console.WriteLine($"Duplicate - {a.FirstName} {a.LastName}");
+        }
+
+        // When needing to match on Artifact Ids
+        var artifactRefIdsMap = new Dictionary<string, int>();
+
+        // Import Creatives + Artifacts
         var allArtifactLikeRefs = File.ReadAllText(seedDir.CombineWith("artifact-likes.csv")).FromCsv<List<ArtifactLikeRef>>();
-
-
         var appFiles = new DirectoryInfo("./App_Files");
-        if(!appFiles.Exists)
+        if (!appFiles.Exists)
             appFiles.Create();
         var seedFromDirectory = new DirectoryInfo("./App_Files/artifacts");
-        if(!seedFromDirectory.Exists)
+        if (!seedFromDirectory.Exists)
             seedFromDirectory.Create();
         var filesToLoad = seedFromDirectory.GetMatchingFiles("*metadata.json");
         var creativeEntries = new List<Creative>();
@@ -401,25 +441,6 @@ public class Migration1001 : MigrationBase
             creativeEntries.Add(creative);
         }
 
-        var savedModifiers = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-        var allMods = Db.Select<Modifier>();
-        foreach (var modifier in allMods)
-        {
-            var isUnique = savedModifiers.TryAdd(modifier.Name.ToLowerInvariant(), modifier.Id);
-            if (!isUnique)
-                Console.WriteLine($"Duplicate - {modifier.Category}/{modifier.Name.ToLowerInvariant()}");
-        }
-
-        var savedArtistIds = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-        var allArtists = Db.Select<Artist>();
-        foreach (var a in allArtists)
-        {
-            var isUnique = savedArtistIds.TryAdd($"{a.FirstName} {a.LastName}".ToLowerInvariant(), a.Id);
-            if (!isUnique)
-                Console.WriteLine($"Duplicate - {a.FirstName} {a.LastName}");
-        }
-        
-        // reset keys
         foreach (var creative in creativeEntries)
         {
             creative.Id = 0;
@@ -456,7 +477,7 @@ public class Migration1001 : MigrationBase
 
             var hashAlgorithm = new PerceptualHash();
 
-            var primaryArtifact = creative.PrimaryArtifactId != null 
+            var primaryArtifact = creative.PrimaryArtifactId != null
                 ? creative.Artifacts.FirstOrDefault(x => x.Id == creative.PrimaryArtifactId)
                 : null;
 
@@ -465,17 +486,22 @@ public class Migration1001 : MigrationBase
                 artifact.Id = 0;
                 artifact.CreativeId = id;
                 var filePath = $"./App_Files/{artifact.FilePath}";
-                var filStream = File.OpenRead(filePath);
-                artifact.PerceptualHash = (Int64)hashAlgorithm.Hash(filStream);
+                if (artifact.PerceptualHash == null)
+                {
+                    var filStream = File.OpenRead(filePath);
+                    artifact.PerceptualHash = (Int64)hashAlgorithm.Hash(filStream);
+                }
                 artifact.Id = (int)Db.Insert(artifact, selectIdentity: true);
-                
+                artifactRefIdsMap[artifact.RefId] = artifact.Id;
+
                 if (artifact == primaryArtifact)
                 {
                     creative.PrimaryArtifactId = artifact.Id;
-                    Db.UpdateOnly(() => new Creative { PrimaryArtifactId = artifact.Id }, 
+                    Db.UpdateOnly(() => new Creative { PrimaryArtifactId = artifact.Id },
                         where: x => x.Id == creative.Id);
                 }
 
+                // Add ArtifactLikes
                 var artifactLikeRefs = allArtifactLikeRefs.Where(x => x.RefId == artifact.RefId).ToList();
                 if (artifactLikeRefs.Count > 0)
                 {
@@ -555,6 +581,7 @@ order by Similarity desc;
 
     public override void Down()
     {
+        Db.DropTable<SearchStat>();
         Db.DropTable<ArtifactStat>();
         Db.DropTable<AlbumLike>();
         Db.DropTable<AlbumArtifact>();

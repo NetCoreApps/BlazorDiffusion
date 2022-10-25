@@ -22,6 +22,7 @@ namespace BlazorDiffusion
             .ConfigureAppHost(afterAppHostInit: appHost => {
                 var mqService = appHost.Resolve<IMessageService>();
                 mqService.RegisterHandler<SaveMetadata>(appHost.ExecuteMessage);
+                mqService.RegisterHandler<BackgroundTasks>(appHost.ExecuteMessage);
                 mqService.Start();
             });
     }

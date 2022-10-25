@@ -32,4 +32,12 @@ public class MqServices : Service
         var metadataCreative = json.FromJson<Creative>();
         return metadataCreative;
     }
+
+    public async Task Any(BackgroundTasks request)
+    {
+        if (request.RecordArtifactStat != null)
+            await Db.InsertAsync(request.RecordArtifactStat);
+        if (request.RecordSearchStat != null)
+            await Db.InsertAsync(request.RecordSearchStat);
+    }
 }
