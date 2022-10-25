@@ -85,6 +85,7 @@ public class SearchArtifacts : QueryDb<Artifact, ArtifactResult>
     public string? Similar { get; set; }
     public string? User { get; set; }
     public string? Modifier { get; set; }
+    public string? Artist { get; set; }
 
     public override bool Equals(object? obj)
     {
@@ -154,6 +155,22 @@ public class ArtifactLikeRef
     public int ArtifactId { get; set; }
     public int AppUserId { get; set; }
     public DateTime CreatedDate { get; set; }
+}
+
+public class AlbumRef
+{
+    public string RefId { get; set; }
+    public int OwnerId { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public List<string> Tags { get; set; }
+    public int? PrimaryArtifactId { get; set; }
+}
+public class AlbumArtifactRef
+{
+    public string AlbumRefId { get; set; }
+    public string ArtifactRefId { get; set; }
+    public string? Description { get; set; }
 }
 
 
@@ -245,11 +262,8 @@ public class DeleteArtifactReport : IDeleteDb<ArtifactReport>, IReturnVoid
     public int ArtifactId { get; set; }
 }
 
-[Route("/download/{RefId}")]
-public class Download
+[Route("/download/artifact/{RefId}")]
+public class DownloadArtifact
 {
     public string RefId { get; set; }
 }
-
-[ValidateHasRole(AppRoles.Moderator)]
-public class QueryArtifactStats : QueryDb<ArtifactStat> { }

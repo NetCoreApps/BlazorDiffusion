@@ -9,12 +9,12 @@
             @{
                 if (context.IsIntersecting) 
                 {
-                    hasIntersected.Add(Artifact.Id);
+                    UserState.HasIntersected.Add(Artifact.Id);
                 }
             }
             <img @ref="context.Ref.Current" class=@Class alt=@Artifact.FileName width=@width height=@height
-                 src=@(useSrc ?? (!context.IsIntersecting && !hasIntersected.Contains(Artifact.Id) ? BlackBlacground : Artifact.GetPublicUrl()))
-                 @onerror=@(() => useSrc = Artifact.GetFallbackUrl())>
+                src=@(useSrc ?? (!context.IsIntersecting && !UserState.HasIntersected.Contains(Artifact.Id) ? BlackBlacground : Artifact.GetPublicUrl()))
+                @onerror=@(() => useSrc = Artifact.GetFallbackUrl())>
         </IntersectionObserve>
     }
     else
@@ -26,20 +26,20 @@
 }
 
 @code {
+    [Inject] public UserState UserState { get; set; } = default!;
     [Parameter, EditorRequired] public Artifact? Artifact { get; set; } = default!;
     [Parameter] public int? MinSize { get; set; }
     [Parameter] public bool LazyLoad { get; set; }
-    HashSet<int> hasIntersected = new();
 
     const string BlackBlacground = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23000' d='M2 2h60v60H2z'/%3E%3C/svg%3E";
 
     int width => MinSize == null ? Artifact!.Width
-        : (int)(Artifact.Width > Artifact.Height
+        : (int)(Artifact!.Width > Artifact.Height
             ? (Artifact.Width / (double)Artifact.Height) * MinSize.Value
             : MinSize.Value);
 
     int height => MinSize == null ? Artifact!.Height
-        : (int)(Artifact.Height > Artifact.Width
+        : (int)(Artifact!.Height > Artifact.Width
             ? (Artifact.Height / (double)Artifact.Width) * MinSize.Value
             : MinSize.Value);
 

@@ -5,6 +5,7 @@ using Grpc.Core;
 using Grpc.Net.Client;
 using ServiceStack.IO;
 using ServiceStack.Text;
+using SixLabors.ImageSharp;
 
 namespace BlazorDiffusion;
 
@@ -12,8 +13,8 @@ public class DreamStudioClient : IStableDiffusionClient
 {
     GrpcChannel channel;
     GenerationService.GenerationServiceClient client;
+    public const string DefaultEngineId = "stable-diffusion-v1-5";
 
-    
     public string ApiKey { get; set; }
     public string OutputPathPrefix { get; set; }
     public string EngineId { get; set; }
@@ -39,10 +40,10 @@ public class DreamStudioClient : IStableDiffusionClient
     public async Task<ImageGenerationResponse> GenerateImageAsync(ImageGeneration request)
     {
 
-        var response = client.Generate(new Request
+        var generateRequest = new Request
         {
-            EngineId = string.IsNullOrEmpty(EngineId) ? "stable-diffusion-v1-5" : EngineId,
-            RequestId = Guid.NewGuid().ToString(),
+            EngineId = string.IsNullOrEmpty(EngineId) ? DefaultEngineId : EngineId,
+            RequestId = Guid.NewGuid().ToString("D"),
             Image = new ImageParameters
             {
                 Height = Convert.ToUInt32(request.Height),
@@ -67,7 +68,8 @@ public class DreamStudioClient : IStableDiffusionClient
                     }
                 },
             },
-        });
+        };
+        var response = client.Generate(generateRequest);
 
         var now = DateTime.UtcNow;
         var key = $"{now:yyyy/MM/dd}/{(long)now.TimeOfDay.TotalMilliseconds}";
@@ -97,6 +99,8 @@ public class DreamStudioClient : IStableDiffusionClient
         }
         return new ImageGenerationResponse
         {
+            RequestId = generateRequest.RequestId,
+            EngineId = generateRequest.EngineId,
             Key = key,
             Results = results,
         };

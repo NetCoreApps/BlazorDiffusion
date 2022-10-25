@@ -128,17 +128,35 @@ public partial class ArtifactMenu : AppAuthComponentBase
         }
     }
 
-
-    async Task addToAlbum()
+    async Task saveToAlbum(Album album)
     {
-        var request = new UpdateAlbum
+        if (!album.HasArtifact(Artifact))
         {
-            AddArtifactIds = new() {  Artifact.Id },
-        };
-        var api = await ApiAsync(request); 
-        if (api.Succeeded)
+            var request = new UpdateAlbum
+            {
+                Id = album.Id,
+                AddArtifactIds = new() { Artifact.Id },
+            };
+            var api = await ApiAsync(request);
+            if (api.Succeeded)
+            {
+                UserState.AddArtifactToAlbum(album, Artifact);
+                await OnDone();
+            }
+        }
+        else
         {
-            await OnDone();
+            var request = new UpdateAlbum
+            {
+                Id = album.Id,
+                RemoveArtifactIds = new() { Artifact.Id },
+            };
+            var api = await ApiAsync(request);
+            if (api.Succeeded)
+            {
+                UserState.RemoveArtifactFromAlbum(album, Artifact);
+                await OnDone();
+            }
         }
     }
 

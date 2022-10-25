@@ -26,10 +26,11 @@ public class Album : AuditBase
     public List<AlbumArtifact> Artifacts { get; set; }
 }
 
+[Icon(Svg = Icons.Artifact)]
 public class AlbumArtifact
 {
     [AutoIncrement]
-    public long Id { get; set; }
+    public int Id { get; set; }
 
     [References(typeof(Album))]
     public int AlbumId { get; set; }
@@ -39,7 +40,7 @@ public class AlbumArtifact
     public DateTime CreatedDate { get; set; }
     public DateTime ModifiedDate { get; set; }
     [Reference]
-    public List<Artifact> Artifact { get; set; }
+    public Artifact? Artifact { get; set; }
 }
 
 public class AlbumLike
@@ -132,3 +133,6 @@ public class DeleteAlbumLike : IDeleteDb<AlbumLike>, IReturnVoid
     [ValidateGreaterThan(0)]
     public int ArtifactId { get; set; }
 }
+
+[ValidateHasRole(AppRoles.Moderator)]
+public class QueryAlbumArtifacts : QueryDb<AlbumArtifact> { }

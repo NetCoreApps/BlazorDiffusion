@@ -19,6 +19,8 @@ public static class ArtifactExtensions
                 ? "border-red-700"
                 : userState.IsModerator() && artifact.IsModerated()
                     ? "border-gray-500"
-                    : "border-transparent";
+                    : userState.HasArtifactInAlbum(artifact) 
+                      ? "border-green-700"
+                      : "border-transparent";
     }
 }

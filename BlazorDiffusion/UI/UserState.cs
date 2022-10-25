@@ -9,6 +9,9 @@ public class UserState
     public CachedLocalStorage LocalStorage { get; }
     public JsonApiClient Client { get; }
     public AppPrefs AppPrefs { get; internal set; } = new();
+    
+    // Capture images that should have loaded in Browsers cache
+    public HashSet<int> HasIntersected { get; } = new();
 
     public string? RefId { get; set; }
     public List<string> Roles { get; set; } = new();
@@ -229,6 +232,38 @@ public class UserState
 
     public event Action? OnChange;
     private void NotifyStateChanged() => OnChange?.Invoke();
+
+    public bool HasArtifactInAlbum(Artifact artifact)
+    {
+        return UserAlbums.Any(a => a.HasArtifact(artifact));
+    }
+
+    public void AddArtifactToAlbum(Album album, Artifact artifact)
+    {
+        var userAlbum = UserAlbums.FirstOrDefault(x => x.Id == album.Id);
+        if (userAlbum != null)
+        {
+            if (!album.HasArtifact(artifact))
+            {
+                album.AddArtifact(artifact);
+                NotifyStateChanged();
+            }
+        }
+    }
+
+    public void RemoveArtifactFromAlbum(Album album, Artifact artifact)
+    {
+        var userAlbum = UserAlbums.FirstOrDefault(x => x.Id == album.Id);
+        if (userAlbum != null)
+        {
+            if (album.HasArtifact(artifact))
+            {
+                album.RemoveArtifact(artifact);
+                NotifyStateChanged();
+            }
+        }
+    }
+
 }
 
 public class AppPrefs

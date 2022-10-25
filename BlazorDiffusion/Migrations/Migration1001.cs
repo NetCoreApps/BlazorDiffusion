@@ -513,7 +513,37 @@ public class Migration1001 : MigrationBase
                 }
             }
         }
-        
+
+
+        // Import Albums
+        var albumRefs = File.ReadAllText(seedDir.CombineWith("albums.csv")).FromCsv<List<AlbumRef>>();
+        var albumArtifactRefs = File.ReadAllText(seedDir.CombineWith("album-artifacts.csv")).FromCsv<List<AlbumArtifactRef>>();
+        foreach (var albumnRef in albumRefs)
+        {
+            var album = new Album
+            {
+                RefId = albumnRef.RefId,
+                OwnerId = albumnRef.OwnerId,
+                Name = albumnRef.Name,
+                Description = albumnRef.Description,
+                Tags = albumnRef.Tags,
+                PrimaryArtifactId = albumnRef.PrimaryArtifactId,
+            }.WithAudit($"{albumnRef.OwnerId}");
+            album.Id = (int)Db.Insert(album, selectIdentity: true);
+
+            var albumArtifacts = albumArtifactRefs.Where(x => x.AlbumRefId == albumnRef.RefId).Map(x => new AlbumArtifact {
+                AlbumId = album.Id,
+                ArtifactId = artifactRefIdsMap[x.ArtifactRefId],
+                Description = x.Description,
+                CreatedDate = album.CreatedDate,
+            });
+            foreach (var albumArtifact in albumArtifacts)
+            {
+                albumArtifact.Id = (int)Db.Insert(albumArtifact, selectIdentity: true);
+            }
+        }
+
+
         // Create virtual tables for SQLite Full Text Search
         Db.ExecuteNonQuery($@"CREATE VIRTUAL TABLE {nameof(ArtifactFts)}
 USING FTS5(

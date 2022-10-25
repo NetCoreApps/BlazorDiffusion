@@ -2,17 +2,13 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ServiceStack;
 using ServiceStack.Data;
 using ServiceStack.Text;
 using NUnit.Framework;
 using BlazorDiffusion.ServiceModel;
-using ServiceStack.IO;
 using ServiceStack.OrmLite;
 using BlazorDiffusion.ServiceInterface;
-using AngleSharp.Diffing.Extensions;
 using System.Data;
 
 namespace BlazorDiffusion.Tests;
@@ -88,6 +84,8 @@ public class ImportTasks
             }
             else
             {
+                creative.EngineId ??= DreamStudioClient.DefaultEngineId;
+
                 foreach (var artifact in creative.Artifacts)
                 {
                     if (artifact.FilePath.StartsWith("/uploads"))
@@ -151,6 +149,29 @@ public class ImportTasks
             .Select<ArtifactLike, Artifact>((l,a) => new { a.RefId, l.ArtifactId, l.AppUserId, l.CreatedDate }));
         artifactLikes.Each(x => x.CreatedDate = DateTime.MinValue);
         File.WriteAllText(seedDir.CombineWith("artifact-likes.csv"), artifactLikes.ToCsv());
+
+        // Export Albums
+        var albums = db.LoadSelect<Album>()
+            .OrderBy(x => x.Id).ToList();
+        albums.Each(a => a.RefId ??= Guid.NewGuid().ToString("D"));
+        var albumRefs = albums.Map(x => new AlbumRef
+        {
+            RefId = x.RefId,
+            Name = x.Name,
+            Description = x.Description,
+            OwnerId = x.OwnerId,
+            PrimaryArtifactId = x.PrimaryArtifactId,
+            Tags = x.Tags,
+        });
+        File.WriteAllText(seedDir.CombineWith("albums.csv"), albumRefs.ToCsv());
+
+        var artifactRefs = db.Dictionary<int, string>(db.From<Artifact>().Select(x => new { x.Id, x.RefId }));
+        var albumArtifactRefs = albums.SelectMany(x => x.Artifacts.Select(a => new AlbumArtifactRef {
+            AlbumRefId = x.RefId,
+            ArtifactRefId = artifactRefs[a.Id],
+            Description = a.Description,
+        }));
+        File.WriteAllText(seedDir.CombineWith("album-artifacts.csv"), albumArtifactRefs.ToCsv());
     }
 
 }

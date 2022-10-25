@@ -47,4 +47,28 @@ public static class CreativeExtensions
         return to;
     }
 
+    public static bool HasArtifact(this Album album, Artifact artifact) => 
+        album?.Artifacts?.Any(x => x.ArtifactId == artifact.Id) == true;
+
+    public static void AddArtifact(this Album album, Artifact artifact)
+    {
+        if (!album.HasArtifact(artifact))
+        {
+            album.Artifacts.Add(new AlbumArtifact { 
+                AlbumId = album.Id,
+                ArtifactId = artifact.Id,
+                CreatedDate = DateTime.UtcNow,
+                ModifiedDate = DateTime.UtcNow,
+                Artifact = artifact,
+            });
+        }
+    }
+
+    public static void RemoveArtifact(this Album album, Artifact artifact)
+    {
+        if (album.HasArtifact(artifact))
+        {
+            album.Artifacts.RemoveAll(x => x.ArtifactId == artifact.Id);
+        }
+    }
 }
