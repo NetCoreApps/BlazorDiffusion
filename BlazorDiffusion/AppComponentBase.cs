@@ -1,10 +1,6 @@
-using System;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Authorization;
-using ServiceStack;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using ServiceStack.Blazor;
+using System.Net;
 
 namespace BlazorDiffusion;
 
@@ -28,4 +24,38 @@ public enum AppPage
     Search,
     Create,
     Likes,
+}
+
+
+public static class ServiceCollectionUtils
+{
+    // WARNING: This prevents broken auth but keeps the user signed in on different browsers, use only for development
+
+    public static IServiceCollection AddBlazorServerApiClient(this IServiceCollection services, string baseUrl) =>
+        services.AddBlazorServerApiClient(baseUrl, null);
+    public static IServiceCollection AddBlazorServerApiClient(this IServiceCollection services, string baseUrl, Action<HttpClient>? configure)
+    {
+        if (BlazorConfig.Instance.UseLocalStorage)
+        {
+            services.TryAddScoped<ILocalStorage, LocalStorage>();
+            services.TryAddScoped<LocalStorage>();
+            services.TryAddScoped<CachedLocalStorage>();
+        }
+
+        services.AddHttpClient(nameof(JsonApiClient), client =>  {
+                client.BaseAddress = new Uri(baseUrl);
+            })
+            .ConfigureHttpMessageHandlerBuilder(builder =>
+            {
+                builder.PrimaryHandler = new HttpClientHandler
+                {
+                    UseDefaultCredentials = true,
+                    AutomaticDecompression = DecompressionMethods.Brotli | DecompressionMethods.Deflate | DecompressionMethods.GZip,
+                };
+                builder.Build();
+            });
+
+        return services.AddScoped(services => new JsonApiClient(
+            X.Apply(services.GetRequiredService<IHttpClientFactory>().CreateClient(nameof(JsonApiClient)), configure)));
+    }
 }

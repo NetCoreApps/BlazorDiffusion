@@ -7,6 +7,7 @@ using BlazorDiffusion.UI;
 using BlazorDiffusion.ServiceModel;
 using Ljbc1994.Blazor.IntersectionObserver;
 using Microsoft.AspNetCore.Components.Server.Circuits;
+using Microsoft.AspNetCore.Components;
 
 AppHost.RegisterKey();
 
@@ -20,7 +21,8 @@ var baseUrl = builder.Configuration["ApiBaseUrl"] ??
     (builder.Environment.IsDevelopment() ? "https://localhost:5001" : "http://" + IPAddress.Loopback);
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(baseUrl) });
-builder.Services.AddBlazorApiClient(baseUrl);
+//builder.Services.AddBlazorApiClient(baseUrl);
+builder.Services.AddBlazorServerApiClient(baseUrl); // DEV ONLY
 
 builder.Services.AddScoped<AuthenticationStateProvider, ServiceStackStateProvider>();
 builder.Services.AddScoped<ServiceStackStateProvider>();
@@ -52,10 +54,16 @@ app.UseServiceStack(new AppHost());
 
 BlazorConfig.Set(new()
 {
+    Services = app.Services,
     JSParseObject = JS.ParseObject,
     EnableLogging = app.Environment.IsDevelopment(),
     EnableVerboseLogging = app.Environment.IsDevelopment(),
     AssetsBasePath = AppConfig.Instance.AssetsBasePath,
+    OnApiErrorAsync = (request,apiError) => 
+    {
+        BlazorConfig.Instance.GetLog()?.LogDebug("ZZZZZZZ OnApiErrorAsync(): {0}", apiError.Error.ErrorCode);
+        return Task.CompletedTask;
+    }
 });
 
 app.Run();

@@ -1,4 +1,5 @@
 using BlazorDiffusion.UI;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using ServiceStack;
 using ServiceStack.Blazor;
@@ -20,7 +21,7 @@ public class ServiceStackStateProvider : ServiceStackAuthenticationStateProvider
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        Log.LogDebug("GetAuthenticationStateAsync()");
+        Log.LogDebug("ZZZZZZZZZZZ GetAuthenticationStateAsync()");
         var authState = await base.GetAuthenticationStateAsync();
         System.Security.Claims.ClaimsPrincipal? user = authState.AuthenticatedUser();
         
@@ -32,36 +33,36 @@ public class ServiceStackStateProvider : ServiceStackAuthenticationStateProvider
 
     public override Task<ApiResult<AuthenticateResponse>> LoginAsync(string email, string password)
     {
-        Log.LogDebug("LoginAsync({0},password)", email);
+        Log.LogDebug("ZZZZZZZZZZZ LoginAsync({0},password)", email);
         return base.LoginAsync(email, password);
     }
 
     public override Task<ApiResult<AuthenticateResponse>> LogoutAsync()
     {
-        Log.LogDebug("LogoutAsync()");
+        Log.LogDebug("ZZZZZZZZZZZ LogoutAsync()");
         return base.LogoutAsync();
     }
 
     public override Task LogoutIfAuthenticatedAsync()
     {
-        Log.LogDebug("LogoutIfAuthenticatedAsync()");
+        Log.LogDebug("ZZZZZZZZZZZ LogoutIfAuthenticatedAsync()");
         return base.LogoutIfAuthenticatedAsync();
     }
     
     public override Task<ApiResult<AuthenticateResponse>> SignInAsync(ApiResult<AuthenticateResponse> api)
     {
-        Log.LogDebug("SignInAsync(ApiResult<AuthenticateResponse>)");
+        Log.LogDebug("ZZZZZZZZZZZ SignInAsync(ApiResult<AuthenticateResponse>)");
         return base.SignInAsync(api);
     }
 
     public override Task<ApiResult<AuthenticateResponse>> SignInAsync(AuthenticateResponse authResponse)
     {
-        Log.LogDebug("SignInAsync(AuthenticateResponse)");
+        Log.LogDebug("ZZZZZZZZZZZ SignInAsync(AuthenticateResponse)");
         return base.SignInAsync(authResponse);
     }
     public override Task<ApiResult<AuthenticateResponse>> SignInAsync(RegisterResponse registerResponse)
     {
-        Log.LogDebug("SignInAsync(RegisterResponse)");
+        Log.LogDebug("ZZZZZZZZZZZ SignInAsync(RegisterResponse)");
         return base.SignInAsync(registerResponse);
     }
 

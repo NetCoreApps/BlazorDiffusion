@@ -1,6 +1,7 @@
-﻿using BlazorDiffusion.ServiceModel;
-using ServiceStack;
+﻿using ServiceStack;
 using ServiceStack.Blazor;
+using BlazorDiffusion.ServiceModel;
+using Microsoft.AspNetCore.Components;
 
 namespace BlazorDiffusion.UI;
 
@@ -28,11 +29,18 @@ public class UserState
 
     public List<Artifact> LikedArtifacts => LikedArtifactIds.Select(x => ArtifactsMap.TryGetValue(x, out var a) ? a : null)
         .Where(x => x != null).Cast<Artifact>().ToList();
-
-    public UserState(CachedLocalStorage localStorage, JsonApiClient client)
+    NavigationManager NavigationManager { get; }
+    public UserState(CachedLocalStorage localStorage, JsonApiClient client, NavigationManager navigationManager)
     {
         LocalStorage = localStorage;
         Client = client;
+        NavigationManager = navigationManager;
+    }
+
+    protected virtual async Task OnApiErrorAsync(object requestDto, IHasErrorStatus apiError)
+    {
+        if (BlazorConfig.Instance.OnApiErrorAsync != null)
+            await BlazorConfig.Instance.OnApiErrorAsync(requestDto, apiError);
     }
 
     public async Task SaveAppPrefs()
@@ -48,7 +56,7 @@ public class UserState
 
     public async Task LoadAsync(int userId)
     {
-        var apiHistory = await Client.ApiAsync(new QueryCreatives
+        var apiHistory = await Client.ManagedApiAsync(new QueryCreatives
         {
             OwnerId = userId,
             Take = 28,
@@ -63,7 +71,8 @@ public class UserState
 
     public async Task LoadUserDataAsync()
     {
-        var api = await Client.ApiAsync(new UserData());
+        var request = new UserData();
+        var api = await Client.ManagedApiAsync(request);
         if (api.Succeeded)
         {
             var r = api.Response!;
@@ -83,7 +92,7 @@ public class UserState
         }
         if (missingIds.Count > 0)
         {
-            var apiArtifacts = await Client.ApiAsync(new QueryArtifacts { Ids = missingIds });
+            var apiArtifacts = await Client.ManagedApiAsync(new QueryArtifacts { Ids = missingIds });
             if (apiArtifacts.Response?.Results != null) LoadArtifacts(apiArtifacts.Response.Results);
         }
 
@@ -95,7 +104,7 @@ public class UserState
         }
         if (missingIds.Count > 0)
         {
-            var apiAlbums = await Client.ApiAsync(new QueryAlbums { Ids = missingIds });
+            var apiAlbums = await Client.ManagedApiAsync(new QueryAlbums { Ids = missingIds });
             if (apiAlbums.Response?.Results != null) LoadAlbums(apiAlbums.Response.Results);
         }
 
@@ -137,10 +146,15 @@ public class UserState
         if (creativeId == null || creative != null)
             return creative;
 
-        var api = await Client.ApiAsync(new QueryCreatives { Id = creativeId });
+        var request = new QueryCreatives { Id = creativeId };
+        var api = await Client.ManagedApiAsync(request);
         if (api.Succeeded && api.Response?.Results != null)
         {
             LoadCreatives(api.Response.Results);
+        }
+        if (!api.Succeeded)
+        {
+            await OnApiErrorAsync(request, api);
         }
         return GetCachedCreative(creativeId);
     }
@@ -151,7 +165,8 @@ public class UserState
         if (artifactId == null || artifact != null)
             return artifact;
 
-        var api = await Client.ApiAsync(new QueryArtifacts { Id = artifactId });
+        var request = new QueryArtifacts { Id = artifactId };
+        var api = await Client.ManagedApiAsync(request);
         if (api.Succeeded && api.Response?.Results != null)
         {
             LoadArtifacts(api.Response.Results);
@@ -166,13 +181,15 @@ public class UserState
     {
         ArtifactsMap[artifact.Id] = artifact;
         LikedArtifactIds.Add(artifact.Id);
-        var api = await Client.ApiAsync(new CreateArtifactLike
+        var request = new CreateArtifactLike
         {
             ArtifactId = artifact.Id,
-        });
+        };
+        var api = await Client.ManagedApiAsync(request);
         if (!api.Succeeded)
         {
             LikedArtifactIds.Remove(artifact.Id);
+            NavigationManager.NavigateTo(NavigationManager.GetLoginUrl());
         }
         NotifyStateChanged();
     }
@@ -181,13 +198,15 @@ public class UserState
     {
         ArtifactsMap[artifact.Id] = artifact;
         LikedArtifactIds.Remove(artifact.Id);
-        var api = await Client.ApiAsync(new DeleteArtifactLike
+        var request = new DeleteArtifactLike
         {
             ArtifactId = artifact.Id,
-        });
+        };
+        var api = await Client.ManagedApiAsync(request);
         if (!api.Succeeded)
         {
             LikedArtifactIds.Add(artifact.Id);
+            NavigationManager.NavigateTo(NavigationManager.GetLoginUrl());
         }
         NotifyStateChanged();
     }
@@ -218,13 +237,19 @@ public class UserState
     public async Task<ApiResult<EmptyResponse>> HardDeleteCreativeAsync(Creative creative)
     {
         var creativeId = creative.Id;
-        var api = await Client.ApiAsync(new HardDeleteCreative {
+        var request = new HardDeleteCreative
+        {
             Id = creativeId,
-        });
+        };
+        var api = await Client.ApiAsync(request);
         if (api.Succeeded)
         {
             RemoveCreative(creative);
             NotifyStateChanged();
+        }
+        else
+        {
+            await OnApiErrorAsync(request, api);
         }
         return api;
     }
