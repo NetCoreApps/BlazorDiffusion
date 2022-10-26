@@ -35,4 +35,12 @@ public partial class Likes : AppAuthComponentBase
     {
         UserState.OnChange -= StateHasChanged;
     }
+
+    static string GetBorderColor(Artifact artifact, int? activeId, UserState userState)
+    {
+        var borderColor = artifact.GetBorderColor(activeId, userState);
+        return borderColor != "border-red-700"
+            ? borderColor
+            : "border-transparent";
+    }
 }

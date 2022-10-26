@@ -26,7 +26,7 @@ public static class CreativeExtensions
     }
 
 
-    public static string GetDownloadUrl(this Artifact artifact) => $"/download/{artifact.RefId}";
+    public static string GetDownloadUrl(this Artifact artifact) => $"/download/artifact/{artifact.RefId}";
 
     public static string GetPublicUrl(this Artifact artifact) => AppConfig.Instance.AssetsBasePath + artifact.FilePath;
     public static string GetFallbackUrl(this Artifact artifact) => AppConfig.Instance.FallbackAssetsBasePath + artifact.FilePath;

@@ -53,6 +53,26 @@ public class DataService : Service
             {
                 q.Join<Creative, AppUser>((c, a) => c.OwnerId == a.Id && a.RefIdStr == query.User);
             }
+            if (query.Modifier != null)
+            {
+                q.Join<Creative, CreativeModifier>((creative, modifierRef) => creative.Id == modifierRef.CreativeId)
+                 .Join<CreativeModifier, Modifier>((modifierRef, modifier) => modifierRef.ModifierId == modifier.Id && modifier.Name == query.Modifier);
+            }
+            if (query.Artist != null)
+            {
+                var lastName = query.Artist.RightPart(',');
+                var firstName = lastName == query.Artist
+                    ? null
+                    : query.Artist.LeftPart(',');
+
+                q.Join<Creative, CreativeArtist>((creative, artistRef) => creative.Id == artistRef.CreativeId)
+                 .Join<CreativeArtist, Artist>((artistRef, artist) => artistRef.ArtistId == artist.Id && artist.FirstName == firstName && artist.LastName == lastName);
+            }
+            if (query.Album != null)
+            {
+                q.Join<Artifact, AlbumArtifact>((artifact, albumRef) => artifact.Id == albumRef.ArtifactId)
+                 .Join<AlbumArtifact, Album>((albumRef, album) => albumRef.AlbumId == album.Id && album.RefId == query.Album);
+            }
 
             // Blazor @key throws when returning dupes
             q.OrderByDescending(x => new { x.Quality, x.Score });
@@ -66,6 +86,7 @@ public class DataService : Service
                 User = query.User,
                 Modifier = query.Modifier,
                 Artist = query.Artist,
+                Album = query.Album,
             }.WithRequest(Request, await GetSessionAsync()),
         });
 

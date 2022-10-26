@@ -20,6 +20,7 @@ public partial class ArtifactGallery : AppAuthComponentBase
     [Parameter] public List<Artifact> Artifacts { get; set; } = new();
     [Parameter] public int? Id { get; set; }
     [Parameter] public int? View { get; set; }
+    [Parameter] public Func<Artifact, int?, UserState, string> ResolveBorderColor { get; set; } = ArtifactExtensions.GetBorderColor;
 
     public SlideOver? SlideOver { get; set; }
 

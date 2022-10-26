@@ -339,6 +339,7 @@ public class Migration1001 : MigrationBase
         public string? User { get; set; }
         public string? Modifier { get; set; }
         public string? Artist { get; set; }
+        public string? Album { get; set; }
     }
 
     public class ImageCompareResult

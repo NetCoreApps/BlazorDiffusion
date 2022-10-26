@@ -18,6 +18,8 @@ public partial class Index : AppAuthComponentBase
     [Parameter, SupplyParameterFromQuery] public string? user { get; set; }
     [Parameter, SupplyParameterFromQuery] public string? similar { get; set; }
     [Parameter, SupplyParameterFromQuery] public string? modifier { get; set; }
+    [Parameter, SupplyParameterFromQuery] public string? artist { get; set; }
+    [Parameter, SupplyParameterFromQuery] public string? album { get; set; }
 
     SearchArtifacts request = new();
 
@@ -39,6 +41,8 @@ public partial class Index : AppAuthComponentBase
         request.User = user;
         request.Similar = similar;
         request.Modifier = modifier;
+        request.Artist = artist;
+        request.Album = album;
 
         if (IsAuthenticated)
         {

@@ -86,23 +86,7 @@ public class SearchArtifacts : QueryDb<Artifact, ArtifactResult>
     public string? User { get; set; }
     public string? Modifier { get; set; }
     public string? Artist { get; set; }
-
-    public override bool Equals(object? obj)
-    {
-        return obj is SearchArtifacts artifacts &&
-               Skip == artifacts.Skip &&
-               Take == artifacts.Take &&
-               OrderBy == artifacts.OrderBy &&
-               OrderByDesc == artifacts.OrderByDesc &&
-               Include == artifacts.Include &&
-               Fields == artifacts.Fields &&
-               EqualityComparer<Dictionary<string, string>>.Default.Equals(Meta, artifacts.Meta) &&
-               EqualityComparer<Dictionary<string, string>>.Default.Equals(QueryParams, artifacts.QueryParams) &&
-               Query == artifacts.Query &&
-               Similar == artifacts.Similar &&
-               User == artifacts.User &&
-               Modifier == artifacts.Modifier;
-    }
+    public string? Album { get; set; }
 
     public SearchArtifacts Clone() => new()
     {
@@ -118,7 +102,28 @@ public class SearchArtifacts : QueryDb<Artifact, ArtifactResult>
         Similar = Similar,
         User = User,
         Modifier = Modifier,
+        Artist = Artist,
+        Album = Album,
     };
+
+    public override bool Equals(object? obj)
+    {
+        return obj is SearchArtifacts artifacts &&
+               Skip == artifacts.Skip &&
+               Take == artifacts.Take &&
+               OrderBy == artifacts.OrderBy &&
+               OrderByDesc == artifacts.OrderByDesc &&
+               Include == artifacts.Include &&
+               Fields == artifacts.Fields &&
+               EqualityComparer<Dictionary<string, string>>.Default.Equals(Meta, artifacts.Meta) &&
+               EqualityComparer<Dictionary<string, string>>.Default.Equals(QueryParams, artifacts.QueryParams) &&
+               Query == artifacts.Query &&
+               Similar == artifacts.Similar &&
+               User == artifacts.User &&
+               Modifier == artifacts.Modifier &&
+               Artist == artifacts.Artist &&
+               Album == artifacts.Album;
+    }
 }
 
 public class QueryArtifacts : QueryDb<Artifact>

@@ -292,11 +292,22 @@
                     <div class="space-y-1">
                         <h2 class="text-lg font-medium text-gray-900 dark:text-gray-200">@creative.UserPrompt</h2>
                         <div class="mt-1">
-                            <p class="notes text-sm text-gray-500">
-                                @string.Join(", ", modifiers.Select(x => x.Name))
-                                @if (artists.Count > 0)
+                            <p class="text-sm text-gray-500">
+                                @{ var i = 0; }
+                                @foreach (var modifier in creative.ModifierNames)
                                 {
-                                    @($" by {string.Join(", ", artists.Select(x => x.Name))}")
+                                    @(i++ > 0 ? ", " : "")
+                                    <NavLink class="text-gray-400 hover:text-gray-200" href=@($"/?modifier={modifier}")>@modifier</NavLink>
+                                }
+                                @if (creative.ArtistNames.Count > 0)
+                                {
+                                    i = 0;
+                                    <span class="px-2 text-gray-300">by</span>
+                                    @foreach (var artist in creative.ArtistNames)
+                                    {
+                                        @(i++ > 0 ? ", " : "")
+                                        <NavLink class="text-gray-400 hover:text-gray-200" href=@($"/?artist={artist.Replace(' ',',')}")>@artist</NavLink>
+                                    }
                                 }
                             </p>
                         </div>
