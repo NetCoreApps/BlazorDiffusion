@@ -67,6 +67,7 @@ public class ImportTasks
         var metadataFiles = Directory.GetFiles(artifactPaths, "metadata.json", SearchOption.AllDirectories);
 
         using var db = ResolveDbFactory().OpenDbConnection();
+        Scores.Load(db);
 
         foreach (var metadataFile in metadataFiles)
         {
@@ -87,10 +88,7 @@ public class ImportTasks
                 creative.EngineId ??= DreamStudioClient.DefaultEngineId;
                 foreach (var artifact in creative.Artifacts)
                 {
-                    //if (artifact.Quality == -3)
-                    //    artifact.Quality = -1;
-                    //else if (artifact.Quality < 0)
-                    //    artifact.Quality--;
+                    Scores.PopulateArtifactScores(artifact);
                 }
                 Console.WriteLine($"Updating {metadataFile}...");
                 File.WriteAllText(metadataFile, creative.ToJson().IndentJson());
@@ -167,12 +165,21 @@ public class ImportTasks
         File.WriteAllText(seedDir.CombineWith("albums.csv"), albumRefs.ToCsv());
 
         var artifactRefs = db.Dictionary<int, string>(db.From<Artifact>().Select(x => new { x.Id, x.RefId }));
+        var albumIdRefs = db.Dictionary<int, string>(db.From<Album>().Select(x => new { x.Id, x.RefId }));
+
         var albumArtifactRefs = albums.SelectMany(x => x.Artifacts.Select(a => new AlbumArtifactRef {
             AlbumRefId = x.RefId,
             ArtifactRefId = artifactRefs[a.Id],
             Description = a.Description,
         }));
         File.WriteAllText(seedDir.CombineWith("album-artifacts.csv"), albumArtifactRefs.ToCsv());
+
+        var albumLikes = db.Select<AlbumLikeRef>(db.From<AlbumLike>()
+            .Join<Album>()
+            .OrderBy(x => x.Id)
+            .Select<AlbumLike, Album>((l, a) => new { a.RefId, l.AlbumId, l.AppUserId, l.CreatedDate }));
+        albumLikes.Each(x => x.CreatedDate = DateTime.MinValue);
+        File.WriteAllText(seedDir.CombineWith("album-likes.csv"), albumLikes.ToCsv());
     }
 
 }
