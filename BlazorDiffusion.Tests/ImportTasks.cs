@@ -85,11 +85,12 @@ public class ImportTasks
             else
             {
                 creative.EngineId ??= DreamStudioClient.DefaultEngineId;
-
                 foreach (var artifact in creative.Artifacts)
                 {
-                    if (artifact.FilePath.StartsWith("/uploads"))
-                        artifact.FilePath = artifact.FilePath.Substring("/uploads".Length);
+                    //if (artifact.Quality == -3)
+                    //    artifact.Quality = -1;
+                    //else if (artifact.Quality < 0)
+                    //    artifact.Quality--;
                 }
                 Console.WriteLine($"Updating {metadataFile}...");
                 File.WriteAllText(metadataFile, creative.ToJson().IndentJson());
