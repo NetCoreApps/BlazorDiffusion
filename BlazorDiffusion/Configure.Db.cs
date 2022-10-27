@@ -19,6 +19,5 @@ public class ConfigureDb : IHostingStartup
         {
             using var db = appHost.Resolve<IDbConnectionFactory>().OpenDbConnection();
             db.RegisterImgCompare();
-            Scores.Load(db);
         });
 }

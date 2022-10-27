@@ -9,6 +9,7 @@ using Grpc.Net.Client;
 using ServiceStack.Configuration;
 using ServiceStack.IO;
 using ServiceStack.Web;
+using ServiceStack.Data;
 
 [assembly: HostingStartup(typeof(BlazorDiffusion.AppHost))]
 
@@ -62,7 +63,7 @@ public class AppHost : AppHostBase, IHostingStartup
             VirtualFiles = appFs
         });
     }
-    
+
     public void Configure(IWebHostBuilder builder) => builder
         .ConfigureServices((context, services) => 
             services.ConfigureNonBreakingSameSiteCookies(context.HostingEnvironment));

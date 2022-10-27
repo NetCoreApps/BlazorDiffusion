@@ -174,7 +174,7 @@ public class AlbumRef
     public string Name { get; set; }
     public string Description { get; set; }
     public List<string> Tags { get; set; }
-    public int? PrimaryArtifactId { get; set; }
+    public string? PrimaryArtifactRef { get; set; }
 }
 public class AlbumArtifactRef
 {
@@ -185,7 +185,6 @@ public class AlbumArtifactRef
 public class AlbumLikeRef
 {
     public string RefId { get; set; }
-    public int AlbumId { get; set; }
     public int AppUserId { get; set; }
     public DateTime CreatedDate { get; set; }
 }

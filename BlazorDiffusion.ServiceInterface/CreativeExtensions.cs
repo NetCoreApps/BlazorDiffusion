@@ -57,6 +57,7 @@ public static class CreativeExtensions
     {
         if (!album.HasArtifact(artifact))
         {
+            album.Artifacts ??= new();
             album.Artifacts.Add(new AlbumArtifact { 
                 AlbumId = album.Id,
                 ArtifactId = artifact.Id,

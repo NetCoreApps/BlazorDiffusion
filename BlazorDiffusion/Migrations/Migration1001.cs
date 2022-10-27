@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using BlazorDiffusion.Pages.admin;
 using BlazorDiffusion.ServiceInterface;
 using BlazorDiffusion.ServiceModel;
 using CoenM.ImageHash;
@@ -543,19 +544,25 @@ public class Migration1001 : MigrationBase
                 Name = albumnRef.Name,
                 Description = albumnRef.Description,
                 Tags = albumnRef.Tags,
-                PrimaryArtifactId = albumnRef.PrimaryArtifactId,
             }.WithAudit($"{albumnRef.OwnerId}");
             album.Id = (int)Db.Insert(album, selectIdentity: true);
 
-            var albumArtifacts = albumArtifactRefs.Where(x => x.AlbumRefId == albumnRef.RefId).Map(x => new AlbumArtifact {
-                AlbumId = album.Id,
-                ArtifactId = artifactRefIdsMap[x.ArtifactRefId],
-                Description = x.Description,
-                CreatedDate = album.CreatedDate,
-            });
-            foreach (var albumArtifact in albumArtifacts)
+            foreach (var x in albumArtifactRefs.Where(x => x.AlbumRefId == albumnRef.RefId))
             {
+                var albumArtifact = new AlbumArtifact
+                {
+                    AlbumId = album.Id,
+                    ArtifactId = artifactRefIdsMap[x.ArtifactRefId],
+                    Description = x.Description,
+                    CreatedDate = album.CreatedDate,
+                };
                 albumArtifact.Id = (int)Db.Insert(albumArtifact, selectIdentity: true);
+                
+                if (albumnRef.PrimaryArtifactRef == x.ArtifactRefId)
+                {
+                    album.PrimaryArtifactId = albumArtifact.Id;
+                    Db.UpdateOnly(() => new Album { PrimaryArtifactId = album.PrimaryArtifactId }, where: x => x.Id == album.Id);
+                }
             }
 
             // Add AlbumLikes

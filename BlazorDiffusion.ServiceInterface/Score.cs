@@ -1,5 +1,7 @@
 ﻿using BlazorDiffusion.ServiceModel;
+using ServiceStack;
 using ServiceStack.OrmLite;
+using ServiceStack.Text;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -35,6 +37,8 @@ public static class Scores
     
     public static ConcurrentDictionary<int, int> AlbumSearchCountMap = new();
 
+    static bool LogDuplicates = false;
+
     public static void Load(IDbConnection db)
     {
         var sw = Stopwatch.StartNew();
@@ -43,7 +47,22 @@ public static class Scores
             x.Id,
             x.PrimaryArtifactId,
         })));
-        PrimaryArtifactCreativeMap = new(CreativePrimaryArtifactMap.Select(x => KeyValuePair.Create(x.Value, x.Key)));
+
+        if (LogDuplicates)
+        {
+            var artifactRefsMap = db.Dictionary<int, string>(db.From<Artifact>().Select(x => new { x.Id, x.RefId }));
+            var lastValue = -1;
+            foreach (var entry in CreativePrimaryArtifactMap.ToList().OrderBy(x => x.Value))
+            {
+                var dupe = lastValue == entry.Value ? "DUPLICATE" : "";
+                var refId = artifactRefsMap[entry.Value];
+                $"{entry.Value.ToString().PadRight(4, ' ')}: {entry.Key} {refId} {dupe}".Print();
+                lastValue = entry.Value;
+            }
+        }
+
+        var valueMap = CreativePrimaryArtifactMap.Select(x => KeyValuePair.Create(x.Value, x.Key));
+        PrimaryArtifactCreativeMap = new(valueMap);
 
         ArtifactLikesCountMap = new(db.Dictionary<int, int>(db.From<ArtifactLike>().GroupBy(x => x.ArtifactId).Select(x => new {
             x.ArtifactId,

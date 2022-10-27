@@ -57,6 +57,13 @@ public class ImportTasks
     }
 
     [Test]
+    public void Can_load_scores()
+    {
+        using var db = ResolveDbFactory().OpenDbConnection();
+        Scores.Load(db);
+    }
+
+    [Test]
     public void Export_Creatives()
     {
         var hostDir = GetHostDir();
@@ -150,6 +157,9 @@ public class ImportTasks
         File.WriteAllText(seedDir.CombineWith("artifact-likes.csv"), artifactLikes.ToCsv());
 
         // Export Albums
+        var artifactRefs = db.Dictionary<int, string>(db.From<Artifact>().Select(x => new { x.Id, x.RefId }));
+        var albumIdRefs = db.Dictionary<int, string>(db.From<Album>().Select(x => new { x.Id, x.RefId }));
+
         var albums = db.LoadSelect<Album>()
             .OrderBy(x => x.Id).ToList();
         albums.Each(a => a.RefId ??= Guid.NewGuid().ToString("D"));
@@ -159,17 +169,17 @@ public class ImportTasks
             Name = x.Name,
             Description = x.Description,
             OwnerId = x.OwnerId,
-            PrimaryArtifactId = x.PrimaryArtifactId,
+            PrimaryArtifactRef = x.PrimaryArtifactId != null && artifactRefs.TryGetValue(x.PrimaryArtifactId.Value, out var refId) 
+                ? refId 
+                : null,
             Tags = x.Tags,
         });
         File.WriteAllText(seedDir.CombineWith("albums.csv"), albumRefs.ToCsv());
 
-        var artifactRefs = db.Dictionary<int, string>(db.From<Artifact>().Select(x => new { x.Id, x.RefId }));
-        var albumIdRefs = db.Dictionary<int, string>(db.From<Album>().Select(x => new { x.Id, x.RefId }));
-
+        albums.Each(x => x.Artifacts ??= new());
         var albumArtifactRefs = albums.SelectMany(x => x.Artifacts.Select(a => new AlbumArtifactRef {
             AlbumRefId = x.RefId,
-            ArtifactRefId = artifactRefs[a.Id],
+            ArtifactRefId = artifactRefs[a.ArtifactId],
             Description = a.Description,
         }));
         File.WriteAllText(seedDir.CombineWith("album-artifacts.csv"), albumArtifactRefs.ToCsv());
@@ -177,7 +187,7 @@ public class ImportTasks
         var albumLikes = db.Select<AlbumLikeRef>(db.From<AlbumLike>()
             .Join<Album>()
             .OrderBy(x => x.Id)
-            .Select<AlbumLike, Album>((l, a) => new { a.RefId, l.AlbumId, l.AppUserId, l.CreatedDate }));
+            .Select<AlbumLike, Album>((l, a) => new { a.RefId, l.AppUserId, l.CreatedDate }));
         albumLikes.Each(x => x.CreatedDate = DateTime.MinValue);
         File.WriteAllText(seedDir.CombineWith("album-likes.csv"), albumLikes.ToCsv());
     }

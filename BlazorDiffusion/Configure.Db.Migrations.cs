@@ -2,6 +2,7 @@ using ServiceStack;
 using ServiceStack.Data;
 using ServiceStack.OrmLite;
 using BlazorDiffusion.Migrations;
+using BlazorDiffusion.ServiceInterface;
 
 [assembly: HostingStartup(typeof(BlazorDiffusion.ConfigureDbMigrations))]
 
@@ -15,5 +16,8 @@ public class ConfigureDbMigrations : IHostingStartup
             AppTasks.Register("migrate", _ => migrator.Run());
             AppTasks.Register("migrate.revert", args => migrator.Revert(args[0]));
             AppTasks.Run();
+            
+            using var db = migrator.DbFactory.OpenDbConnection();
+            Scores.Load(db);
         });
 }
