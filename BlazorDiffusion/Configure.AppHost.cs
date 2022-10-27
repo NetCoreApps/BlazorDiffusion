@@ -21,6 +21,7 @@ public class AppHost : AppHostBase, IHostingStartup
     public override void Configure(Container container)
     {
         SetConfig(new HostConfig {
+            AddRedirectParamsToQueryString = true,
             UseSameSiteCookies = true,
         });
 

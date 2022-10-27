@@ -1,0 +1,19 @@
+﻿@page "/test"
+@inject NavigationManager NavigationManager
+
+<h3>Test</h3>
+
+<button @onclick="logout">logout</button>
+
+<form action="/auth/credentials" method="post" class="text-gray-700">
+    <input type="hidden" name="continue" value="/" />
+    <input name="Username" type="text" value="demis@servicestack.com" />
+    <input name="Password" type="password" value="p@55wOrd" />
+    <button class="bg-white" type="submit">submit</button>
+</form>
+
+@code {
+    async Task logout() {
+        NavigationManager.NavigateTo("/auth/logout", forceLoad:true);
+    }
+}

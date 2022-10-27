@@ -5,7 +5,7 @@
 
 @if (IsAuthenticated)
 {
-    NavigationManager.NavigateTo(ReturnUrl ?? NavigationManager.GetReturnUrl(), true);
+    NavigationManager.NavigateTo(ReturnUrl ?? NavigationManager.GetReturnUrl(), forceLoad:true);
     return;
 }
 
@@ -15,10 +15,18 @@
 
 <div class="max-w-screen-md">
 
-<form @onsubmit="submit" class="max-w-xl">
+<form method="post" action="/auth/credentials" class="max-w-xl">
+<input type="hidden" name="continue" value=@(ReturnUrl ?? "/signin") />
 <CascadingValue Value=@api.Error>
     <div class="shadow overflow-hidden sm:rounded-md">
-        <ErrorSummary Except=@VisibleFields />
+        @if (!string.IsNullOrEmpty(f))
+        {
+            <ErrorSummary Status=@(new ResponseStatus { ErrorCode = nameof(Exception), Message = f }) />
+        }
+        else
+        {
+            <ErrorSummary Except=@VisibleFields />
+        }
 
         <div class="px-4 py-5 bg-white dark:bg-black space-y-6 sm:p-6">
             <div class="flex flex-col gap-y-4">
@@ -68,6 +76,7 @@
 
 @code {
     [Parameter] public string? ReturnUrl { get; set; }
+    [Parameter, SupplyParameterFromQuery] public string? f { get; set; }
 
     string[] VisibleFields => new[]{ nameof(Authenticate.UserName), nameof(Authenticate.Password) };
 
@@ -97,6 +106,6 @@
         api = await provider.LoginAsync(request.UserName, request.Password);
 
         if (api.Succeeded)
-            NavigationManager.NavigateTo(ReturnUrl ?? NavigationManager.GetReturnUrl(), true);
+            NavigationManager.NavigateTo(ReturnUrl ?? NavigationManager.GetReturnUrl(), forceLoad:true);
     }
 }

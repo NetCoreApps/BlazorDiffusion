@@ -81,12 +81,7 @@
 
     string LoginUrl { get; set; } = "/signin";
 
-
-    List<NavItem> NavItems => User.HasRole("Admin")
-        ? new() {
-            new NavItem { Label = "Admin", Href = "/admin" },
-        }
-        : new() { };
+    List<NavItem> NavItems => AppData.GetNavItems(isAdmin: User.HasRole("Admin"));
 
     protected override Task OnParametersSetAsync()
     {
@@ -97,6 +92,7 @@
     async Task logout()
     {
         await AuthStateProvider.LogoutAsync();
-        NavigationManager.NavigateTo(LoginUrl, true);
+        var relativeUrl = "/" + NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.NavigateTo("/auth/logout".SetQueryParam("continue", relativeUrl), forceLoad: true);
     }
 }

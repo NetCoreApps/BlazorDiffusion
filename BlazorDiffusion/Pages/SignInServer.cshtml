@@ -1,0 +1,10 @@
+﻿@page "/login"
+@{
+    Layout = "_LayoutServer";
+}
+@model BlazorDiffusion.Pages.SignInServerModel
+
+@(await Html.RenderComponentAsync<BlazorDiffusion.Pages.SignIn>(RenderMode.ServerPrerendered))
+
+@{
+}

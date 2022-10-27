@@ -16,20 +16,21 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+//builder.Services.AddAntiforgery(options => { options.SuppressXFrameOptionsHeader = true; });
 
 var baseUrl = builder.Configuration["ApiBaseUrl"] ??
     (builder.Environment.IsDevelopment() ? "https://localhost:5001" : "http://" + IPAddress.Loopback);
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(baseUrl) });
 //builder.Services.AddBlazorApiClient(baseUrl);
-builder.Services.AddBlazorServerApiClient(baseUrl); // DEV ONLY
+builder.Services.AddBlazorServerApiClient(baseUrl); // Uses Cookies in Server HttpContext
 
 builder.Services.AddScoped<AuthenticationStateProvider, ServiceStackStateProvider>();
 builder.Services.AddScoped<ServiceStackStateProvider>();
+
 builder.Services.AddScoped<KeyboardNavigation>();
 builder.Services.AddScoped<UserState>();
 builder.Services.AddIntersectionObserver();
-builder.Services.AddSingleton<CircuitHandler, TrackingCircuitHandler>();
+//builder.Services.AddSingleton<CircuitHandler, TrackingCircuitHandler>();
 
 var app = builder.Build();
 
