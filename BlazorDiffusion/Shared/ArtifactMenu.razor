@@ -4,16 +4,6 @@
 
     <div class="absolute p-8" style=@($"top:{Position.PageY-OffsetY}px;left:{Position.PageX-OffsetX}px")
          @onmouseover:stopPropagation @onmouseover:preventDefault @oncontextmenu:preventDefault>
-        <!--
-          Dropdown menu, show/hide based on menu state.
-
-          Entering: "transition ease-out duration-100"
-            From: "transform opacity-0 scale-95"
-            To: "transform opacity-100 scale-100"
-          Leaving: "transition ease-in duration-75"
-            From: "transform opacity-100 scale-100"
-            To: "transform opacity-0 scale-95"
-        -->
         <div class="rounded-md whitespace-nowrap bg-white dark:bg-black shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
             <div class="py-1" role="none">
                 @if (IsModerator)
@@ -28,25 +18,25 @@
                         </svg>
                         Mark as NSFW
                     </div>
-                    <div @onclick="_ => setQuality(-1)" class="flex cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 py-2 pr-4 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">
+                    <div @onclick="_ => setQuality(Artifact.Quality == -1 ? 0 : -1)" class="flex cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 py-2 pr-4 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">
                         <svg class=@ClassNames("h-5 w-5 ml-1 mr-1.5", Artifact.Quality == -1 ? "" : "invisible") xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
                         </svg>
                         Mark as Poor Quality
                     </div>
-                    <div @onclick="_ => setQuality(-2)" class="flex cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 py-2 pr-4 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">
+                    <div @onclick="_ => setQuality(Artifact.Quality == -2 ? 0 : -2)" class="flex cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 py-2 pr-4 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">
                         <svg class=@ClassNames("h-5 w-5 ml-1 mr-1.5", Artifact.Quality == -2 ? "" : "invisible") xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
                         </svg>
                         Mark as Malformed
                     </div>
-                    <div @onclick="_ => setQuality(-3)" class="flex cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 py-2 pr-4 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">
+                    <div @onclick="_ => setQuality(Artifact.Quality == -3 ? 0 : -3)" class="flex cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 py-2 pr-4 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">
                         <svg class=@ClassNames("h-5 w-5 ml-1 mr-1.5", Artifact.Quality == -3 ? "" : "invisible") xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
                         </svg>
                         Mark as Blurred
                     </div>
-                    <div @onclick="_ => setQuality(-4)" class="flex cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 py-2 pr-4 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">
+                    <div @onclick="_ => setQuality(Artifact.Quality == -4 ? 0 : -4)" class="flex cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 py-2 pr-4 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">
                         <svg class=@ClassNames("h-5 w-5 ml-1 mr-1.5", Artifact.Quality == -4 ? "" : "invisible") xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
                         </svg>

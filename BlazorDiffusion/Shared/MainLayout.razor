@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager;
 @inject IJSRuntime JS
 @inject ILogger<MainLayout> log
+@inject CachedLocalStorage LocalStorage
 
 <div class="min-h-screen">
     <Header />
@@ -28,7 +29,6 @@
     [Inject] KeyboardNavigation KeyboardNavigation { get; set; } = default!;
     [Inject] UserState UserState { get; set; } = default!;
 
-    bool CollapseSidebar = true;
     Task<AuthenticationState>? authStateTask;
 
     string LoginUrl { get; set; } = "/signin";
