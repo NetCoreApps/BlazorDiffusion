@@ -5,6 +5,8 @@ using ServiceStack;
 using ServiceStack.OrmLite;
 using BlazorDiffusion.ServiceModel;
 using System;
+using CoenM.ImageHash;
+using CoenM.ImageHash.HashAlgorithms;
 
 namespace BlazorDiffusion.ServiceInterface;
 
@@ -27,6 +29,15 @@ public class DataService : Service
         if (similarToArtifact != null)
         {
             db.RegisterImgCompare();
+            if (similarToArtifact.PerceptualHash == null)
+            {
+                var hashAlgorithm = new PerceptualHash();
+                var artifactFile = VirtualFiles.GetFile(similarToArtifact.FilePath);
+                using var filStream = artifactFile.OpenRead();
+                similarToArtifact.PerceptualHash = (Int64)hashAlgorithm.Hash(filStream);
+                await Db.UpdateOnlyAsync(() => new Artifact { PerceptualHash = similarToArtifact.PerceptualHash }, 
+                    where: x => x.Id == similarToArtifact.Id);
+            }
 
             q.Join<Creative>();
             q.SelectDistinct<Artifact, Creative>((a, c) => new { 
@@ -87,6 +98,7 @@ public class DataService : Service
                 Modifier = query.Modifier,
                 Artist = query.Artist,
                 Album = query.Album,
+                ArtifactId = similarToArtifact?.Id,
             }.WithRequest(Request, await GetSessionAsync()),
         });
 

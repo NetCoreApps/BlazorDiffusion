@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using BlazorDiffusion.ServiceModel;
 using ServiceStack;
 using ServiceStack.Auth;
-using ServiceStack.Configuration;
-using ServiceStack.Data;
 using ServiceStack.IO;
 using ServiceStack.OrmLite;
 using ServiceStack.Text;
@@ -167,6 +164,9 @@ public class CreativeService : Service
             FilePath = x.FilePath,
             ContentType = MimeTypes.ImagePng,
             ContentLength = x.ContentLength,
+            PerceptualHash = x.PerceptualHash,
+            AverageHash = x.AverageHash,
+            DifferenceHash = x.DifferenceHash,
             RefId = Guid.NewGuid().ToString("D"),
         }.WithAudit(userAuthId, now));
         await db.InsertAllAsync(artifacts);
@@ -355,4 +355,7 @@ public class ImageGenerationResult
     public long ContentLength { get; set; }
     public int Width { get; set; }
     public int Height { get; set; }
+    public Int64? AverageHash { get; set; }
+    public Int64? PerceptualHash { get; set; }
+    public Int64? DifferenceHash { get; set; }
 }
