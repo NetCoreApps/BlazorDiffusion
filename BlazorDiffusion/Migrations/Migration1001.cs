@@ -133,6 +133,11 @@ public class Migration1001 : MigrationBase
         //  - Blurred: -2
         //  - LowQuality: -3
         public int Quality { get; set; }
+        public int LikesCount { get; set; } // duplicated aggregate counts
+        public int AlbumsCount { get; set; }
+        public int DownloadsCount { get; set; }
+        public int SearchCount { get; set; }
+        public int TemporalScore { get; set; } // bonus score given to recent creations
         public int Score { get; set; }
         public int Rank { get; set; }
         public string RefId { get; set; }
@@ -270,6 +275,9 @@ public class Migration1001 : MigrationBase
         public int? PrimaryArtifactId { get; set; }
         public bool Private { get; set; }
         public int? Rating { get; set; }
+        public int LikesCount { get; set; } // duplicated aggregate counts
+        public int DownloadsCount { get; set; }
+        public int SearchCount { get; set; }
         public int Score { get; set; }
         public int Rank { get; set; }
         [Reference]
@@ -340,6 +348,12 @@ public class Migration1001 : MigrationBase
         public string? Modifier { get; set; }
         public string? Artist { get; set; }
         public string? Album { get; set; }
+
+        public int? ArtifactId { get; set; }
+        public int? AlbumId { get; set; }
+        public int? AppUserId { get; set; }
+        public int? ModifierId { get; set; }
+        public int? ArtistId { get; set; }
     }
 
     public class ImageCompareResult
@@ -508,8 +522,8 @@ public class Migration1001 : MigrationBase
                 {
                     foreach (var artifactLikeRef in artifactLikeRefs)
                     {
-                        var artistLike = X.Apply(artifactLikeRef.ConvertTo<ArtifactLike>(), x => x.ArtifactId = artifact.Id);
-                        Db.Insert(artistLike);
+                        var artifactLike = X.Apply(artifactLikeRef.ConvertTo<ArtifactLike>(), x => x.ArtifactId = artifact.Id);
+                        Db.Insert(artifactLike);
                     }
                 }
             }
@@ -519,6 +533,7 @@ public class Migration1001 : MigrationBase
         // Import Albums
         var albumRefs = File.ReadAllText(seedDir.CombineWith("albums.csv")).FromCsv<List<AlbumRef>>();
         var albumArtifactRefs = File.ReadAllText(seedDir.CombineWith("album-artifacts.csv")).FromCsv<List<AlbumArtifactRef>>();
+        var allAlbumLikeRefs = File.ReadAllText(seedDir.CombineWith("album-likes.csv")).FromCsv<List<AlbumLikeRef>>();
         foreach (var albumnRef in albumRefs)
         {
             var album = new Album
@@ -541,6 +556,17 @@ public class Migration1001 : MigrationBase
             foreach (var albumArtifact in albumArtifacts)
             {
                 albumArtifact.Id = (int)Db.Insert(albumArtifact, selectIdentity: true);
+            }
+
+            // Add AlbumLikes
+            var albumLikeRefs = allAlbumLikeRefs.Where(x => x.RefId == album.RefId).ToList();
+            if (albumLikeRefs.Count > 0)
+            {
+                foreach (var albumLikeRef in albumLikeRefs)
+                {
+                    var albumLike = X.Apply(albumLikeRef.ConvertTo<AlbumLike>(), x => x.AlbumId = album.Id);
+                    Db.Insert(albumLike);
+                }
             }
         }
 

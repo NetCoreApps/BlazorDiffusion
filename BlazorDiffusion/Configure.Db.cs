@@ -1,3 +1,4 @@
+using BlazorDiffusion.ServiceInterface;
 using CoenM.ImageHash;
 using Microsoft.Data.Sqlite;
 using ServiceStack.Data;
@@ -17,10 +18,7 @@ public class ConfigureDb : IHostingStartup
         .ConfigureAppHost(appHost =>
         {
             using var db = appHost.Resolve<IDbConnectionFactory>().OpenDbConnection();
-            var connection = (SqliteConnection)db.ToDbConnection();
-            connection.CreateFunction(
-                "imgcompare",
-                (Int64 hash1, Int64 hash2)
-                    => CompareHash.Similarity((ulong)hash1,(ulong)hash2));
+            db.RegisterImgCompare();
+            Scores.Load(db);
         });
 }

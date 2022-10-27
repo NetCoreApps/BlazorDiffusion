@@ -20,6 +20,9 @@ public class Album : AuditBase
     public int? PrimaryArtifactId { get; set; }
     public bool Private { get; set; }
     public int? Rating { get; set; }
+    public int LikesCount { get; set; } // duplicated aggregate counts
+    public int DownloadsCount { get; set; }
+    public int SearchCount { get; set; }
     public int Score { get; set; }
     public int Rank { get; set; }
     [Reference]

@@ -74,6 +74,14 @@ public class CreativeService : Service
             }, where:x => x.Id == request.Id);
 
         PublishMessage(new SaveMetadata { CreativeId = creative.Id });
+        
+        PublishMessage(new BackgroundTasks {
+            RecordPrimaryArtifact = new() {
+                CreativeId = creative.Id,
+                FromArtifactId = creative.PrimaryArtifactId,
+                ToArtifactId = artifactId,
+            },
+        });
 
         creative.PrimaryArtifactId = artifactId;
         return creative;

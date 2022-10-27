@@ -18,7 +18,9 @@ public class ArtifactServices : Service
             ArtifactId = request.ArtifactId,
             CreatedDate = DateTime.UtcNow,
         };
-        row.Id = await base.Db.InsertAsync(row, selectIdentity: true);
+        row.Id = await base.Db.InsertAsync(row, selectIdentity:true);
+
+        PublishMessage(new BackgroundTasks { RecordArtifactLikeId = request.ArtifactId });
         return row;
     }
 
@@ -27,6 +29,8 @@ public class ArtifactServices : Service
         var session = await GetSessionAsync();
         var userId = session.UserAuthId.ToInt();
         await Db.DeleteAsync<ArtifactLike>(x => x.ArtifactId == request.ArtifactId && x.AppUserId == userId);
+
+        PublishMessage(new BackgroundTasks { RecordArtifactUnlikeId = request.ArtifactId });
     }
 
     public async Task<object> Post(CreateArtifactReport request)

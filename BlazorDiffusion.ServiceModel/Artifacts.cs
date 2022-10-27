@@ -42,6 +42,11 @@ public class Artifact : AuditBase
     //  - Blurred: -2
     //  - LowQuality: -3
     public int Quality { get; set; }
+    public int LikesCount { get; set; } // duplicated aggregate counts
+    public int AlbumsCount { get; set; }
+    public int DownloadsCount { get; set; }
+    public int SearchCount { get; set; }
+    public int TemporalScore { get; set; } // bonus score given to recent creations
     public int Score { get; set; }
     public int Rank { get; set; }
     public string RefId { get; set; }
@@ -177,6 +182,13 @@ public class AlbumArtifactRef
     public string ArtifactRefId { get; set; }
     public string? Description { get; set; }
 }
+public class AlbumLikeRef
+{
+    public string RefId { get; set; }
+    public int AlbumId { get; set; }
+    public int AppUserId { get; set; }
+    public DateTime CreatedDate { get; set; }
+}
 
 
 [ValidateIsAuthenticated]
@@ -190,7 +202,7 @@ public class QueryArtifactLikes : QueryDb<ArtifactLike>
 }
 
 [ValidateIsAuthenticated]
-public class CreateArtifactLike : ICreateDb<ArtifactLike>, IReturn<ArtifactLike>
+public class CreateArtifactLike : ICreateDb<ArtifactLike>, IReturn<IdResponse>
 {
     [ValidateGreaterThan(0)]
     public int ArtifactId { get; set; }

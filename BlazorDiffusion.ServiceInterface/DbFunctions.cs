@@ -9,8 +9,8 @@ public static class DbFunctions
 {
     public static void RegisterImgCompare(this IDbConnection db)
     {
-        var connection = (SqliteConnection)db.ToDbConnection();
-        connection.CreateFunction(
+        var sqliteConn = (SqliteConnection)db.ToDbConnection();
+        sqliteConn.CreateFunction(
             "imgcompare",
             (Int64? hash1, Int64? hash2)
                 => hash1 == null || hash2 == null

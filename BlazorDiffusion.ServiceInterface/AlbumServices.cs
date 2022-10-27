@@ -84,6 +84,11 @@ public class AlbumServices : Service
 
         trans.Commit();
 
+        PublishMessage(new BackgroundTasks {
+            ArtifactIdsAddedToAlbums = request.AddArtifactIds,
+            ArtifactIdsRemovedFromAlbums = request.RemoveArtifactIds,
+        });
+
         return album;
     }
 

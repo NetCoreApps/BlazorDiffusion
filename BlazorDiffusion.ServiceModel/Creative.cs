@@ -263,6 +263,21 @@ public class BackgroundTasks
 {
     public SearchStat? RecordSearchStat { get; set; }
     public ArtifactStat? RecordArtifactStat { get; set; }
+    public int? RecordArtifactLikeId { get; set; }
+    public int? RecordArtifactUnlikeId { get; set; }
+    
+    public RecordPrimaryArtifact? RecordPrimaryArtifact { get; set; }
+    
+    public List<int>? ArtifactIdsAddedToAlbums { get; set; }
+    public List<int>? ArtifactIdsRemovedFromAlbums { get; set; }
+}
+
+public class RecordPrimaryArtifact
+{
+    public int CreativeId { get; set; }
+    public int? FromArtifactId { get; set; }
+    public int? ToArtifactId { get; set; }
+
 }
 
 public class SaveMetadata : IReturnVoid

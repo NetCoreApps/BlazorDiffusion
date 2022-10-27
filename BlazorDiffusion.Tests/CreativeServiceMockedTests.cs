@@ -231,6 +231,6 @@ public class CreativeServiceMockedTests
         });
         
         Assert.That(likeArtifactResponse, Is.Not.Null);
-        Assert.That(likeArtifactResponse.ArtifactId, Is.EqualTo(1));
+        Assert.That(likeArtifactResponse.Id, Is.EqualTo(1));
     }
 }

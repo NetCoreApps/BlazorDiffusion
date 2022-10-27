@@ -9,11 +9,14 @@ namespace BlazorDiffusion;
 
 public static class CreativeExtensions
 {
+    public const string SystemUserId = "2";
+
     public static T WithAudit<T>(this T row, IRequest req, DateTime? date = null) where T : AuditBase =>
         row.WithAudit(req.GetSession().UserAuthId, date);
 
-    public static T WithAudit<T>(this T row, string by, DateTime? date = null) where T : AuditBase
+    public static T WithAudit<T>(this T row, string? by, DateTime? date = null) where T : AuditBase
     {
+        by ??= SystemUserId;
         var useDate = date ?? DateTime.UtcNow;
         if (string.IsNullOrEmpty(row.CreatedBy))
         {
