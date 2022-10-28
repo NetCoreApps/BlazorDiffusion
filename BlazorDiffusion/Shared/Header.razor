@@ -94,8 +94,6 @@
 
     async Task logout()
     {
-        await AuthStateProvider.LogoutAsync();
-        var relativeUrl = "/" + NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
-        NavigationManager.NavigateTo("/auth/logout".SetQueryParam("continue", relativeUrl), forceLoad: true);
+        await AuthStateProvider.LogoutAsync(redirectTo: LoginUrl);
     }
 }

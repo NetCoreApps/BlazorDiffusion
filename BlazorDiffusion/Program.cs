@@ -1,31 +1,28 @@
 using System.Net;
 using Microsoft.AspNetCore.Components.Authorization;
-using ServiceStack;
 using ServiceStack.Blazor;
-using Microsoft.Net.Http.Headers;
 using BlazorDiffusion.UI;
 using BlazorDiffusion.ServiceModel;
 using Ljbc1994.Blazor.IntersectionObserver;
 using Microsoft.AspNetCore.Components.Server.Circuits;
-using Microsoft.AspNetCore.Components;
 
 AppHost.RegisterKey();
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddLogging();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-//builder.Services.AddAntiforgery(options => { options.SuppressXFrameOptionsHeader = true; });
+
+builder.Services.AddScoped<ServiceStackStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<ServiceStackStateProvider>());
 
 var baseUrl = builder.Configuration["ApiBaseUrl"] ??
     (builder.Environment.IsDevelopment() ? "https://localhost:5001" : "http://" + IPAddress.Loopback);
 
-//builder.Services.AddBlazorApiClient(baseUrl);
-builder.Services.AddBlazorServerApiClient(baseUrl); // Uses Cookies in Server HttpContext
-
-builder.Services.AddScoped<AuthenticationStateProvider, ServiceStackStateProvider>();
-builder.Services.AddScoped<ServiceStackStateProvider>();
+builder.Services.AddLocalStorage();
+builder.Services.AddBlazorServerApiClient(baseUrl);
 
 builder.Services.AddScoped<KeyboardNavigation>();
 builder.Services.AddScoped<UserState>();
