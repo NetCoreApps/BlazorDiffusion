@@ -41,6 +41,6 @@ public partial class Likes : AppAuthComponentBase
         var borderColor = artifact.GetBorderColor(activeId, userState);
         return borderColor != "border-red-700"
             ? borderColor
-            : "border-transparent";
+            : "border-black";
     }
 }

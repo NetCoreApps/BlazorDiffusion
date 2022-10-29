@@ -85,8 +85,8 @@ public class DataService : Service
                  .Join<AlbumArtifact, Album>((albumRef, album) => albumRef.AlbumId == album.Id && album.RefId == query.Album);
             }
 
-            // Blazor @key throws when returning dupes
-            q.OrderByDescending(x => new { x.Quality, x.Score });
+            q.OrderByDescending(x => new { x.Quality, x.Score, x.Id });
+            // Need distinct else Blazor @key throws when returning dupes
             q.SelectDistinct<Artifact, Creative>((a, c) => new { a, c.UserPrompt, c.ArtistNames, c.ModifierNames, c.PrimaryArtifactId });
         }
 
