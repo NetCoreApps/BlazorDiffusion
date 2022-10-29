@@ -21,6 +21,6 @@ public static class ArtifactExtensions
                     ? "border-gray-500"
                     : userState.HasArtifactInAlbum(artifact) 
                       ? "border-green-700"
-                      : "border-transparent";
+                      : artifact.Background != null ? "border-black" : "border-transparent";
     }
 }
