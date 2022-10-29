@@ -126,9 +126,9 @@ public class Migration1001 : MigrationBase
         public Int64? PerceptualHash { get; set; }
         public Int64? DifferenceHash { get; set; }
         // Dominant Color to show before download
-        public string Background { get; set; }
+        public string? Background { get; set; }
         // Low Quality Image Placeholder for fast load in
-        public string Lqip { get; set; }
+        public string? Lqip { get; set; }
         // Set Low Quality images to:
         //  - Malformed: -1
         //  - Blurred: -2
@@ -491,8 +491,6 @@ public class Migration1001 : MigrationBase
                 }
             }
 
-            var hashAlgorithm = new PerceptualHash();
-
             var primaryArtifact = creative.PrimaryArtifactId != null
                 ? creative.Artifacts.FirstOrDefault(x => x.Id == creative.PrimaryArtifactId)
                 : null;
@@ -502,16 +500,11 @@ public class Migration1001 : MigrationBase
                 artifact.Id = 0;
                 artifact.CreativeId = id;
                 var filePath = $"./App_Files/{artifact.FilePath}";
-                if (artifact.PerceptualHash == null)
-                {
-                    var filStream = File.OpenRead(filePath);
-                    artifact.PerceptualHash = (Int64)hashAlgorithm.Hash(filStream);
-                }
                 artifact.Id = (int)Db.Insert(artifact, selectIdentity: true);
                 artifactRefIdsMap[artifact.RefId] = artifact.Id;
 
                 if (artifact == primaryArtifact)
-                {
+                {   
                     creative.PrimaryArtifactId = artifact.Id;
                     Db.UpdateOnly(() => new Creative { PrimaryArtifactId = artifact.Id },
                         where: x => x.Id == creative.Id);

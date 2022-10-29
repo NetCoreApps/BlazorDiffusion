@@ -34,9 +34,9 @@ public class Artifact : AuditBase
     public Int64? PerceptualHash { get; set; }
     public Int64? DifferenceHash { get; set; }
     // Dominant Color to show before download
-    public string Background { get; set; }
+    public string? Background { get; set; }
     // Low Quality Image Placeholder for fast load in
-    public string Lqip { get; set; }
+    public string? Lqip { get; set; }
     // Set Low Quality images to:
     //  - Malformed: -1
     //  - Blurred: -2

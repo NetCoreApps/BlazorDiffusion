@@ -172,11 +172,8 @@ public class CreativeService : Service
             FilePath = x.FilePath,
             ContentType = MimeTypes.ImagePng,
             ContentLength = x.ContentLength,
-            PerceptualHash = x.PerceptualHash,
-            AverageHash = x.AverageHash,
-            DifferenceHash = x.DifferenceHash,
             RefId = Guid.NewGuid().ToString("D"),
-        }.WithAudit(userAuthId, now));
+        }.WithImageDetails(x.ImageDetails).WithAudit(userAuthId, now));
         await db.InsertAllAsync(artifacts);
         transaction.Commit();
 
@@ -363,7 +360,5 @@ public class ImageGenerationResult
     public long ContentLength { get; set; }
     public int Width { get; set; }
     public int Height { get; set; }
-    public Int64? AverageHash { get; set; }
-    public Int64? PerceptualHash { get; set; }
-    public Int64? DifferenceHash { get; set; }
+    public ImageDetails? ImageDetails { get; set; }
 }

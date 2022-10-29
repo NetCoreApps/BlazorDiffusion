@@ -70,11 +70,13 @@ public class ImportTasks
 
         var slnDir = Path.GetFullPath($"../{hostDir}");
 
+        var appFilesDir = Path.GetFullPath(Path.Combine(hostDir, "App_Files"));
         var artifactPaths = Path.GetFullPath(Path.Combine(hostDir, "App_Files/artifacts"));
         var metadataFiles = Directory.GetFiles(artifactPaths, "metadata.json", SearchOption.AllDirectories);
 
         using var db = ResolveDbFactory().OpenDbConnection();
         Scores.Load(db);
+        ImageUtils.Log = true;
 
         foreach (var metadataFile in metadataFiles)
         {
@@ -96,14 +98,23 @@ public class ImportTasks
                 foreach (var artifact in creative.Artifacts)
                 {
                     Scores.PopulateArtifactScores(artifact);
+                    //artifact.Background = null;
+                    //artifact.PerceptualHash = artifact.AverageHash = artifact.DifferenceHash;
+                    if (artifact.MissingImageDetails())
+                    {
+                        var imagePath = Path.Combine(appFilesDir, artifact.FilePath.TrimStart('/'));
+                        using var imageStream = File.OpenRead(imagePath);
+                        artifact.LoadImageDetails(imageStream);
+                        Console.WriteLine();
+                    }
                 }
                 Console.WriteLine($"Updating {metadataFile}...");
                 File.WriteAllText(metadataFile, creative.ToJson().IndentJson());
             }
         }
 
-        Directory.SetCurrentDirectory(slnDir);
-        ProcessUtils.Run("export.bat").Print();
+        //Directory.SetCurrentDirectory(slnDir);
+        //ProcessUtils.Run("export.bat").Print();
     }
 
     List<string> ExportModifiers(IDbConnection db)

@@ -5,9 +5,6 @@ using Grpc.Core;
 using Grpc.Net.Client;
 using ServiceStack.IO;
 using ServiceStack.Text;
-using SixLabors.ImageSharp;
-using CoenM.ImageHash;
-using CoenM.ImageHash.HashAlgorithms;
 
 namespace BlazorDiffusion;
 
@@ -76,8 +73,6 @@ public class DreamStudioClient : IStableDiffusionClient
         var now = DateTime.UtcNow;
         var key = $"{now:yyyy/MM/dd}/{(long)now.TimeOfDay.TotalMilliseconds}";
 
-        var hashAlgorithm = new PerceptualHash();
-
         var results = new List<ImageGenerationResult>();
         await foreach (var item in response.ResponseStream.ReadAllAsync())
         {
@@ -88,17 +83,7 @@ public class DreamStudioClient : IStableDiffusionClient
                 var output = Path.Join(OutputPathPrefix, key, $"output_{artifact.Seed}.png");
                 var bytes = artifact.Binary.ToByteArray();
                 await VirtualFiles.WriteFileAsync(output, bytes);
-
-                Int64? perceptualHash = null;
-                Int64? averageHash = null;
-                Int64? differenceHash = null;
-
-                try
-                {
-                    using var ms = MemoryStreamFactory.GetStream(bytes);
-                    perceptualHash = (Int64)hashAlgorithm.Hash(ms);
-                }
-                catch (Exception) { /*Not Required*/ }
+                var imageDetails = ImageDetails.Calculate(bytes);
 
                 results.Add(new()
                 {
@@ -110,9 +95,7 @@ public class DreamStudioClient : IStableDiffusionClient
                     ContentLength = bytes.Length,
                     Width = request.Width,
                     Height = request.Height,
-                    PerceptualHash = perceptualHash,
-                    AverageHash = averageHash,
-                    DifferenceHash = differenceHash,
+                    ImageDetails = imageDetails,
                 });
             }
         }
