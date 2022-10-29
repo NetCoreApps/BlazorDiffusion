@@ -259,6 +259,8 @@ public class CreativeModifier
     public Modifier Modifier { get; set; }
 }
 
+[ExcludeMetadata]
+[Restrict(LocalhostOnly = true)]
 public class BackgroundTasks
 {
     public SearchStat? RecordSearchStat { get; set; }
@@ -277,9 +279,12 @@ public class RecordPrimaryArtifact
     public int CreativeId { get; set; }
     public int? FromArtifactId { get; set; }
     public int? ToArtifactId { get; set; }
-
 }
 
+public class SyncTasks : IReturnVoid { }
+
+[ExcludeMetadata]
+[Restrict(LocalhostOnly = true)]
 public class SaveMetadata : IReturnVoid
 {
     public int? CreativeId { get; set; }

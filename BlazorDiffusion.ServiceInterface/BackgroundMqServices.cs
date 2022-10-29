@@ -33,6 +33,11 @@ public class BackgroundMqServices : Service
         return metadataCreative;
     }
 
+    public async Task Any(SyncTasks request)
+    {
+        // Update temporal scores + save all creatives with Artifacts that have changed
+    }
+
     public async Task Any(BackgroundTasks request)
     {
         if (request.RecordArtifactStat != null)
