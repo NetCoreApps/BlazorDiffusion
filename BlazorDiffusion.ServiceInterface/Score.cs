@@ -1,5 +1,6 @@
 ﻿using BlazorDiffusion.ServiceModel;
 using ServiceStack;
+using ServiceStack.Logging;
 using ServiceStack.OrmLite;
 using ServiceStack.Text;
 using System;
@@ -22,6 +23,8 @@ public static class Updated
 
 public static class Scores
 {
+    public static ILog Log = LogManager.GetLogger(typeof(Scores));
+
     public static class Weights
     {
         public const int PrimaryArtifact = 10;
@@ -34,6 +37,8 @@ public static class Scores
     public static ConcurrentDictionary<int, int> CreativePrimaryArtifactMap = new();
     public static ConcurrentDictionary<int, int> PrimaryArtifactCreativeMap = new();
 
+    public static ConcurrentDictionary<int, int> ArtifactTemporalBonusMap = new();
+
     public static ConcurrentDictionary<int, int> ArtifactLikesCountMap = new();
     public static ConcurrentDictionary<int, int> ArtifactInAlbumsCountMap = new();
     public static ConcurrentDictionary<int, int> ArtifactDownloadsCountMap = new();
@@ -42,6 +47,18 @@ public static class Scores
     public static ConcurrentDictionary<int, int> AlbumSearchCountMap = new();
 
     static bool LogDuplicates = false;
+
+    public static void Clear()
+    {
+        CreativePrimaryArtifactMap.Clear();
+        PrimaryArtifactCreativeMap.Clear();
+        ArtifactTemporalBonusMap.Clear();
+        ArtifactLikesCountMap.Clear();
+        ArtifactInAlbumsCountMap.Clear();
+        ArtifactDownloadsCountMap.Clear();
+        ArtifactSearchCountMap.Clear();
+        AlbumSearchCountMap.Clear();
+    }
 
     public static void Load(IDbConnection db)
     {
@@ -77,7 +94,14 @@ public static class Scores
             x.ArtifactId,
             Count = Sql.Count("*"),
         })));
-        
+
+        Log.DebugFormat($"Scores.Load() took {0}ms", sw.ElapsedMilliseconds);
+    }
+
+    public static void LoadAnalytics(IDbConnection db)
+    {
+        var sw = Stopwatch.StartNew();
+
         ArtifactDownloadsCountMap = new(db.Dictionary<int, int>(db.From<ArtifactStat>()
             .Where(x => x.Type == StatType.Download)
             .GroupBy(x => x.ArtifactId).Select(x => new {
@@ -85,29 +109,101 @@ public static class Scores
                 Count = Sql.Count("*"),
             })));
 
-        ArtifactSearchCountMap = new(db.Dictionary<int, int>(db.From<SearchStat>().Join<Artifact>((s, a) => s.Similar == a.RefId)
-            .GroupBy(x => x.Similar).Select<SearchStat, Artifact>((s, a) => new {
-                a.Id,
+        ArtifactSearchCountMap = new(db.Dictionary<int, int>(db.From<SearchStat>().Where(s => s.ArtifactId != null)
+            .GroupBy(x => x.Similar).Select(s => new {
+                s.ArtifactId,
                 Count = Sql.Count("*"),
             })));
 
-        AlbumSearchCountMap = new(db.Dictionary<int, int>(db.From<SearchStat>().Join<Album>((s, a) => s.Album == a.RefId)
-            .GroupBy(x => x.Album).Select<SearchStat, Album>((s, a) => new {
-                a.Id,
+        AlbumSearchCountMap = new(db.Dictionary<int, int>(db.From<SearchStat>().Where(s => s.AlbumId != null)
+            .GroupBy(x => x.Album).Select(s => new {
+                s.AlbumId,
                 Count = Sql.Count("*"),
             })));
 
-        Console.WriteLine($"Scores.Load() took {sw.ElapsedMilliseconds}ms");
+        Log.DebugFormat($"Scores.LoadAnalytics() took {0}ms", sw.ElapsedMilliseconds);
     }
 
-    public static void PopulateArtifactScores(Artifact artifact)
+    public static bool PopulateArtifactScores(Artifact artifact)
     {
         var isPrimary = PrimaryArtifactCreativeMap.ContainsKey(artifact.Id);
-        artifact.LikesCount = ArtifactLikesCountMap.TryGetValue(artifact.Id, out var likes) ? likes : 0;
-        artifact.AlbumsCount = ArtifactInAlbumsCountMap.TryGetValue(artifact.Id, out var albums) ? albums : 0;
-        artifact.DownloadsCount = ArtifactDownloadsCountMap.TryGetValue(artifact.Id, out var downloads) ? downloads : 0;
-        artifact.SearchCount = ArtifactSearchCountMap.TryGetValue(artifact.Id, out var searches) ? searches : 0;
-        artifact.Score = Calculate(isPrimary:isPrimary, artifact: artifact);
+        var likesCount = ArtifactLikesCountMap.TryGetValue(artifact.Id, out var likes) ? likes : 0;
+        var albumsCount = ArtifactInAlbumsCountMap.TryGetValue(artifact.Id, out var albums) ? albums : 0;
+        var downloadsCount = ArtifactDownloadsCountMap.TryGetValue(artifact.Id, out var downloads) ? downloads : 0;
+        var searchCount = ArtifactSearchCountMap.TryGetValue(artifact.Id, out var searches) ? searches : 0;
+        var score = Calculate(isPrimary: isPrimary, artifact: artifact);
+
+        if (likesCount != artifact.LikesCount ||
+            albumsCount != artifact.AlbumsCount ||
+            downloadsCount != artifact.DownloadsCount ||
+            searchCount != artifact.SearchCount ||
+            score != artifact.Score)
+        {
+            artifact.LikesCount = likesCount;
+            artifact.AlbumsCount = albumsCount;
+            artifact.DownloadsCount = downloadsCount;
+            artifact.SearchCount = searchCount;
+            artifact.Score = score;
+            return true;
+        }
+        return false;
+    }
+
+    struct TimeBonus
+    {
+        public TimeSpan Age { get; }
+        public int Weight { get; }
+        public TimeBonus(TimeSpan age, int weight)
+        {
+            Age = age;
+            Weight = weight;
+        }
+    }
+
+    public static TimeSpan TemporalScoreThreshold = TimeSpan.FromDays(5);
+    static TimeBonus[] TimeBonuses = new TimeBonus[]
+    {
+        new(TimeSpan.FromMinutes(10), 1000),
+        new(TimeSpan.FromMinutes(20), 900),
+        new(TimeSpan.FromMinutes(40), 800),
+        new(TimeSpan.FromMinutes(60), 700),
+        new(TimeSpan.FromHours(2), 600),
+        new(TimeSpan.FromHours(4), 500),
+        new(TimeSpan.FromHours(8), 400),
+        new(TimeSpan.FromHours(12), 300),
+        new(TimeSpan.FromHours(24), 200),
+        new(TimeSpan.FromHours(48), 100),
+        new(TimeSpan.FromDays(3), 50),
+        new(TimeSpan.FromDays(4), 40),
+        new(TemporalScoreThreshold, 30),
+    };
+
+    public static int CaclulateTemporalScore(Artifact artifact)
+    {
+        var now = DateTime.UtcNow;
+        var age = now - artifact.CreatedDate;
+
+        if (age < TemporalScoreThreshold)
+        {
+            foreach (var bonus in TimeBonuses)
+            {
+                if (age < bonus.Age)
+                    return artifact.Score * bonus.Weight;
+            }
+        }
+
+        return 0;
+    }
+
+    public static bool PopulateTemporalScore(Artifact artifact)
+    {
+        var temporalScore = CaclulateTemporalScore(artifact);
+        if (artifact.TemporalScore != temporalScore)
+        {
+            artifact.TemporalScore = temporalScore;
+            return true;
+        }
+        return false;
     }
 
     public static int Calculate(bool isPrimary, Artifact artifact) =>

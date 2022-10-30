@@ -10,6 +10,7 @@ using BlazorDiffusion.ServiceModel;
 using ServiceStack.OrmLite;
 using BlazorDiffusion.ServiceInterface;
 using System.Data;
+using ServiceStack.Logging;
 
 namespace BlazorDiffusion.Tests;
 
@@ -19,6 +20,8 @@ public class ImportTasks
     IDbConnectionFactory ResolveDbFactory() => new ConfigureDb().ConfigureAndResolve<IDbConnectionFactory>();
     public string GetHostDir()
     {
+        LogManager.LogFactory = new ConsoleLogFactory();
+
         JsConfig.Init(new Config {
             TextCase = TextCase.CamelCase,
         });
@@ -59,8 +62,11 @@ public class ImportTasks
     [Test]
     public void Can_load_scores()
     {
-        using var db = ResolveDbFactory().OpenDbConnection();
+        var dbFactory = ResolveDbFactory();
+        using var db = dbFactory.OpenDbConnection();
         Scores.Load(db);
+        using var dbAnalytics = dbFactory.OpenDbConnection(Databases.Analytics);
+        Scores.Load(dbAnalytics);
     }
 
     [Test]
@@ -74,8 +80,12 @@ public class ImportTasks
         var artifactPaths = Path.GetFullPath(Path.Combine(hostDir, "App_Files/artifacts"));
         var metadataFiles = Directory.GetFiles(artifactPaths, "metadata.json", SearchOption.AllDirectories);
 
-        using var db = ResolveDbFactory().OpenDbConnection();
+        var dbFactory = ResolveDbFactory();
+        using var db = dbFactory.OpenDbConnection();
         Scores.Load(db);
+        using var dbAnalytics = dbFactory.OpenDbConnection(Databases.Analytics);
+        Scores.Load(dbAnalytics);
+
         ImageUtils.Log = true;
 
         foreach (var metadataFile in metadataFiles)

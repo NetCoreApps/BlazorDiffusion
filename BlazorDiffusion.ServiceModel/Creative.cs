@@ -286,7 +286,16 @@ public class RecordPrimaryArtifact
     public int? ToArtifactId { get; set; }
 }
 
-public class SyncTasks : IReturnVoid { }
+public class SyncTasks : IReturn<SyncTasksResponse>
+{
+    public bool? Periodic { get; set; }
+    public bool? Daily { get; set; }
+}
+
+public class SyncTasksResponse
+{
+    public List<string> Results { get; set; }
+}
 
 [ExcludeMetadata]
 [Restrict(InternalOnly = true)]

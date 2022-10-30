@@ -93,7 +93,7 @@ public class DataService : Service
                  .Join<AlbumArtifact, Album>((albumRef, album) => albumRef.AlbumId == album.Id && album.RefId == query.Album);
             }
 
-            q.ThenByDescending(x => new { x.Score, x.Id });
+            q.ThenByDescending(x => x.Score + x.TemporalScore).ThenByDescending(x => x.Id);
             // Need distinct else Blazor @key throws when returning dupes
             q.SelectDistinct<Artifact, Creative>((a, c) => new { a, c.UserPrompt, c.ArtistNames, c.ModifierNames, c.PrimaryArtifactId });
         }
