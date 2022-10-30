@@ -1,17 +1,13 @@
 ﻿using ServiceStack;
 using ServiceStack.DataAnnotations;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlazorDiffusion.ServiceModel;
 
+[NamedConnection(Databases.Analytics)]
 public class StatBase
 {
     public string RefId { get; set; }
-    [References(typeof(AppUser))]
     public int? AppUserId { get; set; }
     public string RawUrl { get; set; }
     public string RemoteIp { get; set; }

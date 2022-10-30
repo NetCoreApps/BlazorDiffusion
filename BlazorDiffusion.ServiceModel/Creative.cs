@@ -264,8 +264,6 @@ public class CreativeModifier
 public class BackgroundTasks
 {
     public Creative? NewCreative { get; set; }
-    public SearchStat? RecordSearchStat { get; set; }
-    public ArtifactStat? RecordArtifactStat { get; set; }
     public int? RecordArtifactLikeId { get; set; }
     public int? RecordArtifactUnlikeId { get; set; }
     
@@ -273,6 +271,12 @@ public class BackgroundTasks
     
     public List<int>? ArtifactIdsAddedToAlbums { get; set; }
     public List<int>? ArtifactIdsRemovedFromAlbums { get; set; }
+}
+
+public class AnalyticsTasks
+{
+    public SearchStat? RecordSearchStat { get; set; }
+    public ArtifactStat? RecordArtifactStat { get; set; }
 }
 
 public class RecordPrimaryArtifact
@@ -286,10 +290,10 @@ public class SyncTasks : IReturnVoid { }
 
 [ExcludeMetadata]
 [Restrict(InternalOnly = true)]
-public class SaveMetadata : IReturnVoid
+public class DiskTasks : IReturnVoid
 {
-    public int? CreativeId { get; set; }
-    public Creative Creative { get; set; }
+    public int? SaveCreativeId { get; set; }
+    public Creative SaveCreative { get; set; }
 }
 
 [Route("/creative/metadata/{CreativeId}")]

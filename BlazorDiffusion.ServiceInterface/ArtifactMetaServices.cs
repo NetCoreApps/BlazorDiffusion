@@ -63,7 +63,7 @@ public class ArtifactServices : Service
         if (file == null)
             return HttpError.NotFound("File not found");
 
-        PublishMessage(new BackgroundTasks {
+        PublishMessage(new AnalyticsTasks {
             RecordArtifactStat = new ArtifactStat {
                 Type = StatType.Download,
                 ArtifactId = artifact!.Id,

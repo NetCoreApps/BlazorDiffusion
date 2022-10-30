@@ -307,50 +307,6 @@ public class Migration1001 : MigrationBase
         public DateTime CreatedDate { get; set; }
     }
 
-    public class StatBase
-    {
-        public string RefId { get; set; }
-        [References(typeof(AppUser))]
-        public int? AppUserId { get; set; }
-        public string RawUrl { get; set; }
-        public string RemoteIp { get; set; }
-        public DateTime CreatedDate { get; set; }
-    }
-
-    public enum StatType
-    {
-        Download,
-    }
-
-    public class ArtifactStat : StatBase
-    {
-        [AutoIncrement]
-        public int Id { get; set; }
-
-        public StatType Type { get; set; }
-        public int ArtifactId { get; set; }
-        public string Source { get; set; }
-        public string Version { get; set; }
-    }
-
-    public class SearchStat : StatBase
-    {
-        [AutoIncrement]
-        public int Id { get; set; }
-        public string? Query { get; set; }
-        public string? Similar { get; set; }
-        public string? User { get; set; }
-        public string? Modifier { get; set; }
-        public string? Artist { get; set; }
-        public string? Album { get; set; }
-
-        public int? ArtifactId { get; set; }
-        public int? AlbumId { get; set; }
-        public int? AppUserId { get; set; }
-        public int? ModifierId { get; set; }
-        public int? ArtistId { get; set; }
-    }
-
     public class ImageCompareResult
     {
         public int Id { get; set; }
@@ -392,8 +348,6 @@ public class Migration1001 : MigrationBase
         Db.CreateTable<Album>();
         Db.CreateTable<AlbumArtifact>();
         Db.CreateTable<AlbumLike>();
-        Db.CreateTable<ArtifactStat>();
-        Db.CreateTable<SearchStat>();
 
         var seedDir = Path.GetFullPath(Path.Combine("./App_Data/seed"));
 
@@ -609,8 +563,6 @@ order by Similarity desc;
 
     public override void Down()
     {
-        Db.DropTable<SearchStat>();
-        Db.DropTable<ArtifactStat>();
         Db.DropTable<AlbumLike>();
         Db.DropTable<AlbumArtifact>();
         Db.DropTable<Album>();

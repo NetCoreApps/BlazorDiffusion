@@ -9,10 +9,10 @@ public class BackgroundMqServices : Service
 {
     public IStableDiffusionClient StableDiffusionClient { get; set; }
 
-    public async Task Any(SaveMetadata request)
+    public async Task Any(DiskTasks request)
     {
-        var creative = request.Creative ?? (request.CreativeId != null
-            ? await Db.LoadSingleByIdAsync<Creative>(request.CreativeId)
+        var creative = request.SaveCreative ?? (request.SaveCreativeId != null
+            ? await Db.LoadSingleByIdAsync<Creative>(request.SaveCreativeId)
             : null);
 
         if (creative != null)
@@ -51,30 +51,7 @@ public class BackgroundMqServices : Service
                 RefId = x.RefId,
             });
             await Db.InsertAllAsync(ftsArtifacts);
-            await Any(new SaveMetadata { Creative = request.NewCreative });
-        }
-
-        if (request.RecordArtifactStat != null)
-        {
-            await Db.InsertAsync(request.RecordArtifactStat);
-            
-            if (request.RecordArtifactStat.Type == StatType.Download)
-                await Scores.IncrementArtifactDownloadAsync(Db, request.RecordArtifactStat.ArtifactId);
-        }
-
-        if (request.RecordSearchStat != null)
-        {
-            await Db.InsertAsync(request.RecordSearchStat);
-
-            if (request.RecordSearchStat.ArtifactId != null)
-                await Scores.IncrementArtifactSearchAsync(Db, request.RecordSearchStat.ArtifactId.Value);
-
-            var albumId = request.RecordSearchStat.AlbumId
-                ?? (request.RecordSearchStat.Album != null
-                    ? await Db.ScalarAsync<int>(Db.From<Album>().Where(x => x.RefId == request.RecordSearchStat.Album).Select(x => x.Id))
-                    : null);
-            if (albumId != null)
-                await Scores.IncrementAlbumSearchAsync(Db, albumId.Value);
+            await Any(new DiskTasks { SaveCreative = request.NewCreative });
         }
 
         if (request.RecordArtifactLikeId != null)
@@ -103,6 +80,34 @@ public class BackgroundMqServices : Service
                 request.RecordPrimaryArtifact.CreativeId,
                 request.RecordPrimaryArtifact.FromArtifactId,
                 request.RecordPrimaryArtifact.ToArtifactId);
+        }
+    }
+
+    public async Task Any(AnalyticsTasks request)
+    {
+        using var analyticsDb = HostContext.AppHost.GetDbConnection(Databases.Analytics);
+        
+        if (request.RecordArtifactStat != null)
+        {
+            await analyticsDb.InsertAsync(request.RecordArtifactStat);
+
+            if (request.RecordArtifactStat.Type == StatType.Download)
+                await Scores.IncrementArtifactDownloadAsync(Db, request.RecordArtifactStat.ArtifactId);
+        }
+
+        if (request.RecordSearchStat != null)
+        {
+            await analyticsDb.InsertAsync(request.RecordSearchStat);
+
+            if (request.RecordSearchStat.ArtifactId != null)
+                await Scores.IncrementArtifactSearchAsync(Db, request.RecordSearchStat.ArtifactId.Value);
+
+            var albumId = request.RecordSearchStat.AlbumId
+                ?? (request.RecordSearchStat.Album != null
+                    ? await Db.ScalarAsync<int>(Db.From<Album>().Where(x => x.RefId == request.RecordSearchStat.Album).Select(x => x.Id))
+                    : null);
+            if (albumId != null)
+                await Scores.IncrementAlbumSearchAsync(Db, albumId.Value);
         }
     }
 }

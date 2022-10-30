@@ -98,7 +98,7 @@ public class DataService : Service
             q.SelectDistinct<Artifact, Creative>((a, c) => new { a, c.UserPrompt, c.ArtistNames, c.ModifierNames, c.PrimaryArtifactId });
         }
 
-        PublishMessage(new BackgroundTasks {
+        PublishMessage(new AnalyticsTasks {
             RecordSearchStat = new SearchStat {
                 Query = query.Query,
                 Similar = query.Similar,

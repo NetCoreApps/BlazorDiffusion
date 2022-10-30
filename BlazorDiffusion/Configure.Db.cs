@@ -1,4 +1,5 @@
 using BlazorDiffusion.ServiceInterface;
+using BlazorDiffusion.ServiceModel;
 using CoenM.ImageHash;
 using Microsoft.Data.Sqlite;
 using ServiceStack.Data;
@@ -12,9 +13,16 @@ namespace BlazorDiffusion;
 public class ConfigureDb : IHostingStartup
 {
     public void Configure(IWebHostBuilder builder) => builder
-        .ConfigureServices((context,services) => services.AddSingleton<IDbConnectionFactory>(new OrmLiteConnectionFactory(
-            context.Configuration.GetConnectionString("DefaultConnection") ?? "App_Data/db.sqlite",
-            SqliteDialect.Provider)))
+        .ConfigureServices((context,services) =>
+        {
+            var dbFactory = new OrmLiteConnectionFactory(
+                context.Configuration.GetConnectionString("DefaultConnection") ?? "App_Data/db.sqlite",
+                SqliteDialect.Provider);
+            dbFactory.RegisterConnection(Databases.Analytics, 
+                context.Configuration.GetConnectionString("AnalyticsConnection") ?? "App_Data/analytics.sqlite",
+                SqliteDialect.Provider);
+            services.AddSingleton<IDbConnectionFactory>(dbFactory);
+        })
         .ConfigureAppHost(appHost =>
         {
             using var db = appHost.Resolve<IDbConnectionFactory>().OpenDbConnection();
