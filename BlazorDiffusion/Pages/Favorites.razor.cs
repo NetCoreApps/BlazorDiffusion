@@ -5,8 +5,7 @@ using ServiceStack.Blazor;
 
 namespace BlazorDiffusion.Pages;
 
-
-public partial class Likes : AppAuthComponentBase
+public partial class Favorites : AppAuthComponentBase
 {
     [Inject] UserState UserState { get; set; } = default!;
     ApiResult<QueryResponse<Artifact>> api = new();

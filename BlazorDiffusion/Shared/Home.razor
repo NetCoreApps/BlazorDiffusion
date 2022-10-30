@@ -36,7 +36,7 @@
                             <SecondaryButton @onclick="navToCreate" class="!rounded-full py-2 px-4">Create</SecondaryButton>
                             @if (IsAuthenticated)
                             {
-                                <SecondaryButton @onclick="navToLikes" class="!rounded-full py-2 px-4">Likes</SecondaryButton>
+                                <SecondaryButton @onclick="navToFavorites" class="!rounded-full py-2 px-4">Favorites</SecondaryButton>
                             }
                         }
                         else if (Page == AppPage.Create)
@@ -45,14 +45,14 @@
                             <PrimaryButton @onclick="navToCreate" class="!rounded-full py-2 px-4" Style="ButtonStyle.Sky">Create</PrimaryButton>
                             @if (IsAuthenticated)
                             {
-                                <SecondaryButton @onclick="navToLikes" class="!rounded-full py-2 px-4">Likes</SecondaryButton>
+                                <SecondaryButton @onclick="navToFavorites" class="!rounded-full py-2 px-4">Favorites</SecondaryButton>
                             }
                         }
-                        else if (Page == AppPage.Likes)
+                        else if (Page == AppPage.Favorites)
                         {
                             <SecondaryButton @onclick="navToSearch" class="!rounded-full py-2 px-4">Search</SecondaryButton>
                             <SecondaryButton @onclick="navToCreate" class="!rounded-full py-2 px-4" Style="ButtonStyle.Sky">Create</SecondaryButton>
-                            <PrimaryButton @onclick="navToLikes" class="!rounded-full py-2 px-4">Likes</PrimaryButton>
+                            <PrimaryButton @onclick="navToFavorites" class="!rounded-full py-2 px-4">Favorites</PrimaryButton>
                         }
                     </div>
                 </div>
@@ -71,5 +71,5 @@
 
     void navToSearch() => NavigationManager.NavigateTo("/");
     void navToCreate() => NavigationManager.NavigateTo("/create");
-    void navToLikes() => NavigationManager.NavigateTo("/likes");
+    void navToFavorites() => NavigationManager.NavigateTo("/favorites");
 }
