@@ -9,13 +9,7 @@
 
     <ItemGroup>
       <None Remove="appsettings.json" />
-      <None Update="App_Data\seed\artists.csv">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="App_Data\seed\modifiers.txt">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="App_Data\seed\artifact-likes.csv">
+      <None Update="App_Data\seed\*">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>
