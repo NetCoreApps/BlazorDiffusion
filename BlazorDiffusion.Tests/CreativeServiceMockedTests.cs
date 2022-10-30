@@ -6,12 +6,14 @@ using BlazorDiffusion.Migrations;
 using BlazorDiffusion.ServiceInterface;
 using BlazorDiffusion.ServiceModel;
 using Funq;
+using Moq;
 using NUnit.Framework;
 using ServiceStack;
 using ServiceStack.Auth;
 using ServiceStack.Configuration;
 using ServiceStack.Data;
 using ServiceStack.IO;
+using ServiceStack.Messaging;
 using ServiceStack.OrmLite;
 
 namespace BlazorDiffusion.Tests;
@@ -59,6 +61,18 @@ public class CreativeServiceMockedTests
             container.Register<IDbConnectionFactory>(
                 new OrmLiteConnectionFactory("db.sqlite",
                     SqliteDialect.Provider));
+
+            var dbFactory = container.Resolve<IDbConnectionFactory>();
+            dbFactory.RegisterConnection(Databases.Analytics,":memory:",
+                SqliteDialect.Provider);
+
+            var bgTaskMock = new Mock<IMessageService>();
+            container.AddSingleton((Func<IServiceProvider, IMessageService>)(c => bgTaskMock.Object));
+            bgTaskMock.Object.RegisterHandler<BackgroundTasks>(this.ExecuteMessage);
+            var msgProducer = new Mock<IMessageProducer>();
+            var msgFactory = new Mock<IMessageFactory>();
+            msgFactory.Setup(x => x.CreateMessageProducer()).Returns(msgProducer.Object);
+            container.AddSingleton(msgFactory.Object);
             
             var migrator = CreateMigrator();
             migrator.Timeout = TimeSpan.Zero;
@@ -142,6 +156,8 @@ public class CreativeServiceMockedTests
             Steps = 10,
         }
     };
+
+    private static int artifactId = 5;
     
     [Test]
     [TestCaseSource("AllGenerationCases")]
@@ -231,6 +247,7 @@ public class CreativeServiceMockedTests
         });
         
         Assert.That(likeArtifactResponse, Is.Not.Null);
-        Assert.That(likeArtifactResponse.Id, Is.EqualTo(1));
+        Assert.That(likeArtifactResponse.Id, Is.EqualTo(artifactId.ToString()));
+        artifactId++;
     }
 }
