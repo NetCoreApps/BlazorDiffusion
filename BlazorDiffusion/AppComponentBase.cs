@@ -27,7 +27,7 @@ public enum AppPage
 {
     Search,
     Create,
-    Likes,
+    Favorites,
 }
 
 public static class AppData

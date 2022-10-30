@@ -55,10 +55,15 @@ public class DataService : Service
         {
             // Only return pinned artifacts
             q.Join<Creative>((a, c) => c.Id == a.CreativeId && a.Id == c.PrimaryArtifactId);
+            q.OrderByDescending(x => x.Quality); // always show bad images last
 
             if (!string.IsNullOrEmpty(search))
             {
-                q.Where<Creative>(x => x.Prompt.Contains(search));
+                //q.Where<Creative>(x => x.Prompt.Contains(search)); // basic search
+                var ftsSearch = search.Replace("\"", "").Quoted() + "*"; // escaped wildcard search
+                q.Join<ArtifactFts>((a, f) => a.Id == f.rowid);
+                q.Where(q.Column<ArtifactFts>(x => x.Prompt, prefixTable: true) + " match {0}", ftsSearch);
+                q.ThenBy(q.Column<ArtifactFts>("Rank", prefixTable: true));
             }
             if (query.User != null)
             {
@@ -85,7 +90,7 @@ public class DataService : Service
                  .Join<AlbumArtifact, Album>((albumRef, album) => albumRef.AlbumId == album.Id && album.RefId == query.Album);
             }
 
-            q.OrderByDescending(x => new { x.Quality, x.Score, x.Id });
+            q.ThenByDescending(x => new { x.Score, x.Id });
             // Need distinct else Blazor @key throws when returning dupes
             q.SelectDistinct<Artifact, Creative>((a, c) => new { a, c.UserPrompt, c.ArtistNames, c.ModifierNames, c.PrimaryArtifactId });
         }

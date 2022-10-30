@@ -146,15 +146,9 @@ public class Migration1001 : MigrationBase
 
     public class ArtifactFts
     {
+        public int rowid { get; set; }
         public int CreativeId { get; set; }
-        public int Width { get; set; }
-        public int Height { get; set; }
         public string Prompt { get; set; }
-        public bool? Nsfw { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public bool Curated { get; set; }
-        public int? Rating { get; set; }
-        public bool Private { get; set; }
         public string RefId { get; set; }
     }
     
@@ -479,8 +473,7 @@ public class Migration1001 : MigrationBase
             {
                 if (savedArtistIds.TryGetValue(artistName, out var artist))
                 {
-                    Db.Insert(new CreativeArtist
-                    {
+                    Db.Insert(new CreativeArtist {
                         ArtistId = artist,
                         CreativeId = id
                     });
@@ -576,13 +569,6 @@ public class Migration1001 : MigrationBase
 USING FTS5(
 {nameof(ArtifactFts.Prompt)},
 {nameof(ArtifactFts.CreativeId)},
-{nameof(ArtifactFts.Width)},
-{nameof(ArtifactFts.Height)},
-{nameof(ArtifactFts.Nsfw)},
-{nameof(ArtifactFts.CreatedDate)},
-{nameof(ArtifactFts.Curated)},
-{nameof(ArtifactFts.Private)},
-{nameof(ArtifactFts.Rating)},
 {nameof(ArtifactFts.RefId)});"
         );
 
@@ -590,27 +576,12 @@ USING FTS5(
 (rowid,
 {nameof(ArtifactFts.Prompt)},
 {nameof(ArtifactFts.CreativeId)},
-{nameof(ArtifactFts.Width)},
-{nameof(ArtifactFts.Height)},
-{nameof(ArtifactFts.Nsfw)},
-{nameof(ArtifactFts.CreatedDate)},
-{nameof(ArtifactFts.Curated)},
-{nameof(ArtifactFts.Private)},
-{nameof(ArtifactFts.Rating)},
 {nameof(ArtifactFts.RefId)})
 SELECT 
-{nameof(Artifact)}.{nameof(Artifact.Id)},
-{nameof(Artifact)}.{nameof(Artifact.Prompt)},
-{nameof(Artifact)}.{nameof(Artifact.CreativeId)},
-{nameof(Artifact)}.{nameof(Artifact.Width)},
-{nameof(Artifact)}.{nameof(Artifact.Height)},
-{nameof(Artifact)}.{nameof(Artifact.Nsfw)},
-{nameof(Artifact)}.{nameof(Artifact.CreatedDate)},
-{nameof(Creative.Curated)},
-{nameof(Creative.Private)},
-{nameof(Creative.Rating)},
-{nameof(Creative)}.{nameof(Creative.RefId)} FROM {nameof(Artifact)}
-join {nameof(Creative)} on {nameof(Creative)}.Id = {nameof(Artifact)}.CreativeId;");
+{nameof(Artifact.Id)},
+{nameof(Artifact.Prompt)},
+{nameof(Artifact.CreativeId)},
+{nameof(Artifact.RefId)} FROM {nameof(Artifact)}");
 
         var artifactTest = Db.Select<Artifact>(x => x.Id == 25).First();
 

@@ -40,6 +40,20 @@ public class BackgroundMqServices : Service
 
     public async Task Any(BackgroundTasks request)
     {
+        if (request.NewCreative != null)
+        {
+            var creative = request.NewCreative;
+            var ftsArtifacts = request.NewCreative.Artifacts.Map(x => new ArtifactFts
+            {
+                rowid = x.Id,
+                Prompt = creative.Prompt,
+                CreativeId = creative.Id,
+                RefId = x.RefId,
+            });
+            await Db.InsertAllAsync(ftsArtifacts);
+            await Any(new SaveMetadata { Creative = request.NewCreative });
+        }
+
         if (request.RecordArtifactStat != null)
         {
             await Db.InsertAsync(request.RecordArtifactStat);

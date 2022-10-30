@@ -102,4 +102,15 @@ public static class CreativeExtensions
             album.Artifacts.RemoveAll(x => x.ArtifactId == artifact.Id);
         }
     }
+
+    public static string ConstructPrompt(this string userPrompt, List<Modifier> modifiers, List<Artist> artists)
+    {
+        var finalPrompt = userPrompt;
+        finalPrompt += $", {modifiers.Select(x => x.Name).Join(",").TrimEnd(',')}";
+        var artistsSuffix = artists.Select(x => $"by {x.FirstName} {x.LastName}").Join(",").TrimEnd(',');
+        if (artists.Count > 0)
+            finalPrompt += $", {artistsSuffix}";
+        return finalPrompt;
+    }
+
 }

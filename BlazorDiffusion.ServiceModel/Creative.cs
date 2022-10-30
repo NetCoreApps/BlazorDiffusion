@@ -263,6 +263,7 @@ public class CreativeModifier
 [Restrict(InternalOnly = true)]
 public class BackgroundTasks
 {
+    public Creative? NewCreative { get; set; }
     public SearchStat? RecordSearchStat { get; set; }
     public ArtifactStat? RecordArtifactStat { get; set; }
     public int? RecordArtifactLikeId { get; set; }

@@ -40,7 +40,7 @@ public class CreativeService : Service
 
         var creative = await Db.LoadSingleByIdAsync<Creative>(creativeId);
 
-        PublishMessage(new SaveMetadata { Creative = creative });
+        PublishMessage(new BackgroundTasks { NewCreative = creative });
 
         return creative;
     }
@@ -143,7 +143,7 @@ public class CreativeService : Service
         creative.Key = imageGenerationResponse.Key;
         creative.ArtistNames = artists.Select(x => $"{x.FirstName} {x.LastName}").ToList();
         creative.ModifierNames = modifiers.Select(x => x.Name).ToList();
-        creative.Prompt = ConstructPrompt(request.UserPrompt, modifiers, artists);
+        creative.Prompt = request.UserPrompt.ConstructPrompt(modifiers, artists);
         creative.RefId = Guid.NewGuid().ToString("D");
 
         using var db = HostContext.AppHost.GetDbConnection();
@@ -186,7 +186,7 @@ public class CreativeService : Service
         var authSession = await GetSessionAsync().ConfigAwait();
         var userRoles = await authSession.GetRolesAsync(AuthRepositoryAsync);
         var adminOrMod = userRoles.Contains(AppRoles.Admin) || userRoles.Contains(AppRoles.Moderator);
-        var apiPrompt = ConstructPrompt(request.UserPrompt, modifiers, artists);
+        var apiPrompt = request.UserPrompt.ConstructPrompt(modifiers, artists);
 
         var maxHeight = adminOrMod
             ? request.Height ?? DefaultHeight
@@ -221,16 +221,6 @@ public class CreativeService : Service
             throw HttpError.ServiceUnavailable($"Failed to generate image: {e.Message}");
         }
         return imageGenerationResponse;
-    }
-
-    private string ConstructPrompt(string userPrompt, List<Modifier> modifiers, List<Artist> artists)
-    {
-        var finalPrompt = userPrompt;
-        finalPrompt += $", {modifiers.Select(x => x.Name).Join(",").TrimEnd(',')}";
-        var artistsSuffix = artists.Select(x => $"by {x.FirstName} {x.LastName}").Join(",").TrimEnd(',');
-        if(artists.Count > 0)
-            finalPrompt += $", {artistsSuffix}";
-        return finalPrompt;
     }
 
     public async Task Delete(DeleteCreative request)

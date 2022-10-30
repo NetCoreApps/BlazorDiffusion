@@ -70,17 +70,9 @@ public class ArtifactResult : Artifact
 /// </summary>
 public class ArtifactFts
 {
-    public string rowid { get; set; }
+    public int rowid { get; set; }
     public int CreativeId { get; set; }
-    public int Width { get; set; }
-    public int Height { get; set; }
     public string Prompt { get; set; }
-    public bool? Nsfw { get; set; }
-    public DateTime CreatedDate { get; set; }
-    public bool Curated { get; set; }
-    public int? Rating { get; set; }
-    public bool Private { get; set; }
-
     public string RefId { get; set; }
 }
 
