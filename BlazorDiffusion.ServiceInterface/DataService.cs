@@ -60,7 +60,10 @@ public class DataService : Service
             if (!string.IsNullOrEmpty(search))
             {
                 //q.Where<Creative>(x => x.Prompt.Contains(search)); // basic search
-                var ftsSearch = search.Replace("\"", "").Quoted() + "*"; // escaped wildcard search
+                search = search.Replace("\"", ""); // escape
+                if (search.EndsWith('s')) // allow wildcard search to match on both
+                    search = Words.Singularize(search);
+                var ftsSearch = search.Quoted() + "*"; // wildcard search
                 q.Join<ArtifactFts>((a, f) => a.Id == f.rowid);
                 q.Where(q.Column<ArtifactFts>(x => x.Prompt, prefixTable: true) + " match {0}", ftsSearch);
                 q.ThenBy(q.Column<ArtifactFts>("Rank", prefixTable: true));
