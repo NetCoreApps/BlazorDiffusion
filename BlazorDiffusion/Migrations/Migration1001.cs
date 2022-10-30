@@ -371,9 +371,9 @@ public class Migration1001 : MigrationBase
         var authRepo = CreateAuthRepo();
         authRepo.InitSchema(Db);
 
-        void CreateUser(string email, string name, string password, string[]? roles = null)
+        void CreateUser(string email, string name, string password, string refId, string[]? roles = null)
         {
-            var newAdmin = new AppUser { Email = email, DisplayName = name, RefIdStr = Guid.NewGuid().ToString("D") };
+            var newAdmin = new AppUser { Email = email, DisplayName = name, RefIdStr = refId };
             var user = authRepo.CreateUserAuth(Db, newAdmin, password);
             if (roles?.Length > 0)
             {
@@ -381,11 +381,11 @@ public class Migration1001 : MigrationBase
             }
         }
 
-        CreateUser("admin@email.com", "Admin User", "p@55wOrd", roles: new[] { RoleNames.Admin });
-        CreateUser("system@email.com", "System", "p@55wOrd", roles: new[] { AppRoles.Moderator });
-        CreateUser("demis@servicestack.com", "Demis", "p@55wOrd", roles: new[] { AppRoles.Moderator });
-        CreateUser("darren@servicestack.com", "Darren", "p@55wOrd", roles: new[] { AppRoles.Moderator });
-        CreateUser("test@user.com", "Test", "p@55wOrd");
+        CreateUser("admin@email.com", "Admin User", "p@55wOrd", "b496e043-3e5b-4410-b0e5-1c9cca04c07f", roles: new[] { RoleNames.Admin });
+        CreateUser("system@email.com", "System", "p@55wOrd", "cd1bbe7e-2038-4b43-9086-32c790485588", roles: new[] { AppRoles.Moderator });
+        CreateUser("demis@servicestack.com", "Demis", "p@55wOrd", "865d5f4a-4c58-461d-b1b8-2aac005cd2bc", roles: new[] { AppRoles.Moderator });
+        CreateUser("darren@servicestack.com", "Darren", "p@55wOrd", "16846ea4-2bb6-4c58-a999-985dac3c31a2", roles: new[] { AppRoles.Moderator });
+        CreateUser("test@user.com", "Test", "p@55wOrd", "3823c5af-d0b6-4738-8601-bd91bf6f9771");
 
         Db.CreateTable<Artist>();
         Db.CreateTable<Modifier>();
