@@ -29,7 +29,7 @@
                                     <div>
                                         <button type="button" @onclick=@(_ => ShowAuthMenu=!ShowAuthMenu)
                                                 class="max-w-xs bg-white dark:bg-black rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 lg:p-2 lg:rounded-md lg:hover:bg-gray-50 dark:lg:hover:bg-gray-900 dark:ring-offset-black" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
-                                            <img class="h-8 w-8 rounded-full" src=@User.GetProfileUrl() alt="">
+                                            <img class="h-8 w-8 rounded-full" src=@(useSrc ?? User.GetProfileUrl()) alt="" @onerror="_ => useSrc = BlazorConfig.Instance.DefaultProfileUrl">
                                             <span class="hidden ml-3 text-gray-700 dark:text-gray-300 text-sm font-medium lg:block">
                                                 <span class="sr-only">Open user menu for </span>
                                                 @User.GetDisplayName()
@@ -40,7 +40,7 @@
                                             </svg>
                                         </button>
                                     </div>
-                                    <div class=@CssUtils.ClassNames("origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-black ring-1 ring-black ring-opacity-5 focus:outline-none",
+                                    <div class=@CssUtils.ClassNames("z-10 origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-black ring-1 ring-black ring-opacity-5 focus:outline-none",
                                          ShowAuthMenu ? "transform opacity-100 scale-100" : "transform opacity-0 scale-95")
                                          @onclick="hideAuthMenu" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
                                         @if (ShowAuthMenu)
@@ -83,6 +83,7 @@
 </header>
 
 @code {
+    string? useSrc = null;
     bool ShowAuthMenu = false;
 
     string LoginUrl { get; set; } = "/signin";
@@ -93,6 +94,7 @@
 
     protected override Task OnParametersSetAsync()
     {
+        useSrc = null;
         LoginUrl = NavigationManager.GetLoginUrl();
         return base.OnParametersSetAsync();
     }
