@@ -2283,6 +2283,11 @@ input[data-autocompleted] {
   padding-bottom: 2rem;
 }
 
+.py-12 {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
 .pt-2 {
   padding-top: 0.5rem;
 }
@@ -3274,12 +3279,12 @@ input[data-autocompleted] {
   border-color: rgb(243 244 246 / var(--tw-divide-opacity));
 }
 
-.dark .dark\:border-2 {
-  border-width: 2px;
-}
-
 .dark .dark\:border {
   border-width: 1px;
+}
+
+.dark .dark\:border-2 {
+  border-width: 2px;
 }
 
 .dark .dark\:border-gray-800 {
@@ -4048,14 +4053,14 @@ input[data-autocompleted] {
     padding-right: 2rem;
   }
 
-  .lg\:py-20 {
-    padding-top: 5rem;
-    padding-bottom: 5rem;
-  }
-
   .lg\:px-0 {
     padding-left: 0px;
     padding-right: 0px;
+  }
+
+  .lg\:py-20 {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
   }
 
   .lg\:pr-8 {
