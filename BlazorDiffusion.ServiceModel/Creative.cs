@@ -260,7 +260,7 @@ public class CreativeModifier
 }
 
 [ExcludeMetadata]
-[Restrict(LocalhostOnly = true)]
+[Restrict(InternalOnly = true)]
 public class BackgroundTasks
 {
     public SearchStat? RecordSearchStat { get; set; }
@@ -284,7 +284,7 @@ public class RecordPrimaryArtifact
 public class SyncTasks : IReturnVoid { }
 
 [ExcludeMetadata]
-[Restrict(LocalhostOnly = true)]
+[Restrict(InternalOnly = true)]
 public class SaveMetadata : IReturnVoid
 {
     public int? CreativeId { get; set; }
