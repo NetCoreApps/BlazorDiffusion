@@ -18,7 +18,7 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<ServiceStackStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<ServiceStackStateProvider>());
 
-var baseUrl = builder.Configuration["ApiBaseUrl"] ??
+var baseUrl = builder.Configuration["oauth.RedirectUrl"] ??
     (builder.Environment.IsDevelopment() ? "https://localhost:5001" : "http://" + IPAddress.Loopback);
 
 builder.Services.AddLocalStorage();
