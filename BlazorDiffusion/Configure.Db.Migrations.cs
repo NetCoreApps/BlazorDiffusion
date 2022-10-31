@@ -3,6 +3,7 @@ using ServiceStack.Data;
 using ServiceStack.OrmLite;
 using BlazorDiffusion.Migrations;
 using BlazorDiffusion.ServiceInterface;
+using BlazorDiffusion.ServiceModel;
 
 [assembly: HostingStartup(typeof(BlazorDiffusion.ConfigureDbMigrations))]
 
@@ -19,7 +20,7 @@ public class ConfigureDbMigrations : IHostingStartup
 
             using var db = migrator.DbFactory.OpenDbConnection();
             Scores.Load(db);
-            using var dbAnalytics = migrator.DbFactory.OpenDbConnection();
+            using var dbAnalytics = migrator.DbFactory.OpenDbConnection(Databases.Analytics);
             Scores.LoadAnalytics(dbAnalytics);
         });
 }
