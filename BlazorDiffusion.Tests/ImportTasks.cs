@@ -84,7 +84,7 @@ public class ImportTasks
         using var db = dbFactory.OpenDbConnection();
         Scores.Load(db);
         using var dbAnalytics = dbFactory.OpenDbConnection(Databases.Analytics);
-        Scores.Load(dbAnalytics);
+        Scores.LoadAnalytics(dbAnalytics);
 
         ImageUtils.Log = true;
 
@@ -108,6 +108,7 @@ public class ImportTasks
                 foreach (var artifact in creative.Artifacts)
                 {
                     Scores.PopulateArtifactScores(artifact);
+                    Scores.PopulateTemporalScore(artifact);
                     //artifact.Background = null;
                     //artifact.PerceptualHash = artifact.AverageHash = artifact.DifferenceHash;
                     if (artifact.MissingImageDetails())
