@@ -162,12 +162,6 @@ jobs:
           source: ".deploy/${{ github.event.repository.name }}-docker-compose.yml"
           target: "~/"
 
-      - name: checkout
-        uses: actions/checkout@v3
-        with:
-          repository: NetCoreApps/BlazorDiffusionAssets
-          path: BlazorDiffusionAssets
-
       - name: Clean assets remotely during development
         uses: appleboy/ssh-action@v0.1.4
         with:
@@ -179,15 +173,14 @@ jobs:
             rm -rf /var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data/artifacts
 
       - name: Copy BlazorDiffusion Assets to Remote Server
-        uses: appleboy/scp-action@v0.1.1
+        uses: appleboy/ssh-action@v0.1.4
         with:
           host: ${{ secrets.DEPLOY_API }}
           username: ${{ secrets.DEPLOY_USERNAME }}
-          port: 22
           key: ${{ secrets.DEPLOY_KEY }}
-          strip_components: 1
-          source: "./BlazorDiffusionAssets/artifacts/*"
-          target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data/"
+          port: 22
+          script: |
+            aws s3 sync s3://diffusion/artifacts /var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data/artifacts
           
       - name: Copy BlazorDiffusion Seed Data to Remote Server
         uses: appleboy/scp-action@v0.1.1
