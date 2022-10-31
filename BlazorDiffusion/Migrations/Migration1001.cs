@@ -34,6 +34,7 @@ public class Migration1001 : MigrationBase
 
         public int Steps { get; set; }
 
+        public int? CuratedArtifactId { get; set; }
         public int? PrimaryArtifactId { get; set; }
 
         public List<string> ArtistNames { get; set; }

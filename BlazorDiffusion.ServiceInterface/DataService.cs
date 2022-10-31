@@ -71,6 +71,7 @@ public class DataService : Service
             if (query.User != null)
             {
                 q.Join<Creative, AppUser>((c, a) => c.OwnerId == a.Id && a.RefIdStr == query.User);
+                q.ThenByDescending(x => x.Id);
             }
             if (query.Modifier != null)
             {

@@ -22,8 +22,9 @@ public class Creative : AuditBase
 
     public int Steps { get; set; }
 
+    public int? CuratedArtifactId { get; set; }
     public int? PrimaryArtifactId { get; set; }
-    
+
     public List<string> ArtistNames { get; set; }
     public List<string> ModifierNames { get; set; }
 
