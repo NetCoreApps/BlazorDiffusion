@@ -30,7 +30,7 @@ public static class CreativeExtensions
         return row;
     }
 
-    public static string SolidImageDataUri(string? fill) => 
+    public static string SolidImageDataUri(string? fill) =>
         $"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23{(fill ?? "#000").Substring(1)}' d='M2 2h60v60H2z'/%3E%3C/svg%3E";
 
     public static string GetBackgroundImage(this Artifact artifact) => SolidImageDataUri(artifact.Background);
@@ -66,7 +66,7 @@ public static class CreativeExtensions
         if (creative == null)
             return TypeConstants<Artifact>.EmptyList;
 
-        var primary = creative.PrimaryArtifactId != null 
+        var primary = creative.PrimaryArtifactId != null
             ? creative.Artifacts.FirstOrDefault(x => x.Id == creative.PrimaryArtifactId)
             : null;
         if (primary == null)
@@ -77,7 +77,7 @@ public static class CreativeExtensions
         return to;
     }
 
-    public static bool HasArtifact(this Album album, Artifact artifact) => 
+    public static bool HasArtifact(this Album album, Artifact artifact) =>
         album?.Artifacts?.Any(x => x.ArtifactId == artifact.Id) == true;
 
     public static void AddArtifact(this Album album, Artifact artifact)
@@ -85,7 +85,7 @@ public static class CreativeExtensions
         if (!album.HasArtifact(artifact))
         {
             album.Artifacts ??= new();
-            album.Artifacts.Add(new AlbumArtifact { 
+            album.Artifacts.Add(new AlbumArtifact {
                 AlbumId = album.Id,
                 ArtifactId = artifact.Id,
                 CreatedDate = DateTime.UtcNow,
@@ -112,5 +112,9 @@ public static class CreativeExtensions
             finalPrompt += $", {artistsSuffix}";
         return finalPrompt;
     }
+
+    public static string GetArtistName(this Artist artist) => string.IsNullOrEmpty(artist.FirstName)
+        ? artist.LastName
+        : $"{artist.FirstName} {artist.LastName}";
 
 }
