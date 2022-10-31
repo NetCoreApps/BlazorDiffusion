@@ -175,13 +175,14 @@ public class CreativeService : Service
             RefId = Guid.NewGuid().ToString("D"),
         }.WithImageDetails(x.ImageDetails).WithAudit(userAuthId, now));
         await db.InsertAllAsync(artifacts);
-        // await db.InsertAllAsync(artifacts.Select(x => new ArtifactFts
-        // {
-        //     rowid = x.Id,
-        //     Prompt = x.Prompt,
-        //     CreativeId = x.CreativeId,
-        //     RefId = x.RefId
-        // }));
+        artifacts = await db.SelectAsync<Artifact>(x => x.CreativeId == creative.Id);
+        await db.InsertAllAsync(artifacts.Select(x => new ArtifactFts
+        {
+            rowid = x.Id,
+            Prompt = x.Prompt,
+            CreativeId = x.CreativeId,
+            RefId = x.RefId
+        }));
         transaction.Commit();
 
         return creative.Id;
