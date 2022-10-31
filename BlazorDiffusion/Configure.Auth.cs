@@ -39,7 +39,7 @@ public class ConfigureAuth : IHostingStartup
                         PopulateSessionFilter = (session,payload,req) => {
                             ((CustomUserSession)session).RefIdStr = payload["ref"];
                         },
-                        RequireSecureConnection = false,
+                        //RequireSecureConnection = false,
                     },
                     new CredentialsAuthProvider(appSettings),     /* Sign In with Username / Password credentials */
                     new FacebookAuthProvider(appSettings),        /* Create App https://developers.facebook.com/apps */
