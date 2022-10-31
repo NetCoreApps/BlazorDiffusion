@@ -9,7 +9,7 @@
                 @if (IsModerator)
                 {
                     <div class="text-gray-700 dark:text-gray-100 bg-gray-300 dark:bg-gray-700 px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">
-                        Score: @Artifact.Score = @((Artifact as ArtifactResult)?.PrimaryArtifactId == Artifact.Id ? "P" : "") @Artifact.LikesCount@("L") @Artifact.AlbumsCount@("A") @Artifact.DownloadsCount@("D") @Artifact.SearchCount@("S")
+                        @Artifact.TemporalScore / @Artifact.Score = @((Artifact as ArtifactResult)?.PrimaryArtifactId == Artifact.Id ? "P" : "") @Artifact.LikesCount@("L") @Artifact.AlbumsCount@("A") @Artifact.DownloadsCount@("D") @Artifact.SearchCount@("S")
                     </div>
                     if (Artifact is ArtifactResult result && result.Similarity > 0)
                     {
