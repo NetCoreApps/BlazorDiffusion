@@ -355,6 +355,8 @@ public class Migration1001 : MigrationBase
 
         var seedDir = Path.GetFullPath(Path.Combine("./App_Data/seed"));
 
+        var errors = new List<string>();
+
 
         // Import Modifiers
         foreach (var line in File.ReadAllLines(seedDir.CombineWith("modifiers.txt")))
@@ -373,7 +375,7 @@ public class Migration1001 : MigrationBase
         {
             var isUnique = savedModifiers.TryAdd(modifier.Name, modifier.Id);
             if (!isUnique)
-                Console.WriteLine($"Duplicate - {modifier.Category}/{modifier.Name}");
+                errors.Add($"Duplicate Modifier - {modifier.Category}/{modifier.Name}");
         }
 
         // Import Artists
@@ -387,7 +389,7 @@ public class Migration1001 : MigrationBase
             var artistName = GetArtistName(a);
             var isUnique = savedArtistIds.TryAdd(artistName, a.Id);
             if (!isUnique)
-                Console.WriteLine($"Duplicate - {artistName}");
+                errors.Add($"Duplicate Artist - {artistName}");
         }
 
         // When needing to match on Artifact Ids
@@ -410,6 +412,7 @@ public class Migration1001 : MigrationBase
             creativeEntries.Add(creative);
         }
 
+
         foreach (var creative in creativeEntries)
         {
             creative.Id = 0;
@@ -420,12 +423,18 @@ public class Migration1001 : MigrationBase
             var id = creative.Id = (int)Db.Insert(creative, selectIdentity: true);
             foreach (var text in creative.ModifierNames)
             {
-                var mod = savedModifiers[text];
-                Db.Insert(new CreativeModifier
+                if (savedModifiers.TryGetValue(text, out var mod))
                 {
-                    ModifierId = mod,
-                    CreativeId = id
-                });
+                    Db.Insert(new CreativeModifier
+                    {
+                        ModifierId = mod,
+                        CreativeId = id
+                    });
+                }
+                else
+                {
+                    errors.Add($"{creative.Key} NotFound: Modifier {text}");
+                }
             }
 
             foreach (var artistName in creative.ArtistNames)
@@ -439,7 +448,7 @@ public class Migration1001 : MigrationBase
                 }
                 else
                 {
-                    Console.WriteLine($"NotFound: Artist {artistName}");
+                    errors.Add($"{creative.Key} NotFound: Artist {artistName}");
                 }
             }
 
@@ -552,6 +561,13 @@ SELECT
 select FilePath, PerceptualHash, imgcompare({artifactTest.PerceptualHash},PerceptualHash) as Similarity from Artifact
 order by Similarity desc;
 ");
+
+        Console.WriteLine($"{nameof(Migration1001)} had {errors.Count} errors:");
+        if (errors.Count > 0)
+        {
+            errors.Each(x => Console.WriteLine($"   {x}"));
+        }
+        5.Times(_ => Console.WriteLine());
 
         sw.Stop();
     }

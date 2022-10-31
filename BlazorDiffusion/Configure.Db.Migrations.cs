@@ -16,8 +16,10 @@ public class ConfigureDbMigrations : IHostingStartup
             AppTasks.Register("migrate", _ => migrator.Run());
             AppTasks.Register("migrate.revert", args => migrator.Revert(args[0]));
             AppTasks.Run();
-            
+
             using var db = migrator.DbFactory.OpenDbConnection();
             Scores.Load(db);
+            using var dbAnalytics = migrator.DbFactory.OpenDbConnection();
+            Scores.LoadAnalytics(dbAnalytics);
         });
 }
