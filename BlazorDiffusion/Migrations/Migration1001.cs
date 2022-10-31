@@ -551,25 +551,13 @@ SELECT
 {nameof(Artifact.CreativeId)},
 {nameof(Artifact.RefId)} FROM {nameof(Artifact)}");
 
-        var artifactTest = Db.Select<Artifact>(x => x.Id == 25).First();
-
-        Db.RegisterImgCompare();
-           
-        var sw = new Stopwatch();
-        sw.Start();
-        var result = Db.Select<ImageCompareResult>($@"
-select FilePath, PerceptualHash, imgcompare({artifactTest.PerceptualHash},PerceptualHash) as Similarity from Artifact
-order by Similarity desc;
-");
 
         Console.WriteLine($"{nameof(Migration1001)} had {errors.Count} errors:");
         if (errors.Count > 0)
         {
             errors.Each(x => Console.WriteLine($"   {x}"));
+            throw new Exception($"{nameof(Migration1001)} had {errors.Count} errors, check logs");
         }
-        5.Times(_ => Console.WriteLine());
-
-        sw.Stop();
     }
 
     private string ConstructPrompt(string userPrompt, List<string> modifiers, List<string> artists)
