@@ -36,10 +36,10 @@ public class AppHost : AppHostBase, IHostingStartup
         var r2AccessKey = Environment.GetEnvironmentVariable("R2_ACCESS_KEY_ID");
         var r2Secret = Environment.GetEnvironmentVariable("R2_SECRET_ACCESS_KEY");
         var appConfig = AppConfig.Set(new AppConfig {
-            ArtifactBucket = AppSettings.Get<string>("r2Bucket"),
-            R2Account = AppSettings.Get<string>("r2Account"),
-            AssetsBasePath = AppSettings.Get<string>("cdnBasePath"),
-            FallbackAssetsBasePath = AppSettings.Get<string>("r2PublicBasePath"),           
+            ArtifactBucket = "diffusion",
+            R2Account = "b95f38ca3a6ac31ea582cd624e6eb385",
+            AssetsBasePath = "https://cdn.diffusion.works",
+            FallbackAssetsBasePath = "https://pub-97bba6b94a944260b10a6e7d4bf98053.r2.dev",
         });
         
         container.Register(appConfig);
