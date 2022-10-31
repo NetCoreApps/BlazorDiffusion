@@ -162,16 +162,6 @@ jobs:
           source: ".deploy/${{ github.event.repository.name }}-docker-compose.yml"
           target: "~/"
 
-      - name: Clean assets remotely during development
-        uses: appleboy/ssh-action@v0.1.4
-        with:
-          host: ${{ secrets.DEPLOY_API }}
-          username: ${{ secrets.DEPLOY_USERNAME }}
-          key: ${{ secrets.DEPLOY_KEY }}
-          port: 22
-          script: |
-            rm -rf /var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data/artifacts
-
       - name: Copy BlazorDiffusion Assets to Remote Server
         uses: appleboy/ssh-action@v0.1.4
         with:
