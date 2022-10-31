@@ -425,7 +425,7 @@ public class Migration1001 : MigrationBase
 
             foreach (var artistName in creative.ArtistNames)
             {
-                if (savedArtistIds.TryGetValue(artistName, out var artist))
+                if (savedArtistIds.TryGetValue(artistName.Trim(), out var artist))
                 {
                     Db.Insert(new CreativeArtist {
                         ArtistId = artist,
