@@ -314,6 +314,10 @@ public class Migration1001 : MigrationBase
         public double Similarity { get; set; }
     }
 
+    public static string GetArtistName(Artist artist) => string.IsNullOrEmpty(artist.FirstName)
+        ? artist.LastName
+        : $"{artist.FirstName} {artist.LastName}";
+
     OrmLiteAuthRepository<AppUser, UserAuthDetails> CreateAuthRepo() => new(DbFactory) { UseDistinctRoleTables = true };
 
     public override void Up()
@@ -367,9 +371,9 @@ public class Migration1001 : MigrationBase
         var allMods = Db.Select<Modifier>();
         foreach (var modifier in allMods)
         {
-            var isUnique = savedModifiers.TryAdd(modifier.Name.ToLowerInvariant(), modifier.Id);
+            var isUnique = savedModifiers.TryAdd(modifier.Name, modifier.Id);
             if (!isUnique)
-                Console.WriteLine($"Duplicate - {modifier.Category}/{modifier.Name.ToLowerInvariant()}");
+                Console.WriteLine($"Duplicate - {modifier.Category}/{modifier.Name}");
         }
 
         // Import Artists
@@ -380,9 +384,10 @@ public class Migration1001 : MigrationBase
         var allArtists = Db.Select<Artist>();
         foreach (var a in allArtists)
         {
-            var isUnique = savedArtistIds.TryAdd($"{a.FirstName} {a.LastName}".ToLowerInvariant(), a.Id);
+            var artistName = GetArtistName(a);
+            var isUnique = savedArtistIds.TryAdd(artistName, a.Id);
             if (!isUnique)
-                Console.WriteLine($"Duplicate - {a.FirstName} {a.LastName}");
+                Console.WriteLine($"Duplicate - {artistName}");
         }
 
         // When needing to match on Artifact Ids
@@ -415,7 +420,7 @@ public class Migration1001 : MigrationBase
             var id = creative.Id = (int)Db.Insert(creative, selectIdentity: true);
             foreach (var text in creative.ModifierNames)
             {
-                var mod = savedModifiers[text.ToLowerInvariant()];
+                var mod = savedModifiers[text];
                 Db.Insert(new CreativeModifier
                 {
                     ModifierId = mod,
@@ -425,7 +430,7 @@ public class Migration1001 : MigrationBase
 
             foreach (var artistName in creative.ArtistNames)
             {
-                if (savedArtistIds.TryGetValue(artistName.Trim(), out var artist))
+                if (savedArtistIds.TryGetValue(artistName, out var artist))
                 {
                     Db.Insert(new CreativeArtist {
                         ArtistId = artist,
