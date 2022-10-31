@@ -180,7 +180,7 @@ jobs:
           key: ${{ secrets.DEPLOY_KEY }}
           port: 22
           script: |
-            aws s3 sync s3://diffusion/artifacts /var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data/artifacts
+            aws s3 sync s3://diffusion/artifacts /var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data/artifacts --endpoint-url https://b95f38ca3a6ac31ea582cd624e6eb385.r2.cloudflarestorage.com
           
       - name: Copy BlazorDiffusion Seed Data to Remote Server
         uses: appleboy/scp-action@v0.1.1
