@@ -147,6 +147,8 @@ jobs:
           SERVICESTACK_LICENSE: ${{ secrets.SERVICESTACK_LICENSE }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AZURE_APP_ID: ${{ secrets.AZURE_APP_ID }}
+          AZURE_APP_SECRET: ${{ secrets.AZURE_APP_SECRET }}
         with:
           input: .deploy/docker-compose-template.yml
           output: .deploy/${{ github.event.repository.name }}-docker-compose.yml
