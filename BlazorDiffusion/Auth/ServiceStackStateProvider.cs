@@ -11,7 +11,5 @@ namespace BlazorDiffusion;
 /// </summary>
 public class ServiceStackStateProvider : BlazorServerAuthenticationStateProvider
 {
-    public ServiceStackStateProvider(
-        JsonApiClient client, ILogger<BlazorServerAuthenticationStateProvider> log, IHttpContextAccessor accessor, NavigationManager navigationManager, IJSRuntime js)
-        : base(client, log, accessor, navigationManager, js) { }
+    public ServiceStackStateProvider(BlazorServerAuthContext context, ILogger<BlazorServerAuthenticationStateProvider> log) : base(context, log) { }
 }

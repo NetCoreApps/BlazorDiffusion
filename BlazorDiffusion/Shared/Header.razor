@@ -101,6 +101,6 @@
 
     async Task logout()
     {
-        await AuthStateProvider.LogoutAsync(redirectTo: LoginUrl);
+        await AuthStateProvider.LogoutIfAuthenticatedAsync(redirectTo: LoginUrl);
     }
 }

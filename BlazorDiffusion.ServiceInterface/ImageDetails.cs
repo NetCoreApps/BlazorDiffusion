@@ -51,7 +51,7 @@ public class ImageDetails
             var sw = Stopwatch.StartNew();
 
             // Scale the image down preserving the aspect ratio to speed up calculations
-            image.ResizeImage(new Size(100, 0));
+            image.ResizeImage(new Size(100, 0)); //= /8
             ret.DominantColor = image.CalculateAverageColor();
 
             if (Log) Console.WriteLine($"DominantColor took {sw.ElapsedMilliseconds}ms");

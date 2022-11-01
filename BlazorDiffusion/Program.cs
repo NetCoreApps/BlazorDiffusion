@@ -4,7 +4,6 @@ using ServiceStack.Blazor;
 using BlazorDiffusion.UI;
 using BlazorDiffusion.ServiceModel;
 using Ljbc1994.Blazor.IntersectionObserver;
-using Microsoft.AspNetCore.Components.Server.Circuits;
 
 AppHost.RegisterKey();
 
@@ -18,7 +17,7 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<ServiceStackStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<ServiceStackStateProvider>());
 
-var baseUrl = builder.Configuration["oauth.RedirectUrl"] ??
+var baseUrl = // builder.Configuration["oauth.RedirectUrl"] ?? // trying out UseInProcessClient
     (builder.Environment.IsDevelopment() ? "https://localhost:5001" : "http://" + IPAddress.Loopback);
 
 builder.Services.AddLocalStorage();
@@ -27,7 +26,6 @@ builder.Services.AddBlazorServerApiClient(baseUrl);
 builder.Services.AddScoped<KeyboardNavigation>();
 builder.Services.AddScoped<UserState>();
 builder.Services.AddIntersectionObserver();
-//builder.Services.AddSingleton<CircuitHandler, TrackingCircuitHandler>();
 
 var app = builder.Build();
 
@@ -52,6 +50,9 @@ app.UseServiceStack(new AppHost());
 
 BlazorConfig.Set(new()
 {
+    // This changes Blazor Components + ApiAsync APIs to use InProcessGateway instead of JsonApiClient
+    UseInProcessClient = true,
+
     Services = app.Services,
     JSParseObject = JS.ParseObject,
     EnableLogging = app.Environment.IsDevelopment(),
@@ -59,7 +60,7 @@ BlazorConfig.Set(new()
     AssetsBasePath = AppConfig.Instance.AssetsBasePath,
     OnApiErrorAsync = (request,apiError) => 
     {
-        BlazorConfig.Instance.GetLog()?.LogDebug("ZZZZZZZ OnApiErrorAsync(): {0}", apiError.Error.ErrorCode);
+        BlazorConfig.Instance.GetLog()?.LogDebug("\n\nZZZZZZZ OnApiErrorAsync(): {0}", apiError.Error.ErrorCode);
         return Task.CompletedTask;
     }
 });
