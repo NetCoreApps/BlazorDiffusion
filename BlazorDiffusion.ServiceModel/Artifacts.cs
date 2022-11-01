@@ -58,6 +58,7 @@ public class ArtifactResult : Artifact
     public List<string> ArtistNames { get; set; }
     public List<string> ModifierNames { get; set; }
     public int? PrimaryArtifactId { get; set; }
+    public string OwnerRef { get; set; }
     public double? Similarity { get; set; }
 }
 

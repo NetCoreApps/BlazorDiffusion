@@ -53,6 +53,7 @@ public class Migration1001 : MigrationBase
 
         [References(typeof(AppUser))]
         public int? OwnerId { get; set; }
+        public string? OwnerRef { get; set; }
         public string? Key { get; set; }
 
         public bool Curated { get; set; }
@@ -326,21 +327,22 @@ public class Migration1001 : MigrationBase
         var authRepo = CreateAuthRepo();
         authRepo.InitSchema(Db);
 
-        void CreateUser(string email, string name, string password, string refId, string[]? roles = null)
+        void CreateUser(string email, string name, string refId, List<string>? roles = null)
         {
+            var password = "p@55wOrd";
             var newAdmin = new AppUser { Email = email, DisplayName = name, RefIdStr = refId };
             var user = authRepo.CreateUserAuth(Db, newAdmin, password);
-            if (roles?.Length > 0)
+            if (roles?.Count > 0)
             {
                 authRepo.AssignRoles(Db, user.Id.ToString(), roles);
             }
         }
 
-        CreateUser("admin@email.com", "Admin User", "p@55wOrd", "b496e043-3e5b-4410-b0e5-1c9cca04c07f", roles: new[] { RoleNames.Admin });
-        CreateUser("system@email.com", "System", "p@55wOrd", "cd1bbe7e-2038-4b43-9086-32c790485588", roles: new[] { AppRoles.Moderator });
-        CreateUser("demis@servicestack.com", "Demis", "p@55wOrd", "865d5f4a-4c58-461d-b1b8-2aac005cd2bc", roles: new[] { AppRoles.Moderator });
-        CreateUser("darren@servicestack.com", "Darren", "p@55wOrd", "16846ea4-2bb6-4c58-a999-985dac3c31a2", roles: new[] { AppRoles.Moderator });
-        CreateUser("test@user.com", "Test", "p@55wOrd", "3823c5af-d0b6-4738-8601-bd91bf6f9771");
+        CreateUser(Users.Admin.Email, Users.Admin.DisplayName, Users.Admin.RefIdStr, Users.Admin.Roles);
+        CreateUser(Users.System.Email, Users.System.DisplayName, Users.System.RefIdStr, Users.System.Roles);
+        CreateUser(Users.Demis.Email, Users.Demis.DisplayName, Users.Demis.RefIdStr, Users.Demis.Roles);
+        CreateUser(Users.Darren.Email, Users.Darren.DisplayName, Users.Darren.RefIdStr, Users.Darren.Roles);
+        CreateUser(Users.Test.Email, Users.Test.DisplayName, Users.Test.RefIdStr, Users.Test.Roles);
 
         Db.CreateTable<Artist>();
         Db.CreateTable<Modifier>();

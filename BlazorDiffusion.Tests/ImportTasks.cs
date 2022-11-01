@@ -87,6 +87,7 @@ public class ImportTasks
         Scores.LoadAnalytics(dbAnalytics);
 
         ImageUtils.Log = true;
+        var usersMap = db.Dictionary<int, string>(db.From<AppUser>().Select(x => new { x.Id, x.RefIdStr }));
 
         foreach (var metadataFile in metadataFiles)
         {
@@ -104,6 +105,7 @@ public class ImportTasks
             }
             else
             {
+                creative.OwnerRef = creative.OwnerId != null ? usersMap[creative.OwnerId.Value] : null;
                 creative.EngineId ??= DreamStudioClient.DefaultEngineId;
                 foreach (var artifact in creative.Artifacts)
                 {

@@ -131,15 +131,17 @@ public class CreativeService : Service
         List<Artist> artists)
     {
         request.UserPrompt = request.UserPrompt.Trim();
-        string userAuthId = (await GetSessionAsync()).UserAuthId;
+        var session = await SessionAsAsync<CustomUserSession>();
+        string userAuthId = session.UserAuthId;
         var userId = userAuthId?.ToInt();
         var now = DateTime.UtcNow;
-        var creative = new Creative().PopulateWith(request)
+        var creative = request.ConvertTo<Creative>()
             .WithAudit(userAuthId, now);
         creative.Width = request.Width ?? DefaultWidth;
         creative.Height = request.Height ?? DefaultHeight;
         creative.Steps = request.Steps ?? DefaultSteps;
         creative.OwnerId = userId;
+        creative.OwnerRef = session.RefIdStr;
         creative.Key = imageGenerationResponse.Key;
         creative.ArtistNames = artists.Select(x => $"{x.FirstName} {x.LastName}").ToList();
         creative.ModifierNames = modifiers.Select(x => x.Name).ToList();
@@ -234,9 +236,11 @@ public class CreativeService : Service
             throw HttpError.Forbidden($"You don't own this Creative {session.UserAuthId} vs {creative.OwnerId}");
 
         var now = DateTime.UtcNow;
+        // transfer to system user
         await Db.UpdateOnlyAsync(() =>
             new Creative {
-                OwnerId = 2, // transfer to system user
+                OwnerId = Users.System.Id, 
+                OwnerRef = Users.System.RefIdStr,
                 ModifiedBy = session.UserAuthId,
                 ModifiedDate = now,
                 DeletedBy = session.UserAuthId,

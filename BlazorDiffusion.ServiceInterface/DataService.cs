@@ -145,7 +145,7 @@ public class DataService : Service
 
             q.ThenByDescending(x => x.Score + x.TemporalScore).ThenByDescending(x => x.Id);
             // Need distinct else Blazor @key throws when returning dupes
-            q.SelectDistinct<Artifact, Creative>((a, c) => new { a, c.UserPrompt, c.ArtistNames, c.ModifierNames, c.PrimaryArtifactId });
+            q.SelectDistinct<Artifact, Creative>((a, c) => new { a, c.UserPrompt, c.ArtistNames, c.ModifierNames, c.PrimaryArtifactId, c.OwnerRef });
         }
 
         PublishMessage(new AnalyticsTasks {
@@ -190,7 +190,7 @@ public class DataService : Service
 
     public async Task<object> Any(UserData request)
     {
-        var session = (CustomUserSession)await GetSessionAsync();
+        var session = await SessionAsAsync<CustomUserSession>();
         var userId = session.UserAuthId.ToInt();
         var likes = new Likes
         {

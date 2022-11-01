@@ -10,6 +10,7 @@ namespace BlazorDiffusion.Pages;
 public partial class Index : AppAuthComponentBase, IDisposable
 {
     ApiResult<QueryResponse<ArtifactResult>> api = new();
+    [Inject] ILogger<Index> Log { get; set; } = default!;
     [Inject] UserState UserState { get; set; } = default!;
     [Inject] IIntersectionObserverService ObserverService { get; set; } = default!;
 
@@ -71,7 +72,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
         if (existingQuery)
             return;
 
-        Console.WriteLine($"\n\n{request.Dump()}");
+        Log.LogDebug($"\n\n{0}", request.Dump());
         api = await ApiAsync(request);
         if (api.Succeeded)
         {
@@ -95,11 +96,11 @@ public partial class Index : AppAuthComponentBase, IDisposable
 
     async Task loadMore()
     {
-        Console.WriteLine($"loadMore() {lastResults?.Count} >= {request.Take} / {results.Count}...");
+        Log.LogDebug($"loadMore() {0} >= {1} / {2}...", lastResults?.Count, request.Take, results.Count);
         if (lastResults == null || lastResults?.Count >= request.Take)
         {
             request.Skip += NextPageTake;
-            Console.WriteLine(request.Dump());
+            Log.LogDebug(request.Dump());
             api = await ApiAsync(request);
             if (api.Succeeded)
             {
@@ -116,7 +117,6 @@ public partial class Index : AppAuthComponentBase, IDisposable
             var entry = entries.FirstOrDefault();
             if (entry?.IsIntersecting == true)
             {
-                Console.WriteLine("IsIntersecting");
                 await loadMore();
             }
             StateHasChanged();
