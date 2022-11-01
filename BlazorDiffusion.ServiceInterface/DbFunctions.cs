@@ -1,4 +1,5 @@
-﻿using CoenM.ImageHash;
+﻿using BlazorDiffusion.ServiceModel;
+using CoenM.ImageHash;
 using Microsoft.Data.Sqlite;
 using ServiceStack.OrmLite;
 using System;
@@ -14,7 +15,12 @@ public static class DbFunctions
             "imgcompare",
             (Int64? hash1, Int64? hash2)
                 => hash1 == null || hash2 == null
-                    ? 0 
+                    ? 0
                     : CompareHash.Similarity((ulong)hash1, (ulong)hash2));
+    }
+    public static void RegisterBgCompare(this IDbConnection db)
+    {
+        var sqliteConn = (SqliteConnection)db.ToDbConnection();
+        sqliteConn.CreateFunction("bgcompare", (string a, string b) => ImageUtils.BackgroundCompare(a, b));
     }
 }

@@ -80,6 +80,7 @@ public class SearchArtifacts : QueryDb<Artifact, ArtifactResult>
 {
     public string? Query { get; set; }
     public string? Similar { get; set; }
+    public string? By { get; set; }
     public string? User { get; set; }
     public string? Modifier { get; set; }
     public string? Artist { get; set; }
@@ -97,6 +98,7 @@ public class SearchArtifacts : QueryDb<Artifact, ArtifactResult>
         QueryParams = QueryParams == null ? null : new(QueryParams),
         Query = Query,
         Similar = Similar,
+        By = By,
         User = User,
         Modifier = Modifier,
         Artist = Artist,

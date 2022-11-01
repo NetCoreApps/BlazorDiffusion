@@ -16,8 +16,8 @@ public class UserState
 
     public string? RefId { get; set; }
     public List<string> Roles { get; set; } = new();
-    public HashSet<int> LikedArtifactIds { get; private set; } = new();
-    public HashSet<int> LikedAlbumIds { get; private set; } = new();
+    public List<int> LikedArtifactIds { get; private set; } = new();
+    public List<int> LikedAlbumIds { get; private set; } = new();
 
     public List<Creative> CreativeHistory { get; private set; } = new();
 
@@ -78,8 +78,8 @@ public class UserState
             var r = api.Response!;
             RefId = r.RefId;
             Roles = r.Roles ?? new();
-            LikedArtifactIds = r.Likes.ArtifactIds.ToSet();
-            LikedAlbumIds = r.Likes.AlbumIds.ToSet();
+            LikedArtifactIds = r.Likes.ArtifactIds;
+            LikedAlbumIds = r.Likes.AlbumIds;
             UserAlbums = r.Albums ?? new();
             LoadAlbums(UserAlbums);
         }
@@ -180,7 +180,7 @@ public class UserState
     public async Task LikeArtifactAsync(Artifact artifact)
     {
         ArtifactsMap[artifact.Id] = artifact;
-        LikedArtifactIds.Add(artifact.Id);
+        LikedArtifactIds.Insert(0, artifact.Id);
         var request = new CreateArtifactLike
         {
             ArtifactId = artifact.Id,
@@ -197,6 +197,7 @@ public class UserState
     public async Task UnlikeArtifactAsync(Artifact artifact)
     {
         ArtifactsMap[artifact.Id] = artifact;
+        var pos = LikedArtifactIds.FindIndex(x => x == artifact.Id);
         LikedArtifactIds.Remove(artifact.Id);
         var request = new DeleteArtifactLike
         {
@@ -205,7 +206,7 @@ public class UserState
         var api = await Client.ManagedApiAsync(request);
         if (!api.Succeeded)
         {
-            LikedArtifactIds.Add(artifact.Id);
+            LikedArtifactIds.Insert(Math.Max(pos,0), artifact.Id);
             NavigationManager.NavigateTo(NavigationManager.GetLoginUrl());
         }
         NotifyStateChanged();

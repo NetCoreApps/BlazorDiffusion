@@ -7,12 +7,15 @@ using BlazorDiffusion.ServiceModel;
 using System;
 using CoenM.ImageHash;
 using CoenM.ImageHash.HashAlgorithms;
+using Microsoft.Data.Sqlite;
 
 namespace BlazorDiffusion.ServiceInterface;
 
 public class DataService : Service
 {
     public IAutoQueryDb AutoQuery { get; set; }
+
+
 
     // TODO Home page search
     public async Task<object> Any(SearchArtifacts query)
@@ -26,30 +29,77 @@ public class DataService : Service
         var similarToArtifact = !string.IsNullOrEmpty(similar)
             ? await Db.SingleAsync<Artifact>(x => x.RefId == similar)
             : null;
+        // ?similar={RefId}&by=[^background|avg|diff|...perceptual]
         if (similarToArtifact != null)
         {
-            db.RegisterImgCompare();
-            if (similarToArtifact.PerceptualHash == null)
+            const string DefaultSimilarSearch = "background";
+
+            if (similarToArtifact.MissingImageDetails())
             {
                 var hashAlgorithm = new PerceptualHash();
                 var artifactFile = VirtualFiles.GetFile(similarToArtifact.FilePath);
                 using var filStream = artifactFile.OpenRead();
-                similarToArtifact.PerceptualHash = (Int64)hashAlgorithm.Hash(filStream);
-                await Db.UpdateOnlyAsync(() => new Artifact { PerceptualHash = similarToArtifact.PerceptualHash }, 
+                similarToArtifact.LoadImageDetails(filStream);
+                await Db.UpdateOnlyAsync(() => new Artifact
+                {
+                    PerceptualHash = similarToArtifact.PerceptualHash,
+                    AverageHash = similarToArtifact.AverageHash,
+                    DifferenceHash = similarToArtifact.DifferenceHash,
+                    Background = similarToArtifact.Background,
+                },
                     where: x => x.Id == similarToArtifact.Id);
             }
 
+            var by = query.By ?? DefaultSimilarSearch;
+            var background = by == "background";
+            var perceptual = !background;
+
             q.Join<Creative>();
-            q.SelectDistinct<Artifact, Creative>((a, c) => new { 
-                a, 
-                c.UserPrompt, 
-                c.ArtistNames, 
-                c.ModifierNames, 
-                c.PrimaryArtifactId,
-                Similarity = Sql.Custom($"imgcompare({similarToArtifact.PerceptualHash},PerceptualHash)"),
-            });
-            q.Where("Similarity >= 60");
-            q.OrderByDescending("Quality").ThenByDescending("Similarity");
+            q.OrderByDescending("Quality");
+
+            if (background)
+            {
+                db.RegisterBgCompare();
+                q.SelectDistinct<Artifact, Creative>((a, c) => new {
+                    a,
+                    c.UserPrompt,
+                    c.ArtistNames,
+                    c.ModifierNames,
+                    c.PrimaryArtifactId,
+                    Similarity = Sql.Custom($"bgcompare('{similarToArtifact.Background}',Background)"),
+                });
+                var isLandscape = similarToArtifact.Width > similarToArtifact.Height;
+                if (isLandscape)
+                    q.Where(x => x.Width >= x.Height);
+                var isPortrait = similarToArtifact.Height > similarToArtifact.Width;
+                if (isPortrait)
+                    q.Where(x => x.Height >= x.Width);
+
+                q.Where("Similarity <= 50");
+                q.ThenBy("Similarity");
+            }
+            else
+            {
+                var fnArgs = by == "avg"
+                    ? $"{similarToArtifact.AverageHash},AverageHash"
+                    : by == "diff"
+                        ? $"{similarToArtifact.DifferenceHash},DifferenceHash"
+                        : $"{similarToArtifact.PerceptualHash},PerceptualHash";
+
+                db.RegisterImgCompare();
+
+                q.Where("Similarity >= 60");
+                q.SelectDistinct<Artifact, Creative>((a, c) => new {
+                    a,
+                    c.UserPrompt,
+                    c.ArtistNames,
+                    c.ModifierNames,
+                    c.PrimaryArtifactId,
+                    Similarity = Sql.Custom($"imgcompare({fnArgs})"),
+                });
+                q.ThenByDescending("Similarity");
+            }
+
         }
         else
         {
@@ -68,17 +118,16 @@ public class DataService : Service
                 q.Where(q.Column<ArtifactFts>(x => x.Prompt, prefixTable: true) + " match {0}", ftsSearch);
                 q.ThenBy(q.Column<ArtifactFts>("Rank", prefixTable: true));
             }
-            if (query.User != null)
+            else if (query.User != null)
             {
                 q.Join<Creative, AppUser>((c, a) => c.OwnerId == a.Id && a.RefIdStr == query.User);
-                q.ThenByDescending(x => x.Id);
             }
-            if (query.Modifier != null)
+            else if (query.Modifier != null)
             {
                 q.Join<Creative, CreativeModifier>((creative, modifierRef) => creative.Id == modifierRef.CreativeId)
                  .Join<CreativeModifier, Modifier>((modifierRef, modifier) => modifierRef.ModifierId == modifier.Id && modifier.Name == query.Modifier);
             }
-            if (query.Artist != null)
+            else if (query.Artist != null)
             {
                 var lastName = query.Artist.RightPart(',');
                 var firstName = lastName == query.Artist
@@ -88,7 +137,7 @@ public class DataService : Service
                 q.Join<Creative, CreativeArtist>((creative, artistRef) => creative.Id == artistRef.CreativeId)
                  .Join<CreativeArtist, Artist>((artistRef, artist) => artistRef.ArtistId == artist.Id && artist.FirstName == firstName && artist.LastName == lastName);
             }
-            if (query.Album != null)
+            else if (query.Album != null)
             {
                 q.Join<Artifact, AlbumArtifact>((artifact, albumRef) => artifact.Id == albumRef.ArtifactId)
                  .Join<AlbumArtifact, Album>((albumRef, album) => albumRef.AlbumId == album.Id && album.RefId == query.Album);
@@ -145,8 +194,8 @@ public class DataService : Service
         var userId = session.UserAuthId.ToInt();
         var likes = new Likes
         {
-            ArtifactIds = await Db.ColumnAsync<int>(Db.From<ArtifactLike>().Where(x => x.AppUserId == userId).Select(x => x.ArtifactId)),
-            AlbumIds = await Db.ColumnAsync<int>(Db.From<AlbumLike>().Where(x => x.AppUserId == userId).Select(x => x.AlbumId)),
+            ArtifactIds = await Db.ColumnAsync<int>(Db.From<ArtifactLike>().Where(x => x.AppUserId == userId).Select(x => x.ArtifactId).OrderByDescending(x => x.Id)),
+            AlbumIds = await Db.ColumnAsync<int>(Db.From<AlbumLike>().Where(x => x.AppUserId == userId).Select(x => x.AlbumId).OrderByDescending(x => x.Id)),
         };
 
         var albums = await Db.LoadSelectAsync<Album>(x => x.OwnerId == userId && x.DeletedDate == null);

@@ -1,19 +1,11 @@
-﻿using BlazorDiffusion.Pages.admin;
-using BlazorDiffusion.ServiceModel;
+﻿using BlazorDiffusion.ServiceModel;
 using NUnit.Framework;
 using ServiceStack;
 using ServiceStack.Text;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Processing.Processors.Quantization;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlazorDiffusion.Tests;
 
@@ -71,4 +63,17 @@ public class ImageDetailsTests
         }
         appFilesDir.Print();
     }
+
+    [Test]
+    [TestCase("#888888FF", "#898888FF", 1)]
+    [TestCase("#888888FF", "#888988FF", 1)]
+    [TestCase("#888888FF", "#888889FF", 1)]
+    [TestCase("#888888FF", "#008888FF", 0x88)]
+    [TestCase("#888888FF", "#880088FF", 0x88)]
+    [TestCase("#888888FF", "#888800FF", 0x88)]
+    public void Can_bgcompare(string rgba1, string rgba2, int expected)
+    {
+        Assert.That(ImageUtils.BackgroundCompare(rgba1, rgba2), Is.EqualTo(expected));
+    }
+
 }

@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using SixLabors.ImageSharp;
-using CoenM.ImageHash;
 using CoenM.ImageHash.HashAlgorithms;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using System.Diagnostics;
 using System.IO;
-using ServiceStack.Logging;
+using ServiceStack;
+using System.Globalization;
 
 namespace BlazorDiffusion.ServiceModel;
 
@@ -171,4 +167,23 @@ public static class ImageUtils
         return image[0, 0];
     }
 
+    public static int BackgroundCompare(string rgba1, string rgba2)
+    {
+        if (rgba1 != null && rgba2 != null && rgba1.Length >= 4 && rgba1.Length == rgba2.Length && rgba1[0] == '#' && rgba2[0] == '#')
+        {
+            var a = rgba1[1..];
+            var b = rgba2[1..];
+            var diff = 0;
+            while (a.Length > 0)
+            {
+                var colorA = int.Parse(a[..2], NumberStyles.HexNumber);
+                var colorB = int.Parse(b[..2], NumberStyles.HexNumber);
+                diff += Math.Abs(colorA - colorB);
+                a = a.SafeSubstring(2);
+                b = b.SafeSubstring(2);
+            }
+            return diff;
+        }
+        return 0xFFFFFF;
+    }
 }

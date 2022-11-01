@@ -86,9 +86,21 @@ public partial class ArtifactMenu : AppAuthComponentBase
         }
     }
 
-    async Task findSimilar()
+    async Task findSimilarByPerceptual()
     {
-        NavigationManager.NavigateTo($"/?similar={Artifact.RefId}");
+        NavigationManager.NavigateTo($"/?similar={Artifact.RefId}&by=perceptual");
+        await OnDone();
+    }
+
+    async Task findSimilarByAvg()
+    {
+        NavigationManager.NavigateTo($"/?similar={Artifact.RefId}&by=avg");
+        await OnDone();
+    }
+
+    async Task findSimilarByDiff()
+    {
+        NavigationManager.NavigateTo($"/?similar={Artifact.RefId}&by=diff");
         await OnDone();
     }
 
