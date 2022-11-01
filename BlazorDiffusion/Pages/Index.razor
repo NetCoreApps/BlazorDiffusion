@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using Ljbc1994.Blazor.IntersectionObserver.Components
 @inherits AppAuthComponentBase
 @inject NavigationManager NavigationManager
 
@@ -16,5 +17,12 @@
     </form>
 
     <ArtifactGallery Artifacts=@results />
+
+    <div @ref="BottomElement" class="flex justify-center">
+        @if (api.IsLoading)
+        {
+            <Loading class="text-gray-300 font-normal" ImageClass="w-7 h-7 mt-1.5" Message="loading..." />
+        }
+    </div>
 
 </Home>

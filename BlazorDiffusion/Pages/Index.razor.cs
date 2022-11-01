@@ -1,14 +1,17 @@
 ﻿using BlazorDiffusion.ServiceModel;
 using BlazorDiffusion.UI;
+using Ljbc1994.Blazor.IntersectionObserver;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using ServiceStack.Text;
 
 namespace BlazorDiffusion.Pages;
 
-public partial class Index : AppAuthComponentBase
+public partial class Index : AppAuthComponentBase, IDisposable
 {
     ApiResult<QueryResponse<ArtifactResult>> api = new();
     [Inject] UserState UserState { get; set; } = default!;
+    [Inject] IIntersectionObserverService ObserverService { get; set; } = default!;
 
     string[] VisibleFields => new[] { 
         nameof(SearchArtifacts.Query), 
@@ -25,10 +28,16 @@ public partial class Index : AppAuthComponentBase
     SearchArtifacts request = new();
 
     List<Artifact> results = new();
+    List<ArtifactResult>? lastResults = null;
     HashSet<int> resultIds = new();
 
+    const int InitialTake = 30;
+    const int NextPageTake = 100;
 
     SearchArtifacts? lastRequest;
+
+    public ElementReference BottomElement { get; set; }
+    IntersectionObserver? bottomObserver;
 
     protected override async Task OnInitializedAsync()
     {
@@ -45,6 +54,8 @@ public partial class Index : AppAuthComponentBase
         request.Modifier = modifier;
         request.Artist = artist;
         request.Album = album;
+        request.Skip = 0;
+        request.Take = InitialTake;
 
         if (IsAuthenticated)
         {
@@ -60,26 +71,77 @@ public partial class Index : AppAuthComponentBase
         if (existingQuery)
             return;
 
+        Console.WriteLine($"\n\n{request.Dump()}");
         api = await ApiAsync(request);
         if (api.Succeeded)
         {
-            if (!existingQuery)
-                clearResults();
+            clearResults();
 
             addResults(api.Response?.Results ?? new());
-
             lastRequest = request.Clone();
+        }
+
+        await Task.Delay(1);
+        if (request.Take == InitialTake)
+        {
+            request.Skip += InitialTake;
+            request.Take = NextPageTake;
+
+            api = await ApiAsync(request);
+            addResults(api.Response?.Results ?? new());
+            lastRequest = request.Clone();
+        }
+    }
+
+    async Task loadMore()
+    {
+        Console.WriteLine($"loadMore() {lastResults?.Count} >= {request.Take} / {results.Count}...");
+        if (lastResults == null || lastResults?.Count >= request.Take)
+        {
+            request.Skip += NextPageTake;
+            Console.WriteLine(request.Dump());
+            api = await ApiAsync(request);
+            if (api.Succeeded)
+            {
+                addResults(api.Response?.Results ?? new());
+                lastRequest = request.Clone();
+            }
+        }
+    }
+
+    public async Task SetupObserver()
+    {
+        bottomObserver = await ObserverService.Observe(BottomElement, async (entries) =>
+        {
+            var entry = entries.FirstOrDefault();
+            if (entry?.IsIntersecting == true)
+            {
+                Console.WriteLine("IsIntersecting");
+                await loadMore();
+            }
+            StateHasChanged();
+        });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await SetupObserver();
         }
     }
 
     void clearResults()
     {
+        lastRequest = null;
         results.Clear();
         resultIds.Clear();
+        lastResults = null;
     }
 
     void addResults(List<ArtifactResult> artifacts)
     {
+        lastResults = artifacts;
         foreach (var artifact in artifacts)
         {
             if (resultIds.Contains(artifact.Id))
@@ -104,4 +166,8 @@ public partial class Index : AppAuthComponentBase
         NavigationManager.NavigateTo("/".AddQueryParam("q", request.Query));
     }
 
+    public void Dispose()
+    {
+        bottomObserver?.Dispose();
+    }
 }

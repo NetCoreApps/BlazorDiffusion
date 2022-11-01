@@ -118,6 +118,7 @@ public class SearchArtifacts : QueryDb<Artifact, ArtifactResult>
                EqualityComparer<Dictionary<string, string>>.Default.Equals(QueryParams, artifacts.QueryParams) &&
                Query == artifacts.Query &&
                Similar == artifacts.Similar &&
+               By == artifacts.By &&
                User == artifacts.User &&
                Modifier == artifacts.Modifier &&
                Artist == artifacts.Artist &&
