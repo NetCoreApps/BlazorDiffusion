@@ -33,6 +33,10 @@ public class ConfigureAuth : IHostingStartup
                           Environment.GetEnvironmentVariable("AZURE_APP_ID");
             var msAppSecret = appSettings.Get<string>("oauth.microsoftgraph.AppSecret") ??
                               Environment.GetEnvironmentVariable("AZURE_APP_SECRET");
+            var googleConsumerKey = appSettings.Get<string>("oauth.google.ConsumerKey") ??
+                              Environment.GetEnvironmentVariable("GOOGLE_CONSUMER_KEY");
+            var googleConsumerSecret = appSettings.Get<string>("oauth.google.ConsumerSecret") ??
+                                       Environment.GetEnvironmentVariable("GOOGLE_CONSUMER_SECRET");
             appHost.Plugins.Add(new AuthFeature(() => new CustomUserSession(),
                 new IAuthProvider[] {
                     new JwtAuthProvider(appSettings) {
@@ -47,7 +51,11 @@ public class ConfigureAuth : IHostingStartup
                     },
                     new CredentialsAuthProvider(appSettings),     /* Sign In with Username / Password credentials */
                     new FacebookAuthProvider(appSettings),        /* Create App https://developers.facebook.com/apps */
-                    new GoogleAuthProvider(appSettings),          /* Create App https://console.developers.google.com/apis/credentials */
+                    new GoogleAuthProvider(appSettings)           /* Create App https://console.developers.google.com/apis/credentials */
+                    {
+                        ConsumerKey = googleConsumerKey,
+                        ConsumerSecret = googleConsumerSecret
+                    },          
                     new MicrosoftGraphAuthProvider(appSettings)   /* Create App https://apps.dev.microsoft.com */
                     {
                         AppId = msAppId,
