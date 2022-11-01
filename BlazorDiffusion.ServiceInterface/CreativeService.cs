@@ -257,7 +257,6 @@ public class CreativeService : Service
 
         using var transaction = Db.OpenTransaction();
 
-        await Db.DeleteAsync<ArtifactStat>(x => artifactIds.Contains(x.ArtifactId));
         await Db.DeleteAsync<AlbumArtifact>(x => artifactIds.Contains(x.ArtifactId));
         await Db.DeleteAsync<ArtifactReport>(x => artifactIds.Contains(x.ArtifactId));
         await Db.DeleteAsync<ArtifactLike>(x => artifactIds.Contains(x.ArtifactId));
@@ -269,6 +268,9 @@ public class CreativeService : Service
         transaction.Commit();
 
         await StableDiffusionClient.DeleteFolderAsync(creative);
+
+        using var analyticsDb = OpenDbConnection(Databases.Analytics);
+        await analyticsDb.DeleteAsync<ArtifactStat>(x => artifactIds.Contains(x.ArtifactId));
     }
 }
 
