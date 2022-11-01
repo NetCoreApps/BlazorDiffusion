@@ -37,6 +37,10 @@ public class ConfigureAuth : IHostingStartup
                               Environment.GetEnvironmentVariable("GOOGLE_CONSUMER_KEY");
             var googleConsumerSecret = appSettings.Get<string>("oauth.google.ConsumerSecret") ??
                                        Environment.GetEnvironmentVariable("GOOGLE_CONSUMER_SECRET");
+            var facebookAppId = appSettings.Get<string>("oauth.facebook.AppId") ??
+                                Environment.GetEnvironmentVariable("FACEBOOK_APP_ID");
+            var facebookAppSecret = appSettings.Get<string>("oauth.facebook.AppSecret") ??
+                                    Environment.GetEnvironmentVariable("FACEBOOK_APP_SECRET");
             appHost.Plugins.Add(new AuthFeature(() => new CustomUserSession(),
                 new IAuthProvider[] {
                     new JwtAuthProvider(appSettings) {
@@ -50,7 +54,11 @@ public class ConfigureAuth : IHostingStartup
                         //RequireSecureConnection = false,
                     },
                     new CredentialsAuthProvider(appSettings),     /* Sign In with Username / Password credentials */
-                    new FacebookAuthProvider(appSettings),        /* Create App https://developers.facebook.com/apps */
+                    new FacebookAuthProvider(appSettings)         /* Create App https://developers.facebook.com/apps */
+                    {
+                        AppId = facebookAppId,
+                        AppSecret = facebookAppSecret
+                    },
                     new GoogleAuthProvider(appSettings)           /* Create App https://console.developers.google.com/apis/credentials */
                     {
                         ConsumerKey = googleConsumerKey,

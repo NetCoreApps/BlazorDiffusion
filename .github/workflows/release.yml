@@ -151,6 +151,8 @@ jobs:
           AZURE_APP_SECRET: ${{ secrets.AZURE_APP_SECRET }}
           GOOGLE_CONSUMER_KEY: ${{ secrets.GOOGLE_CONSUMER_KEY }}
           GOOGLE_CONSUMER_SECRET: ${{ secrets.GOOGLE_CONSUMER_SECRET }}
+          FACEBOOK_APP_ID: ${{ secrets.FACEBOOK_APP_ID }}
+          FACEBOOK_APP_SECRET: ${{ secrets.FACEBOOK_APP_SECRET }}
         with:
           input: .deploy/docker-compose-template.yml
           output: .deploy/${{ github.event.repository.name }}-docker-compose.yml
