@@ -171,16 +171,16 @@ public static class ImageUtils
     {
         if (rgba1 != null && rgba2 != null && rgba1.Length >= 4 && rgba1.Length == rgba2.Length && rgba1[0] == '#' && rgba2[0] == '#')
         {
-            var a = rgba1[1..];
-            var b = rgba2[1..];
+            var a = rgba1[1..].AsSpan();
+            var b = rgba2[1..].AsSpan();
             var diff = 0;
             while (a.Length > 0)
             {
                 var colorA = int.Parse(a[..2], NumberStyles.HexNumber);
                 var colorB = int.Parse(b[..2], NumberStyles.HexNumber);
                 diff += Math.Abs(colorA - colorB);
-                a = a.SafeSubstring(2);
-                b = b.SafeSubstring(2);
+                a = a[2..];
+                b = b[2..];
             }
             return diff;
         }
