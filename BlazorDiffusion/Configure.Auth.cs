@@ -57,7 +57,9 @@ public class ConfigureAuth : IHostingStartup
                     new FacebookAuthProvider(appSettings)         /* Create App https://developers.facebook.com/apps */
                     {
                         AppId = facebookAppId,
-                        AppSecret = facebookAppSecret
+                        AppSecret = facebookAppSecret,
+                        ConsumerKey = facebookAppId,
+                        ConsumerSecret = facebookAppSecret
                     },
                     new GoogleAuthProvider(appSettings)           /* Create App https://console.developers.google.com/apis/credentials */
                     {
