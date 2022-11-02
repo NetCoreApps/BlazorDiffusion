@@ -36,6 +36,8 @@ public class AppHost : AppHostBase, IHostingStartup
 
         var r2AccessKey = Environment.GetEnvironmentVariable("R2_ACCESS_KEY_ID");
         var r2Secret = Environment.GetEnvironmentVariable("R2_SECRET_ACCESS_KEY");
+        Log.Warn($"R2 ID: {r2AccessKey}");
+        Log.Warn($"R2 Secret: {r2Secret}");
         var appConfig = AppConfig.Set(new AppConfig {
             ArtifactBucket = "diffusion",
             R2Account = "b95f38ca3a6ac31ea582cd624e6eb385",
@@ -45,10 +47,11 @@ public class AppHost : AppHostBase, IHostingStartup
         
         container.Register(appConfig);
 
+        Log.Warn($"R2 Account: {appConfig.R2Account}");
+        Log.Warn($"R2 Bucket: {appConfig.ArtifactBucket}");
         var s3Client = new AmazonS3Client(r2AccessKey,r2Secret,new AmazonS3Config
         {
-            ServiceURL = $"https://{appConfig.R2Account}.r2.cloudflarestorage.com",
-            SignatureMethod = SigningAlgorithm.HmacSHA1
+            ServiceURL = $"https://{appConfig.R2Account}.r2.cloudflarestorage.com"
         });
         var appFs = VirtualFiles = new R2VirtualFilesProvider(s3Client, appConfig.ArtifactBucket);
         Plugins.Add(new FilesUploadFeature(
