@@ -178,6 +178,12 @@ jobs:
           input: .deploy/litestream.yml
           output: .deploy/${{ github.event.repository.name }}-litestream.yml
 
+      - name: debug
+        run: |
+          cd .deploy
+          ls -l
+          cd ..
+
       - name: copy litestream.yml file via scp
         uses: appleboy/scp-action@v0.1.1
         with:
