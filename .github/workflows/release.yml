@@ -184,7 +184,7 @@ jobs:
           host: ${{ secrets.DEPLOY_API }}
           username: ${{ secrets.DEPLOY_USERNAME }}
           port: 22
-          strip_components: 2
+          strip_components: 1
           key: ${{ secrets.DEPLOY_KEY }}
           source: ".deploy/litestream.yml"
           target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data"
