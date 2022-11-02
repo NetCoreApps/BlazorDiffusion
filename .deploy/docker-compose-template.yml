@@ -60,3 +60,4 @@ services:
 volumes:
   ${APP_NAME}-mydb:
   ${APP_NAME}-assets:
+  ${APP_NAME}-assets/litestream.yml:
