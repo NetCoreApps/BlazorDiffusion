@@ -1,3 +1,4 @@
+using Amazon.Runtime;
 using Amazon.S3;
 using Funq;
 using ServiceStack;
@@ -46,7 +47,8 @@ public class AppHost : AppHostBase, IHostingStartup
 
         var s3Client = new AmazonS3Client(r2AccessKey,r2Secret,new AmazonS3Config
         {
-            ServiceURL = $"https://{appConfig.R2Account}.r2.cloudflarestorage.com"
+            ServiceURL = $"https://{appConfig.R2Account}.r2.cloudflarestorage.com",
+            SignatureMethod = SigningAlgorithm.HmacSHA1
         });
         var appFs = VirtualFiles = new R2VirtualFilesProvider(s3Client, appConfig.ArtifactBucket);
         Plugins.Add(new FilesUploadFeature(
