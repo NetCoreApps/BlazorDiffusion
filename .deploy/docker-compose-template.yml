@@ -42,7 +42,17 @@ services:
     restart: "no"
     profiles:
       - litestream
-    command: restore -if-db-not-exists -if-replica-exists -config /config/litestream.yml
+    command: restore -if-db-not-exists -if-replica-exists -config /config/litestream.yml /data/db.sqlite
+    volumes:
+      - ${APP_NAME}-mydb:/data
+      - ${APP_NAME}-assets:/config
+  
+  ${APP_NAME}-restore-analytics:
+    image: litestream/litestream
+    restart: "no"
+    profiles:
+      - litestream
+    command: restore -if-db-not-exists -if-replica-exists -config /config/litestream.yml /data/analytics.sqlite
     volumes:
       - ${APP_NAME}-mydb:/data
       - ${APP_NAME}-assets:/config

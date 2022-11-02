@@ -203,6 +203,7 @@ jobs:
             echo $APPTOKEN | docker login ghcr.io -u $USERNAME --password-stdin
             docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml pull
             docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-restore --exit-code-from ${{ github.event.repository.name }}-restore     
+            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-restore-analytics --exit-code-from ${{ github.event.repository.name }}-restore-analytics
       
       - name: Copy BlazorDiffusion Assets to Remote Server
         uses: appleboy/ssh-action@v0.1.4
