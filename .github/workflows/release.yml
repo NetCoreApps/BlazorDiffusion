@@ -175,14 +175,8 @@ jobs:
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
         with:
-          input: .deploy/litestream.yml
-          output: .deploy/out-litestream.yml
-
-      - name: debug
-        run: |
-          cd .deploy
-          ls -l
-          cd ..
+          input: .deploy/litestream-template.yml
+          output: .deploy/litestream.yml
 
       - name: copy litestream.yml file via scp
         uses: appleboy/scp-action@v0.1.1
@@ -190,9 +184,10 @@ jobs:
           host: ${{ secrets.DEPLOY_API }}
           username: ${{ secrets.DEPLOY_USERNAME }}
           port: 22
+          strip_components: 2
           key: ${{ secrets.DEPLOY_KEY }}
-          source: ".deploy/out-litestream.yml"
-          target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data/config"
+          source: ".deploy/litestream.yml"
+          target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data"
 
       - name: Restore db using litestream if needed
         uses: appleboy/ssh-action@v0.1.4
