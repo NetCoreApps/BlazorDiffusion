@@ -30,7 +30,6 @@ services:
       FACEBOOK_APP_SECRET: ${FACEBOOK_APP_SECRET}
     volumes:
       - ${APP_NAME}-mydb:/app/App_Data
-      - ${APP_NAME}-ls-config:/app/
   ${APP_NAME}-litestream:
     image: litestream/litestream
     command: replicate -config /config/litestream.yml
