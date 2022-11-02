@@ -35,7 +35,7 @@ services:
     command: replicate -config /config/litestream.yml
     volumes:
       - ${APP_NAME}-mydb:/data
-      - ${APP_NAME}-assets/litestream.yml:/config/litestream.yml
+      - ${APP_NAME}-assets:/config
         
   ${APP_NAME}-restore:
     image: litestream/litestream
@@ -45,7 +45,7 @@ services:
     command: restore -if-db-not-exists -if-replica-exists -config /config/litestream.yml
     volumes:
       - ${APP_NAME}-mydb:/data
-      - ${APP_NAME}-assets/litestream.yml:/config/litestream.yml
+      - ${APP_NAME}-assets:/config
 
   ${APP_NAME}-migration:
     image: ghcr.io/${IMAGE_REPO}:${RELEASE_VERSION}
@@ -60,4 +60,3 @@ services:
 volumes:
   ${APP_NAME}-mydb:
   ${APP_NAME}-assets:
-  ${APP_NAME}-assets/litestream.yml:
