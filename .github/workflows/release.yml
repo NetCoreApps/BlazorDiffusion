@@ -176,7 +176,7 @@ jobs:
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
         with:
           input: .deploy/litestream.yml
-          output: .deploy/${{ github.event.repository.name }}-litestream.yml
+          output: .deploy/out-litestream.yml
 
       - name: debug
         run: |
@@ -191,7 +191,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USERNAME }}
           port: 22
           key: ${{ secrets.DEPLOY_KEY }}
-          source: ".deploy/${{ github.event.repository.name }}-litestream.yml"
+          source: ".deploy/out-litestream.yml"
           target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data/config"
 
       - name: Restore db using litestream if needed
