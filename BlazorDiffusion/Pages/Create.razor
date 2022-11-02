@@ -247,7 +247,7 @@
 
 <div class="z-10 absolute top-16 right-2 -mt-2">
     <div class="flex flex-col">
-    @if (UserState.CreativeHistory.Count > 0)
+    @if (CreativeHistory.Count > 0)
     {
         <div class="select-none text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100">
             <div class="group cursor-pointer" @onclick="_ => toggleMenu(CreateMenu.History)">
@@ -259,11 +259,11 @@
     </div>
 </div>
 
-@if (createMenu == CreateMenu.History && UserState.CreativeHistory.Count > 0)
+@if (createMenu == CreateMenu.History && CreativeHistory.Count > 0)
 {
     <div class="rounded-md absolute top-24 mt-2 right-2 shadow bg-white dark:bg-black flex flex-col z-10">        
         <nav class="p-2 space-y-1" aria-label="Sidebar">
-        @foreach (var item in UserState.CreativeHistory)
+        @foreach (var item in CreativeHistory)
         {
             <NavLink href=@($"/create?id={item.Id}") class=@ClassNames("flex items-center px-3 py-2 text-sm font-medium", Id == item.Id
                 ? "bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100"

@@ -1,3 +1,5 @@
+using BlazorDiffusion.UI;
+using Microsoft.AspNetCore.Components;
 using ServiceStack.Blazor;
 
 namespace BlazorDiffusion;
@@ -15,6 +17,15 @@ public abstract class AppComponentBase : ServiceStack.Blazor.BlazorComponentBase
 public abstract class AppAuthComponentBase : AuthBlazorComponentBase
 {
     public bool IsModerator => IsAuthenticated && User.HasRole(AppRoles.Moderator);
+    [Inject] UserState UserState { get; set; } = default!;
+
+    protected async Task loadUserState(bool force=false)
+    {
+        if (IsAuthenticated)
+        {
+            await UserState.LoadAsync(force);
+        }
+    }
 }
 
 public enum AppPage

@@ -10,14 +10,6 @@ public partial class Favorites : AppAuthComponentBase
     [Inject] UserState UserState { get; set; } = default!;
     ApiResult<QueryResponse<Artifact>> api = new();
 
-    async Task loadUserState()
-    {
-        if (IsAuthenticated)
-        {
-            await UserState.LoadUserDataAsync();
-        }
-    }
-
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();

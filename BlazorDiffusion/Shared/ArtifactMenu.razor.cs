@@ -143,7 +143,7 @@ public partial class ArtifactMenu : AppAuthComponentBase
         apiNewAlbum = await ApiAsync(newAlbumRequest);
         if (apiNewAlbum.Succeeded)
         {
-            await UserState.LoadUserDataAsync();            
+            await loadUserState(force: true);
             await OnDone();
         }
     }

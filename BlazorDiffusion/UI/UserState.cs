@@ -19,8 +19,6 @@ public class UserState
     public List<int> LikedArtifactIds { get; private set; } = new();
     public List<int> LikedAlbumIds { get; private set; } = new();
 
-    public List<Creative> CreativeHistory { get; private set; } = new();
-
     public Dictionary<int, Album> AlbumsMap { get; } = new();
     public Dictionary<int, Artifact> ArtifactsMap { get; } = new();
 
@@ -54,34 +52,22 @@ public class UserState
         NotifyStateChanged();
     }
 
-    public async Task LoadAsync(int userId)
+    public async Task LoadAsync(bool force = false)
     {
-        var apiHistory = await Client.ManagedApiAsync(new QueryCreatives
+        if (force || RefId == null)
         {
-            OwnerId = userId,
-            Take = 28,
-            OrderByDesc = nameof(Creative.Id),
-        });
-        if (apiHistory.Succeeded)
-        {
-            CreativeHistory = apiHistory.Response?.Results ?? new();
-        }
-        await LoadUserDataAsync();
-    }
-
-    public async Task LoadUserDataAsync()
-    {
-        var request = new UserData();
-        var api = await Client.ManagedApiAsync(request);
-        if (api.Succeeded)
-        {
-            var r = api.Response!;
-            RefId = r.RefId;
-            Roles = r.Roles ?? new();
-            LikedArtifactIds = r.Likes.ArtifactIds;
-            LikedAlbumIds = r.Likes.AlbumIds;
-            UserAlbums = r.Albums ?? new();
-            LoadAlbums(UserAlbums);
+            var request = new UserData();
+            var api = await Client.ManagedApiAsync(request);
+            if (api.Succeeded)
+            {
+                var r = api.Response!;
+                RefId = r.RefId;
+                Roles = r.Roles ?? new();
+                LikedArtifactIds = r.Likes.ArtifactIds;
+                LikedAlbumIds = r.Likes.AlbumIds;
+                UserAlbums = r.Albums ?? new();
+                LoadAlbums(UserAlbums);
+            }
         }
 
         var missingIds = new List<int>();
@@ -223,7 +209,6 @@ public class UserState
     {
         if (creative == null) return;
         creative.Artifacts.Each(RemoveArtifact);
-        CreativeHistory.RemoveAll(x => x.Id == creative.Id);
         CreativesMap.Remove(creative.Id);
     }
 

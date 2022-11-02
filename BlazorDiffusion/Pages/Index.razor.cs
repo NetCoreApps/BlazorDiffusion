@@ -11,7 +11,6 @@ public partial class Index : AppAuthComponentBase, IDisposable
 {
     ApiResult<QueryResponse<ArtifactResult>> api = new();
     [Inject] ILogger<Index> Log { get; set; } = default!;
-    [Inject] UserState UserState { get; set; } = default!;
     [Inject] IIntersectionObserverService ObserverService { get; set; } = default!;
 
     string[] VisibleFields => new[] { 
@@ -57,11 +56,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
         request.Album = album;
         request.Skip = 0;
         request.Take = InitialTake;
-
-        if (IsAuthenticated)
-        {
-            await UserState.LoadUserDataAsync();
-        }
+        await loadUserState();
 
         await updateAsync();
     }

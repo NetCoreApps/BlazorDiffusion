@@ -32,6 +32,7 @@ public partial class Create : AppAuthComponentBase
     [Parameter, SupplyParameterFromQuery] public int? View { get; set; }
 
     public SlideOver? SlideOver { get; set; }
+    public List<Creative> CreativeHistory { get; set; } = new();
 
 
     ImageSize imageSize;
@@ -111,19 +112,14 @@ public partial class Create : AppAuthComponentBase
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
-        if (!IsAuthenticated)
-        {
-            // TODO find out why it keeps losing Authentication
-            NavigationManager.NavigateTo(NavigationManager.GetLoginUrl(), true);
-            return;
-        }
-
-        await loadUserState();
         KeyboardNavigation.Register(this.OnNavKeyAsync);
+
+        await loadHistory();
 
         if (Id != null)
         {
             creative = await UserState.GetCreativeAsync(Id);
+            log("\nCREATIVE {0}: {1}", creative?.Id, creative?.UserPrompt);
             if (creative != null)
             {
                 request.UserPrompt = creative.UserPrompt;
@@ -161,12 +157,24 @@ public partial class Create : AppAuthComponentBase
     }
 
 
-    async Task loadUserState()
+    async Task loadHistory()
     {
         if (User != null)
         {
-            await UserState.LoadAsync(User.GetUserId().ToInt());
+            var userId = User.GetUserId().ToInt();
+            var apiHistory = await ApiAsync(new QueryCreatives
+            {
+                OwnerId = userId,
+                Take = 28,
+                OrderByDesc = nameof(Creative.Id),
+            });
+            if (apiHistory.Succeeded)
+            {
+                CreativeHistory = apiHistory.Response?.Results ?? new();
+                UserState.LoadCreatives(CreativeHistory);
+            }
         }
+        await loadUserState();
     }
 
     void noop() {}
@@ -265,10 +273,11 @@ public partial class Create : AppAuthComponentBase
         NavigationManager.NavigateTo(url);
     }
 
-    async Task CloseDialogsAsync()
+    Task CloseDialogsAsync()
     {
         if (View != null)
             navTo(Id);
+        return Task.CompletedTask;
     }
 
     public async Task OnNavKeyAsync(string key)
@@ -279,7 +288,7 @@ public partial class Create : AppAuthComponentBase
             return;
         }
 
-        var results = UserState.CreativeHistory;
+        var results = CreativeHistory;
         if (Id == null)
         {
             if (key == KeyCodes.ArrowDown)
