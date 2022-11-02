@@ -5,7 +5,7 @@ namespace BlazorDiffusion;
 /// <summary>
 /// For Pages and Components that make use of ServiceStack functionality, e.g. Client
 /// </summary>
-public abstract class AppComponentBase : ServiceStack.Blazor.BlazorComponentBase, IHasJsonApiClient
+public abstract class AppComponentBase : ServiceStack.Blazor.BlazorComponentBase
 {
 }
 

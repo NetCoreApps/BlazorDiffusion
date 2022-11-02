@@ -279,3 +279,13 @@ public class DownloadArtifact
 {
     public string RefId { get; set; }
 }
+
+[ValidateIsAuthenticated]
+[Route("/download/direct/{RefId}")]
+public class DownloadDirect
+{
+    public string RefId { get; set; }
+    public string? EncryptionMethod { get; set; }
+    public string? AccessId { get; set; }
+    public string? AccessKey { get; set; }
+}
