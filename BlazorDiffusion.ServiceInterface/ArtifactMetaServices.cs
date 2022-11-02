@@ -53,7 +53,7 @@ public class ArtifactServices : Service
         await Db.DeleteAsync<ArtifactReport>(x => x.ArtifactId == request.ArtifactId && x.AppUserId == userId);
     }
 
-    public async Task<object> Get(DownloadArtifact request)
+    public async Task<object> Any(DownloadArtifact request)
     {
         var artifact = !string.IsNullOrEmpty(request.RefId)
             ? await Db.SingleAsync<Artifact>(x => x.RefId == request.RefId)
