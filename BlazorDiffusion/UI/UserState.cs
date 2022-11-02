@@ -7,6 +7,9 @@ namespace BlazorDiffusion.UI;
 
 public class UserState
 {
+    public const int InitialTake = 30;
+    public const int NextPage = 100;
+
     public CachedLocalStorage LocalStorage { get; }
     public IServiceGateway Client { get; }
     public AppPrefs AppPrefs { get; internal set; } = new();
@@ -24,15 +27,40 @@ public class UserState
 
     public Dictionary<int, Creative> CreativesMap { get; } = new();
     public List<Album> UserAlbums { get; private set; } = new();
+    public bool IsLoading { get; set; }
 
-    public List<Artifact> LikedArtifacts => LikedArtifactIds.Select(x => ArtifactsMap.TryGetValue(x, out var a) ? a : null)
-        .Where(x => x != null).Cast<Artifact>().ToList();
     NavigationManager NavigationManager { get; }
     public UserState(CachedLocalStorage localStorage, IServiceGateway client, NavigationManager navigationManager)
     {
         LocalStorage = localStorage;
         Client = client;
         NavigationManager = navigationManager;
+    }
+
+    async Task<ApiResult<TResponse>> ApiAsync<TResponse>(IReturn<TResponse> request)
+    {
+        IsLoading = true;
+        NotifyStateChanged();
+
+        var api = await Client.ManagedApiAsync(request);
+
+        IsLoading = false;
+        NotifyStateChanged();
+
+        return api;
+    }
+
+    async Task<ApiResult<EmptyResponse>> ApiAsync(IReturnVoid request)
+    {
+        IsLoading = true;
+        NotifyStateChanged();
+
+        var api = await Client.ManagedApiAsync(request);
+
+        IsLoading = false;
+        NotifyStateChanged();
+
+        return api;
     }
 
     protected virtual async Task OnApiErrorAsync(object requestDto, IHasErrorStatus apiError)
@@ -57,7 +85,7 @@ public class UserState
         if (force || RefId == null)
         {
             var request = new UserData();
-            var api = await Client.ManagedApiAsync(request);
+            var api = await ApiAsync(request);
             if (api.Succeeded)
             {
                 var r = api.Response!;
@@ -70,34 +98,59 @@ public class UserState
             }
         }
 
-        var missingIds = new List<int>();
-        foreach (var artifactId in LikedArtifactIds)
-        {
-            if (GetCachedArtifact(artifactId) == null)
-                missingIds.Add(artifactId);
-        }
-        if (missingIds.Count > 0)
-        {
-            var apiArtifacts = await Client.ManagedApiAsync(new QueryArtifacts { Ids = missingIds });
-            if (apiArtifacts.Response?.Results != null) LoadArtifacts(apiArtifacts.Response.Results);
-        }
-
-        missingIds = new();
-        foreach (var albumId in LikedAlbumIds)
-        {
-            if (GetCachedAlbum(albumId) == null)
-                missingIds.Add(albumId);
-        }
-        if (missingIds.Count > 0)
-        {
-            var apiAlbums = await Client.ManagedApiAsync(new QueryAlbums { Ids = missingIds });
-            if (apiAlbums.Response?.Results != null) LoadAlbums(apiAlbums.Response.Results);
-        }
+        await GetLikedArtifactsAsync(InitialTake);
+        await GetLikedAlbumsAsync(InitialTake);
 
         NotifyStateChanged();
     }
 
     public bool IsModerator() => Roles.Contains(AppRoles.Moderator);
+
+
+    public async Task<List<Artifact>> GetLikedArtifactsAsync(int? take)
+    {
+        var missingIds = new List<int>();
+        var requestedLikeIds = take != null
+            ? LikedArtifactIds.Take(take.Value).ToList()
+            : LikedArtifactIds;
+
+        foreach (var id in requestedLikeIds)
+        {
+            if (GetCachedArtifact(id) == null)
+                missingIds.Add(id);
+        }
+        if (missingIds.Count > 0)
+        {
+            IsLoading = true;
+            var api = await ApiAsync(new QueryArtifacts { Ids = missingIds });
+            if (api.Response?.Results != null) LoadArtifacts(api.Response.Results);
+        }
+
+        var to = LikedArtifactIds.Select(id => GetCachedArtifact(id)).Where(x => x != null).Cast<Artifact>().ToList();
+        return to;
+    }
+
+    public async Task<List<Album>> GetLikedAlbumsAsync(int? take)
+    {
+        var missingIds = new List<int>();
+        var requestedLikeIds = take != null
+            ? LikedAlbumIds.Take(take.Value).ToList()
+            : LikedAlbumIds;
+
+        foreach (var id in requestedLikeIds)
+        {
+            if (GetCachedAlbum(id) == null)
+                missingIds.Add(id);
+        }
+        if (missingIds.Count > 0)
+        {
+            var api = await ApiAsync(new QueryAlbums { Ids = missingIds });
+            if (api.Response?.Results != null) LoadAlbums(api.Response.Results);
+        }
+
+        var to = LikedAlbumIds.Select(id => GetCachedAlbum(id)).Where(x => x != null).Cast<Album>().ToList();
+        return to;
+    }
 
     public void LoadCreatives(IEnumerable<Creative> creatives) => creatives.Each(LoadCreative);
     public void LoadCreative(Creative creative)
@@ -133,7 +186,7 @@ public class UserState
             return creative;
 
         var request = new QueryCreatives { Id = creativeId };
-        var api = await Client.ManagedApiAsync(request);
+        var api = await ApiAsync(request);
         if (api.Succeeded && api.Response?.Results != null)
         {
             LoadCreatives(api.Response.Results);
@@ -152,7 +205,7 @@ public class UserState
             return artifact;
 
         var request = new QueryArtifacts { Id = artifactId };
-        var api = await Client.ManagedApiAsync(request);
+        var api = await ApiAsync(request);
         if (api.Succeeded && api.Response?.Results != null)
         {
             LoadArtifacts(api.Response.Results);
@@ -171,7 +224,7 @@ public class UserState
         {
             ArtifactId = artifact.Id,
         };
-        var api = await Client.ManagedApiAsync(request);
+        var api = await ApiAsync(request);
         if (!api.Succeeded)
         {
             LikedArtifactIds.Remove(artifact.Id);
@@ -189,7 +242,7 @@ public class UserState
         {
             ArtifactId = artifact.Id,
         };
-        var api = await Client.ManagedApiAsync(request);
+        var api = await ApiAsync(request);
         if (!api.Succeeded)
         {
             LikedArtifactIds.Insert(Math.Max(pos,0), artifact.Id);
@@ -227,7 +280,7 @@ public class UserState
         {
             Id = creativeId,
         };
-        var api = await Client.ApiAsync(request);
+        var api = await ApiAsync(request);
         if (api.Succeeded)
         {
             RemoveCreative(creative);

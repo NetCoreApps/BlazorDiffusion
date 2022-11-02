@@ -17,7 +17,8 @@ public abstract class AppComponentBase : ServiceStack.Blazor.BlazorComponentBase
 public abstract class AppAuthComponentBase : AuthBlazorComponentBase
 {
     public bool IsModerator => IsAuthenticated && User.HasRole(AppRoles.Moderator);
-    [Inject] UserState UserState { get; set; } = default!;
+    [Inject] public UserState UserState { get; set; } = default!;
+    [Inject] public KeyboardNavigation KeyboardNavigation { get; set; }
 
     protected async Task loadUserState(bool force=false)
     {
@@ -25,6 +26,17 @@ public abstract class AppAuthComponentBase : AuthBlazorComponentBase
         {
             await UserState.LoadAsync(force);
         }
+    }
+
+    public void RegisterKeyboardNavigation(Func<string, Task> target)
+    {
+        log("KEYNAV {0} registered", GetType().Name);
+        KeyboardNavigation.Register(target);
+    }
+    public void DeregisterKeyboardNavigation(Func<string, Task> target)
+    {
+        log("KEYNAV {0} de-registered", GetType().Name);
+        KeyboardNavigation.Deregister(target);
     }
 }
 

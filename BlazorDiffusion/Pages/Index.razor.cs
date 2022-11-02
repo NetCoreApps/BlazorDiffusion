@@ -91,7 +91,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
 
     async Task loadMore()
     {
-        Log.LogDebug($"loadMore() {0} >= {1} / {2}...", lastResults?.Count, request.Take, results.Count);
+        Log.LogDebug($"Index loadMore() {0} >= {1} / {2}...", lastResults?.Count, request.Take, results.Count);
         if (lastResults == null || lastResults?.Count >= request.Take)
         {
             request.Skip += NextPageTake;

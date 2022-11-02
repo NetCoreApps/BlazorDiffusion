@@ -15,7 +15,6 @@ namespace BlazorDiffusion.Pages;
 public partial class Create : AppAuthComponentBase
 {
     [Inject] public NavigationManager NavigationManager { get; set; }
-    [Inject] public KeyboardNavigation KeyboardNavigation { get; set; }
     [Inject] public IJSRuntime JS { get; set; }
     [Inject] public UserState UserState { get; set; }
 
@@ -112,7 +111,7 @@ public partial class Create : AppAuthComponentBase
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
-        KeyboardNavigation.Register(this.OnNavKeyAsync);
+        RegisterKeyboardNavigation(this.OnNavKeyAsync);
 
         await loadHistory();
 
@@ -396,6 +395,6 @@ public partial class Create : AppAuthComponentBase
     public void Dispose()
     {
         UserState.OnChange -= StateHasChanged;
-        KeyboardNavigation.Deregister(this.OnNavKeyAsync);
+        DeregisterKeyboardNavigation(this.OnNavKeyAsync);
     }
 }

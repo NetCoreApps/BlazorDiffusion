@@ -4,9 +4,16 @@
 
 <Home Page="AppPage.Favorites">
 
-    <div class="mt-8 mx-auto shadow overflow-hidden sm:rounded-md w-[450px] sm:w-[600px]">
+    <div class="mt-8 mx-auto shadow overflow-hidden sm:rounded-md w-[450px] sm:w-[600px]"></div>
+
+    <ArtifactGallery Artifacts=@results ResolveBorderColor="GetBorderColor" />
+
+    <div @ref="BottomElement" class="flex justify-center">
+        @if (UserState.IsLoading)
+        {
+            <Loading class="text-gray-300 font-normal" ImageClass="w-7 h-7 mt-1.5" Message="loading..." />
+        }
     </div>
 
-    <ArtifactGallery Artifacts=@UserState.LikedArtifacts ResolveBorderColor="GetBorderColor" />
 
 </Home>

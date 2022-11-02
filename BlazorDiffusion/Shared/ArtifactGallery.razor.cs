@@ -38,8 +38,13 @@ public partial class ArtifactGallery : AppAuthComponentBase
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
-        KeyboardNavigation.Register(OnNavKeyAsync);
+        RegisterKeyboardNavigation(OnNavKeyAsync);
 
+        await handleParametersChanged();
+    }
+
+    public async Task handleParametersChanged()
+    {
         var query = ServiceStack.Pcl.HttpUtility.ParseQueryString(new Uri(NavigationManager.Uri).Query);
         Id = query[nameof(Id)]?.ConvertTo<int>();
         View = query[nameof(View)]?.ConvertTo<int>();
@@ -52,7 +57,7 @@ public partial class ArtifactGallery : AppAuthComponentBase
 
     private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
     {
-        base.InvokeAsync(async () => await OnParametersSetAsync());
+        base.InvokeAsync(async () => await handleParametersChanged());
     }
 
     void navTo(int? artifactId = null, int? viewArtifactId = null)
@@ -195,6 +200,6 @@ public partial class ArtifactGallery : AppAuthComponentBase
     {
         UserState.OnChange -= StateHasChanged;
         NavigationManager.LocationChanged -= HandleLocationChanged;
-        KeyboardNavigation.Deregister(OnNavKeyAsync);
+        DeregisterKeyboardNavigation(OnNavKeyAsync);
     }
 }
