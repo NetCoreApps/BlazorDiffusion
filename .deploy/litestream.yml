@@ -1,0 +1,17 @@
+﻿dbs:
+  - path: /data/db.sqlite
+    replicas:
+      - type: s3
+        endpoint: https://b95f38ca3a6ac31ea582cd624e6eb385.r2.cloudflarestorage.com/
+        path: /diffusion/db.sqlite
+        bucket: diffusion-backup
+        access-key-id: ${R2_ACCESS_KEY_ID}
+        secret-access-key: ${R2_SECRET_ACCESS_KEY}
+  - path: /data/analytics.sqlite
+    replicas:
+      - type: s3
+        endpoint: https://b95f38ca3a6ac31ea582cd624e6eb385.r2.cloudflarestorage.com/
+        path: /diffusion/analytics.sqlite
+        bucket: diffusion-backup
+        access-key-id: ${R2_ACCESS_KEY_ID}
+        secret-access-key: ${R2_SECRET_ACCESS_KEY}

@@ -168,6 +168,42 @@ jobs:
           source: ".deploy/${{ github.event.repository.name }}-docker-compose.yml"
           target: "~/"
 
+      # Populate litestream.yml with variables from build process, including TAG_NAME.
+      - name: litestream.yml file prep
+        uses: danielr1996/envsubst-action@1.1.0
+        env:
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        with:
+          input: .deploy/litestream.yml
+          output: .deploy/${{ github.event.repository.name }}-litestream.yml
+
+      - name: copy litestream.yml file via scp
+        uses: appleboy/scp-action@v0.1.1
+        with:
+          host: ${{ secrets.DEPLOY_API }}
+          username: ${{ secrets.DEPLOY_USERNAME }}
+          port: 22
+          key: ${{ secrets.DEPLOY_KEY }}
+          source: ".deploy/${{ github.event.repository.name }}-litestream.yml"
+          target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data/litestream.yml"
+
+      - name: Restore db using litestream if needed
+        uses: appleboy/ssh-action@v0.1.4
+        env:
+          APPTOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USERNAME: ${{ secrets.DEPLOY_USERNAME }}
+        with:
+          host: ${{ secrets.DEPLOY_API }}
+          username: ${{ secrets.DEPLOY_USERNAME }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          port: 22
+          envs: APPTOKEN,USERNAME
+          script: |
+            echo $APPTOKEN | docker login ghcr.io -u $USERNAME --password-stdin
+            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml pull
+            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-restore --exit-code-from ${{ github.event.repository.name }}-restore     
+      
       - name: Copy BlazorDiffusion Assets to Remote Server
         uses: appleboy/ssh-action@v0.1.4
         with:

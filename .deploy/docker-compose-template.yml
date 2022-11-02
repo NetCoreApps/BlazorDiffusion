@@ -2,6 +2,8 @@ version: "3.9"
 services:
   ${APP_NAME}:
     image: ghcr.io/${IMAGE_REPO}:${RELEASE_VERSION}
+    depends_on:
+      - ${APP_NAME}-litestream
     restart: always
     network_mode: bridge
     ports:
@@ -28,7 +30,24 @@ services:
       FACEBOOK_APP_SECRET: ${FACEBOOK_APP_SECRET}
     volumes:
       - ${APP_NAME}-mydb:/app/App_Data
-      - ${APP_NAME}-assets:/app/App_Files
+      - ${APP_NAME}-ls-config:/app/
+  ${APP_NAME}-litestream:
+    image: litestream/litestream
+    command: replicate -config /config/litestream.yml
+    volumes:
+      - ${APP_NAME}-mydb:/data
+      - ${APP_NAME}-assets/litestream.yml:/config/litestream.yml
+        
+  ${APP_NAME}-restore:
+    image: litestream/litestream
+    restart: "no"
+    profiles:
+      - litestream
+    command: restore -if-db-not-exists -if-replica-exists -config /config/litestream.yml
+    volumes:
+      - ${APP_NAME}-mydb:/data
+      - ${APP_NAME}-assets/litestream.yml:/config/litestream.yml
+
   ${APP_NAME}-migration:
     image: ghcr.io/${IMAGE_REPO}:${RELEASE_VERSION}
     restart: "no"
