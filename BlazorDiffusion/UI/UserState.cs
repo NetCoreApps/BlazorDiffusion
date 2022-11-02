@@ -8,7 +8,7 @@ namespace BlazorDiffusion.UI;
 public class UserState
 {
     public CachedLocalStorage LocalStorage { get; }
-    public JsonApiClient Client { get; }
+    public IServiceGateway Client { get; }
     public AppPrefs AppPrefs { get; internal set; } = new();
     
     // Capture images that should have loaded in Browsers cache
@@ -30,7 +30,7 @@ public class UserState
     public List<Artifact> LikedArtifacts => LikedArtifactIds.Select(x => ArtifactsMap.TryGetValue(x, out var a) ? a : null)
         .Where(x => x != null).Cast<Artifact>().ToList();
     NavigationManager NavigationManager { get; }
-    public UserState(CachedLocalStorage localStorage, JsonApiClient client, NavigationManager navigationManager)
+    public UserState(CachedLocalStorage localStorage, IServiceGateway client, NavigationManager navigationManager)
     {
         LocalStorage = localStorage;
         Client = client;
