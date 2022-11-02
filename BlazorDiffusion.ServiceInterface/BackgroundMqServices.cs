@@ -78,7 +78,7 @@ public class BackgroundMqServices : Service
             var thresholdDate = DateTime.UtcNow.Add(-Scores.TemporalScoreThreshold);
             var artifacts = Db.Select(Db.From<Artifact>()
                 .Join<Creative>((a,c) => a.Id == c.PrimaryArtifactId)
-                .Where(x => x.TemporalScore > 0 || x.CreatedDate < thresholdDate));
+                .Where(x => x.TemporalScore > 0 || x.CreatedDate >= thresholdDate));
 
             log("Found {0} artifacts created before {1}", artifacts.Count, thresholdDate.ToString("s"));
 
