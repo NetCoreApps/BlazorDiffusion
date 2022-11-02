@@ -186,7 +186,7 @@ jobs:
           port: 22
           key: ${{ secrets.DEPLOY_KEY }}
           source: ".deploy/${{ github.event.repository.name }}-litestream.yml"
-          target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data"
+          target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data/config"
 
       - name: Restore db using litestream if needed
         uses: appleboy/ssh-action@v0.1.4
