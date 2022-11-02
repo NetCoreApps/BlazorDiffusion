@@ -60,7 +60,7 @@ BlazorConfig.Set(new()
     AssetsBasePath = AppConfig.Instance.AssetsBasePath,
     OnApiErrorAsync = (request,apiError) => 
     {
-        BlazorConfig.Instance.GetLog()?.LogDebug("\n\nZZZZZZZ OnApiErrorAsync(): {0}", apiError.Error.ErrorCode);
+        BlazorConfig.Instance.GetLog()?.LogDebug("\n\nOnApiErrorAsync(): {0}", apiError.Error.GetDetailedError());
         return Task.CompletedTask;
     }
 });
