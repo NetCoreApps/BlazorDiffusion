@@ -17,6 +17,7 @@ public class Album : AuditBase
     public string RefId { get; set; }
     [References(typeof(AppUser))]
     public int OwnerId { get; set; }
+    public string OwnerRef { get; set; }
     public int? PrimaryArtifactId { get; set; }
     public bool Private { get; set; }
     public int? Rating { get; set; }
@@ -25,6 +26,7 @@ public class Album : AuditBase
     public int SearchCount { get; set; }
     public int Score { get; set; }
     public int Rank { get; set; }
+    public int? PrefColumns { get; set; }
     [Reference]
     public List<AlbumArtifact> Artifacts { get; set; }
 }

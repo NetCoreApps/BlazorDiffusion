@@ -269,6 +269,7 @@ public class Migration1001 : MigrationBase
         public string RefId { get; set; }
         [References(typeof(AppUser))]
         public int OwnerId { get; set; }
+        public string OwnerRef { get; set; }
         public int? PrimaryArtifactId { get; set; }
         public bool Private { get; set; }
         public int? Rating { get; set; }
@@ -277,6 +278,7 @@ public class Migration1001 : MigrationBase
         public int SearchCount { get; set; }
         public int Score { get; set; }
         public int Rank { get; set; }
+        public int? PrefColumns { get; set; }
         [Reference]
         public List<AlbumArtifact> Artifacts { get; set; }
     }
@@ -494,14 +496,16 @@ public class Migration1001 : MigrationBase
         var allAlbumLikeRefs = File.ReadAllText(seedDir.CombineWith("album-likes.csv")).FromCsv<List<AlbumLikeRef>>();
         foreach (var albumnRef in albumRefs)
         {
+            var owner = Users.GetUserById(albumnRef.OwnerId);
             var album = new Album
             {
                 RefId = albumnRef.RefId,
-                OwnerId = albumnRef.OwnerId,
+                OwnerId = owner.Id,
+                OwnerRef = owner.RefIdStr,
                 Name = albumnRef.Name,
                 Description = albumnRef.Description,
                 Tags = albumnRef.Tags,
-            }.WithAudit($"{albumnRef.OwnerId}");
+            }.WithAudit($"{owner.Id}");
             album.Id = (int)Db.Insert(album, selectIdentity: true);
 
             foreach (var x in albumArtifactRefs.Where(x => x.AlbumRefId == albumnRef.RefId))
