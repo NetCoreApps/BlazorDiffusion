@@ -207,6 +207,7 @@ public partial class Create : AppAuthComponentBase
     {
         var hold = creative!.PrimaryArtifactId;
         creative.PrimaryArtifactId = artifact.Id;
+        StateHasChanged();
 
         var api = await ApiAsync(new UpdateCreative { Id = artifact.CreativeId, PrimaryArtifactId = artifact.Id });
         if (!api.Succeeded)
@@ -220,6 +221,7 @@ public partial class Create : AppAuthComponentBase
     {
         var hold = creative!.PrimaryArtifactId;
         creative.PrimaryArtifactId = null;
+        StateHasChanged();
 
         var api = await ApiAsync(new UpdateCreative { 
             Id = artifact.CreativeId, 

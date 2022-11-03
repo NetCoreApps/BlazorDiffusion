@@ -14,11 +14,12 @@ public class AlbumServices : Service
 
     public async Task<object> Any(CreateAlbum request)
     {
-        var session = await GetSessionAsync();
+        var session = await SessionAsAsync<CustomUserSession>();
 
         var album = request.ConvertTo<Album>();
         album.Name ??= "New Album";
         album.OwnerId = session.UserAuthId.ToInt();
+        album.OwnerRef = session.RefIdStr;
         album.RefId = Guid.NewGuid().ToString("D");
         album.WithAudit(session.UserAuthId);
 
@@ -77,6 +78,22 @@ public class AlbumServices : Service
         if (request.RemoveArtifactIds?.Count > 0)
         {
             await Db.DeleteAsync<AlbumArtifact>(x => x.AlbumId == album.Id && request.RemoveArtifactIds.Contains(x.ArtifactId));
+            // Delete Album if it no longer contains any Artifacts
+            if (!await Db.ExistsAsync<AlbumArtifact>(x => x.AlbumId == album.Id))
+            {
+                await Db.DeleteByIdAsync<Album>(album.Id);
+            }
+            else if (album.PrimaryArtifactId != null && request.RemoveArtifactIds.Contains(album.PrimaryArtifactId.Value))
+            {
+                await Db.UpdateOnlyAsync(() => new Album { PrimaryArtifactId = null }, where: x => x.Id == album.Id);
+            }
+        }
+        if (request.PrimaryArtifactId != null)
+        {
+            if (request.UnpinPrimaryArtifact != true)
+                await Db.UpdateOnlyAsync(() => new Album { PrimaryArtifactId = request.PrimaryArtifactId }, where: x => x.Id == album.Id);
+            else
+                await Db.UpdateOnlyAsync(() => new Album { PrimaryArtifactId = null }, where: x => x.Id == album.Id);
         }
 
         var crudContext = CrudContext.Create<Album>(Request, Db, request, AutoCrudOperation.Patch);

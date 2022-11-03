@@ -47,6 +47,12 @@ public enum AppPage
     Favorites,
 }
 
+public enum ArtifactView
+{
+    Report,
+    NewAlbum,
+}
+
 public static class AppData
 {
     static List<NavItem> DefaultLinks { get; set; } = new() { };

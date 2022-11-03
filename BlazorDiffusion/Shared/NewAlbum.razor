@@ -1,0 +1,64 @@
+﻿@inherits AppAuthComponentBase
+
+<ModalForm>
+    <form @onsubmit="submit" @onsubmit:preventDefault>
+        <CascadingValue Value=@api.Error>
+            <div class="shadow overflow-hidden sm:rounded-md bg-white dark:bg-black">
+                <div class="relative px-4 py-5 sm:p-6">
+                    <fieldset>
+                        <legend class=@CssDefaults.Form.LegendClass>Create new Album</legend>
+
+                        <ErrorSummary Except=@VisibleFields />
+
+                        <div class="grid grid-cols-6 gap-6">
+                            <div class="col-span-6">
+                                <TextInput @bind-Value="request.Name" />
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="mt-4 px-4 py-3 bg-gray-50 dark:bg-gray-900 text-right sm:px-6">
+                    <div class="flex justify-end items-center">
+                        <SecondaryButton class="mr-2" @onclick="OnDone">Cancel</SecondaryButton>
+                        <PrimaryButton type="submit">Submit</PrimaryButton>
+                    </div>
+                </div>
+            </div>
+        </CascadingValue>
+    </form>
+</ModalForm>
+
+@code {
+    [Parameter, EditorRequired] public Artifact Artifact { get; set; } = default!;
+    [Parameter] public EventCallback Done { get; set; }
+
+    string[] VisibleFields => new[] {
+        nameof(CreateAlbum.Name),
+    };
+
+    CreateAlbum request = new();
+    ApiResult<Album> api = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        request = new();
+    }
+
+    async Task OnDone()
+    {
+        await Done.InvokeAsync();
+    }
+
+    async Task submit()
+    {
+        request.ArtifactIds = new() { Artifact.Id };
+        request.PrimaryArtifactId = Artifact.Id;
+        api = await ApiAsync(request);
+        if (api.Succeeded)
+        {
+            await loadUserState(force: true);
+            await OnDone();
+        }
+    }
+}

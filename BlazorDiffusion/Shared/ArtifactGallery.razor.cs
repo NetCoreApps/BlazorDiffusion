@@ -18,9 +18,12 @@ public partial class ArtifactGallery : AppAuthComponentBase
 
 
     [Parameter] public List<Artifact> Artifacts { get; set; } = new();
+    [Parameter] public RenderFragment<Artifact>? TopRightIcon { get; set; }
     [Parameter] public int? Id { get; set; }
     [Parameter] public int? View { get; set; }
     [Parameter] public Func<Artifact, int?, UserState, string> ResolveBorderColor { get; set; } = ArtifactExtensions.GetBorderColor;
+    [Parameter] public string ColumnsSliderClass { get; set; }
+    [Parameter] public EventCallback Change { get; set; }
 
     public SlideOver? SlideOver { get; set; }
 
@@ -70,6 +73,18 @@ public partial class ArtifactGallery : AppAuthComponentBase
         {
             NavigationManager.NavigateTo(NavigationManager.Uri.SetQueryParam("id", artifactId?.ToString()).SetQueryParam("view", viewArtifactId?.ToString()));
         }
+    }
+
+    async Task LikeArtifactAsync(Artifact artifact)
+    {
+        await UserState.LikeArtifactAsync(artifact);
+        await OnChange();
+    }
+
+    async Task UnlikeArtifactAsync(Artifact artifact)
+    {
+        await UserState.UnlikeArtifactAsync(artifact);
+        await OnChange();
     }
 
     async Task hardDelete(int creativeId)
@@ -194,6 +209,12 @@ public partial class ArtifactGallery : AppAuthComponentBase
         artifactMenuArgs = e;
         artifactMenu = artifact;
         artifactOffsetX = offsetX;
+    }
+
+    async Task OnChange()
+    {
+        StateHasChanged();
+        await Change.InvokeAsync();
     }
 
     public void Dispose()

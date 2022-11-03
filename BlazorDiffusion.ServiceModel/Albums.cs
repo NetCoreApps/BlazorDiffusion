@@ -31,6 +31,17 @@ public class Album : AuditBase
     public List<AlbumArtifact> Artifacts { get; set; }
 }
 
+public class AlbumResult
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string OwnerRef { get; set; }
+    public int? PrimaryArtifactId { get; set; }
+    public int Score { get; set; }
+    public List<int> ArtifactIds { get; set; }
+}
+
+
 [Icon(Svg = Icons.Artifact)]
 public class AlbumArtifact
 {
@@ -60,15 +71,23 @@ public class AlbumLike
     public DateTime CreatedDate { get; set; }
 }
 
-public class QueryAlbums : QueryDb<Album> 
+public class QueryAlbums : QueryDb<Album>
 {
     public int? Id { get; set; }
     public List<int>? Ids { get; set; }
 }
 
+public class GetAlbumResults : IReturn<GetAlbumResultsResponse>
+{
+    public List<int> Ids { get; set; }
+}
+
+public class GetAlbumResultsResponse
+{
+    public List<AlbumResult> Results { get; set; }
+}
+
 [ValidateIsAuthenticated]
-[AutoPopulate(nameof(Album.RefId), Eval = "nguid")]
-[AutoPopulate(nameof(Album.OwnerId), Eval = "userAuthId")]
 public class CreateAlbum : ICreateDb<Album>, IReturn<Album>
 {
     [ValidateNotEmpty]
@@ -90,6 +109,7 @@ public class UpdateAlbum : IPatchDb<Album>, IReturn<Album>
     public string? Slug { get; set; }
     public List<string>? Tags { get; set; }
     public int? PrimaryArtifactId { get; set; }
+    public bool? UnpinPrimaryArtifact { get; set; }
     public List<int>? AddArtifactIds { get; set; }
     public List<int>? RemoveArtifactIds { get; set; }
 }

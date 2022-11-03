@@ -117,4 +117,21 @@ public static class CreativeExtensions
         ? artist.LastName
         : $"{artist.FirstName} {artist.LastName}";
 
+    public static AlbumResult ToAlbumResult(this Album album)
+    {
+        var to = new AlbumResult
+        {
+            Id = album.Id,
+            Name = album.Name,
+            OwnerRef = album.OwnerRef,
+            PrimaryArtifactId = album.PrimaryArtifactId,
+            // Show latest artifacts added first
+            ArtifactIds = album.PrimaryArtifactId == null
+                ? album.Artifacts.OrderByDescending(x => x.Id).Map(x => x.ArtifactId)
+                : X.Apply(new List<int> { album.PrimaryArtifactId.Value }, 
+                    ids => ids.AddRange(album.Artifacts.Where(x => x.ArtifactId != album.PrimaryArtifactId.Value)
+                        .OrderByDescending(x => x.Id).Select(x => x.ArtifactId))),
+        };
+        return to;
+    }
 }

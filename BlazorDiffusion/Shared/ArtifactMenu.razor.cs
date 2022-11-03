@@ -18,28 +18,9 @@ public partial class ArtifactMenu : AppAuthComponentBase
     [Parameter] public int OffsetY { get; set; } = 60;
     [Parameter] public bool Show { get; set; }
     [Parameter] public EventCallback Done { get; set; }
-
-    enum ArtifactView
-    {
-        Report,
-        NewAlbum,
-    }
+    [Parameter] public EventCallback Change { get; set; }
 
     ArtifactView? artifactView;
-
-    ApiResult<ArtifactReport> apiReport = new();
-    string[] ReportVisibleFields => new[] {
-        nameof(ArtifactReport.Type),
-        nameof(ArtifactReport.Description),
-    };
-    CreateArtifactReport requestReport = new();
-
-    ApiResult<Album> apiNewAlbum = new();
-    string[] NewAlbumVisibleFields => new[] {
-        nameof(CreateAlbum.Name),
-    };
-    CreateAlbum newAlbumRequest = new();
-
 
     async Task<bool> assertAuth()
     {
@@ -66,6 +47,7 @@ public partial class ArtifactMenu : AppAuthComponentBase
         {
             Artifact.Nsfw = !Artifact.Nsfw;
             await OnDone();
+            await OnChange();
         }
     }
 
@@ -83,6 +65,7 @@ public partial class ArtifactMenu : AppAuthComponentBase
         {
             Artifact.Quality = quality;
             await OnDone();
+            await OnChange();
         }
     }
 
@@ -109,20 +92,9 @@ public partial class ArtifactMenu : AppAuthComponentBase
         if (!await assertAuth())
             return;
 
-        requestReport = new();
         artifactView = ArtifactView.Report;
         await Task.Delay(1);
         await JS.InvokeVoidAsync("JS.elInvoke", "#Type", "focus");
-    }
-
-    async Task submitReport()
-    {
-        requestReport.ArtifactId = Artifact.Id;
-        apiReport = await ApiAsync(requestReport);
-        if (apiReport.Succeeded)
-        {
-            await OnDone();
-        }
     }
 
     async Task openNewAlbum()
@@ -130,27 +102,14 @@ public partial class ArtifactMenu : AppAuthComponentBase
         if (!await assertAuth())
             return;
 
-        newAlbumRequest = new();
         artifactView = ArtifactView.NewAlbum;
         await Task.Delay(1);
         await JS.InvokeVoidAsync("JS.elInvoke", "#Name", "focus");
     }
 
-    async Task submitNewAlbum()
+    async Task saveToAlbum(AlbumResult album)
     {
-        newAlbumRequest.ArtifactIds = new() { Artifact.Id };
-        newAlbumRequest.PrimaryArtifactId = Artifact.Id;
-        apiNewAlbum = await ApiAsync(newAlbumRequest);
-        if (apiNewAlbum.Succeeded)
-        {
-            await loadUserState(force: true);
-            await OnDone();
-        }
-    }
-
-    async Task saveToAlbum(Album album)
-    {
-        if (!album.HasArtifact(Artifact))
+        if (!album.ArtifactIds.Contains(Artifact.Id))
         {
             var request = new UpdateAlbum
             {
@@ -162,6 +121,7 @@ public partial class ArtifactMenu : AppAuthComponentBase
             {
                 UserState.AddArtifactToAlbum(album, Artifact);
                 await OnDone();
+                await OnChange();
             }
         }
         else
@@ -176,6 +136,7 @@ public partial class ArtifactMenu : AppAuthComponentBase
             {
                 UserState.RemoveArtifactFromAlbum(album, Artifact);
                 await OnDone();
+                await OnChange();
             }
         }
     }
@@ -184,6 +145,11 @@ public partial class ArtifactMenu : AppAuthComponentBase
     {
         artifactView = null;
         await Done.InvokeAsync();
+    }
+
+    async Task OnChange()
+    {
+        await Change.InvokeAsync();
     }
 
 }

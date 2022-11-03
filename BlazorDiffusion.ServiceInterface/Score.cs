@@ -257,7 +257,7 @@ public static class Scores
     public static async Task DecrementArtifactLikeAsync(IDbConnection db, int artifactId)
     {
         ArtifactLikesCountMap[artifactId] = ArtifactLikesCountMap.TryGetValue(artifactId, out var count)
-            ? Math.Min(count - 1, 0)
+            ? Math.Max(count - 1, 0)
             : 0;
         await db.UpdateAddAsync(() => new Artifact { LikesCount = -1, Score = -Weights.Like }, where: x => x.Id == artifactId);
         Updated.ArtifactIds.Add(artifactId);
@@ -275,7 +275,7 @@ public static class Scores
     public static async Task DencrementArtifactInAlbumAsync(IDbConnection db, int artifactId)
     {
         ArtifactInAlbumsCountMap[artifactId] = ArtifactInAlbumsCountMap.TryGetValue(artifactId, out var count)
-            ? Math.Min(count - 1, 0)
+            ? Math.Max(count - 1, 0)
             : 0;
         await db.UpdateAddAsync(() => new Artifact { AlbumsCount = -1, Score = -Weights.InAlbum }, where: x => x.Id == artifactId);
         Updated.ArtifactIds.Add(artifactId);

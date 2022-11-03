@@ -78,7 +78,7 @@
                 @foreach (var album in UserState.UserAlbums)
                 {
                     <div @onclick="_ => saveToAlbum(album)" class="group whitespace-nowrap flex items-center cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-0">
-                        @if (album.HasArtifact(Artifact))
+                        @if (album.ArtifactIds.Contains(Artifact.Id))
                         {
                             <svg class=@ClassNames("mr-2 h-5 w-5 text-gray-400 group-hover:text-gray-500") xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                 <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
@@ -99,64 +99,9 @@
 
 @if (artifactView == ArtifactView.Report)
 {
-    <ModalForm>
-        <form @onsubmit="submitReport" @onsubmit:preventDefault>
-        <CascadingValue Value=@apiReport.Error>
-            <div class="shadow overflow-hidden sm:rounded-md bg-white dark:bg-black">
-                <div class="relative px-4 py-5 sm:p-6">
-                    <fieldset>
-                        <legend class=@CssDefaults.Form.LegendClass>Report Image</legend>
-
-                        <ErrorSummary Except=@ReportVisibleFields />
-
-                        <div class="grid grid-cols-6 gap-6">
-                            <div class="col-span-6">
-                                <SelectInput @bind-Value="requestReport.Type" Options=@(Enum.GetValues<ReportType>()) />
-                            </div>
-                            <div class="col-span-6">
-                                <TextInput @bind-Value="requestReport.Description" type="textarea" />
-                            </div>
-                        </div>
-                    </fieldset>
-                </div>
-                <div class="mt-4 px-4 py-3 bg-gray-50 dark:bg-gray-900 text-right sm:px-6">
-                    <div class="flex justify-end items-center">
-                        <SecondaryButton class="mr-2" @onclick="OnDone">Cancel</SecondaryButton>
-                        <PrimaryButton type="submit">Submit</PrimaryButton>
-                    </div>
-                </div>
-            </div>
-        </CascadingValue>
-        </form>
-    </ModalForm>
+    <NewReport Artifact=@Artifact Done="OnDone" />
 }
 else if (artifactView == ArtifactView.NewAlbum)
 {
-    <ModalForm>
-        <form @onsubmit="submitNewAlbum" @onsubmit:preventDefault>
-        <CascadingValue Value=@apiNewAlbum.Error>
-            <div class="shadow overflow-hidden sm:rounded-md bg-white dark:bg-black">
-                <div class="relative px-4 py-5 sm:p-6">
-                    <fieldset>
-                        <legend class=@CssDefaults.Form.LegendClass>Create new Album</legend>
-
-                        <ErrorSummary Except=@NewAlbumVisibleFields />
-
-                        <div class="grid grid-cols-6 gap-6">
-                            <div class="col-span-6">
-                                <TextInput @bind-Value="newAlbumRequest.Name" />
-                            </div>
-                        </div>
-                    </fieldset>
-                </div>
-                <div class="mt-4 px-4 py-3 bg-gray-50 dark:bg-gray-900 text-right sm:px-6">
-                    <div class="flex justify-end items-center">
-                        <SecondaryButton class="mr-2" @onclick="OnDone">Cancel</SecondaryButton>
-                        <PrimaryButton type="submit">Submit</PrimaryButton>
-                    </div>
-                </div>
-            </div>
-        </CascadingValue>
-        </form>
-    </ModalForm>
+    <NewAlbum Artifact=@Artifact Done="OnDone" />
 }

@@ -47,4 +47,14 @@ public static class Users
         DisplayName = "Test",
         RefIdStr = "3823c5af-d0b6-4738-8601-bd91bf6f9771",
     };
+
+    public static AppUser GetUserById(int? userId) => userId switch
+    {
+        1 => Admin,
+        2 => System,
+        3 => Demis,
+        4 => Darren,
+        5 => Test,
+        _ => System,
+    };
 }

@@ -2,6 +2,7 @@
 using ServiceStack.Blazor;
 using BlazorDiffusion.ServiceModel;
 using Microsoft.AspNetCore.Components;
+using System.Linq;
 
 namespace BlazorDiffusion.UI;
 
@@ -22,11 +23,11 @@ public class UserState
     public List<int> LikedArtifactIds { get; private set; } = new();
     public List<int> LikedAlbumIds { get; private set; } = new();
 
-    public Dictionary<int, Album> AlbumsMap { get; } = new();
+    public Dictionary<int, AlbumResult> AlbumsMap { get; } = new();
     public Dictionary<int, Artifact> ArtifactsMap { get; } = new();
 
     public Dictionary<int, Creative> CreativesMap { get; } = new();
-    public List<Album> UserAlbums { get; private set; } = new();
+    public List<AlbumResult> UserAlbums { get; private set; } = new();
     public bool IsLoading { get; set; }
 
     NavigationManager NavigationManager { get; }
@@ -95,6 +96,7 @@ public class UserState
                 LikedAlbumIds = r.Likes.AlbumIds;
                 UserAlbums = r.Albums ?? new();
                 LoadAlbums(UserAlbums);
+                await LoadAlbumCoverArtifacts();
             }
         }
 
@@ -106,15 +108,52 @@ public class UserState
 
     public bool IsModerator() => Roles.Contains(AppRoles.Moderator);
 
+    public async Task LoadAlbumCoverArtifacts()
+    {
+        var albumArtifactIds = UserAlbums.Select(GetAlbumCoverArtifactId).ToList();
+        await LoadArtifactsAsync(albumArtifactIds);
+    }
+
+    public int GetAlbumCoverArtifactId(AlbumResult album)
+    {
+        return album.PrimaryArtifactId != null && album.ArtifactIds.Contains(album.PrimaryArtifactId.Value)
+            ? album.PrimaryArtifactId.Value
+            : album.ArtifactIds.First();
+    }
+    public Artifact? GetAlbumCoverArtifact(AlbumResult album)
+    {
+        var id = GetAlbumCoverArtifactId(album);
+        return GetCachedArtifact(id);
+    }
+
+    public async Task<List<Artifact>> GetAlbumArtifactsAsync(AlbumResult album, int? take)
+    {
+        var artifactIds = take != null
+            ? album.ArtifactIds.Take(take.Value).ToList()
+            : album.ArtifactIds;
+
+        await LoadArtifactsAsync(artifactIds);
+
+        var to = artifactIds.Select(id => GetCachedArtifact(id)).Where(x => x != null).Cast<Artifact>().ToList();
+        return to;
+    }
 
     public async Task<List<Artifact>> GetLikedArtifactsAsync(int? take)
     {
-        var missingIds = new List<int>();
         var requestedLikeIds = take != null
             ? LikedArtifactIds.Take(take.Value).ToList()
             : LikedArtifactIds;
 
-        foreach (var id in requestedLikeIds)
+        await LoadArtifactsAsync(requestedLikeIds);
+
+        var to = LikedArtifactIds.Select(id => GetCachedArtifact(id)).Where(x => x != null).Cast<Artifact>().ToList();
+        return to;
+    }
+
+    public async Task LoadArtifactsAsync(List<int> artifactIds)
+    {
+        var missingIds = new List<int>();
+        foreach (var id in artifactIds)
         {
             if (GetCachedArtifact(id) == null)
                 missingIds.Add(id);
@@ -125,12 +164,9 @@ public class UserState
             var api = await ApiAsync(new QueryArtifacts { Ids = missingIds });
             if (api.Response?.Results != null) LoadArtifacts(api.Response.Results);
         }
-
-        var to = LikedArtifactIds.Select(id => GetCachedArtifact(id)).Where(x => x != null).Cast<Artifact>().ToList();
-        return to;
     }
 
-    public async Task<List<Album>> GetLikedAlbumsAsync(int? take)
+    public async Task<List<AlbumResult>> GetLikedAlbumsAsync(int? take)
     {
         var missingIds = new List<int>();
         var requestedLikeIds = take != null
@@ -144,11 +180,11 @@ public class UserState
         }
         if (missingIds.Count > 0)
         {
-            var api = await ApiAsync(new QueryAlbums { Ids = missingIds });
+            var api = await ApiAsync(new GetAlbumResults { Ids = missingIds });
             if (api.Response?.Results != null) LoadAlbums(api.Response.Results);
         }
 
-        var to = LikedAlbumIds.Select(id => GetCachedAlbum(id)).Where(x => x != null).Cast<Album>().ToList();
+        var to = LikedAlbumIds.Select(id => GetCachedAlbum(id)).Where(x => x != null).Cast<AlbumResult>().ToList();
         return to;
     }
 
@@ -162,12 +198,12 @@ public class UserState
         }
     }
 
-    public void LoadAlbums(IEnumerable<Album> albums) => albums.Each(LoadAlbum);
-    public void LoadAlbum(Album album) => AlbumsMap[album.Id] = album;
+    public void LoadAlbums(IEnumerable<AlbumResult> albums) => albums.Each(LoadAlbum);
+    public void LoadAlbum(AlbumResult album) => AlbumsMap[album.Id] = album;
     public void LoadArtifacts(IEnumerable<Artifact> artifacts) => artifacts.Each(LoadArtifact);
     public void LoadArtifact(Artifact artifact) => ArtifactsMap[artifact.Id] = artifact;
 
-    public Album? GetCachedAlbum(int? id) => id != null
+    public AlbumResult? GetCachedAlbum(int? id) => id != null
         ? AlbumsMap.TryGetValue(id.Value, out var a) ? a : null
         : null;
 
@@ -299,30 +335,34 @@ public class UserState
 
     public bool HasArtifactInAlbum(Artifact artifact)
     {
-        return UserAlbums.Any(a => a.HasArtifact(artifact));
+        return UserAlbums.Any(a => a.ArtifactIds.Contains(artifact.Id));
     }
 
-    public void AddArtifactToAlbum(Album album, Artifact artifact)
+    public void AddArtifactToAlbum(AlbumResult album, Artifact artifact)
     {
         var userAlbum = UserAlbums.FirstOrDefault(x => x.Id == album.Id);
         if (userAlbum != null)
         {
-            if (!album.HasArtifact(artifact))
+            if (!album.ArtifactIds.Contains(artifact.Id))
             {
-                album.AddArtifact(artifact);
+                album.ArtifactIds.Add(artifact.Id);
                 NotifyStateChanged();
             }
         }
     }
 
-    public void RemoveArtifactFromAlbum(Album album, Artifact artifact)
+    public void RemoveArtifactFromAlbum(AlbumResult album, Artifact artifact)
     {
         var userAlbum = UserAlbums.FirstOrDefault(x => x.Id == album.Id);
         if (userAlbum != null)
         {
-            if (album.HasArtifact(artifact))
+            if (album.ArtifactIds.Contains(artifact.Id))
             {
-                album.RemoveArtifact(artifact);
+                album.ArtifactIds.RemoveAll(x => x == artifact.Id);
+                if (!album.ArtifactIds.Any())
+                {
+                    UserAlbums.RemoveAll(x => x.Id == album.Id);
+                }
                 NotifyStateChanged();
             }
         }

@@ -15,8 +15,6 @@ public class DataService : Service
 {
     public IAutoQueryDb AutoQuery { get; set; }
 
-
-
     // TODO Home page search
     public async Task<object> Any(SearchArtifacts query)
     {
@@ -198,48 +196,17 @@ public class DataService : Service
             AlbumIds = await Db.ColumnAsync<int>(Db.From<AlbumLike>().Where(x => x.AppUserId == userId).Select(x => x.AlbumId).OrderByDescending(x => x.Id)),
         };
 
-        var albums = await Db.LoadSelectAsync<Album>(x => x.OwnerId == userId && x.DeletedDate == null);
+        var albums = (await Db.LoadSelectAsync<Album>(x => x.OwnerId == userId && x.DeletedDate == null))
+            .OrderByDescending(x => x.Artifacts.Max(x => x.Id)).ToList();
+        var albumResults = albums.Map(x => x.ToAlbumResult());
 
         return new UserDataResponse
         {
             RefId = session.RefIdStr,
             Roles = (await session.GetRolesAsync(AuthRepositoryAsync)).ToList(),
             Likes = likes,
-            Albums = albums,
+            Albums = albumResults,
         };
-    }
-
-    private const int LowestSimilarityThreshold = 60;
-    private const int StartingSimilarityThreshold = 90;
-    private const int SimilarityThresholdReductionIncrement = 5;
-    private const int DefaultFindSimilarityPageSize = 20;
-    private int? MaxLimit { get; } = HostContext.AssertPlugin<AutoQueryFeature>().MaxLimit;
-
-    private async Task<List<Artifact>> FindSimilar(Artifact artifactSource, int? skip = null, int? take = null)
-    {
-        var perceptualHash = artifactSource.PerceptualHash;
-        if (perceptualHash == null)
-            // TODO just in time hash of request based image?
-            throw HttpError.BadRequest($"Artifact Id {artifactSource.Id} not hashed.");
-
-        Db.RegisterImgCompare();
-
-        var qskip = skip ?? 0;
-        var qtake = take ?? MaxLimit ?? DefaultFindSimilarityPageSize;
-        var similarityThreshold = StartingSimilarityThreshold;
-        
-        var sql = BuildSimilaritySearchSql((long)perceptualHash, qtake, qskip, similarityThreshold);
-        var matches = await Db.SelectAsync<ImageCompareResult>(sql);
-        
-        while (matches.Count < take && similarityThreshold >= LowestSimilarityThreshold)
-        {
-            similarityThreshold -= SimilarityThresholdReductionIncrement;
-            sql = BuildSimilaritySearchSql((long)perceptualHash, qtake, qskip, similarityThreshold);
-            matches = await Db.SelectAsync<ImageCompareResult>(sql);
-        }
-
-        var results = await Db.SelectAsync<Artifact>(x => Sql.In(x.Id, matches.Select(y => y.Id)));
-        return results;
     }
 
     public async Task<object> Any(QueryLikedArtifacts query)
@@ -256,13 +223,15 @@ public class DataService : Service
         return await AutoQuery.ExecuteAsync(query, q, base.Request, db);
     }
 
-
-    private string BuildSimilaritySearchSql(long perceptualHash, int take, int skip, int similarityThreshold)
+    public async Task<object> Any(GetAlbumResults request)
     {
-        return $@"
-select rowid, PerceptualHash, imgcompare({perceptualHash},PerceptualHash) as Similarity from Artifact
-where Similarity > {similarityThreshold} and PerceptualHash != {perceptualHash}
-order by Similarity desc limit {take} offset {skip};
-";
+        var albums = (await Db.LoadSelectAsync<Album>(x => x.DeletedDate == null && request.Ids.Contains(x.Id)))
+            .OrderByDescending(x => x.Artifacts.Max(x => x.Id)).ToList();
+        var albumResults = albums.Map(x => x.ToAlbumResult());
+
+        return new GetAlbumResultsResponse
+        {
+            Results = albumResults,
+        };
     }
 }
