@@ -444,7 +444,7 @@ public class Migration1001 : MigrationBase
 
             foreach (var artistName in creative.ArtistNames)
             {
-                if (savedArtistIds.TryGetValue(artistName, out var artist))
+                if (savedArtistIds.TryGetValue(artistName.Trim(), out var artist))
                 {
                     Db.Insert(new CreativeArtist {
                         ArtistId = artist,
@@ -562,8 +562,8 @@ SELECT
         Console.WriteLine($"{nameof(Migration1001)} had {errors.Count} errors:");
         if (errors.Count > 0)
         {
-            errors.Each(x => Console.WriteLine($"   {x}"));
-            throw new Exception($"{nameof(Migration1001)} had {errors.Count} errors, check logs");
+            throw new Exception($"{nameof(Migration1001)} had {errors.Count} errors:\n"
+                + string.Join("\n", errors.Map(x => $"   {x}")));
         }
     }
 
