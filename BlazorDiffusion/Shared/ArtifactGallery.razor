@@ -1,8 +1,28 @@
 ﻿@inherits AppAuthComponentBase
 
-<div class=@ClassNames(ColumnsSliderClass ?? "mb-4 mx-auto overflow-hidden sm:rounded-md w-[320px] text-center")>
-    <label for="steps-range" class="block text-sm font-medium text-gray-600 dark:text-gray-400">@UserState.AppPrefs.ArtifactGalleryColumns columns</label>
-    <input id="steps-range" @bind="UserState.AppPrefs.ArtifactGalleryColumns" @bind:event="oninput" @onchange="UserState.SaveAppPrefs" type="range" min="1" max="12" step="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+<div class="flex justify-between w-full">
+    @if (LeftHeader != null)
+    {
+        @LeftHeader
+    }
+    else
+    {
+        <div class="w-1/3"></div>
+    }
+    <div class="w-1/3 flex justify-center">
+        <div class=@ClassNames(ColumnsSliderClass ?? "mb-4 overflow-hidden sm:rounded-md w-[320px] text-center")>
+            <label for="steps-range" class="block text-sm font-medium text-gray-600 dark:text-gray-400">@UserState.AppPrefs.ArtifactGalleryColumns columns</label>
+            <input id="steps-range" @bind="UserState.AppPrefs.ArtifactGalleryColumns" @bind:event="oninput" @onchange="UserState.SaveAppPrefs" type="range" min="1" max="12" step="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+        </div>
+    </div>
+    @if (RightHeader != null)
+    {
+        @RightHeader
+    }
+    else
+    {
+        <div class="w-1/3"></div>
+    }
 </div>
 
 @{
@@ -264,7 +284,7 @@
 
     @if (GetArtifactAlbums().Count() > 0)
     {
-        <div class="ml-4 text-sm text-gray-600 dark:text-gray-400">
+        <div class="ml-4 mb-8 text-sm text-gray-600 dark:text-gray-400">
             <div class="flex">
                 <svg class="w-5 h-5 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M9.5 4a6.5 6.5 0 0 1 4.932 10.734l5.644 5.644l-.707.707l-5.645-5.645A6.5 6.5 0 1 1 9.5 4Zm0 1a5.5 5.5 0 1 0 0 11a5.5 5.5 0 0 0 0-11Z" /></svg>
                 top albums
@@ -295,7 +315,7 @@
             <ConfirmDelete OnDelete="async () => await hardDelete(artifact.CreativeId)" />
         </div>
     }
-
+    
 </SlideOver>
 }
 

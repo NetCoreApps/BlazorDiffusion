@@ -4,25 +4,20 @@
 
 <Home Page="AppPage.Favorites">
 
-    <div class="absolute -mt-4 ml-20 pl-3">
-        <div class="text-xl">@SelectedAlbum?.Name</div>
-    </div>
-
-    <div class="flex">
+    <div class="flex mt-3">
         <div class="z-10 flex-shrink mr-2">
-            <div class="flex flex-col -ml-6 -mt-28 justify-center items-center">
+            <div class="flex flex-col -ml-4 -mt-12 justify-center items-center">
                 
-                <div class="group text-center">
+                <div>
                     <NavLink href="/favorites">
                         <svg class=@ClassNames("w-24 h-24", SelectedAlbum == null ? "text-red-600 hover:text-red-400" : "text-cyan-600 hover:text-cyan-400 cursor-pointer")
                              xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24">
                             <path fill="currentColor" d="M4.244 12.252a4.25 4.25 0 1 1 6.697-5.111h1.118a4.25 4.25 0 1 1 6.697 5.111L11.5 19.51l-7.256-7.257Zm15.218.71A5.25 5.25 0 1 0 11.5 6.167a5.25 5.25 0 1 0-7.962 6.795l7.962 7.961l7.962-7.96Z" />
                         </svg>
                     </NavLink>
-                    <div class="text-sm invisible group-hover:visible">likes</div>
                 </div>
 
-                <div class="mb-1" @onclick="openNewAlbum" @onclick:preventDefault @onclick:stopPropagation
+                <div class="mt-1 mb-2" @onclick="openNewAlbum" @onclick:preventDefault @onclick:stopPropagation
                      title=@(SelectedArtifact == null ? "select image to include" : "")>
                     <div class=@ClassNames("mt-4 w-24 h-24 text-center text-lg rounded-lg overflow-hidden font-semibold",
                          SelectedArtifact != null ? "text-gray-200 hover:text-white cursor-pointer" : "text-gray-700")
@@ -47,11 +42,15 @@
                 }
             </div>
         </div>
-        <div class="flex-grow mt-3">
+        <div class="flex-grow">
             @if (SelectedAlbum != null)
             {
-                <ArtifactGallery Artifacts=@results ResolveBorderColor="GetBorderColor" Change="OnChange"
-                                 ColumnsSliderClass="w-[320px] text-center absolute right-0 -mt-12 mr-8">
+                <ArtifactGallery Artifacts=@results ResolveBorderColor="GetBorderColor" Change="OnChange">
+                    <LeftHeader>
+                        <div class="w-1/3 pl-2 -mr-20 flex items-center">
+                            <div class="text-xl">@SelectedAlbum?.Name</div>
+                        </div>
+                    </LeftHeader>
                     <TopRightIcon>
                         @if (SelectedAlbum.PrimaryArtifactId == context.Id)
                         {
@@ -70,12 +69,35 @@
                             </svg>
                         }
                     </TopRightIcon>
+                    <RightHeader>
+                        <div class="w-1/3 pr-2 flex items-center justify-end text-right">
+                            <a href=@($"/?user={UserState.RefId}&album={SelectedAlbum.AlbumRef}")
+                               class="group flex text-gray-400 hover:text-gray-200">
+                                <span class="mr-1 invisible group-hover:visible">shareable link</span>
+                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6m4-3h6v6m-11 5L21 3" /></svg>
+                            </a>
+                        </div>
+                    </RightHeader>
                 </ArtifactGallery>
             }
             else
             {
-                <ArtifactGallery Artifacts=@results ResolveBorderColor="GetBorderColor" Change="OnChange"
-                                 ColumnsSliderClass="w-[320px] text-center absolute right-0 -mt-12 mr-8"></ArtifactGallery>
+                <ArtifactGallery Artifacts=@results ResolveBorderColor="GetBorderColor" Change="OnChange">
+                    <LeftHeader>
+                        <div class="w-1/3 pl-2 -mr-20 flex items-center">
+                            <div class="text-xl">Likes</div>
+                        </div>
+                    </LeftHeader>
+                    <RightHeader>
+                        <div class="w-1/3 pr-2 flex items-center justify-end text-right">
+                            <a href=@($"/?user={UserState.RefId}&show=likes")
+                               class="group flex text-gray-400 hover:text-gray-200">
+                                <span class="mr-1 invisible group-hover:visible">shareable link</span>
+                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6m4-3h6v6m-11 5L21 3" /></svg>
+                            </a>
+                        </div>
+                    </RightHeader>
+                </ArtifactGallery>
             }
         </div>
     </div>

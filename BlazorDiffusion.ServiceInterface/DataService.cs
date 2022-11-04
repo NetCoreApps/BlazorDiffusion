@@ -99,7 +99,11 @@ public class DataService : Service
         else
         {
             // Only return pinned artifacts
-            q.Join<Creative>((a, c) => c.Id == a.CreativeId && a.Id == c.PrimaryArtifactId);
+            var showUserLikes = query.User != null && query.Show == "likes";
+            if (!showUserLikes)
+            {
+                q.Join<Creative>((a, c) => c.Id == a.CreativeId && a.Id == c.PrimaryArtifactId);
+            }
             q.OrderByDescending(x => x.Quality); // always show bad images last
 
             if (!string.IsNullOrEmpty(search))
@@ -112,10 +116,6 @@ public class DataService : Service
                 q.Join<ArtifactFts>((a, f) => a.Id == f.rowid);
                 q.Where(q.Column<ArtifactFts>(x => x.Prompt, prefixTable: true) + " match {0}", ftsSearch);
                 q.ThenBy(q.Column<ArtifactFts>("Rank", prefixTable: true));
-            }
-            else if (query.User != null)
-            {
-                q.Where<Creative>(c => c.OwnerRef == query.User);
             }
             else if (query.Modifier != null)
             {
@@ -136,6 +136,19 @@ public class DataService : Service
             {
                 q.Join<Artifact, AlbumArtifact>((artifact, albumRef) => artifact.Id == albumRef.ArtifactId)
                  .Join<AlbumArtifact, Album>((albumRef, album) => albumRef.AlbumId == album.Id && album.RefId == query.Album);
+            }
+            else if (query.User != null)
+            {
+                if (showUserLikes)
+                {
+                    q.Join<Creative>()
+                     .Join<AppUser>((a,u) => u.RefIdStr == query.User)
+                     .Join<Artifact,ArtifactLike,AppUser>((a, l, u) => a.Id == l.ArtifactId && u.Id == l.AppUserId);
+                }
+                else
+                {
+                    q.Where<Creative>(c => c.OwnerRef == query.User);
+                }
             }
 
             q.ThenByDescending(x => x.Score + x.TemporalScore).ThenByDescending(x => x.Id);
@@ -183,10 +196,8 @@ public class DataService : Service
         return to;
     }
 
-    public async Task<object> Any(UserData request)
+    async Task<UserResult> GetUserResultAsync(int userId)
     {
-        var session = await SessionAsAsync<CustomUserSession>();
-        var userId = session.UserAuthId.ToInt();
         var likes = new Likes
         {
             ArtifactIds = await Db.ColumnAsync<int>(Db.From<ArtifactLike>().Where(x => x.AppUserId == userId).Select(x => x.ArtifactId).OrderByDescending(x => x.Id)),
@@ -197,12 +208,37 @@ public class DataService : Service
             .OrderByDescending(x => x.Artifacts.Max(x => x.Id)).ToList();
         var albumResults = albums.Map(x => x.ToAlbumResult());
 
+        return new UserResult
+        {
+            Likes = likes,
+            Albums = albumResults,
+        };
+    }
+
+    public async Task<object> Any(UserData request)
+    {
+        var session = await SessionAsAsync<CustomUserSession>();
+        var result = await GetUserResultAsync(session.UserAuthId.ToInt());
+
         return new UserDataResponse
         {
             RefId = session.RefIdStr,
             Roles = (await session.GetRolesAsync(AuthRepositoryAsync)).ToList(),
-            Likes = likes,
-            Albums = albumResults,
+            Likes = result.Likes,
+            Albums = result.Albums,
+        };
+    }
+
+    public async Task<object> Any(GetUserInfo request)
+    {
+        var user = await Db.SingleAsync<AppUser>(x => x.RefIdStr == request.RefId);
+        if (user == null)
+            return HttpError.NotFound("User not found");
+
+        var result = X.Apply(await GetUserResultAsync(user.Id), x => x.RefId = user.RefIdStr);
+        return new GetUserInfoResponse
+        {
+            Result = result,
         };
     }
 

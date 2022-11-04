@@ -21,6 +21,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
     [Parameter, SupplyParameterFromQuery] public string? user { get; set; }
     [Parameter, SupplyParameterFromQuery] public string? similar { get; set; }
     [Parameter, SupplyParameterFromQuery] public string? by { get; set; }
+    [Parameter, SupplyParameterFromQuery] public string? show { get; set; }
     [Parameter, SupplyParameterFromQuery] public string? modifier { get; set; }
     [Parameter, SupplyParameterFromQuery] public string? artist { get; set; }
     [Parameter, SupplyParameterFromQuery] public string? album { get; set; }
@@ -36,6 +37,11 @@ public partial class Index : AppAuthComponentBase, IDisposable
 
     SearchArtifacts? lastRequest;
 
+    UserResult? SelectedUser;
+    public AlbumResult? SelectedAlbum => SelectedUser != null && album != null 
+        ? SelectedUser.Albums.FirstOrDefault(x => x.AlbumRef == album)
+        : null;
+
     public ElementReference BottomElement { get; set; }
     IntersectionObserver? bottomObserver;
 
@@ -49,6 +55,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
         await base.OnParametersSetAsync();
         request.Query = q;
         request.User = user;
+        request.Show = show;
         request.Similar = similar;
         request.By = by;
         request.Modifier = modifier;
@@ -76,6 +83,10 @@ public partial class Index : AppAuthComponentBase, IDisposable
             addResults(api.Response?.Results ?? new());
             lastRequest = request.Clone();
         }
+        StateHasChanged();
+        SelectedUser = user != null
+            ? await UserState.GetUserByRefIdAsync(user)
+            : null;
 
         await Task.Delay(1);
         if (request.Take == InitialTake)

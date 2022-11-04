@@ -83,6 +83,7 @@ public class SearchArtifacts : QueryDb<Artifact, ArtifactResult>
     public string? Similar { get; set; }
     public string? By { get; set; }
     public string? User { get; set; }
+    public string? Show { get; set; }
     public string? Modifier { get; set; }
     public string? Artist { get; set; }
     public string? Album { get; set; }

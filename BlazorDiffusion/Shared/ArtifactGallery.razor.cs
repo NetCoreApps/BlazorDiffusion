@@ -19,6 +19,8 @@ public partial class ArtifactGallery : AppAuthComponentBase
 
 
     [Parameter] public List<Artifact> Artifacts { get; set; } = new();
+    [Parameter] public RenderFragment? LeftHeader { get; set; }
+    [Parameter] public RenderFragment? RightHeader { get; set; }
     [Parameter] public RenderFragment<Artifact>? TopRightIcon { get; set; }
     [Parameter] public int? Id { get; set; }
     [Parameter] public int? View { get; set; }
@@ -66,6 +68,8 @@ public partial class ArtifactGallery : AppAuthComponentBase
         creativeAlbums = creative != null
             ? await UserState.GetCreativeInAlbumsAsync(creative.Id)
             : Array.Empty<AlbumResult>();
+        if (creativeAlbums.Length > 0)
+            await UserState.LoadArtifactsAsync(creativeAlbums.Where(x => x.PrimaryArtifactId != null).Select(x => x.PrimaryArtifactId!.Value));
 
         StateHasChanged();
     }

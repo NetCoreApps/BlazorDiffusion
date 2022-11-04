@@ -28,6 +28,7 @@ public class UserState
 
     public Dictionary<int, Creative> CreativesMap { get; } = new();
     public Dictionary<int, AlbumResult[]> CreativesInAlbumsMap { get; } = new();
+    public Dictionary<string, UserResult> UsersMap { get; } = new();
 
     public List<AlbumResult> UserAlbums { get; private set; } = new();
     public bool IsLoading { get; set; }
@@ -152,7 +153,7 @@ public class UserState
         return to;
     }
 
-    public async Task LoadArtifactsAsync(List<int> artifactIds)
+    public async Task LoadArtifactsAsync(IEnumerable<int> artifactIds)
     {
         var missingIds = new List<int>();
         foreach (var id in artifactIds)
@@ -382,6 +383,24 @@ public class UserState
         }
     }
 
+    public async Task<UserResult?> GetUserByRefIdAsync(string userRefId)
+    {
+        if (UsersMap.TryGetValue(userRefId, out var result))
+            return result;
+
+        var api = await ApiAsync(new GetUserInfo { RefId = userRefId });
+        if (api.Succeeded)
+        {
+            result = UsersMap[userRefId] = api.Response!.Result;
+
+            var artifactIds = result.Albums.Select(x => x.PrimaryArtifactId ?? x.ArtifactIds.First()).ToSet();
+            await LoadArtifactsAsync(artifactIds);
+
+            return result;
+        }
+        
+        return null;
+    }
 }
 
 public class AppPrefs
