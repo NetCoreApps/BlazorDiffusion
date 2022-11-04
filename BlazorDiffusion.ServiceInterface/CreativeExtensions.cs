@@ -122,6 +122,7 @@ public static class CreativeExtensions
         var to = new AlbumResult
         {
             Id = album.Id,
+            AlbumRef = album.RefId,
             Name = album.Name,
             OwnerRef = album.OwnerRef,
             PrimaryArtifactId = album.PrimaryArtifactId,

@@ -262,6 +262,33 @@
         </NavLink>
     </div>
 
+    @if (GetArtifactAlbums().Count() > 0)
+    {
+        <div class="ml-4 text-sm text-gray-600 dark:text-gray-400">
+            <div class="flex">
+                <svg class="w-5 h-5 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M9.5 4a6.5 6.5 0 0 1 4.932 10.734l5.644 5.644l-.707.707l-5.645-5.645A6.5 6.5 0 1 1 9.5 4Zm0 1a5.5 5.5 0 1 0 0 11a5.5 5.5 0 0 0 0-11Z" /></svg>
+                top albums
+            </div>
+            <div class="flex flex-wrap">
+            @foreach (var album in GetArtifactAlbums())
+            {
+                var albumCover = UserState.GetAlbumCoverArtifact(album);
+                @if (albumCover != null)
+                {
+                    <NavLink href=@($"/?album={album.AlbumRef}") class="flex flex-col group">
+                        <div class=@ClassNames("mt-2 hover:opacity-80 cursor-pointer h-24 w-24 overflow-hidden rounded-lg border-2 border-transparent")>
+                            <ArtifactImage Artifact=@albumCover class="flex w-full h-full" ImageClass="object-cover" />
+                        </div>
+                        <div class="w-24 text-center overflow-hidden group-hover:text-gray-200">
+                            @album.Name
+                        </div>
+                    </NavLink>
+                }
+            }
+            </div>
+        </div>
+    }
+
     @if (IsModerator)
     {
         <div class="mt-12 text-center">

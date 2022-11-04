@@ -27,6 +27,8 @@ public class UserState
     public Dictionary<int, Artifact> ArtifactsMap { get; } = new();
 
     public Dictionary<int, Creative> CreativesMap { get; } = new();
+    public Dictionary<int, AlbumResult[]> CreativesInAlbumsMap { get; } = new();
+
     public List<AlbumResult> UserAlbums { get; private set; } = new();
     public bool IsLoading { get; set; }
 
@@ -329,6 +331,18 @@ public class UserState
         return api;
     }
 
+    public async Task<AlbumResult[]> GetCreativeInAlbumsAsync(int creativeId)
+    {
+        if (CreativesInAlbumsMap.TryGetValue(creativeId, out var albums))
+            return albums;
+
+        var api = await ApiAsync(new GetCreativesInAlbums { CreativeId = creativeId });
+        if (api.Succeeded)
+        {
+            return CreativesInAlbumsMap[creativeId] = (api.Response!.Results ?? new()).ToArray();
+        }
+        return Array.Empty<AlbumResult>();
+    }
 
     public event Action? OnChange;
     private void NotifyStateChanged() => OnChange?.Invoke();

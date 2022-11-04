@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BlazorDiffusion.ServiceModel;
@@ -109,4 +110,50 @@ public class AlbumServices : Service
         return album;
     }
 
+    public async Task<object> Any(GetCreativesInAlbums request)
+    {
+        var creativeArtifactIds = Db.ColumnDistinct<int>(Db.From<Creative>()
+            .Join<Artifact>((c, a) => c.Id == a.CreativeId && c.Id == request.CreativeId)
+            .Select<Artifact>(a => a.Id));
+
+        var q = Db.From<Album>()
+            .Join<AlbumArtifact>()
+            .Where<AlbumArtifact>(artifact => creativeArtifactIds.Contains(artifact.ArtifactId))
+            .SelectDistinct<Album,AlbumArtifact>((album,artifact) => new {
+                album.Id,
+                album.Name,
+                album.RefId,
+                album.OwnerRef,
+                album.PrimaryArtifactId,
+                album.Score,
+                artifact.ArtifactId,
+            });
+
+        var albumRefs = await Db.SelectAsync<AlbumArtifactResult>(q);
+
+        var albumMap = new Dictionary<int, AlbumResult>();
+        foreach (var albumRef in albumRefs)
+        {
+            var album = albumMap.TryGetValue(albumRef.Id, out var existing)
+                ? existing
+                : albumMap[albumRef.Id] = new AlbumResult { 
+                    Id = albumRef.Id,
+                    Name = albumRef.Name,
+                    AlbumRef = albumRef.RefId,
+                    PrimaryArtifactId = albumRef.PrimaryArtifactId,
+                    OwnerRef = albumRef.OwnerRef,
+                    Score = albumRef.Score,
+                    ArtifactIds = albumRef.PrimaryArtifactId != null 
+                        ? new() { albumRef.PrimaryArtifactId.Value } 
+                        : new(),
+                };
+
+            album.ArtifactIds.AddIfNotExists(albumRef.ArtifactId);
+        }
+
+        return new GetCreativesInAlbumsResponse
+        {
+            Results = albumMap.Values.OrderByDescending(x => x.Score).ThenByDescending(x => x.Id).Take(5).ToList(),
+        };
+    }
 }

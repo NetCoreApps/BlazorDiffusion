@@ -35,10 +35,22 @@ public class AlbumResult
 {
     public int Id { get; set; }
     public string Name { get; set; }
+    public string AlbumRef { get; set; }
     public string OwnerRef { get; set; }
     public int? PrimaryArtifactId { get; set; }
     public int Score { get; set; }
     public List<int> ArtifactIds { get; set; }
+}
+
+public class AlbumArtifactResult
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string RefId { get; set; }
+    public string OwnerRef { get; set; }
+    public int? PrimaryArtifactId { get; set; }
+    public int Score { get; set; }
+    public int ArtifactId { get; set; }
 }
 
 
@@ -161,3 +173,14 @@ public class DeleteAlbumLike : IDeleteDb<AlbumLike>, IReturnVoid
 
 [ValidateHasRole(AppRoles.Moderator)]
 public class QueryAlbumArtifacts : QueryDb<AlbumArtifact> { }
+
+
+[Description("Retrieve Albums containing at least one of creative Artifacts")]
+public class GetCreativesInAlbums : IReturn<GetCreativesInAlbumsResponse>
+{
+    public int CreativeId { get; set; }
+}
+public class GetCreativesInAlbumsResponse
+{
+    public List<AlbumResult> Results { get; set; }
+}

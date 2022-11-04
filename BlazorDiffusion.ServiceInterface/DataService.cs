@@ -4,10 +4,7 @@ using System.Collections.Generic;
 using ServiceStack;
 using ServiceStack.OrmLite;
 using BlazorDiffusion.ServiceModel;
-using System;
-using CoenM.ImageHash;
 using CoenM.ImageHash.HashAlgorithms;
-using Microsoft.Data.Sqlite;
 
 namespace BlazorDiffusion.ServiceInterface;
 
@@ -118,7 +115,7 @@ public class DataService : Service
             }
             else if (query.User != null)
             {
-                q.Join<Creative, AppUser>((c, a) => c.OwnerId == a.Id && a.RefIdStr == query.User);
+                q.Where<Creative>(c => c.OwnerRef == query.User);
             }
             else if (query.Modifier != null)
             {

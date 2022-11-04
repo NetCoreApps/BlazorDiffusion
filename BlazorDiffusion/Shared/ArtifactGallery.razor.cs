@@ -7,6 +7,7 @@ using ServiceStack;
 using ServiceStack.Blazor;
 using ServiceStack.Blazor.Components.Tailwind;
 using System;
+using System.Linq;
 
 namespace BlazorDiffusion.Shared;
 
@@ -31,6 +32,14 @@ public partial class ArtifactGallery : AppAuthComponentBase
     Artifact? artifact;
     Artifact? viewingArtifact => View == null || creative == null ? null : creative.Artifacts.FirstOrDefault(x => x.Id == View);
 
+    AlbumResult[] creativeAlbums = Array.Empty<AlbumResult>();
+
+    IEnumerable<AlbumResult> GetArtifactAlbums()
+    {
+        var artifactId = viewingArtifact?.Id ?? artifact?.Id;
+        return artifactId != null ? creativeAlbums.Where(x => x.ArtifactIds.Contains(artifactId.Value)) : Array.Empty<AlbumResult>();
+    }
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
@@ -54,6 +63,9 @@ public partial class ArtifactGallery : AppAuthComponentBase
 
         artifact = await UserState.GetArtifactAsync(Id);
         creative = await UserState.GetCreativeAsync(artifact?.CreativeId);
+        creativeAlbums = creative != null
+            ? await UserState.GetCreativeInAlbumsAsync(creative.Id)
+            : Array.Empty<AlbumResult>();
 
         StateHasChanged();
     }

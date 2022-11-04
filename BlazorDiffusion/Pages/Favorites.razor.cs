@@ -3,6 +3,7 @@ using BlazorDiffusion.UI;
 using Ljbc1994.Blazor.IntersectionObserver;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
+using Microsoft.JSInterop;
 using ServiceStack.Blazor;
 
 namespace BlazorDiffusion.Pages;
@@ -11,6 +12,7 @@ public partial class Favorites : AppAuthComponentBase
 {
     [Inject] NavigationManager NavigationManager { get; set; } = default!;
     [Inject] IIntersectionObserverService ObserverService { get; set; } = default!;
+    [Inject] IJSRuntime JS { get; set; }
 
     [Parameter] public int? Album { get; set; }
     [Parameter] public int? Id { get; set; }
@@ -201,6 +203,13 @@ public partial class Favorites : AppAuthComponentBase
             SelectedAlbum.PrimaryArtifactId = hold;
         }
         StateHasChanged();
+    }
+
+    async Task openNewAlbum()
+    {
+        artifactView = ArtifactView.NewAlbum;
+        await Task.Delay(1);
+        await JS.InvokeVoidAsync("JS.elInvoke", "#Name", "focus");
     }
 
 

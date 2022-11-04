@@ -22,7 +22,7 @@
                     <div class="text-sm invisible group-hover:visible">likes</div>
                 </div>
 
-                <div class="mb-1" @onclick="_ => artifactView = ArtifactView.NewAlbum" @onclick:preventDefault @onclick:stopPropagation
+                <div class="mb-1" @onclick="openNewAlbum" @onclick:preventDefault @onclick:stopPropagation
                      title=@(SelectedArtifact == null ? "select image to include" : "")>
                     <div class=@ClassNames("mt-4 w-24 h-24 text-center text-lg rounded-lg overflow-hidden font-semibold",
                          SelectedArtifact != null ? "text-gray-200 hover:text-white cursor-pointer" : "text-gray-700")
