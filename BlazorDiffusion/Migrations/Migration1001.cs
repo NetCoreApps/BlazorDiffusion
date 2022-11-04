@@ -521,7 +521,7 @@ public class Migration1001 : MigrationBase
                 
                 if (albumnRef.PrimaryArtifactRef == x.ArtifactRefId)
                 {
-                    album.PrimaryArtifactId = albumArtifact.Id;
+                    album.PrimaryArtifactId = albumArtifact.ArtifactId;
                     Db.UpdateOnly(() => new Album { PrimaryArtifactId = album.PrimaryArtifactId }, where: x => x.Id == album.Id);
                 }
             }
