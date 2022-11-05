@@ -1,0 +1,86 @@
+﻿@inherits AppAuthComponentBase
+
+<ModalForm>
+    <form @onsubmit="submit" @onsubmit:preventDefault>
+        <CascadingValue Value=@api.Error>
+            <div class="shadow overflow-hidden sm:rounded-md bg-white dark:bg-black">
+                <div class="relative px-4 py-5 sm:p-6">
+                    <fieldset>
+                        <legend class=@CssDefaults.Form.LegendClass>Edit Profile</legend>
+
+                        <ErrorSummary Except=@VisibleFields />
+
+                        <div class="grid grid-cols-6 gap-6">
+                            <div class="col-span-6">
+                                <TextInput @bind-Value="request.DisplayName" Help="What should we call you? (Private)" />
+                            </div>
+                            <div class="col-span-6 pr-8">
+                                <FileInput @bind-Value="request.Avatar" OnInput="e => fileArgs = e" />
+                            </div>
+                            <div class="col-span-6">
+                                <TextInput @bind-Value="request.Handle" Help="Public visible username for your profile" pattern="^[A-Za-z0-9_]+" placeholder=@("@") />
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="mt-4 px-4 py-3 bg-gray-50 dark:bg-gray-900 text-right sm:px-6">
+                    <div class="flex justify-end items-center">
+                        <SecondaryButton class="mr-2" @onclick="OnDone">Cancel</SecondaryButton>
+                        <PrimaryButton type="submit">Submit</PrimaryButton>
+                    </div>
+                </div>
+            </div>
+        </CascadingValue>
+    </form>
+</ModalForm>
+
+@code {
+    [Parameter] public EventCallback Done { get; set; }
+
+    string[] VisibleFields => new[] {
+        nameof(UpdateUserProfile.DisplayName),
+        nameof(UpdateUserProfile.Avatar),
+        nameof(UpdateUserProfile.Handle),
+    };
+
+    UpdateUserProfile request = new();
+    ApiResult<UserProfile> api = new();
+    InputFileChangeEventArgs? fileArgs = null;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        var apiGet = await ApiAsync(new GetUserProfile());
+        request = X.Map(apiGet.Response!.Result, x => new UpdateUserProfile {
+            DisplayName = x.DisplayName,
+            Avatar = x.Avatar,
+            Handle = x.Handle,
+        })!;
+    }
+
+    async Task OnDone()
+    {
+        await Done.InvokeAsync();
+    }
+
+    async Task submit()
+    {
+        var formData = new MultipartFormDataContent()
+            .AddParams(request);
+
+        var file = fileArgs?.File;
+        if (file != null)
+        {
+            formData.AddFile(fieldName: nameof(request.Avatar),
+                fileName: file.Name,
+                file.OpenReadStream());
+        }
+
+        api = await ApiFormAsync<UserProfile>(request, formData);
+        if (api.Succeeded)
+        {
+            UserState.UpdateUserProfile(api.Response);
+            await OnDone();
+        }
+    }
+}

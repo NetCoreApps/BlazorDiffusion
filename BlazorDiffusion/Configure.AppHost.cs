@@ -49,15 +49,18 @@ public class AppHost : AppHostBase, IHostingStartup
 
         container.Register(appConfig);
 
-        var s3Client = new AmazonS3Client(appConfig.R2AccessId, appConfig.R2AccessKey, new AmazonS3Config
-        {
+        var s3Client = new AmazonS3Client(appConfig.R2AccessId, appConfig.R2AccessKey, new AmazonS3Config {
             ServiceURL = $"https://{appConfig.R2Account}.r2.cloudflarestorage.com"
         });
         var appFs = VirtualFiles = new R2VirtualFilesProvider(s3Client, appConfig.ArtifactBucket);
         Plugins.Add(new FilesUploadFeature(
             new UploadLocation("artifacts", appFs,
                 readAccessRole: RoleNames.AllowAnon,
-                maxFileBytes: 10 * 1024 * 1024)));
+                maxFileBytes: 10 * 1024 * 1024),
+            new UploadLocation("avatars", appFs, allowExtensions: FileExt.WebImages,
+                resolvePath: ctx => X.Map((CustomUserSession)ctx.Session, x => $"/avatars/{x.RefIdStr[..2]}/{x.RefIdStr}/{ctx.FileName}")!,
+                maxFileBytes: 1024 * 1024)
+            ));
 
         // Don't use public prefix if working locally
         Register<IStableDiffusionClient>(new DreamStudioClient

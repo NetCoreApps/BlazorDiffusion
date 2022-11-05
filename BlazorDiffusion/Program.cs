@@ -58,6 +58,7 @@ BlazorConfig.Set(new()
     EnableLogging = app.Environment.IsDevelopment(),
     EnableVerboseLogging = app.Environment.IsDevelopment(),
     AssetsBasePath = AppConfig.Instance.AssetsBasePath,
+    DefaultProfileUrl = Icons.AnonUserUri,
     OnApiErrorAsync = (request,apiError) => 
     {
         BlazorConfig.Instance.GetLog()?.LogDebug("\n\nOnApiErrorAsync(): {0}", apiError.Error.GetDetailedError());

@@ -74,10 +74,8 @@ public class Likes
 
 public class UserDataResponse
 {
-    public string RefId { get; set; }
+    public UserResult User { get; set; }
     public List<string> Roles { get; set; }
-    public Likes Likes { get; set; }
-    public List<AlbumResult> Albums { get; set; }
     public ResponseStatus ResponseStatus { get; set; }
 }
 
@@ -90,6 +88,9 @@ public class GetUserInfo : IReturn<GetUserInfoResponse>
 public class UserResult
 {
     public string RefId { get; set; }
+    public string? Handle { get; set; }
+    public string? Avatar { get; set; }
+    public string? ProfileUrl { get; set; }
     public Likes Likes { get; set; }
     public List<AlbumResult> Albums { get; set; }
 }

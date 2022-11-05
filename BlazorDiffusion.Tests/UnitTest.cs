@@ -23,9 +23,5 @@ public class UnitTest
     public void Can_call_MyServices()
     {
         var service = appHost.Container.Resolve<MyServices>();
-
-        var response = (HelloResponse)service.Any(new Hello { Name = "World" });
-
-        Assert.That(response.Result, Is.EqualTo("Hello, World!"));
     }
 }

@@ -22,6 +22,7 @@ public enum Department
 
 public class AppUserAuthEvents : AuthEvents
 {
+
     public override async Task OnAuthenticatedAsync(IRequest httpReq, IAuthSession session, IServiceBase authService,
         IAuthTokens tokens, Dictionary<string, string> authInfo, CancellationToken token = default)
     {
@@ -29,7 +30,7 @@ public class AppUserAuthEvents : AuthEvents
         using (authRepo as IDisposable)
         {
             var userAuth = (AppUser)await authRepo.GetUserAuthAsync(session.UserAuthId, token);
-            userAuth.ProfileUrl = session.GetProfileUrl();
+            userAuth.ProfileUrl = session.ProfileUrl = session.GetProfileUrl(Icons.AnonUserUri);
             userAuth.LastLoginIp = httpReq.UserHostAddress;
             userAuth.LastLoginDate = DateTime.UtcNow;
             await authRepo.SaveUserAuthAsync(userAuth, token);
@@ -82,12 +83,15 @@ public class ConfigureAuthRepository : IHostingStartup
                         //c.Required = true;
                     }),
                     Input.For<AppUser>(x => x.ProfileUrl, c => c.Type = Input.Types.Url),
+                    Input.For<AppUser>(x => x.Avatar, c => c.Type = Input.Types.Url),
                     Input.For<AppUser>(x => x.IsArchived), Input.For<AppUser>(x => x.ArchivedDate),
                 }
             });
 
         },
-        afterConfigure: appHost => {
+        afterPluginsLoaded: appHost => {
+            //var anonUser = Svg.ToDataUri(Svg.Fill(Icons.AnonUser, "#0891B2"));
+            ((AuthMetadataProvider)appHost.Resolve<IAuthMetadataProvider>()).NoProfileImgUrl = Icons.AnonUserUri;
             appHost.AssertPlugin<AuthFeature>().AuthEvents.Add(new AppUserAuthEvents());
         });
 }

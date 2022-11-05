@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using ServiceStack;
 using ServiceStack.Auth;
 using ServiceStack.DataAnnotations;
 
@@ -14,13 +15,15 @@ public class AppUser : IUserAuth
     public string DisplayName { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }
-    public string Handle { get; set; }
+    public string? Handle { get; set; }
     public string Company { get; set; }
     
     [Index]
     public string Email { get; set; }
     
     public string? ProfileUrl { get; set; }
+    [Input(Type="file"), UploadTo("avatars")]
+    public string? Avatar { get; set; } //overrides ProfileUrl
     public string? LastLoginIp { get; set; }
 
     public bool IsArchived { get; set; }
@@ -60,4 +63,30 @@ public class AppUser : IUserAuth
     public DateTime? LockedDate { get; set; }
     public DateTime CreatedDate { get; set; }
     public DateTime ModifiedDate { get; set; }
+}
+
+[ValidateIsAuthenticated]
+public class GetUserProfile : IReturn<GetUserProfileResponse> {}
+public class GetUserProfileResponse
+{
+    public UserProfile Result { get; set; }
+    public ResponseStatus ResponseStatus { get; set; }
+}
+
+public class UserProfile
+{
+    public string DisplayName { get; set; }
+    public string? Avatar { get; set; }
+    public string? Handle { get; set; }
+}
+
+[ValidateIsAuthenticated]
+public class UpdateUserProfile : IUpdateDb<AppUser>, IReturn<UserProfile>
+{
+    [ValidateNotEmpty]
+    public string DisplayName { get; set; }
+    [Input(Type="File"), UploadTo("avatars")]
+    public string? Avatar { get; set; }
+    [ValidateMaximumLength(20)]
+    public string? Handle { get; set; }
 }

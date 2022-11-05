@@ -61,6 +61,37 @@ public static class CreativeExtensions
             : artifact.GetPublicUrl().SetQueryParam("r", $"{rint}");
     }
 
+    public static string? GetPublicUrl(this UserResult user) => user.Avatar != null
+        ? AppConfig.Instance.AssetsBasePath + user.Avatar
+        : user.ProfileUrl;
+
+    public static string? GetFallbackUrl(this UserResult user) => user.Avatar != null
+        ? AppConfig.Instance.FallbackAssetsBasePath + user.Avatar
+        : user.ProfileUrl;
+
+    public static string GetImageErrorUrl(this UserResult user, string? lastImageSrc)
+    {
+        var failedImg = SolidImageDataUri("#000"); // fail to bg black
+        if (lastImageSrc == null)
+            return user.GetFallbackUrl() ?? failedImg;
+        if (lastImageSrc == user.GetFallbackUrl())
+            return user.GetPublicUrl().SetQueryParam("r", "1");
+
+        var qs = HttpUtility.ParseQueryString(lastImageSrc);
+        var r = (qs != null ? qs["r"] : null) ?? "1";
+        var rint = int.TryParse(r, out var rIndex)
+            ? rIndex
+            : 1;
+
+        if (rint > 5)
+            return failedImg;
+
+        rint++;
+        return rint % 2 == 0
+            ? user.GetFallbackUrl().SetQueryParam("r", $"{rint}")
+            : user.GetPublicUrl().SetQueryParam("r", $"{rint}");
+    }
+
     public static List<Artifact> GetArtifacts(this Creative creative)
     {
         if (creative == null)

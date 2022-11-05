@@ -31,6 +31,7 @@ public static class Users
         DisplayName = "Demis",
         RefIdStr = "865d5f4a-4c58-461d-b1b8-2aac005cd2bc",
         Roles = new() { AppRoles.Moderator },
+        Avatar = "/avatars/86/865d5f4a-4c58-461d-b1b8-2aac005cd2bc.png",
     };
     public static AppUser Darren = new()
     {

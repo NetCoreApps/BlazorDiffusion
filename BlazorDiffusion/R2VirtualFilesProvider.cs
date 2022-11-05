@@ -1,16 +1,17 @@
-﻿using Amazon.Runtime;
-using Amazon.S3;
+﻿using Amazon.S3;
 using Amazon.S3.Model;
 using ServiceStack.Aws;
 using ServiceStack.IO;
+using ServiceStack.Logging;
+using ServiceStack.Text;
 
 namespace BlazorDiffusion;
 
 public class R2VirtualFilesProvider : S3VirtualFiles
 {
-    public R2VirtualFilesProvider(IAmazonS3 client, string bucketName) : base(client, bucketName)
-    {
-    }
+    public static ILog Log = LogManager.GetLogger(typeof(R2VirtualFilesProvider));
+
+    public R2VirtualFilesProvider(IAmazonS3 client, string bucketName) : base(client, bucketName) {}
 
     public override void WriteFile(string filePath, Stream stream)
     {
@@ -32,5 +33,39 @@ public class R2VirtualFilesProvider : S3VirtualFiles
             ContentBody = contents,
             DisablePayloadSigning = true,
         });
-    }    
+    }
+
+    public override async Task WriteFileAsync(string path, object contents, CancellationToken token = default)
+    {
+        try
+        {
+            // need to buffer otherwise hangs when trying to send an uploaded file stream (dep on provider)
+            var fileContents = await FileContents.GetAsync(contents, buffer:true);
+            if (fileContents?.Stream != null)
+            {
+                await AmazonS3.PutObjectAsync(new PutObjectRequest
+                {
+                    Key = SanitizePath(path),
+                    BucketName = BucketName,
+                    InputStream = fileContents.Stream,
+                    DisablePayloadSigning = true,
+                }).ConfigAwait();
+            }
+            else if (fileContents?.Text != null)
+            {
+                await AmazonS3.PutObjectAsync(new PutObjectRequest
+                {
+                    Key = SanitizePath(path),
+                    BucketName = BucketName,
+                    ContentBody = fileContents.Text,
+                    DisablePayloadSigning = true,
+                }).ConfigAwait();
+            }
+            throw new NotSupportedException($"Unknown File Content Type: {contents.GetType().Name}");
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, "Could not write file to {0}", path);
+        }
+    }
 }

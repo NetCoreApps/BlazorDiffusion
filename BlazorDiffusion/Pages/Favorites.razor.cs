@@ -28,7 +28,7 @@ public partial class Favorites : AppAuthComponentBase
 
     public ElementReference BottomElement { get; set; }
     IntersectionObserver? bottomObserver;
-    ArtifactView? artifactView;
+    PageView? pageView;
 
     public List<Artifact> results { get; set; } = new();
 
@@ -63,7 +63,7 @@ public partial class Favorites : AppAuthComponentBase
         Album = query[nameof(Album)]?.ConvertTo<int>();
         Id = query[nameof(Id)]?.ConvertTo<int>();
         View = query[nameof(View)]?.ConvertTo<int>();
-        artifactView = null;
+        pageView = null;
 
         if (Album != null)
         {
@@ -207,15 +207,22 @@ public partial class Favorites : AppAuthComponentBase
 
     async Task openNewAlbum()
     {
-        artifactView = ArtifactView.NewAlbum;
+        pageView = PageView.NewAlbum;
         await Task.Delay(1);
         await JS.InvokeVoidAsync("JS.elInvoke", "#Name", "focus");
+    }
+
+    async Task openEditProfile()
+    {
+        pageView = PageView.EditProfile;
+        await Task.Delay(1);
+        await JS.InvokeVoidAsync("JS.elInvoke", "#DisplayName", "focus");
     }
 
 
     async Task OnDone()
     {
-        artifactView = null;
+        pageView = null;
     }
 
     // When ArtifactMenu Adds/Removes to Albums

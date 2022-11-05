@@ -210,18 +210,16 @@ public class Migration1001 : MigrationBase
         public string DisplayName { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public string Handle { get; set; }
+        public string? Handle { get; set; }
         public string Company { get; set; }
-
         [Index]
         public string Email { get; set; }
-
         public string? ProfileUrl { get; set; }
+        [Input(Type = "file"), UploadTo("avatars")]
+        public string? Avatar { get; set; } //overrides ProfileUrl
         public string? LastLoginIp { get; set; }
-
         public bool IsArchived { get; set; }
         public DateTime? ArchivedDate { get; set; }
-
         public DateTime? LastLoginDate { get; set; }
         public string PhoneNumber { get; set; }
         public DateTime? BirthDate { get; set; }
@@ -329,10 +327,10 @@ public class Migration1001 : MigrationBase
         var authRepo = CreateAuthRepo();
         authRepo.InitSchema(Db);
 
-        void CreateUser(string email, string name, string refId, List<string>? roles = null)
+        void CreateUser(string email, string name, string refId, List<string>? roles = null, string? avatar = null)
         {
             var password = "p@55wOrd";
-            var newAdmin = new AppUser { Email = email, DisplayName = name, RefIdStr = refId };
+            var newAdmin = new AppUser { Email = email, DisplayName = name, RefIdStr = refId, Avatar = avatar };
             var user = authRepo.CreateUserAuth(Db, newAdmin, password);
             if (roles?.Count > 0)
             {
@@ -340,11 +338,11 @@ public class Migration1001 : MigrationBase
             }
         }
 
-        CreateUser(Users.Admin.Email, Users.Admin.DisplayName, Users.Admin.RefIdStr, Users.Admin.Roles);
-        CreateUser(Users.System.Email, Users.System.DisplayName, Users.System.RefIdStr, Users.System.Roles);
-        CreateUser(Users.Demis.Email, Users.Demis.DisplayName, Users.Demis.RefIdStr, Users.Demis.Roles);
-        CreateUser(Users.Darren.Email, Users.Darren.DisplayName, Users.Darren.RefIdStr, Users.Darren.Roles);
-        CreateUser(Users.Test.Email, Users.Test.DisplayName, Users.Test.RefIdStr, Users.Test.Roles);
+        CreateUser(Users.Admin.Email, Users.Admin.DisplayName, Users.Admin.RefIdStr, Users.Admin.Roles, Users.Admin.Avatar);
+        CreateUser(Users.System.Email, Users.System.DisplayName, Users.System.RefIdStr, Users.System.Roles, Users.System.Avatar);
+        CreateUser(Users.Demis.Email, Users.Demis.DisplayName, Users.Demis.RefIdStr, Users.Demis.Roles, Users.Demis.Avatar);
+        CreateUser(Users.Darren.Email, Users.Darren.DisplayName, Users.Darren.RefIdStr, Users.Darren.Roles, Users.Darren.Avatar);
+        CreateUser(Users.Test.Email, Users.Test.DisplayName, Users.Test.RefIdStr, Users.Test.Roles, Users.Test.Avatar);
 
         Db.CreateTable<Artist>();
         Db.CreateTable<Modifier>();

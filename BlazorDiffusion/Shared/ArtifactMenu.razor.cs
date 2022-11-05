@@ -20,7 +20,7 @@ public partial class ArtifactMenu : AppAuthComponentBase
     [Parameter] public EventCallback Done { get; set; }
     [Parameter] public EventCallback Change { get; set; }
 
-    ArtifactView? artifactView;
+    PageView? artifactView;
 
     async Task<bool> assertAuth()
     {
@@ -92,7 +92,7 @@ public partial class ArtifactMenu : AppAuthComponentBase
         if (!await assertAuth())
             return;
 
-        artifactView = ArtifactView.Report;
+        artifactView = PageView.Report;
         await Task.Delay(1);
         await JS.InvokeVoidAsync("JS.elInvoke", "#Type", "focus");
     }
@@ -102,7 +102,7 @@ public partial class ArtifactMenu : AppAuthComponentBase
         if (!await assertAuth())
             return;
 
-        artifactView = ArtifactView.NewAlbum;
+        artifactView = PageView.NewAlbum;
         await Task.Delay(1);
         await JS.InvokeVoidAsync("JS.elInvoke", "#Name", "focus");
     }

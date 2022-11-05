@@ -6,8 +6,9 @@
 
     <div class="flex mt-3">
         <div class="z-10 flex-shrink mr-2">
-            <div class="flex flex-col -ml-4 -mt-12 justify-center items-center">
-                
+            <div class="flex flex-col -ml-4 -mt-8 justify-center items-center">
+                <img class="hidden h-24 w-24 rounded-full" src=@User.GetProfileUrl() alt="">
+
                 <div>
                     <NavLink href="/favorites">
                         <svg class=@ClassNames("w-24 h-24", SelectedAlbum == null ? "text-red-600 hover:text-red-400" : "text-cyan-600 hover:text-cyan-400 cursor-pointer")
@@ -17,7 +18,7 @@
                     </NavLink>
                 </div>
 
-                <div class="mt-1 mb-2" @onclick="openNewAlbum" @onclick:preventDefault @onclick:stopPropagation
+                <div class="mb-1" @onclick="openNewAlbum" @onclick:preventDefault @onclick:stopPropagation
                      title=@(SelectedArtifact == null ? "select image to include" : "")>
                     <div class=@ClassNames("mt-4 w-24 h-24 text-center text-lg rounded-lg overflow-hidden font-semibold",
                          SelectedArtifact != null ? "text-gray-200 hover:text-white cursor-pointer" : "text-gray-700")
@@ -42,7 +43,7 @@
                 }
             </div>
         </div>
-        <div class="flex-grow">
+        <div class="flex-grow mt-2">
             @if (SelectedAlbum != null)
             {
                 <ArtifactGallery Artifacts=@results ResolveBorderColor="GetBorderColor" Change="OnChange">
@@ -70,12 +71,13 @@
                         }
                     </TopRightIcon>
                     <RightHeader>
-                        <div class="w-1/3 pr-2 flex items-center justify-end text-right">
-                            <a href=@($"/?user={UserState.RefId}&album={SelectedAlbum.AlbumRef}")
-                               class="group flex text-gray-400 hover:text-gray-200">
-                                <span class="mr-1 invisible group-hover:visible">shareable link</span>
-                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6m4-3h6v6m-11 5L21 3" /></svg>
-                            </a>
+                        <div class="z-10 w-1/3 pr-2 -mt-20 flex justify-end">
+                            <div class="flex flex-col mb-1 items-center">
+                                <NavLink class="mb-2" href=@($"/?user={UserState.RefId}")>
+                                    <AvatarImage class="h-24 w-24 p-1" User="UserState.User" />
+                                </NavLink>
+                                <SecondaryButton @onclick="openEditProfile">Edit Profile</SecondaryButton>
+                            </div>
                         </div>
                     </RightHeader>
                 </ArtifactGallery>
@@ -89,12 +91,13 @@
                         </div>
                     </LeftHeader>
                     <RightHeader>
-                        <div class="w-1/3 pr-2 flex items-center justify-end text-right">
-                            <a href=@($"/?user={UserState.RefId}&show=likes")
-                               class="group flex text-gray-400 hover:text-gray-200">
-                                <span class="mr-1 invisible group-hover:visible">shareable link</span>
-                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6m4-3h6v6m-11 5L21 3" /></svg>
-                            </a>
+                        <div class="z-10 w-1/3 pr-2 -mt-20 flex justify-end">
+                            <div class="flex flex-col mb-1 items-center">
+                                <NavLink class="mb-2" href=@($"/?user={UserState.RefId}")>
+                                    <AvatarImage class="h-24 w-24 p-1" User="UserState.User" />
+                                </NavLink>
+                                <SecondaryButton @onclick="openEditProfile">Edit Profile</SecondaryButton>
+                            </div>
                         </div>
                     </RightHeader>
                 </ArtifactGallery>
@@ -109,8 +112,12 @@
         }
     </div>
 
-    @if (artifactView == ArtifactView.NewAlbum && SelectedArtifact != null)
+    @if (pageView == PageView.NewAlbum && SelectedArtifact != null)
     {
         <NewAlbum Artifact=@SelectedArtifact Done="OnDone" />
+    }
+    else if (pageView == PageView.EditProfile)
+    {
+        <EditProfile Done="OnDone" />
     }
 </Home>

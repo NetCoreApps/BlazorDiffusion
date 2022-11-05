@@ -1,6 +1,7 @@
 using BlazorDiffusion.UI;
 using Microsoft.AspNetCore.Components;
 using ServiceStack.Blazor;
+using System.Security.Claims;
 
 namespace BlazorDiffusion;
 
@@ -47,10 +48,11 @@ public enum AppPage
     Favorites,
 }
 
-public enum ArtifactView
+public enum PageView
 {
     Report,
     NewAlbum,
+    EditProfile,
 }
 
 public static class AppData

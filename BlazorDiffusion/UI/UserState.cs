@@ -18,7 +18,10 @@ public class UserState
     // Capture images that should have loaded in Browsers cache
     public HashSet<int> HasIntersected { get; } = new();
 
-    public string? RefId { get; set; }
+    public string? GetAvatar() => User?.Avatar;
+
+    public string? RefId => User?.RefId;
+    public UserResult User { get; set; }
     public List<string> Roles { get; set; } = new();
     public List<int> LikedArtifactIds { get; private set; } = new();
     public List<int> LikedAlbumIds { get; private set; } = new();
@@ -93,11 +96,11 @@ public class UserState
             if (api.Succeeded)
             {
                 var r = api.Response!;
-                RefId = r.RefId;
+                User = r.User;
                 Roles = r.Roles ?? new();
-                LikedArtifactIds = r.Likes.ArtifactIds;
-                LikedAlbumIds = r.Likes.AlbumIds;
-                UserAlbums = r.Albums ?? new();
+                LikedArtifactIds = r.User.Likes.ArtifactIds ?? new();
+                LikedAlbumIds = r.User.Likes.AlbumIds ?? new();
+                UserAlbums = r.User.Albums ?? new();
                 LoadAlbums(UserAlbums);
                 await LoadAlbumCoverArtifacts();
             }
@@ -110,6 +113,22 @@ public class UserState
     }
 
     public bool IsModerator() => Roles.Contains(AppRoles.Moderator);
+
+    public void UpdateUserProfile(UserProfile? userProfile)
+    {
+        if (userProfile == null)
+            return;
+
+        if (UsersMap.TryGetValue(RefId!, out var userResult))
+        {
+            userResult.Avatar = userProfile.Avatar;
+            userResult.Handle = userProfile.Handle;
+        }
+        User.Avatar = userProfile.Avatar;
+        User.Handle = userProfile.Handle;
+
+        NotifyStateChanged();
+    }
 
     public async Task LoadAlbumCoverArtifacts()
     {

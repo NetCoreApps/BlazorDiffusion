@@ -97,11 +97,11 @@
 
 </div>
 
-@if (artifactView == ArtifactView.Report)
+@if (artifactView == PageView.Report)
 {
     <NewReport Artifact=@Artifact Done="OnDone" />
 }
-else if (artifactView == ArtifactView.NewAlbum)
+else if (artifactView == PageView.NewAlbum)
 {
     <NewAlbum Artifact=@Artifact Done="OnDone" />
 }

@@ -5,6 +5,7 @@ using ServiceStack;
 using ServiceStack.OrmLite;
 using BlazorDiffusion.ServiceModel;
 using CoenM.ImageHash.HashAlgorithms;
+using static ServiceStack.Diagnostics.Events;
 
 namespace BlazorDiffusion.ServiceInterface;
 
@@ -196,48 +197,27 @@ public class DataService : Service
         return to;
     }
 
-    async Task<UserResult> GetUserResultAsync(int userId)
-    {
-        var likes = new Likes
-        {
-            ArtifactIds = await Db.ColumnAsync<int>(Db.From<ArtifactLike>().Where(x => x.AppUserId == userId).Select(x => x.ArtifactId).OrderByDescending(x => x.Id)),
-            AlbumIds = await Db.ColumnAsync<int>(Db.From<AlbumLike>().Where(x => x.AppUserId == userId).Select(x => x.AlbumId).OrderByDescending(x => x.Id)),
-        };
-
-        var albums = (await Db.LoadSelectAsync<Album>(x => x.OwnerId == userId && x.DeletedDate == null))
-            .OrderByDescending(x => x.Artifacts.Max(x => x.Id)).ToList();
-        var albumResults = albums.Map(x => x.ToAlbumResult());
-
-        return new UserResult
-        {
-            Likes = likes,
-            Albums = albumResults,
-        };
-    }
-
     public async Task<object> Any(UserData request)
     {
         var session = await SessionAsAsync<CustomUserSession>();
-        var result = await GetUserResultAsync(session.UserAuthId.ToInt());
+        var result = await Db.GetUserResultAsync(session.UserAuthId.ToInt());
 
         return new UserDataResponse
         {
-            RefId = session.RefIdStr,
+            User = result,
             Roles = (await session.GetRolesAsync(AuthRepositoryAsync)).ToList(),
-            Likes = result.Likes,
-            Albums = result.Albums,
         };
     }
 
     public async Task<object> Any(GetUserInfo request)
     {
-        var user = await Db.SingleAsync<AppUser>(x => x.RefIdStr == request.RefId);
-        if (user == null)
+        var userId = await Db.ScalarAsync<int>(Db.From<AppUser>()
+            .Where(x => x.RefIdStr == request.RefId).Select(x => x.Id));
+        if (userId == default)
             return HttpError.NotFound("User not found");
 
-        var result = X.Apply(await GetUserResultAsync(user.Id), x => x.RefId = user.RefIdStr);
-        return new GetUserInfoResponse
-        {
+        var result = X.Apply(await Db.GetUserResultAsync(userId), x => x.RefId = request.RefId);
+        return new GetUserInfoResponse {
             Result = result,
         };
     }

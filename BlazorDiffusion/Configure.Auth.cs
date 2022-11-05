@@ -30,17 +30,17 @@ public class ConfigureAuth : IHostingStartup
         {
             var appSettings = appHost.AppSettings;
             var msAppId = appSettings.Get<string>("oauth.microsoftgraph.AppId") ??
-                          Environment.GetEnvironmentVariable("AZURE_APP_ID");
+                Environment.GetEnvironmentVariable("AZURE_APP_ID");
             var msAppSecret = appSettings.Get<string>("oauth.microsoftgraph.AppSecret") ??
-                              Environment.GetEnvironmentVariable("AZURE_APP_SECRET");
+                Environment.GetEnvironmentVariable("AZURE_APP_SECRET");
             var googleConsumerKey = appSettings.Get<string>("oauth.google.ConsumerKey") ??
-                              Environment.GetEnvironmentVariable("GOOGLE_CONSUMER_KEY");
+                Environment.GetEnvironmentVariable("GOOGLE_CONSUMER_KEY");
             var googleConsumerSecret = appSettings.Get<string>("oauth.google.ConsumerSecret") ??
-                                       Environment.GetEnvironmentVariable("GOOGLE_CONSUMER_SECRET");
+                Environment.GetEnvironmentVariable("GOOGLE_CONSUMER_SECRET");
             var facebookAppId = appSettings.Get<string>("oauth.facebook.AppId") ??
-                                Environment.GetEnvironmentVariable("FACEBOOK_APP_ID");
+                Environment.GetEnvironmentVariable("FACEBOOK_APP_ID");
             var facebookAppSecret = appSettings.Get<string>("oauth.facebook.AppSecret") ??
-                                    Environment.GetEnvironmentVariable("FACEBOOK_APP_SECRET");
+                Environment.GetEnvironmentVariable("FACEBOOK_APP_SECRET");
             appHost.Plugins.Add(new AuthFeature(() => new CustomUserSession(),
                 new IAuthProvider[] {
                     new JwtAuthProvider(appSettings) {
@@ -51,6 +51,7 @@ public class ConfigureAuth : IHostingStartup
                         PopulateSessionFilter = (session,payload,req) => {
                             ((CustomUserSession)session).RefIdStr = payload["ref"];
                         },
+                        ExpireRefreshTokensIn = TimeSpan.FromDays(90),
                         //RequireSecureConnection = false,
                     },
                     new CredentialsAuthProvider(appSettings),     /* Sign In with Username / Password credentials */
