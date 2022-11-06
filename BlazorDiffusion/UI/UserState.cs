@@ -378,8 +378,13 @@ public class UserState
         if (userAlbum != null)
         {
             if (!album.ArtifactIds.Contains(artifact.Id))
-            {
-                album.ArtifactIds.Add(artifact.Id);
+            {                
+                album.ArtifactIds.Insert(0, artifact.Id);
+                if (album.PrimaryArtifactId != null)
+                {
+                    album.ArtifactIds.Remove(album.PrimaryArtifactId.Value);
+                    album.ArtifactIds.Insert(0, album.PrimaryArtifactId.Value);
+                }
                 NotifyStateChanged();
             }
         }

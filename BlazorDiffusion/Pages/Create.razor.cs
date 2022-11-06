@@ -146,15 +146,15 @@ public partial class Create : AppAuthComponentBase
         || artists.Count > 0
         || modifiers.Count > 0;
 
-    void reset()
+    async Task reset()
     {
+        await CloseDialogsAsync();
         request.UserPrompt = "";
         imageSize = ImageSize.Square;
         artists.Clear();
         modifiers.Clear();
         StateHasChanged();
     }
-
 
     async Task loadHistory()
     {
