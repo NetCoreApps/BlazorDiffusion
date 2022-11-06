@@ -141,6 +141,9 @@ public class SearchService : Service
                     q.Join<AppUser>((a, u) => u.RefIdStr == query.User)
                      .Join<Artifact, AlbumArtifact>((artifact, albumRef) => artifact.Id == albumRef.ArtifactId)
                      .Join<AlbumArtifact, Album>((albumRef, album) => albumRef.AlbumId == album.Id && album.RefId == query.Album);
+                    q.ThenByDescending<Album, AlbumArtifact>((album, artifact) => new { 
+                        PrimaryArtifact = artifact.ArtifactId == album.PrimaryArtifactId ? 1 : 0, artifact.Id,
+                    });
                 }
                 else
                 {
@@ -151,6 +154,10 @@ public class SearchService : Service
             {
                 q.Join<Artifact, AlbumArtifact>((artifact, albumRef) => artifact.Id == albumRef.ArtifactId)
                  .Join<AlbumArtifact, Album>((albumRef, album) => albumRef.AlbumId == album.Id && album.RefId == query.Album);
+                q.ThenByDescending<Album, AlbumArtifact>((album, artifact) => new {
+                    PrimaryArtifact = artifact.ArtifactId == album.PrimaryArtifactId ? 1 : 0,
+                    artifact.Id,
+                });
             }
 
             q.ThenByDescending(x => x.Score + x.TemporalScore).ThenByDescending(x => x.Id);
