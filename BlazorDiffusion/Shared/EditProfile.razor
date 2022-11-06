@@ -68,12 +68,20 @@
         var formData = new MultipartFormDataContent()
             .AddParams(request);
 
-        var file = fileArgs?.File;
-        if (file != null)
+        try
         {
-            formData.AddFile(fieldName: nameof(request.Avatar),
-                fileName: file.Name,
-                file.OpenReadStream());
+            var file = fileArgs?.File;
+            if (file != null)
+            {
+                formData.AddFile(fieldName: nameof(request.Avatar),
+                    fileName: file.Name,
+                    file.OpenReadStream(maxAllowedSize:AppData.MaxAvatarSize));
+            }
+        }
+        catch (Exception e)
+        {
+            api = e.ToApiResult<UserProfile>();
+            return;
         }
 
         api = await ApiFormAsync<UserProfile>(request, formData);

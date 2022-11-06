@@ -31,7 +31,8 @@ public static class Users
         DisplayName = "Demis",
         RefIdStr = "865d5f4a-4c58-461d-b1b8-2aac005cd2bc",
         Roles = new() { AppRoles.Moderator },
-        Avatar = "/avatars/86/865d5f4a-4c58-461d-b1b8-2aac005cd2bc.png",
+        Handle = "mythz",
+        Avatar = "/avatars/86/865d5f4a-4c58-461d-b1b8-2aac005cd2bc/ciri.png",
     };
     public static AppUser Darren = new()
     {
@@ -47,6 +48,7 @@ public static class Users
         Email = "test@user.com",
         DisplayName = "Test",
         RefIdStr = "3823c5af-d0b6-4738-8601-bd91bf6f9771",
+        Handle = "test",
     };
 
     public static AppUser GetUserById(int? userId) => userId switch

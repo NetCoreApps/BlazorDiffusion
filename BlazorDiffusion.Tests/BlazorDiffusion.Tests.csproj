@@ -50,6 +50,10 @@
         <PackageReference Include="ServiceStack.Server" Version="6.*" />
         <PackageReference Include="ServiceStack.Kestrel" Version="6.*" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="App_Files\avatars\" />
+    </ItemGroup>
     <!--<ItemGroup>
         <ProjectReference Include="..\..\..\ServiceStack\ServiceStack.Aws\src\ServiceStack.Aws\ServiceStack.Aws.csproj" />
         <ProjectReference Include="..\..\..\ServiceStack\ServiceStack.Blazor\src\ServiceStack.Blazor\ServiceStack.Blazor.csproj" />

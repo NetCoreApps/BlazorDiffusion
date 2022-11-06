@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using ServiceStack;
 using ServiceStack.DataAnnotations;
 
@@ -304,7 +305,14 @@ public class SyncTasksResponse
 public class DiskTasks : IReturnVoid
 {
     public int? SaveCreativeId { get; set; }
-    public Creative SaveCreative { get; set; }
+    public Creative? SaveCreative { get; set; }
+    public SaveFile? SaveFile { get; set; }
+}
+
+public class SaveFile
+{
+    public string FilePath { get; set; }
+    public Stream Stream { get; set; }
 }
 
 [Route("/creative/metadata/{CreativeId}")]

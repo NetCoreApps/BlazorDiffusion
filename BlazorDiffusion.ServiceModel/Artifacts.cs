@@ -187,10 +187,6 @@ public class AlbumLikeRef
 }
 
 
-[ValidateIsAuthenticated]
-public class QueryLikedArtifacts : QueryDb<Artifact> {}
-
-
 [AutoFilter(QueryTerm.Ensure, nameof(ArtifactLike.AppUserId), Eval = "userAuthId")]
 [ValidateIsAuthenticated]
 public class QueryArtifactLikes : QueryDb<ArtifactLike>

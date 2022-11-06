@@ -44,6 +44,7 @@ public class Migration1002 : MigrationBase
         public string? Modifier { get; set; }
         public string? Artist { get; set; }
         public string? Album { get; set; }
+        public string? Show { get; set; }
 
         public int? ArtifactId { get; set; }
         public int? AlbumId { get; set; }

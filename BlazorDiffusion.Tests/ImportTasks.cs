@@ -138,7 +138,7 @@ public class ImportTasks
             .OrderBy(x => x.Category).ToList();
 
         var categories = new List<string>();
-        DataService.CategoryGroups.Each(x => categories.AddRange(x.Items));
+        AppData.CategoryGroups.Each(x => categories.AddRange(x.Items));
 
         foreach (var category in categories)
         {

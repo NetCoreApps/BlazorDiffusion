@@ -27,6 +27,11 @@ public class BackgroundMqServices : Service
         {
             await StableDiffusionClient.SaveCreativeAsync(creative);
         }
+
+        if (request.SaveFile != null)
+        {
+            await VirtualFiles.WriteFileAsync(request.SaveFile.FilePath, request.SaveFile.Stream);
+        }
     }
 
     public async Task<object> Get(ViewCreativeMetadata request)

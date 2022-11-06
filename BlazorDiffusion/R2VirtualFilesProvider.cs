@@ -39,8 +39,9 @@ public class R2VirtualFilesProvider : S3VirtualFiles
     {
         try
         {
-            // need to buffer otherwise hangs when trying to send an uploaded file stream (dep on provider)
-            var fileContents = await FileContents.GetAsync(contents, buffer:true);
+            // need to buffer otherwise hangs when trying to send an uploaded file stream (depends on provider)
+            var buffer = contents is not MemoryStream;
+            var fileContents = await FileContents.GetAsync(contents, buffer);
             if (fileContents?.Stream != null)
             {
                 await AmazonS3.PutObjectAsync(new PutObjectRequest
@@ -61,7 +62,10 @@ public class R2VirtualFilesProvider : S3VirtualFiles
                     DisablePayloadSigning = true,
                 }).ConfigAwait();
             }
-            throw new NotSupportedException($"Unknown File Content Type: {contents.GetType().Name}");
+            else throw new NotSupportedException($"Unknown File Content Type: {contents.GetType().Name}");
+
+            if (!buffer && fileContents.Stream != null)
+                using (fileContents.Stream) {}
         }
         catch (Exception e)
         {

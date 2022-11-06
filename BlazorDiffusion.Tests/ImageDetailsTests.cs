@@ -6,6 +6,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace BlazorDiffusion.Tests;
 
@@ -63,6 +64,25 @@ public class ImageDetailsTests
         }
         appFilesDir.Print();
     }
+
+    [Test]
+    public async Task ResizeImages()
+    {
+        var appFilesDir = Path.GetFullPath("../../../App_Files");
+        var avatarsDir = Path.Combine(appFilesDir, "avatars");
+        var outDir = Path.Combine(avatarsDir, "out").AssertDir();
+
+        foreach (var file in new DirectoryInfo(avatarsDir).GetFiles())
+        {
+            using var fs = file.OpenRead();
+            var ms = await ImageUtils.CropAndResizeAsync(fs, 128, 128);
+            var outFile = Path.Combine(outDir, file.Name.WithoutExtension() + "_128" + file.Extension);
+            var outFs = new FileStream(outFile, FileMode.OpenOrCreate);
+            ms.Position = 0;
+            await ms.CopyToAsync(outFs);
+        }
+    }
+
 
     [Test]
     [TestCase("#888888FF", "#898888FF", 1)]

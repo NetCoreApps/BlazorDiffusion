@@ -15,20 +15,17 @@ public class AppUser : IUserAuth
     public string DisplayName { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }
+    [Index(Unique = true)]
     public string? Handle { get; set; }
     public string Company { get; set; }
-    
     [Index]
     public string Email { get; set; }
-    
     public string? ProfileUrl { get; set; }
     [Input(Type="file"), UploadTo("avatars")]
     public string? Avatar { get; set; } //overrides ProfileUrl
     public string? LastLoginIp { get; set; }
-
     public bool IsArchived { get; set; }
     public DateTime? ArchivedDate { get; set; }
-
     public DateTime? LastLoginDate { get; set; }
     public string PhoneNumber { get; set; }
     public DateTime? BirthDate { get; set; }
@@ -48,12 +45,9 @@ public class AppUser : IUserAuth
     public string TimeZone { get; set; }
     public Dictionary<string, string> Meta { get; set; }
     public string PrimaryEmail { get; set; }
-    [IgnoreDataMember]
-    public string Salt { get; set; }
-    [IgnoreDataMember]
-    public string PasswordHash { get; set; }
-    [IgnoreDataMember]
-    public string DigestHa1Hash { get; set; }
+    [IgnoreDataMember] public string Salt { get; set; }
+    [IgnoreDataMember] public string PasswordHash { get; set; }
+    [IgnoreDataMember] public string DigestHa1Hash { get; set; }
     public List<string> Roles { get; set; }
     public List<string> Permissions { get; set; }
     public int? RefId { get; set; }

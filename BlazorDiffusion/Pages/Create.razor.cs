@@ -1,14 +1,14 @@
-﻿using BlazorDiffusion.ServiceModel;
+﻿using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
+using Microsoft.AspNetCore.Components.Web;
 using ServiceStack;
-using ServiceStack.Blazor;
-using ServiceStack.Blazor.Components.Tailwind;
-using ServiceStack.Blazor.Components;
 using ServiceStack.Text;
 using ServiceStack.Web;
+using ServiceStack.Blazor;
+using ServiceStack.Blazor.Components;
+using ServiceStack.Blazor.Components.Tailwind;
 using BlazorDiffusion.UI;
-using Microsoft.AspNetCore.Components.Web;
+using BlazorDiffusion.ServiceModel;
 
 namespace BlazorDiffusion.Pages;
 
@@ -73,7 +73,7 @@ public partial class Create : AppAuthComponentBase
     string? selectedGroup;
     string? selectedCategory;
 
-    string[] groupCategories => DataCache?.CategoryGroups.FirstOrDefault(x => x.Name == selectedGroup)?.Items ?? Array.Empty<string>();
+    string[] groupCategories => AppData.CategoryGroups.FirstOrDefault(x => x.Name == selectedGroup)?.Items ?? Array.Empty<string>();
 
     List<ModifierInfo> categoryModifiers => (selectedCategory != null
         ? DataCache?.Modifiers.Where(x => x.Category == selectedCategory && !modifiers.Contains(x)).ToList()
@@ -85,7 +85,7 @@ public partial class Create : AppAuthComponentBase
     void selectGroup(string group)
     {
         selectedGroup = group;
-        selectedCategory = DataCache?.CategoryGroups.FirstOrDefault(x => x.Name == selectedGroup)?.Items.FirstNonDefault();
+        selectedCategory = AppData.CategoryGroups.FirstOrDefault(x => x.Name == selectedGroup)?.Items.FirstNonDefault();
     }
 
     void selectCategory(string category)
@@ -103,7 +103,7 @@ public partial class Create : AppAuthComponentBase
             DataCache = await Client!.SendAsync(new SearchData());
         }
         if (selectedGroup == null)
-            selectGroup(DataCache.CategoryGroups[0].Name);
+            selectGroup(AppData.CategoryGroups[0].Name);
     }
 
     Creative? creative;

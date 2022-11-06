@@ -54,12 +54,3 @@ public enum PageView
     NewAlbum,
     EditProfile,
 }
-
-public static class AppData
-{
-    static List<NavItem> DefaultLinks { get; set; } = new() { };
-    static List<NavItem> AdminLinks { get; set; } = new() {
-        new NavItem { Label = "Admin", Href = "/admin" },
-    };
-    public static List<NavItem> GetNavItems(bool isAdmin) => isAdmin ? AdminLinks : DefaultLinks;
-}

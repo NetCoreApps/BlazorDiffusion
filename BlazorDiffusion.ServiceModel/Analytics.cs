@@ -42,7 +42,8 @@ public class SearchStat : StatBase
     public string? Modifier { get; set; }
     public string? Artist { get; set; }
     public string? Album { get; set; }
-    
+    public string? Show { get; set; }
+
     public int? ArtifactId { get; set; }
     public int? AlbumId { get; set; }
     public int? AppUserId { get; set; }

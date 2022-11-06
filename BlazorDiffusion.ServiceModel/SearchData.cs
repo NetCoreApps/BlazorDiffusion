@@ -10,7 +10,6 @@ public class SearchData : IReturn<SearchDataResponse>
 
 public class SearchDataResponse
 {
-    public List<Group> CategoryGroups { get; set; }
     public List<ArtistInfo> Artists { get; set; }
     public List<ModifierInfo> Modifiers { get; set; }
 }

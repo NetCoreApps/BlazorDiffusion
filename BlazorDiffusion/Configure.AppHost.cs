@@ -56,10 +56,12 @@ public class AppHost : AppHostBase, IHostingStartup
         Plugins.Add(new FilesUploadFeature(
             new UploadLocation("artifacts", appFs,
                 readAccessRole: RoleNames.AllowAnon,
-                maxFileBytes: 10 * 1024 * 1024),
-            new UploadLocation("avatars", appFs, allowExtensions: FileExt.WebImages,
+                maxFileBytes: AppData.MaxArtiactSize),
+            new UploadLocation("avatars", appFs, allowExtensions: FileExt.WebImages, 
+                // need to use file name to create unique URL that invalidates CDN cache
                 resolvePath: ctx => X.Map((CustomUserSession)ctx.Session, x => $"/avatars/{x.RefIdStr[..2]}/{x.RefIdStr}/{ctx.FileName}")!,
-                maxFileBytes: 1024 * 1024)
+                maxFileBytes: AppData.MaxAvatarSize,
+                transformFile:ImageUtils.TransformAvatarAsync)
             ));
 
         // Don't use public prefix if working locally
