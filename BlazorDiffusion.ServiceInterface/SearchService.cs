@@ -97,12 +97,7 @@ public class SearchService : Service
         }
         else
         {
-            // Only return pinned artifacts
-            var showUserLikes = query.User != null && query.Show == "likes";
-            if (!showUserLikes)
-            {
-                q.Join<Creative>((a, c) => c.Id == a.CreativeId && a.Id == c.PrimaryArtifactId);
-            }
+            q.Join<Creative>((a, c) => c.Id == a.CreativeId); 
             q.OrderByDescending(x => x.Quality); // always show bad images last
 
             if (!string.IsNullOrEmpty(search))
@@ -113,6 +108,7 @@ public class SearchService : Service
                     search = Words.Singularize(search);
                 var ftsSearch = search.Quoted() + "*"; // wildcard search
                 q.Join<ArtifactFts>((a, f) => a.Id == f.rowid);
+                q.Where<Artifact,Creative>((a, c) => c.PrimaryArtifactId == a.Id); // only pinned
                 q.Where(q.Column<ArtifactFts>(x => x.Prompt, prefixTable: true) + " match {0}", ftsSearch);
                 q.ThenBy(q.Column<ArtifactFts>("Rank", prefixTable: true));
             }
@@ -120,6 +116,7 @@ public class SearchService : Service
             {
                 q.Join<Creative, CreativeModifier>((creative, modifierRef) => creative.Id == modifierRef.CreativeId)
                  .Join<CreativeModifier, Modifier>((modifierRef, modifier) => modifierRef.ModifierId == modifier.Id && modifier.Name == query.Modifier);
+                q.Where<Artifact, Creative>((a, c) => c.PrimaryArtifactId == a.Id); // only pinned
             }
             else if (query.Artist != null)
             {
@@ -130,24 +127,30 @@ public class SearchService : Service
 
                 q.Join<Creative, CreativeArtist>((creative, artistRef) => creative.Id == artistRef.CreativeId)
                  .Join<CreativeArtist, Artist>((artistRef, artist) => artistRef.ArtistId == artist.Id && artist.FirstName == firstName && artist.LastName == lastName);
+                q.Where<Artifact, Creative>((a, c) => c.PrimaryArtifactId == a.Id); // only pinned
+            }
+            else if (query.User != null)
+            {
+                if (query.Show == "likes")
+                {
+                    q.Join<AppUser>((a,u) => u.RefIdStr == query.User)
+                     .Join<Artifact,ArtifactLike,AppUser>((a, l, u) => a.Id == l.ArtifactId && u.Id == l.AppUserId);
+                }
+                else if (query.Album != null)
+                {
+                    q.Join<AppUser>((a, u) => u.RefIdStr == query.User)
+                     .Join<Artifact, AlbumArtifact>((artifact, albumRef) => artifact.Id == albumRef.ArtifactId)
+                     .Join<AlbumArtifact, Album>((albumRef, album) => albumRef.AlbumId == album.Id && album.RefId == query.Album);
+                }
+                else
+                {
+                    q.Where<Artifact,Creative>((a, c) => c.OwnerRef == query.User && c.PrimaryArtifactId == a.Id); // only pinned
+                }
             }
             else if (query.Album != null)
             {
                 q.Join<Artifact, AlbumArtifact>((artifact, albumRef) => artifact.Id == albumRef.ArtifactId)
                  .Join<AlbumArtifact, Album>((albumRef, album) => albumRef.AlbumId == album.Id && album.RefId == query.Album);
-            }
-            else if (query.User != null)
-            {
-                if (showUserLikes)
-                {
-                    q.Join<Creative>()
-                     .Join<AppUser>((a,u) => u.RefIdStr == query.User)
-                     .Join<Artifact,ArtifactLike,AppUser>((a, l, u) => a.Id == l.ArtifactId && u.Id == l.AppUserId);
-                }
-                else
-                {
-                    q.Where<Creative>(c => c.OwnerRef == query.User);
-                }
             }
 
             q.ThenByDescending(x => x.Score + x.TemporalScore).ThenByDescending(x => x.Id);
