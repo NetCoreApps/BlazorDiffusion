@@ -32,7 +32,7 @@ public static class Users
         RefIdStr = "865d5f4a-4c58-461d-b1b8-2aac005cd2bc",
         Roles = new() { AppRoles.Moderator },
         Handle = "mythz",
-        Avatar = "/avatars/86/865d5f4a-4c58-461d-b1b8-2aac005cd2bc/ciri.png",
+        Avatar = "/avatars/86/865d5f4a-4c58-461d-b1b8-2aac005cd2bc/kerrigan_128.png",
     };
     public static AppUser Darren = new()
     {
