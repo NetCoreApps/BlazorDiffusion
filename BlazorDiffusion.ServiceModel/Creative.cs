@@ -66,7 +66,7 @@ public class QueryCreatives : QueryDb<Creative>
 
 [AutoApply(Behavior.AuditCreate)]
 [ValidateIsAuthenticated]
-public class CreateCreative : ICreateDb<Creative>, IReturn<Creative>
+public class CreateCreative : ICreateDb<Creative>, IReturn<CreateCreativeResponse>
 {
     [Required]
     public string UserPrompt { get; set; }
@@ -82,6 +82,12 @@ public class CreateCreative : ICreateDb<Creative>, IReturn<Creative>
     
     public List<int> ArtistIds { get; set; }
     public List<int> ModifierIds { get; set; }
+}
+
+public class CreateCreativeResponse
+{
+    public Creative Result { get; set; }
+    public ResponseStatus ResponseStatus { get; set; }
 }
 
 [AutoApply(Behavior.AuditModify)]

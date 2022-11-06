@@ -241,6 +241,36 @@
                 }
             </div>
         }
+        else if (api.Error?.ErrorCode == AppErrors.QuotaExceeded)
+        {
+            var quotaError = QuotaError.FromResponseStatus(api.Error);
+
+            <div class="mx-auto max-w-screen-sm bg-white dark:bg-black shadow dark:border dark:border-red-400 sm:rounded-lg">
+              <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100">@quotaError.Message</h3>
+                <div class="mt-2 max-w-xl text-gray-500 dark:text-gray-400">
+                  <p class="py-2">The <b>@quotaError.CreditsRequested</b> credits requested exceeds the <b>@quotaError.CreditsRemaining</b> daily quota you have remaining.</p>
+                  <p class="py-2">Come back tomorrow in <b>@quotaError.TimeRemaining</b> for another <b>@quotaError.DailyQuota</b> credits!</p>
+                  <p class="pt-4 text-center">
+                      Request Details:<br> 
+                      <div class="block pt-2 dark:text-gray-200">@quotaError.RequestedDetails</div>
+                  </p>
+                </div>
+
+                <div class="border-t mt-8 pt-4 border-gray-700 mt-2 max-w-xl text-gray-500 dark:text-gray-400">
+                  <p>You can also request an increased quota by signing up for early Beta access:</p>
+                </div>
+                <form class="mt-5 sm:flex sm:items-end">
+                  <div class="w-full sm:max-w-xs mr-2">
+                    <TextInput @bind-Value="requestBeta.Email" placeholder="you@example.com" />
+                  </div>
+                  <div>
+                    <PrimaryButton>Submit</PrimaryButton>
+                  </div>
+                </form>
+              </div>
+            </div>
+        }
     </div>
 </Home>
 

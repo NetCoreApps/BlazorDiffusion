@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using BlazorDiffusion.ServiceModel;
 using ServiceStack;
 using ServiceStack.Auth;
+using ServiceStack.Html;
 using ServiceStack.IO;
+using ServiceStack.Logging;
 using ServiceStack.OrmLite;
 using ServiceStack.Text;
 
@@ -14,7 +16,10 @@ namespace BlazorDiffusion.ServiceInterface;
 
 public class CreativeService : Service
 {
-    public IStableDiffusionClient StableDiffusionClient { get; set; }
+    public static ILog Log = LogManager.GetLogger(typeof(CreativeService));
+
+    public IStableDiffusionClient StableDiffusionClient { get; set; } = default!;
+    
     public const string DefaultEngine = "stable-diffusion-v1-5";
     public const int DefaultHeight = 512;
     public const int DefaultWidth = 512;
@@ -27,14 +32,57 @@ public class CreativeService : Service
     public const int DefaultMaxWidth = 896;
     public const int DefaultMaxHeight = 896;
 
+    public AppUserQuotas UserQuotas { get; set; }
+
+    public async Task<object> Any(CheckQuota request)
+    {
+        var session = await SessionAsAsync<CustomUserSession>();
+        var userRoles = await session.GetRolesAsync(AuthRepositoryAsync);
+        var creative = new CreateCreative
+        {
+            Width = request.Width,
+            Height = request.Height,
+            Images = request.Images,
+        };
+        var imageGenerationRequest = CreateImageGenerationRequest(creative, new List<Modifier>(), new List<Artist>(), userRoles);
+        var requestCredits = UserQuotas.CalculateCredits(imageGenerationRequest);
+        var startOfDay = DateTime.UtcNow.Date;
+        var dailyQuota = UserQuotas.GetDailyQuota(userRoles) ?? -1;
+        var creditsUsed = await UserQuotas.GetCreditsUsedAsync(Db, since: DateTime.UtcNow.Date);
+
+        return new CheckQuotaResponse
+        {
+            TimeRemaining = startOfDay.AddDays(1) - DateTime.UtcNow,
+            CreditsUsed = creditsUsed,
+            CreditsRequested = requestCredits,
+            DailyQuota = dailyQuota,
+            CreditsRemaining = dailyQuota == -1 ? -1 : dailyQuota - creditsUsed,
+            RequestedDetails = UserQuotas.ToRequestDetails(imageGenerationRequest),
+        };
+    }
 
     public async Task<object> Post(CreateCreative request)
     {
+        var session = await SessionAsAsync<CustomUserSession>();
+        var userRoles = await session.GetRolesAsync(AuthRepositoryAsync);
+
         var modifiers = await Db.SelectAsync<Modifier>(x => Sql.In(x.Id, request.ModifierIds));
         var artists = request.ArtistIds.Count == 0 ? new List<Artist>() :
             await Db.SelectAsync<Artist>(x => Sql.In(x.Id, request.ArtistIds));
-        
-        var imageGenerationResponse = await GenerateImage(request,modifiers,artists);
+
+        var imageGenerationRequest = CreateImageGenerationRequest(request, modifiers, artists, userRoles);
+
+        var quotaError = await UserQuotas.ValidateQuotaAsync(Db, imageGenerationRequest, userRoles);
+        if (quotaError != null)
+        {
+            Log.InfoFormat("User #{0} {1} exceeded quota, credits: {2} + {3} > {4}, time remaining: {5}",
+                session.UserAuthId, session.UserAuthName, quotaError.CreditsUsed,
+                quotaError.CreditsRequested, quotaError.DailyQuota, quotaError.TimeRemaining);
+
+            return quotaError.ToHttpError(quotaError.ToResponseStatus());
+        }
+
+        var imageGenerationResponse = await GenerateImage(imageGenerationRequest);
 
         var creativeId = await PersistCreative(request, imageGenerationResponse, modifiers, artists);
 
@@ -42,7 +90,7 @@ public class CreativeService : Service
 
         PublishMessage(new BackgroundTasks { NewCreative = creative });
 
-        return creative;
+        return new CreateCreativeResponse { Result = creative };
     }
     
     public async Task<object> Patch(UpdateCreative request)
@@ -181,12 +229,9 @@ public class CreativeService : Service
 
         return creative.Id;
     }
-    
-    private async Task<ImageGenerationResponse> GenerateImage(CreateCreative request,
-        List<Modifier> modifiers, List<Artist> artists)
+
+    public ImageGeneration CreateImageGenerationRequest(CreateCreative request, List<Modifier> modifiers, List<Artist> artists, ICollection<string> userRoles)
     {
-        var authSession = await GetSessionAsync().ConfigAwait();
-        var userRoles = await authSession.GetRolesAsync(AuthRepositoryAsync);
         var adminOrMod = userRoles.Contains(AppRoles.Admin) || userRoles.Contains(AppRoles.Moderator);
         var apiPrompt = request.UserPrompt.ConstructPrompt(modifiers, artists);
 
@@ -200,29 +245,37 @@ public class CreativeService : Service
             : request.Width > request.Height
                ? DefaultMaxWidth
                : DefaultWidth;
+        int height = Math.Min(request.Height ?? DefaultHeight, maxHeight);
+        int width = Math.Min(request.Width ?? DefaultWidth, maxWidth);
+        int noOfImages = request.Images ?? (adminOrMod ? DefaultModeratorImages : DefaultImages);
+        int noOfSteps = request.Steps ?? (adminOrMod ? DefaultModeratorSteps : DefaultSteps);
 
-        var imageGenOptions = new ImageGeneration
+        var to = new ImageGeneration
         {
             Prompt = apiPrompt,
             Engine = DefaultEngine,
-            Height = Math.Min(request.Height ?? DefaultHeight, maxHeight),
-            Width = Math.Min(request.Width ?? DefaultWidth, maxWidth),
-            Images = request.Images ?? (adminOrMod ? DefaultModeratorImages : DefaultImages),
-            Steps = request.Steps ?? (adminOrMod ? DefaultModeratorSteps : DefaultSteps),
+            Height = height,
+            Width = width,
+            Images = noOfImages,
+            Steps = noOfSteps,
             Seed = request.Seed
         };
+        return to;
+    }
 
-        ImageGenerationResponse imageGenerationResponse;
+
+    private async Task<ImageGenerationResponse> GenerateImage(ImageGeneration request)
+    {
+
         try
         {
-            imageGenerationResponse = await StableDiffusionClient.GenerateImageAsync(imageGenOptions);
+            return await StableDiffusionClient.GenerateImageAsync(request);
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            Log.Error(e, "Failed to generate image: {0}", e.Message);
             throw HttpError.ServiceUnavailable($"Failed to generate image: {e.Message}");
         }
-        return imageGenerationResponse;
     }
 
     public async Task Delete(DeleteCreative request)

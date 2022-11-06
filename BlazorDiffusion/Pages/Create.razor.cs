@@ -54,7 +54,9 @@ public partial class Create : AppAuthComponentBase
     void selectImageSize(ImageSize size) => imageSize = size;
 
     CreateCreative request = new();
-    ApiResult<Creative> api = new();
+    ApiResult<CreateCreativeResponse> api = new();
+
+    RequestBetaAccess requestBeta = new();
 
     List<ArtistInfo>? ArtistOptions => DataCache?.Artists;
     List<ArtistInfo> artists = new();
@@ -113,6 +115,7 @@ public partial class Create : AppAuthComponentBase
         await base.OnParametersSetAsync();
         RegisterKeyboardNavigation(this.OnNavKeyAsync);
 
+        api.ClearErrors();
         await loadHistory();
 
         if (Id != null)
@@ -198,7 +201,7 @@ public partial class Create : AppAuthComponentBase
         api.ClearErrors();
         api.IsLoading = true;
         api = await ApiAsync(request);
-        creative = api.Response;
+        creative = api.Response?.Result;
 
         await loadUserState();
     }
