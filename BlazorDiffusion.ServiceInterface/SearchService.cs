@@ -159,6 +159,10 @@ public class SearchService : Service
                     artifact.Id,
                 });
             }
+            else
+            {
+                q.Where<Artifact, Creative>((a, c) => c.PrimaryArtifactId == a.Id); // only pinned
+            }
 
             q.ThenByDescending(x => x.Score + x.TemporalScore).ThenByDescending(x => x.Id);
             // Need distinct else Blazor @key throws when returning dupes
