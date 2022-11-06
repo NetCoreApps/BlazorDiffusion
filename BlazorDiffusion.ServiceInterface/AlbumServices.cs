@@ -60,22 +60,15 @@ public class AlbumServices : Service
         if (!await session.IsOwnerOrModerator(AuthRepositoryAsync, album.OwnerId))
             throw HttpError.Forbidden("You don't own this Album");
 
-        album.WithAudit(session.UserAuthId);
         
         using var trans = Db.OpenTransaction();
-        await Db.UpdateNonDefaultsAsync(album, x => x.Id == album.Id);
-
-        if (request.AddArtifactIds?.Count > 0)
+        var updateAlbum = request.Name != null || request.Description != null || request.Slug != null || request.Tags?.Count > 0;
+        if (updateAlbum)
         {
-            var albumArtifacts = request.AddArtifactIds.Where(x => !album.Artifacts.OrEmpty().Any(a => a.ArtifactId == x))
-                .Map(x => new AlbumArtifact {
-                    AlbumId = album.Id,
-                    ArtifactId = x,
-                    CreatedDate = album.CreatedDate,
-                    ModifiedDate = album.ModifiedDate,
-                });
-            await Db.InsertAllAsync(albumArtifacts);
+            album.WithAudit(session.UserAuthId);
+            await Db.UpdateNonDefaultsAsync(album, x => x.Id == album.Id);
         }
+
         if (request.RemoveArtifactIds?.Count > 0)
         {
             await Db.DeleteAsync<AlbumArtifact>(x => x.AlbumId == album.Id && request.RemoveArtifactIds.Contains(x.ArtifactId));
@@ -88,6 +81,19 @@ public class AlbumServices : Service
             {
                 await Db.UpdateOnlyAsync(() => new Album { PrimaryArtifactId = null }, where: x => x.Id == album.Id);
             }
+            album.Artifacts.RemoveAll(x => request.RemoveArtifactIds.Contains(x.ArtifactId)); // required so they get added below
+        }
+        if (request.AddArtifactIds?.Count > 0)
+        {
+            var albumArtifacts = request.AddArtifactIds.Where(x => !album.Artifacts.OrEmpty().Any(a => a.ArtifactId == x))
+                .Map(x => new AlbumArtifact
+                {
+                    AlbumId = album.Id,
+                    ArtifactId = x,
+                    CreatedDate = album.CreatedDate,
+                    ModifiedDate = album.ModifiedDate,
+                });
+            await Db.InsertAllAsync(albumArtifacts);
         }
         if (request.PrimaryArtifactId != null)
         {
@@ -97,8 +103,11 @@ public class AlbumServices : Service
                 await Db.UpdateOnlyAsync(() => new Album { PrimaryArtifactId = null }, where: x => x.Id == album.Id);
         }
 
-        var crudContext = CrudContext.Create<Album>(Request, Db, request, AutoCrudOperation.Patch);
-        await CrudEvents.RecordAsync(crudContext);
+        if (updateAlbum)
+        {
+            var crudContext = CrudContext.Create<Album>(Request, Db, request, AutoCrudOperation.Patch);
+            await CrudEvents.RecordAsync(crudContext);
+        }
 
         trans.Commit();
 

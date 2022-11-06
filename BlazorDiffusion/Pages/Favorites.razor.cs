@@ -3,6 +3,7 @@ using BlazorDiffusion.UI;
 using Ljbc1994.Blazor.IntersectionObserver;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
+using Microsoft.AspNetCore.Http;
 using Microsoft.JSInterop;
 using ServiceStack.Blazor;
 
@@ -219,6 +220,31 @@ public partial class Favorites : AppAuthComponentBase
         await JS.InvokeVoidAsync("JS.elInvoke", "#DisplayName", "focus");
     }
 
+    async Task moveToTop(Artifact artifact)
+    {
+        if (SelectedAlbum!.PrimaryArtifactId == artifact.Id)
+            return;
+
+        var api = await ApiAsync(new UpdateAlbum { 
+            Id = SelectedAlbum.Id, 
+            RemoveArtifactIds = new() { artifact.Id },
+            AddArtifactIds = new() { artifact.Id },
+        });
+        if (api.Succeeded)
+        {
+            await KeyboardNavigation.SendKeyAsync("Escape");
+            var artifactResult = results.First(x => x.Id == artifact.Id);
+            var primaryArtifact = SelectedAlbum.PrimaryArtifactId != null
+                ? results.FirstOrDefault(x => x.Id == SelectedAlbum.PrimaryArtifactId.Value)
+                : null;
+            var newResults = results.Where(x => x.Id != artifact.Id && (primaryArtifact == null || x.Id != primaryArtifact.Id)).ToList();
+            newResults.Insert(0, artifactResult);
+            if (primaryArtifact != null)
+                newResults.Insert(0, primaryArtifact);
+            results = newResults;
+            StateHasChanged();
+        }
+    }
 
     async Task OnDone()
     {

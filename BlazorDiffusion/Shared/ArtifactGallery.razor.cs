@@ -22,6 +22,8 @@ public partial class ArtifactGallery : AppAuthComponentBase
     [Parameter] public RenderFragment? LeftHeader { get; set; }
     [Parameter] public RenderFragment? RightHeader { get; set; }
     [Parameter] public RenderFragment<Artifact>? TopRightIcon { get; set; }
+    [Parameter] public RenderFragment<Artifact>? TopMenu { get; set; }
+    [Parameter] public RenderFragment<Artifact>? BottomMenu { get; set; }
     [Parameter] public int? Id { get; set; }
     [Parameter] public int? View { get; set; }
     [Parameter] public Func<Artifact, int?, UserState, string> ResolveBorderColor { get; set; } = ArtifactExtensions.GetBorderColor;

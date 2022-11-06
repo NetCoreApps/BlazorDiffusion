@@ -14,6 +14,8 @@ public partial class ArtifactMenu : AppAuthComponentBase
     [Inject] IJSRuntime JS { get; set; }
     [Parameter, EditorRequired] public Artifact Artifact { get; set; } = default!;
     [Parameter, EditorRequired] public MouseEventArgs Position { get; set; } = default!;
+    [Parameter] public RenderFragment<Artifact>? TopMenu { get; set; }
+    [Parameter] public RenderFragment<Artifact>? BottomMenu { get; set; }
     [Parameter] public int OffsetX { get; set; } = 60;
     [Parameter] public int OffsetY { get; set; } = 60;
     [Parameter] public bool Show { get; set; }

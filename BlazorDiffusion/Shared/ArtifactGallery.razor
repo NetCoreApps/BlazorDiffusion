@@ -321,5 +321,18 @@
 
 @if (artifactMenu != null)
 {
-    <ArtifactMenu Artifact=artifactMenu Position="artifactMenuArgs" OffsetX="artifactOffsetX" Done="hideArtifactMenu" Change="OnChange" />
+    <ArtifactMenu Artifact=artifactMenu Position="artifactMenuArgs" OffsetX="artifactOffsetX" Done="hideArtifactMenu" Change="OnChange">
+        <TopMenu>
+        @if (TopMenu != null)
+        {
+            @TopMenu(artifactMenu)
+        }
+        </TopMenu>
+        <BottomMenu>
+        @if (BottomMenu != null)
+        {
+            @BottomMenu(artifactMenu)
+        }
+        </BottomMenu>
+    </ArtifactMenu>
 }
