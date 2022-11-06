@@ -48,7 +48,7 @@ public static class Users
         Email = "test@user.com",
         DisplayName = "Test",
         RefIdStr = "3823c5af-d0b6-4738-8601-bd91bf6f9771",
-        Handle = "test",
+        Handle = "imagineer",
     };
 
     public static AppUser GetUserById(int? userId) => userId switch

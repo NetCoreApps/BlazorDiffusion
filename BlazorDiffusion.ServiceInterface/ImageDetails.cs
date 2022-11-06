@@ -9,14 +9,10 @@ using System.IO;
 using ServiceStack;
 using System.Globalization;
 using SixLabors.ImageSharp.Formats;
-using static BlazorDiffusion.ServiceInterface.Scores;
 using System.Threading.Tasks;
-using SixLabors.ImageSharp.Advanced;
-using System.Drawing.Imaging;
 using ServiceStack.Web;
 using ServiceStack.Host;
-using ServiceStack.Messaging;
-using Amazon.Runtime.Internal;
+using SixLabors.ImageSharp.Formats.Png;
 
 namespace BlazorDiffusion.ServiceModel;
 
@@ -208,7 +204,7 @@ public static class ImageUtils
             }
         });
 
-        var resizedMs = await CropAndResizeAsync(originalMs, 128, 128);
+        var resizedMs = await CropAndResizeAsync(originalMs, 128, 128, PngFormat.Instance);
 
         return new HttpFile(ctx.File)
         {
@@ -218,11 +214,10 @@ public static class ImageUtils
         };
     }
 
-    public static async Task<MemoryStream> CropAndResizeAsync(Stream inStream, int width, int height, IImageFormat? format = null)
+    public static async Task<MemoryStream> CropAndResizeAsync(Stream inStream, int width, int height, IImageFormat format)
     {
         var outStream = new MemoryStream();
-        var (image, imgFormat) = await Image.LoadWithFormatAsync(inStream);
-        format ??= imgFormat;
+        var image = await Image.LoadAsync(inStream);
         using (image)
         {
             var clone = image.Clone(context => context

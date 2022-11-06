@@ -3,6 +3,7 @@ using NUnit.Framework;
 using ServiceStack;
 using ServiceStack.Text;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using System.Diagnostics;
 using System.IO;
@@ -75,7 +76,7 @@ public class ImageDetailsTests
         foreach (var file in new DirectoryInfo(avatarsDir).GetFiles())
         {
             using var fs = file.OpenRead();
-            var ms = await ImageUtils.CropAndResizeAsync(fs, 128, 128);
+            var ms = await ImageUtils.CropAndResizeAsync(fs, 128, 128, PngFormat.Instance);
             var outFile = Path.Combine(outDir, file.Name.WithoutExtension() + "_128" + file.Extension);
             var outFs = new FileStream(outFile, FileMode.OpenOrCreate);
             ms.Position = 0;

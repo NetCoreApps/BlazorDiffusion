@@ -20,7 +20,7 @@
         @if (SelectedUser != null)
         {
             <div class="z-10 flex-shrink mr-2">
-                <div class="flex flex-col -ml-4 -mt-36 justify-center items-center">
+                <div class=@ClassNames("flex flex-col -ml-4 justify-center items-center", SelectedUser.Handle != null ? "-mt-40" : "-mt-36")>
 
                     <div class="">
                         <NavLink href=@($"/?user={SelectedUser.RefId}")>
