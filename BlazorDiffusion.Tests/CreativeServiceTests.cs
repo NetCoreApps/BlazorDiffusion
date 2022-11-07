@@ -206,20 +206,21 @@ public class CreativeServiceTests
             Height = dimensions.Height,
             Steps = testCase.Steps ?? 25
         });
-
-        Assert.That(response, Is.Not.Null);
-        Assert.That(response.Artifacts, Is.Not.Null);
-        Assert.That(response.Artifacts.Count, Is.EqualTo(numberOfImages));
+        
+        var creative = response.Result;
+        Assert.That(creative, Is.Not.Null);
+        Assert.That(creative.Artifacts, Is.Not.Null);
+        Assert.That(creative.Artifacts.Count, Is.EqualTo(numberOfImages));
 
         var primaryArtifactResponse = client.Send(new UpdateCreative
         {
-            Id = response.Id,
-            PrimaryArtifactId = response.Artifacts[0].Id
+            Id = creative.Id,
+            PrimaryArtifactId = creative.Artifacts[0].Id
         });
 
         var nsfwArtifactResponse = client.Send(new UpdateArtifact
         {
-            Id = response.Artifacts[1].Id,
+            Id = creative.Artifacts[1].Id,
             Nsfw = true
         });
         
@@ -228,7 +229,7 @@ public class CreativeServiceTests
 
         var queryResponse = client.Get(new QueryCreatives
         {
-            Id = response.Id
+            Id = creative.Id
         });
         
         Assert.That(queryResponse, Is.Not.Null);
