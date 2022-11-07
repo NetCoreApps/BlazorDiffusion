@@ -12,8 +12,8 @@ public class ArtifactServices : Service
 {
     public async Task<object> Post(CreateArtifactLike request)
     {
-        var session = await GetSessionAsync();
-        var userId = session.UserAuthId.ToInt();
+        var session = await SessionAsAsync<CustomUserSession>();
+        var userId = session.GetUserId();
         var row = new ArtifactLike
         {
             AppUserId = userId,
@@ -28,8 +28,8 @@ public class ArtifactServices : Service
 
     public async Task Delete(DeleteArtifactLike request)
     {
-        var session = await GetSessionAsync();
-        var userId = session.UserAuthId.ToInt();
+        var session = await SessionAsAsync<CustomUserSession>();
+        var userId = session.GetUserId();
         await Db.DeleteAsync<ArtifactLike>(x => x.ArtifactId == request.ArtifactId && x.AppUserId == userId);
 
         PublishMessage(new BackgroundTasks { RecordArtifactUnlikeId = request.ArtifactId });
@@ -37,8 +37,8 @@ public class ArtifactServices : Service
 
     public async Task<object> Post(CreateArtifactReport request)
     {
-        var session = await GetSessionAsync();
-        var userId = session.UserAuthId.ToInt();
+        var session = await SessionAsAsync<CustomUserSession>();
+        var userId = session.GetUserId();
         var row = request.ConvertTo<ArtifactReport>();
         row.AppUserId = userId;
         row.CreatedDate = DateTime.UtcNow;
@@ -48,8 +48,8 @@ public class ArtifactServices : Service
 
     public async Task Delete(DeleteArtifactReport request)
     {
-        var session = await GetSessionAsync();
-        var userId = session.UserAuthId.ToInt();
+        var session = await SessionAsAsync<CustomUserSession>();
+        var userId = session.GetUserId();
         await Db.DeleteAsync<ArtifactReport>(x => x.ArtifactId == request.ArtifactId && x.AppUserId == userId);
     }
 

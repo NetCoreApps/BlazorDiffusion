@@ -19,7 +19,7 @@ public class AlbumServices : Service
 
         var album = request.ConvertTo<Album>();
         album.Name ??= "New Album";
-        album.OwnerId = session.UserAuthId.ToInt();
+        album.OwnerId = session.GetUserId();
         album.OwnerRef = session.RefIdStr;
         album.RefId = Guid.NewGuid().ToString("D");
         album.WithAudit(session.UserAuthId);
