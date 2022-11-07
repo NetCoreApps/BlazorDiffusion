@@ -22,6 +22,7 @@ public class UserState
 
     public string? RefId => User?.RefId;
     public UserResult User { get; set; }
+    public List<SignupType> Signups { get; set; } = new();
     public List<string> Roles { get; set; } = new();
     public List<int> LikedArtifactIds { get; private set; } = new();
     public List<int> LikedAlbumIds { get; private set; } = new();
@@ -98,6 +99,7 @@ public class UserState
                 var r = api.Response!;
                 User = r.User;
                 Roles = r.Roles ?? new();
+                Signups = r.Signups ?? new();
                 LikedArtifactIds = r.User.Likes.ArtifactIds ?? new();
                 LikedAlbumIds = r.User.Likes.AlbumIds ?? new();
                 UserAlbums = r.User.Albums ?? new();

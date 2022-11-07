@@ -63,8 +63,3 @@ public class CheckQuotaResponse
     public int DailyQuota { get; set; }
     public string RequestedDetails { get; set; }
 }
-
-public class RequestBetaAccess
-{
-    public string Email { get; set; }
-}

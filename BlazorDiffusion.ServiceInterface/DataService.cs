@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using ServiceStack;
 using ServiceStack.OrmLite;
 using BlazorDiffusion.ServiceModel;
+using System;
 
 namespace BlazorDiffusion.ServiceInterface;
 
@@ -46,13 +47,44 @@ public class DataService : Service
     public async Task<object> Any(UserData request)
     {
         var session = await SessionAsAsync<CustomUserSession>();
-        var result = await Db.GetUserResultAsync(session.UserAuthId.ToInt());
+        var userId = session.GetUserId();
+        var result = await Db.GetUserResultAsync(userId);
+
+        using var dbAnalytics = OpenDbConnection(Databases.Analytics);
+        var signupTypes = await dbAnalytics.ColumnAsync<SignupType>(Db.From<Signup>()
+            .Where(x => x.AppUserId == userId && x.Type == SignupType.Beta && x.CancelledDate == null).Select(x => x.Type));
 
         return new UserDataResponse
         {
             User = result,
+            Signups = signupTypes,
             Roles = (await session.GetRolesAsync(AuthRepositoryAsync)).ToList(),
         };
+    }
+
+    public async Task<object> Any(CreateSignup request)
+    {
+        var session = await SessionAsAsync<CustomUserSession>();
+        using var dbAnalytics = OpenDbConnection(Databases.Analytics);
+
+        // If already exists uncancel existing Signup and prevent duplicate registrations
+        int existingSignups = session.IsAuthenticated
+            ? await dbAnalytics.UpdateOnlyAsync(() => new Signup { Email = request.Email, CancelledDate = null },
+                where: x => x.AppUserId == session.GetUserId() && x.Type == request.Type)
+            : await dbAnalytics.UpdateOnlyAsync(() => new Signup { CancelledDate = null },
+                where: x => x.Email == request.Email && x.Type == request.Type);
+
+        if (existingSignups == 0)
+        {
+            await dbAnalytics.InsertAsync(new Signup {
+                Type = request.Type,
+                Name = request.Name, 
+                Email = request.Email,
+            }
+            .WithRequest(Request, session));
+        }
+     
+        return new EmptyResponse();
     }
 
     public async Task<object> Any(GetAlbumResults request)

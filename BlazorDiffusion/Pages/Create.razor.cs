@@ -56,7 +56,12 @@ public partial class Create : AppAuthComponentBase
     CreateCreative request = new();
     ApiResult<CreateCreativeResponse> api = new();
 
-    RequestBetaAccess requestBeta = new();
+    string[] SignupVisibleFields => new[] {
+        nameof(CreateSignup.Email),
+    };
+
+    CreateSignup signup = new();
+    ApiResult<EmptyResponse> apiSignup = new();
 
     List<ArtistInfo>? ArtistOptions => DataCache?.Artists;
     List<ArtistInfo> artists = new();
@@ -396,6 +401,17 @@ public partial class Create : AppAuthComponentBase
         artifactMenu = artifact;
         artifactOffsetX = offsetX;
     }
+
+    async Task signupBeta()
+    {
+        signup.Type = SignupType.Beta;
+        apiSignup = await ApiAsync(signup);
+        if (apiSignup.Succeeded)
+        {
+            UserState.Signups.Add(SignupType.Beta);
+        }
+    }
+
 
     public void Dispose()
     {

@@ -51,9 +51,56 @@ public class SearchStat : StatBase
     public int? ArtistId { get; set; }
 }
 
+public enum SignupType
+{
+    Updates,
+    Beta,
+}
+
+[Icon(Svg = Icons.Signup)]
+public class Signup : StatBase
+{
+    [AutoIncrement]
+    public int Id { get; set; }
+    public SignupType Type { get; set; }
+    public string Email { get; set; }
+    public string? Name { get; set; }
+    public DateTime? CancelledDate { get; set; }
+}
+
+
+public class CreateSignup : ICreateDb<Signup>, IReturn<EmptyResponse> // IReturnVoid -> support cast EmptyResponse -> byte[]
+{
+    public SignupType Type { get; set; }
+    [ValidateNotEmpty, ValidateEmail]
+    public string Email { get; set; }
+    public string? Name { get; set; }
+}
+
 
 [ValidateHasRole(AppRoles.Moderator)]
 public class QueryArtifactStats : QueryDb<ArtifactStat> { }
 
 [ValidateHasRole(AppRoles.Moderator)]
 public class QuerySearchStats : QueryDb<SearchStat> { }
+
+
+[ValidateHasRole(AppRoles.Moderator)]
+public class QuerySignups : QueryDb<Signup> { }
+
+[ValidateHasRole(AppRoles.Moderator)]
+public class UpdateSignup : IPatchDb<Signup>, IReturn<Signup>
+{
+    public int Id { get; set; }
+    public SignupType? Type { get; set; }
+    [ValidateEmail]
+    public string? Email { get; set; }
+    public string? Name { get; set; }
+    public DateTime? CancelledDate { get; set; }
+}
+
+[ValidateHasRole(AppRoles.Moderator)]
+public class DeleteSignup : IDeleteDb<Signup>, IReturnVoid
+{
+    public int Id { get; set; }
+}

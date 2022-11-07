@@ -53,8 +53,24 @@ public class Migration1002 : MigrationBase
         public int? ArtistId { get; set; }
     }
 
+    public enum SignupType
+    {
+        Updates,
+        Beta,
+    }
+    public class Signup : StatBase
+    {
+        [AutoIncrement]
+        public int Id { get; set; }
+        public SignupType Type { get; set; }
+        public string Email { get; set; }
+        public string? Name { get; set; }
+        public DateTime? CancelledDate { get; set; }
+    }
+
     public override void Up()
     {
+        Db.CreateTable<Signup>();
         Db.CreateTable<ArtifactStat>();
         Db.CreateTable<SearchStat>();
     }
@@ -63,5 +79,6 @@ public class Migration1002 : MigrationBase
     {
         Db.DropTable<SearchStat>();
         Db.DropTable<ArtifactStat>();
+        Db.DropTable<Signup>();
     }
 }

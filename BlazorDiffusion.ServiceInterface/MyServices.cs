@@ -23,9 +23,10 @@ public class MyServices : Service
     public async Task<object> Any(UpdateUserProfile request)
     {
         var session = await SessionAsAsync<CustomUserSession>();
+        var userId = session.GetUserId();
 
         var userInfo = await Db.SingleAsync<UserProfile>(Db.From<AppUser>()
-            .Where(x => x.Id == session.UserAuthId.ToInt()));
+            .Where(x => x.Id == userId));
 
         if (string.IsNullOrWhiteSpace(request.Handle))
             request.Handle = null;
@@ -35,7 +36,6 @@ public class MyServices : Service
         if (request.Handle != null && !request.Handle.IsValidVarName())
             throw new ArgumentException("Invalid chars in Handle", nameof(request.Handle));
 
-        var userId = session.UserAuthId.ToInt();
         if (request.Handle != null && await Db.ExistsAsync<AppUser>(x => x.Handle == request.Handle && x.Id != userId))
             throw new ArgumentException("Handle already taken", nameof(request.Handle));
 
