@@ -13,8 +13,6 @@ namespace BlazorDiffusion.ServiceInterface;
 
 public class AppUserQuotas
 {
-    public ILogger<AppUserQuotas> Log { get; }
-
     public static HashSet<string> UnrestrictedRoles = new()
     {
         AppRoles.Admin,
@@ -27,11 +25,6 @@ public class AppUserQuotas
     };
 
     public const int DefaultDailyQuota = 40; //40
-
-    public AppUserQuotas(ILogger<AppUserQuotas> log)
-    {
-        Log = log;
-    }
 
     /// <summary>
     /// Future:

@@ -109,6 +109,7 @@ public class CreativeServiceMockedTests
             container.AddSingleton<ICrudEvents>(c =>
                 new OrmLiteCrudEvents(c.Resolve<IDbConnectionFactory>()));
             container.Resolve<ICrudEvents>().InitSchema();
+            container.Register(new AppUserQuotas());
         }
     }
     
