@@ -76,6 +76,7 @@ public class UserDataResponse
     public UserResult User { get; set; }
     public List<SignupType> Signups { get; set; }
     public List<string> Roles { get; set; }
+    public List<AlbumResult> TopAlbums { get; set; }
     public ResponseStatus ResponseStatus { get; set; }
 }
 

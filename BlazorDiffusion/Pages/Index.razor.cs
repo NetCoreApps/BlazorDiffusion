@@ -38,9 +38,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
     SearchArtifacts? lastRequest;
 
     UserResult? SelectedUser;
-    public AlbumResult? SelectedAlbum => SelectedUser != null && album != null 
-        ? SelectedUser.Albums.FirstOrDefault(x => x.AlbumRef == album)
-        : null;
+    public AlbumResult? SelectedAlbum;
 
     public ElementReference BottomElement { get; set; }
     IntersectionObserver? bottomObserver;
@@ -87,6 +85,10 @@ public partial class Index : AppAuthComponentBase, IDisposable
         SelectedUser = user != null
             ? await UserState.GetUserByRefIdAsync(user)
             : null;
+
+        SelectedAlbum = SelectedUser != null && album != null
+            ? SelectedUser.Albums.FirstOrDefault(x => x.AlbumRef == album)
+            : await UserState.GetAlbumByRefAsync(album);
 
         await Task.Delay(1);
         if (request.Take == InitialTake)
@@ -166,6 +168,17 @@ public partial class Index : AppAuthComponentBase, IDisposable
         }
     }
 
+    async Task LikeAlbumAsync()
+    {
+        await UserState.LikeAlbumAsync(SelectedAlbum!);
+        StateHasChanged();
+    }
+
+    async Task UnlikeAlbumAsync()
+    {
+        await UserState.UnlikeAlbumAsync(SelectedAlbum!);
+        StateHasChanged();
+    }
 
     async Task submit()
     {

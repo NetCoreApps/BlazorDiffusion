@@ -165,4 +165,31 @@ public class AlbumServices : Service
             Results = albumMap.Values.OrderByDescending(x => x.Score).ThenByDescending(x => x.Id).Take(5).ToList(),
         };
     }
+
+    public async Task<object> Post(CreateAlbumLike request)
+    {
+        var session = await SessionAsAsync<CustomUserSession>();
+        var userId = session.GetUserId();
+        var row = new AlbumLike
+        {
+            AppUserId = userId,
+            AlbumId = request.AlbumId,
+            CreatedDate = DateTime.UtcNow,
+        };
+        row.Id = await base.Db.InsertAsync(row, selectIdentity: true);
+
+        PublishMessage(new BackgroundTasks { RecordAlbumLikeId = request.AlbumId });
+        return row;
+    }
+
+    public async Task Delete(DeleteAlbumLike request)
+    {
+        var session = await SessionAsAsync<CustomUserSession>();
+        var userId = session.GetUserId();
+        await Db.DeleteAsync<AlbumLike>(x => x.AlbumId == request.AlbumId && x.AppUserId == userId);
+
+        PublishMessage(new BackgroundTasks { RecordAlbumUnlikeId = request.AlbumId });
+    }
+
+
 }

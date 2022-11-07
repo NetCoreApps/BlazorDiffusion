@@ -21,7 +21,10 @@ public partial class Favorites : AppAuthComponentBase
     
     Artifact? SelectedArtifact { get; set; }
 
-    public AlbumResult? SelectedAlbum => Album == null ? null : UserState.UserAlbums.FirstOrDefault(x => x.Id == Album.Value);
+    public AlbumResult? SelectedAlbum => Album == null 
+        ? null 
+        : UserState.UserAlbums.FirstOrDefault(x => x.Id == Album.Value)
+            ?? UserState.LikedAlbums.FirstOrDefault(x => x.Id == Album.Value);
 
     const string TextGray200 = "e7ebe5";
     const string TextGray700 = "374151";
@@ -45,6 +48,7 @@ public partial class Favorites : AppAuthComponentBase
         await base.OnParametersSetAsync();
         await loadUserState();
         await UserState.LoadAlbumCoverArtifacts();
+        await UserState.LoadLikedAlbumsAsync();
         await handleParametersChanged();
     }
 
@@ -244,6 +248,17 @@ public partial class Favorites : AppAuthComponentBase
             results = newResults;
             StateHasChanged();
         }
+    }
+    async Task LikeAlbumAsync()
+    {
+        await UserState.LikeAlbumAsync(SelectedAlbum!);
+        StateHasChanged();
+    }
+
+    async Task UnlikeAlbumAsync()
+    {
+        await UserState.UnlikeAlbumAsync(SelectedAlbum!);
+        StateHasChanged();
     }
 
     async Task OnDone()

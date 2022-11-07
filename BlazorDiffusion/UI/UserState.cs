@@ -34,7 +34,10 @@ public class UserState
     public Dictionary<int, AlbumResult[]> CreativesInAlbumsMap { get; } = new();
     public Dictionary<string, UserResult> UsersMap { get; } = new();
 
+    public List<AlbumResult> TopAlbums { get; private set; } = new();
     public List<AlbumResult> UserAlbums { get; private set; } = new();
+    public List<AlbumResult> LikedAlbums { get; private set; } = new();
+    
     public bool IsLoading { get; set; }
 
     NavigationManager NavigationManager { get; }
@@ -100,9 +103,11 @@ public class UserState
                 User = r.User;
                 Roles = r.Roles ?? new();
                 Signups = r.Signups ?? new();
+                TopAlbums = r.TopAlbums ?? new();
                 LikedArtifactIds = r.User.Likes.ArtifactIds ?? new();
                 LikedAlbumIds = r.User.Likes.AlbumIds ?? new();
                 UserAlbums = r.User.Albums ?? new();
+                LoadAlbums(TopAlbums);
                 LoadAlbums(UserAlbums);
                 await LoadAlbumCoverArtifacts();
             }
@@ -135,7 +140,13 @@ public class UserState
     public async Task LoadAlbumCoverArtifacts()
     {
         var albumArtifactIds = UserAlbums.Select(GetAlbumCoverArtifactId).ToList();
+        albumArtifactIds.AddDistinctRange(TopAlbums.Select(GetAlbumCoverArtifactId));
         await LoadArtifactsAsync(albumArtifactIds);
+    }
+
+    public async Task LoadLikedAlbumsAsync()
+    {
+        LikedAlbums = await GetLikedAlbumsAsync();
     }
 
     public int GetAlbumCoverArtifactId(AlbumResult album)
@@ -148,6 +159,21 @@ public class UserState
     {
         var id = GetAlbumCoverArtifactId(album);
         return GetCachedArtifact(id);
+    }
+
+    public async Task<AlbumResult?> GetAlbumByRefAsync(string refId)
+    {
+        var album = AlbumsMap.Values.FirstOrDefault(x => x.AlbumRef == refId);
+        if (album != null)
+            return album;
+
+        var api = await ApiAsync(new GetAlbumResults { RefIds = new() { refId } });
+        if (api.Succeeded)
+        {
+            api.Response?.Results.Each(LoadAlbum);
+            return api.Response?.Results.FirstOrDefault();
+        }
+        return null;
     }
 
     public async Task<List<Artifact>> GetAlbumArtifactsAsync(AlbumResult album, int? take)
@@ -190,7 +216,7 @@ public class UserState
         }
     }
 
-    public async Task<List<AlbumResult>> GetLikedAlbumsAsync(int? take)
+    public async Task<List<AlbumResult>> GetLikedAlbumsAsync(int? take = null)
     {
         var missingIds = new List<int>();
         var requestedLikeIds = take != null
@@ -307,6 +333,48 @@ public class UserState
         {
             LikedArtifactIds.Insert(Math.Max(pos,0), artifact.Id);
             NavigationManager.NavigateTo(NavigationManager.GetLoginUrl());
+        }
+        NotifyStateChanged();
+    }
+
+    public bool HasLiked(AlbumResult album) => LikedAlbumIds.Contains(album.Id);
+    public async Task LikeAlbumAsync(AlbumResult album)
+    {
+        AlbumsMap[album.Id] = album;
+        LikedAlbumIds.Insert(0, album.Id);
+        var request = new CreateAlbumLike
+        {
+            AlbumId = album.Id,
+        };
+        var api = await ApiAsync(request);
+        if (!api.Succeeded)
+        {
+            LikedAlbumIds.Remove(album.Id);
+        }
+        else
+        {
+            await LoadLikedAlbumsAsync();
+        }
+        NotifyStateChanged();
+    }
+
+    public async Task UnlikeAlbumAsync(AlbumResult album)
+    {
+        AlbumsMap[album.Id] = album;
+        var pos = LikedAlbumIds.FindIndex(x => x == album.Id);
+        LikedAlbumIds.Remove(album.Id);
+        var request = new DeleteAlbumLike
+        {
+            AlbumId = album.Id,
+        };
+        var api = await ApiAsync(request);
+        if (!api.Succeeded)
+        {
+            LikedAlbumIds.Insert(Math.Max(pos, 0), album.Id);
+        }
+        else
+        {
+            await LoadLikedAlbumsAsync();
         }
         NotifyStateChanged();
     }

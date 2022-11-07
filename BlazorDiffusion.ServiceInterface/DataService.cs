@@ -5,6 +5,7 @@ using ServiceStack;
 using ServiceStack.OrmLite;
 using BlazorDiffusion.ServiceModel;
 using System;
+using static ServiceStack.Diagnostics.Events;
 
 namespace BlazorDiffusion.ServiceInterface;
 
@@ -54,11 +55,32 @@ public class DataService : Service
         var signupTypes = await dbAnalytics.ColumnAsync<SignupType>(Db.From<Signup>()
             .Where(x => x.AppUserId == userId && x.Type == SignupType.Beta && x.CancelledDate == null).Select(x => x.Type));
 
+        var topAlbumResults = (await Db.LoadSelectAsync(Db.From<Album>().Where(x => x.DeletedDate == null)
+                .OrderByDescending(x => new { x.Score, x.Id }).Take(10)))
+            .Map(x => x.ToAlbumResult());
+
         return new UserDataResponse
         {
             User = result,
             Signups = signupTypes,
+            TopAlbums = topAlbumResults,
             Roles = (await session.GetRolesAsync(AuthRepositoryAsync)).ToList(),
+        };
+    }
+
+    public async Task<object> Any(GetAlbumResults request)
+    {
+        var ids = request.Ids?.ToArray() ?? Array.Empty<int>();
+        var refIds = request.RefIds?.ToArray() ?? Array.Empty<string>();
+
+        var albums = (await Db.LoadSelectAsync<Album>(x => x.DeletedDate == null && (ids.Contains(x.Id) || refIds.Contains(x.RefId))))
+            .OrderByDescending(x => x.Artifacts.Max(x => x.Id)).ToList();
+
+        var albumResults = albums.Map(x => x.ToAlbumResult());
+
+        return new GetAlbumResultsResponse
+        {
+            Results = albumResults,
         };
     }
 
@@ -85,17 +107,5 @@ public class DataService : Service
         }
      
         return new EmptyResponse();
-    }
-
-    public async Task<object> Any(GetAlbumResults request)
-    {
-        var albums = (await Db.LoadSelectAsync<Album>(x => x.DeletedDate == null && request.Ids.Contains(x.Id)))
-            .OrderByDescending(x => x.Artifacts.Max(x => x.Id)).ToList();
-        var albumResults = albums.Map(x => x.ToAlbumResult());
-
-        return new GetAlbumResultsResponse
-        {
-            Results = albumResults,
-        };
     }
 }

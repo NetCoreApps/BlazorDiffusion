@@ -200,7 +200,6 @@ public class CreateArtifactLike : ICreateDb<ArtifactLike>, IReturn<IdResponse>
     public int ArtifactId { get; set; }
 }
 
-[AutoPopulate(nameof(ArtifactLike.AppUserId), Eval = "userAuthId")]
 [ValidateIsAuthenticated]
 public class DeleteArtifactLike : IDeleteDb<ArtifactLike>, IReturnVoid
 {

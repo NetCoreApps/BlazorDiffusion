@@ -28,8 +28,8 @@ public static class Scores
     public static class Weights
     {
         public const int PrimaryArtifact = 10;
-        public const int Like = 4;
-        public const int InAlbum = 5;
+        public const int InAlbum = 6;
+        public const int Like = 5;
         public const int Download = 2;
         public const int Search = 1;
     }
@@ -45,6 +45,7 @@ public static class Scores
     public static ConcurrentDictionary<int, int> ArtifactSearchCountMap = new();
     
     public static ConcurrentDictionary<int, int> AlbumSearchCountMap = new();
+    public static ConcurrentDictionary<int, int> AlbumLikesCountMap = new();
 
     static bool LogDuplicates = false;
 
@@ -58,6 +59,7 @@ public static class Scores
         ArtifactDownloadsCountMap.Clear();
         ArtifactSearchCountMap.Clear();
         AlbumSearchCountMap.Clear();
+        AlbumLikesCountMap.Clear();
     }
 
     public static void Load(IDbConnection db)
@@ -149,6 +151,24 @@ public static class Scores
         return false;
     }
 
+    public static bool PopulateAlbumScores(Album album)
+    {
+        var likesCount = AlbumLikesCountMap.TryGetValue(album.Id, out var likes) ? likes : 0;
+        var searchCount = AlbumSearchCountMap.TryGetValue(album.Id, out var searches) ? searches : 0;
+        var score = Calculate(album: album);
+
+        if (likesCount != album.LikesCount ||
+            searchCount != album.SearchCount ||
+            score != album.Score)
+        {
+            album.LikesCount = likesCount;
+            album.SearchCount = searchCount;
+            album.Score = score;
+            return true;
+        }
+        return false;
+    }
+
     struct TimeBonus
     {
         public TimeSpan Age { get; }
@@ -213,9 +233,14 @@ public static class Scores
     {
         return (isPrimary ? Weights.PrimaryArtifact : 0)
             + (noOfLikes * Weights.Like)
-            + (noOfAlbums + Weights.InAlbum)
-            + (noOfDownloads + Weights.Download)
-            + (noOfSearches + Weights.Search);
+            + (noOfAlbums * Weights.InAlbum)
+            + (noOfDownloads * Weights.Download)
+            + (noOfSearches * Weights.Search);
+    }
+    public static int Calculate(Album album)
+    {
+        return (album.LikesCount * Weights.Like)
+            + (album.SearchCount * Weights.Search);
     }
 
     public static async Task ChangePrimaryArtifactAsync(IDbConnection db, int creativeId, int? fromArtifactId, int? toArtifactId)
@@ -261,6 +286,24 @@ public static class Scores
             : 0;
         await db.UpdateAddAsync(() => new Artifact { LikesCount = -1, Score = -Weights.Like }, where: x => x.Id == artifactId);
         Updated.ArtifactIds.Add(artifactId);
+    }
+
+    public static async Task IncrementAlbumLikeAsync(IDbConnection db, int albumId)
+    {
+        AlbumLikesCountMap[albumId] = AlbumLikesCountMap.TryGetValue(albumId, out var count)
+            ? count + 1
+            : 1;
+        await db.UpdateAddAsync(() => new Album { LikesCount = 1, Score = Weights.Like }, where: x => x.Id == albumId);
+        Updated.AlbumIds.Add(albumId);
+    }
+
+    public static async Task DecrementAlbumLikeAsync(IDbConnection db, int albumId)
+    {
+        AlbumLikesCountMap[albumId] = AlbumLikesCountMap.TryGetValue(albumId, out var count)
+            ? Math.Max(count - 1, 0)
+            : 0;
+        await db.UpdateAddAsync(() => new Album { LikesCount = -1, Score = -Weights.Like }, where: x => x.Id == albumId);
+        Updated.AlbumIds.Add(albumId);
     }
 
     public static async Task IncrementArtifactInAlbumAsync(IDbConnection db, int artifactId)

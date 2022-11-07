@@ -98,6 +98,28 @@ public class BackgroundMqServices : Service
                 }
             }
             log("SyncTasks Periodic updated {0} artifacts, took {1}ms", count, swTask.ElapsedMilliseconds);
+
+            count = 0;
+            swTask.Restart();
+            var updatedAlbumsIds = new HashSet<int>();
+            while (Updated.AlbumIds.TryTake(out var albumId)) updatedAlbumsIds.Add(albumId);
+
+            var updatedAlbums = await Db.SelectAsync<Album>(x => updatedAlbumsIds.Contains(x.Id));
+            foreach (var album in updatedAlbums)
+            {
+                var needsUpdating = Scores.PopulateAlbumScores(album);
+                if (needsUpdating)
+                {
+                    count++;
+                    await Db.UpdateOnlyAsync(() => new Album
+                    {
+                        LikesCount = album.LikesCount,
+                        SearchCount = album.SearchCount,
+                        Score = album.Score,
+                    }, x => x.Id == album.Id);
+                }
+            }
+            log("SyncTasks Periodic updated {0} albums, took {1}ms", count, swTask.ElapsedMilliseconds);
         }
 
         if (request.Daily == true)
@@ -131,6 +153,25 @@ public class BackgroundMqServices : Service
                 }
             }
             log("SyncTasks Daily updated {0} artifacts, took {1}ms", count, swTask.ElapsedMilliseconds);
+
+            count = 0;
+            swTask.Restart();
+            var allAlbums = await Db.SelectAsync<Album>();
+            foreach (var album in allAlbums)
+            {
+                var needsUpdating = Scores.PopulateAlbumScores(album);
+                if (needsUpdating)
+                {
+                    count++;
+                    await Db.UpdateOnlyAsync(() => new Album
+                    {
+                        LikesCount = album.LikesCount,
+                        SearchCount = album.SearchCount,
+                        Score = album.Score,
+                    }, x => x.Id == album.Id);
+                }
+            }
+            log("SyncTasks Daily updated {0} albums, took {1}ms", count, swTask.ElapsedMilliseconds);
         }
 
         var swWrites = Stopwatch.StartNew();
@@ -141,7 +182,8 @@ public class BackgroundMqServices : Service
         var artifactIds = new HashSet<int>();
         while (Updated.ArtifactIds.TryTake(out id)) artifactIds.Add(id);
 
-        while (Updated.AlbumIds.TryTake(out id)) {} //ignore for now
+        var albumIds = new HashSet<int>();
+        while (Updated.AlbumIds.TryTake(out id)) albumIds.Add(id);
 
         var artifactCreativeIds = await Db.ColumnDistinctAsync<int>(Db.From<Artifact>()
             .Where(x => artifactIds.Contains(x.Id))
@@ -181,6 +223,11 @@ public class BackgroundMqServices : Service
             await Scores.IncrementArtifactLikeAsync(Db, request.RecordArtifactLikeId.Value);
         if (request.RecordArtifactUnlikeId != null)
             await Scores.DecrementArtifactLikeAsync(Db, request.RecordArtifactUnlikeId.Value);
+
+        if (request.RecordAlbumLikeId != null)
+            await Scores.IncrementArtifactLikeAsync(Db, request.RecordAlbumLikeId.Value);
+        if (request.RecordAlbumUnlikeId != null)
+            await Scores.DecrementArtifactLikeAsync(Db, request.RecordAlbumUnlikeId.Value);
 
         if (request.ArtifactIdsAddedToAlbums?.Count > 0)
         {

@@ -91,7 +91,8 @@ public class QueryAlbums : QueryDb<Album>
 
 public class GetAlbumResults : IReturn<GetAlbumResultsResponse>
 {
-    public List<int> Ids { get; set; }
+    public List<int>? Ids { get; set; }
+    public List<string>? RefIds { get; set; }
 }
 
 public class GetAlbumResultsResponse
@@ -157,10 +158,10 @@ public class QueryAlbumLikes : QueryDb<AlbumLike>
 }
 
 [ValidateIsAuthenticated]
-public class CreateAlbumLike : ICreateDb<AlbumLike>, IReturn<AlbumLike>
+public class CreateAlbumLike : ICreateDb<AlbumLike>, IReturn<IdResponse>
 {
     [ValidateGreaterThan(0)]
-    public int ArtifactId { get; set; }
+    public int AlbumId { get; set; }
 }
 
 [AutoPopulate(nameof(ArtifactLike.AppUserId), Eval = "userAuthId")]
@@ -168,7 +169,7 @@ public class CreateAlbumLike : ICreateDb<AlbumLike>, IReturn<AlbumLike>
 public class DeleteAlbumLike : IDeleteDb<AlbumLike>, IReturnVoid
 {
     [ValidateGreaterThan(0)]
-    public int ArtifactId { get; set; }
+    public int AlbumId { get; set; }
 }
 
 [ValidateHasRole(AppRoles.Moderator)]

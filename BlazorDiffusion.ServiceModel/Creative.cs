@@ -275,7 +275,10 @@ public class BackgroundTasks
     public Creative? NewCreative { get; set; }
     public int? RecordArtifactLikeId { get; set; }
     public int? RecordArtifactUnlikeId { get; set; }
-    
+
+    public int? RecordAlbumLikeId { get; set; }
+    public int? RecordAlbumUnlikeId { get; set; }
+
     public RecordPrimaryArtifact? RecordPrimaryArtifact { get; set; }
     
     public List<int>? ArtifactIdsAddedToAlbums { get; set; }

@@ -35,12 +35,12 @@ public class SearchService : Service
                 using var filStream = artifactFile.OpenRead();
                 similarToArtifact.LoadImageDetails(filStream);
                 await Db.UpdateOnlyAsync(() => new Artifact
-                {
-                    PerceptualHash = similarToArtifact.PerceptualHash,
-                    AverageHash = similarToArtifact.AverageHash,
-                    DifferenceHash = similarToArtifact.DifferenceHash,
-                    Background = similarToArtifact.Background,
-                },
+                    {
+                        PerceptualHash = similarToArtifact.PerceptualHash,
+                        AverageHash = similarToArtifact.AverageHash,
+                        DifferenceHash = similarToArtifact.DifferenceHash,
+                        Background = similarToArtifact.Background,
+                    },
                     where: x => x.Id == similarToArtifact.Id);
             }
 
