@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BlazorDiffusion;
+namespace BlazorDiffusion.UI;
 
 public class MarkdownFileInfo
 {
@@ -34,7 +34,7 @@ public static class MarkdownUtils
                 .UseYamlFrontMatter()
                 .UseAdvancedExtensions()
                 .Build();
-            var writer = new System.IO.StringWriter();
+            var writer = new StringWriter();
             var renderer = new Markdig.Renderers.HtmlRenderer(writer);
             pipeline.Setup(renderer);
 

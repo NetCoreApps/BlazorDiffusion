@@ -1,14 +1,13 @@
-using BlazorDiffusion.UI;
 using Microsoft.AspNetCore.Components;
 using ServiceStack.Blazor;
 using System.Security.Claims;
 
-namespace BlazorDiffusion;
+namespace BlazorDiffusion.UI;
 
 /// <summary>
 /// For Pages and Components that make use of ServiceStack functionality, e.g. Client
 /// </summary>
-public abstract class AppComponentBase : ServiceStack.Blazor.BlazorComponentBase
+public abstract class AppComponentBase : BlazorComponentBase
 {
 }
 
@@ -21,7 +20,7 @@ public abstract class AppAuthComponentBase : AuthBlazorComponentBase
     [Inject] public UserState UserState { get; set; } = default!;
     [Inject] public KeyboardNavigation KeyboardNavigation { get; set; }
 
-    protected async Task loadUserState(bool force=false)
+    protected async Task loadUserState(bool force = false)
     {
         if (IsAuthenticated)
         {
