@@ -50,7 +50,7 @@ public class R2VirtualFilesProvider : S3VirtualFiles
                     BucketName = BucketName,
                     InputStream = fileContents.Stream,
                     DisablePayloadSigning = true,
-                }).ConfigAwait();
+                }, token).ConfigAwait();
             }
             else if (fileContents?.Text != null)
             {
@@ -60,11 +60,11 @@ public class R2VirtualFilesProvider : S3VirtualFiles
                     BucketName = BucketName,
                     ContentBody = fileContents.Text,
                     DisablePayloadSigning = true,
-                }).ConfigAwait();
+                }, token).ConfigAwait();
             }
             else throw new NotSupportedException($"Unknown File Content Type: {contents.GetType().Name}");
 
-            if (!buffer && fileContents.Stream != null)
+            if (buffer && fileContents.Stream != null)
                 using (fileContents.Stream) {}
         }
         catch (Exception e)
