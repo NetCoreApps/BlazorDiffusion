@@ -37,6 +37,7 @@ public class CreativeService : Service
     public async Task<object> Any(CheckQuota request)
     {
         var session = await SessionAsAsync<CustomUserSession>();
+        var userId = session.GetUserId();
         var userRoles = await session.GetRolesAsync(AuthRepositoryAsync);
         var creative = new CreateCreative
         {
@@ -48,7 +49,7 @@ public class CreativeService : Service
         var requestCredits = UserQuotas.CalculateCredits(imageGenerationRequest);
         var startOfDay = DateTime.UtcNow.Date;
         var dailyQuota = UserQuotas.GetDailyQuota(userRoles) ?? -1;
-        var creditsUsed = await UserQuotas.GetCreditsUsedAsync(Db, since: DateTime.UtcNow.Date);
+        var creditsUsed = await UserQuotas.GetCreditsUsedAsync(Db, userId, since: DateTime.UtcNow.Date);
 
         return new CheckQuotaResponse
         {
@@ -64,6 +65,7 @@ public class CreativeService : Service
     public async Task<object> Post(CreateCreative request)
     {
         var session = await SessionAsAsync<CustomUserSession>();
+        var userId = session.GetUserId();
         var userRoles = await session.GetRolesAsync(AuthRepositoryAsync);
 
         var modifiers = await Db.SelectAsync<Modifier>(x => Sql.In(x.Id, request.ModifierIds));
@@ -72,7 +74,7 @@ public class CreativeService : Service
 
         var imageGenerationRequest = CreateImageGenerationRequest(request, modifiers, artists, userRoles);
 
-        var quotaError = await UserQuotas.ValidateQuotaAsync(Db, imageGenerationRequest, userRoles);
+        var quotaError = await UserQuotas.ValidateQuotaAsync(Db, imageGenerationRequest, userId, userRoles);
         if (quotaError != null)
         {
             Log.InfoFormat("User #{0} {1} exceeded quota, credits: {2} + {3} > {4}, time remaining: {5}",

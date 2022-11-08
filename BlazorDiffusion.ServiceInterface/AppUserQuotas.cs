@@ -54,10 +54,10 @@ public class AppUserQuotas
                 ? "3 credits (Portrait)"
                 : "1 credit (Square)");
 
-    public async Task<QuotaError?> ValidateQuotaAsync(IDbConnection db, ImageGeneration request, ICollection<string> userRoles)
+    public async Task<QuotaError?> ValidateQuotaAsync(IDbConnection db, ImageGeneration request, int userId, ICollection<string> userRoles)
     {
         var requestCredits = CalculateCredits(request);
-        var quotaError = await ValidateQuotaAsync(db, requestCredits, userRoles);
+        var quotaError = await ValidateQuotaAsync(db, requestCredits, userId, userRoles);
         if (quotaError != null)
         {
             quotaError.RequestedDetails = ToRequestDetails(request);
@@ -79,9 +79,10 @@ public class AppUserQuotas
         return dailyQuota;
     }
 
-    public async Task<int> GetCreditsUsedAsync(IDbConnection db, DateTime since)
+    public async Task<int> GetCreditsUsedAsync(IDbConnection db, int userId, DateTime since)
     {
-        var creditsUsed = await db.ScalarAsync<int>(db.From<Creative>().Where(x => x.CreatedDate >= since)
+        var creditsUsed = await db.ScalarAsync<int>(db.From<Creative>()
+            .Where(x => x.OwnerId == userId && x.CreatedDate >= since)
             .Select(x => new {
                 Credits = Sql.Sum(x.Width > 512
                     ? 3
@@ -92,14 +93,14 @@ public class AppUserQuotas
         return creditsUsed;
     }
 
-    public async Task<QuotaError?> ValidateQuotaAsync(IDbConnection db, int requestedCredits, ICollection<string> userRoles)
+    public async Task<QuotaError?> ValidateQuotaAsync(IDbConnection db, int requestedCredits, int userId, ICollection<string> userRoles)
     {
         var dailyQuota = GetDailyQuota(userRoles);
         if (dailyQuota == null)
             return null;
 
         var startOfDay = DateTime.UtcNow.Date;
-        var creditsUsed = await GetCreditsUsedAsync(db, since:startOfDay);
+        var creditsUsed = await GetCreditsUsedAsync(db, userId, since:startOfDay);
 
         if (creditsUsed + requestedCredits > dailyQuota)
         {
