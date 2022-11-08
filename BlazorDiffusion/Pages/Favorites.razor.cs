@@ -6,10 +6,11 @@ using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.JSInterop;
 using ServiceStack.Blazor;
+using System.Diagnostics;
 
 namespace BlazorDiffusion.Pages;
 
-public partial class Favorites : AppAuthComponentBase
+public partial class Favorites : AppAuthComponentBase, IDisposable
 {
     [Inject] NavigationManager NavigationManager { get; set; } = default!;
     [Inject] IIntersectionObserverService ObserverService { get; set; } = default!;
@@ -39,6 +40,7 @@ public partial class Favorites : AppAuthComponentBase
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+        log("\n\n\nOnInitializedAsync() += UserState.OnChange, NavigationManager.LocationChanged");
         UserState.OnChange += StateHasChanged;
         NavigationManager.LocationChanged += HandleLocationChanged;
     }
@@ -46,43 +48,47 @@ public partial class Favorites : AppAuthComponentBase
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
+        log("\n\n\n");
         await loadUserState();
-        await UserState.LoadAlbumCoverArtifacts();
-        await UserState.LoadLikedAlbumsAsync();
+        StateHasChanged();
+
         await handleParametersChanged();
-    }
 
-    async Task loadLikes()
-    {
-        results = await UserState.GetLikedArtifactsAsync(UserState.InitialTake);
+        log("LoadAlbumCoverArtifacts()...");
+        await UserState.LoadAlbumCoverArtifacts();
         StateHasChanged();
 
-        await Task.Delay(1);
-        results = await UserState.GetLikedArtifactsAsync(results.Count + UserState.InitialTake);
-        StateHasChanged();
+        log("LoadLikedAlbumsAsync()...");
+        await UserState.LoadLikedAlbumsAsync();
     }
 
     async Task handleParametersChanged()
     {
-        var query = ServiceStack.Pcl.HttpUtility.ParseQueryString(new Uri(NavigationManager.Uri).Query);
-        Album = query[nameof(Album)]?.ConvertTo<int>();
-        Id = query[nameof(Id)]?.ConvertTo<int>();
-        View = query[nameof(View)]?.ConvertTo<int>();
+        var query = ServiceStack.Pcl.HttpUtility.ParseQueryString(new Uri(NavigationManager.Uri).Query)!;
+        int? asInt(string name) => X.Map(query[name], x => int.TryParse(x, out var num) ? num : (int?)null);
+
+        Album = asInt(nameof(Album));
+        Id = asInt(nameof(Id));
+        View = asInt(nameof(View));
         pageView = null;
 
         if (Album != null)
         {
             if (SelectedAlbum == null)
             {
+                log("resetting results...");
                 results = new();
                 navTo("/favorites"); // album no longer exists, e.g. after last image was deleted
                 return;
             }
+
+            log("loading album '{0}' results...", SelectedAlbum.Id);
             results = await UserState.GetAlbumArtifactsAsync(SelectedAlbum, UserState.InitialTake);
         }
         else
         {
-            await loadLikes();
+            log("loading {0} artifact likes", UserState.InitialTake);
+            results = await UserState.GetLikedArtifactsAsync(UserState.InitialTake);
         }
 
         SelectedArtifact = View != null
@@ -96,7 +102,10 @@ public partial class Favorites : AppAuthComponentBase
 
     private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
     {
-        base.InvokeAsync(async () => await handleParametersChanged());
+        base.InvokeAsync(async () =>
+        {
+            await handleParametersChanged();
+        });
     }
 
     async Task loadMore()
@@ -249,17 +258,6 @@ public partial class Favorites : AppAuthComponentBase
             StateHasChanged();
         }
     }
-    async Task LikeAlbumAsync()
-    {
-        await UserState.LikeAlbumAsync(SelectedAlbum!);
-        StateHasChanged();
-    }
-
-    async Task UnlikeAlbumAsync()
-    {
-        await UserState.UnlikeAlbumAsync(SelectedAlbum!);
-        StateHasChanged();
-    }
 
     async Task OnDone()
     {
@@ -282,8 +280,10 @@ public partial class Favorites : AppAuthComponentBase
 
     public void Dispose()
     {
+        log("Dispose() -= UserState.OnChange, NavigationManager.LocationChanged\n\n\n");
         UserState.OnChange -= StateHasChanged;
         NavigationManager.LocationChanged -= HandleLocationChanged;
         bottomObserver?.Dispose();
+        bottomObserver = null;
     }
 }

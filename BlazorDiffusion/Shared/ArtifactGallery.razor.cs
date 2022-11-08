@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace BlazorDiffusion.Shared;
 
-public partial class ArtifactGallery : AppAuthComponentBase
+public partial class ArtifactGallery : AppAuthComponentBase, IDisposable
 {
     [Inject] public NavigationManager NavigationManager { get; set; } = default!;
     [Inject] KeyboardNavigation KeyboardNavigation { get; set; } = default!;

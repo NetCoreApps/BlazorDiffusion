@@ -12,7 +12,7 @@ using BlazorDiffusion.ServiceModel;
 
 namespace BlazorDiffusion.Pages;
 
-public partial class Create : AppAuthComponentBase
+public partial class Create : AppAuthComponentBase, IDisposable
 {
     [Inject] public NavigationManager NavigationManager { get; set; }
     [Inject] public IJSRuntime JS { get; set; }
@@ -411,7 +411,6 @@ public partial class Create : AppAuthComponentBase
             UserState.Signups.Add(SignupType.Beta);
         }
     }
-
 
     public void Dispose()
     {

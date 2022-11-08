@@ -1,4 +1,5 @@
 @inherits LayoutComponentBase
+@implements IDisposable
 @inject ServiceStackStateProvider AuthStateProvider;
 @inject NavigationManager NavigationManager;
 @inject IJSRuntime JS
@@ -80,5 +81,6 @@
     public void Dispose()
     {
         dotnetRef?.Dispose();
+        dotnetRef = null;
     }
 }

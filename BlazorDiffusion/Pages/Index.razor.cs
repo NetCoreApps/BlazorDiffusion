@@ -168,18 +168,6 @@ public partial class Index : AppAuthComponentBase, IDisposable
         }
     }
 
-    async Task LikeAlbumAsync()
-    {
-        await UserState.LikeAlbumAsync(SelectedAlbum!);
-        StateHasChanged();
-    }
-
-    async Task UnlikeAlbumAsync()
-    {
-        await UserState.UnlikeAlbumAsync(SelectedAlbum!);
-        StateHasChanged();
-    }
-
     async Task submit()
     {
         NavigationManager.NavigateTo("/".AddQueryParam("q", request.Query));

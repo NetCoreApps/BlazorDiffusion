@@ -25,6 +25,7 @@ public abstract class AppAuthComponentBase : AuthBlazorComponentBase
     {
         if (IsAuthenticated)
         {
+            log("loadUserState...");
             await UserState.LoadAsync(force);
         }
     }
