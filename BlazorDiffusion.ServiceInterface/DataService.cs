@@ -5,7 +5,6 @@ using ServiceStack;
 using ServiceStack.OrmLite;
 using BlazorDiffusion.ServiceModel;
 using System;
-using static ServiceStack.Diagnostics.Events;
 
 namespace BlazorDiffusion.ServiceInterface;
 

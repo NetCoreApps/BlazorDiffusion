@@ -6,8 +6,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
     <ItemGroup>
-        <Using Include="BlazorDiffusion" />
         <Using Include="ServiceStack" />
+        <Using Include="BlazorDiffusion" />
     </ItemGroup>
 
     <ItemGroup>

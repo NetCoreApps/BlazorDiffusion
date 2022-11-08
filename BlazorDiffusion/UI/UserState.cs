@@ -170,7 +170,7 @@ public class UserState
         var api = await ApiAsync(new GetAlbumResults { RefIds = new() { refId } });
         if (api.Succeeded)
         {
-            api.Response?.Results.Each(LoadAlbum);
+            api.Response?.Results.ForEach(LoadAlbum);
             return api.Response?.Results.FirstOrDefault();
         }
         return null;
@@ -238,7 +238,7 @@ public class UserState
         return to;
     }
 
-    public void LoadCreatives(IEnumerable<Creative> creatives) => creatives.Each(LoadCreative);
+    public void LoadCreatives(IEnumerable<Creative> creatives) => creatives.ToList().ForEach(LoadCreative);
     public void LoadCreative(Creative creative)
     {
         CreativesMap[creative.Id] = creative;
@@ -248,9 +248,9 @@ public class UserState
         }
     }
 
-    public void LoadAlbums(IEnumerable<AlbumResult> albums) => albums.Each(LoadAlbum);
+    public void LoadAlbums(IEnumerable<AlbumResult> albums) => albums.ToList().ForEach(LoadAlbum);
     public void LoadAlbum(AlbumResult album) => AlbumsMap[album.Id] = album;
-    public void LoadArtifacts(IEnumerable<Artifact> artifacts) => artifacts.Each(LoadArtifact);
+    public void LoadArtifacts(IEnumerable<Artifact> artifacts) => artifacts.ToList().ForEach(LoadArtifact);
     public void LoadArtifact(Artifact artifact) => ArtifactsMap[artifact.Id] = artifact;
 
     public AlbumResult? GetCachedAlbum(int? id) => id != null
@@ -389,7 +389,7 @@ public class UserState
     public void RemoveCreative(Creative creative)
     {
         if (creative == null) return;
-        creative.Artifacts.Each(RemoveArtifact);
+        creative.Artifacts.ForEach(RemoveArtifact);
         CreativesMap.Remove(creative.Id);
     }
 
@@ -487,7 +487,7 @@ public class UserState
         {
             result = UsersMap[userRefId] = api.Response!.Result;
 
-            var artifactIds = result.Albums.Select(x => x.PrimaryArtifactId ?? x.ArtifactIds.First()).ToSet();
+            var artifactIds = new HashSet<int>(result.Albums.Select(x => x.PrimaryArtifactId ?? x.ArtifactIds.First()));
             await LoadArtifactsAsync(artifactIds);
 
             return result;

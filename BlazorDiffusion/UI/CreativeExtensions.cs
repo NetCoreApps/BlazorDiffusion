@@ -2,42 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using ServiceStack;
-using ServiceStack.Web;
 using BlazorDiffusion.ServiceModel;
-using System.Runtime.CompilerServices;
 using ServiceStack.Pcl;
+using ServiceStack.Blazor;
 
-namespace BlazorDiffusion;
+namespace BlazorDiffusion.UI;
 
 public static class CreativeExtensions
 {
-    public const string SystemUserId = "2";
-
-    public static T WithAudit<T>(this T row, IRequest req, DateTime? date = null) where T : AuditBase =>
-        row.WithAudit(req.GetSession().UserAuthId, date);
-
-    public static T WithAudit<T>(this T row, string? by, DateTime? date = null) where T : AuditBase
-    {
-        by ??= SystemUserId;
-        var useDate = date ?? DateTime.UtcNow;
-        if (string.IsNullOrEmpty(row.CreatedBy))
-        {
-            row.CreatedBy = by;
-            row.CreatedDate = useDate;
-        }
-        row.ModifiedBy = by;
-        row.ModifiedDate = useDate;
-        return row;
-    }
-
     public static string SolidImageDataUri(string? fill) =>
         $"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23{(fill ?? "#000").Substring(1)}' d='M2 2h60v60H2z'/%3E%3C/svg%3E";
 
     public static string GetBackgroundImage(this Artifact artifact) => SolidImageDataUri(artifact.Background);
     public static string GetBackgroundStyle(this Artifact artifact) => artifact.Background != null ? "background-color:" + artifact.Background : "";
     public static string GetDownloadUrl(this Artifact artifact) => $"/download/artifact/{artifact.RefId}";
-    public static string GetPublicUrl(this Artifact artifact) => AppConfig.Instance.AssetsBasePath + artifact.FilePath;
-    public static string GetFallbackUrl(this Artifact artifact) => AppConfig.Instance.FallbackAssetsBasePath + artifact.FilePath;
+    public static string GetPublicUrl(this Artifact artifact) => BlazorConfig.Instance.AssetsBasePath + artifact.FilePath;
+    public static string GetFallbackUrl(this Artifact artifact) => BlazorConfig.Instance.FallbackAssetsBasePath + artifact.FilePath;
 
     public static string GetImageErrorUrl(this Artifact artifact, string? lastImageSrc)
     {
@@ -132,38 +112,5 @@ public static class CreativeExtensions
         {
             album.Artifacts.RemoveAll(x => x.ArtifactId == artifact.Id);
         }
-    }
-
-    public static string ConstructPrompt(this string userPrompt, List<Modifier> modifiers, List<Artist> artists)
-    {
-        var finalPrompt = userPrompt;
-        finalPrompt += $", {modifiers.Select(x => x.Name).Join(",").TrimEnd(',')}";
-        var artistsSuffix = artists.Select(x => $"by {x.FirstName} {x.LastName}").Join(",").TrimEnd(',');
-        if (artists.Count > 0)
-            finalPrompt += $", {artistsSuffix}";
-        return finalPrompt;
-    }
-
-    public static string GetArtistName(this Artist artist) => string.IsNullOrEmpty(artist.FirstName)
-        ? artist.LastName
-        : $"{artist.FirstName} {artist.LastName}";
-
-    public static AlbumResult ToAlbumResult(this Album album)
-    {
-        var to = new AlbumResult
-        {
-            Id = album.Id,
-            AlbumRef = album.RefId,
-            Name = album.Name,
-            OwnerRef = album.OwnerRef,
-            PrimaryArtifactId = album.PrimaryArtifactId,
-            // Show latest artifacts added first
-            ArtifactIds = album.PrimaryArtifactId == null
-                ? album.Artifacts.OrderByDescending(x => x.Id).Map(x => x.ArtifactId)
-                : X.Apply(new List<int> { album.PrimaryArtifactId.Value }, 
-                    ids => ids.AddRange(album.Artifacts.Where(x => x.ArtifactId != album.PrimaryArtifactId.Value)
-                        .OrderByDescending(x => x.Id).Select(x => x.ArtifactId))),
-        };
-        return to;
     }
 }

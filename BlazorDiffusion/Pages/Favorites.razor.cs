@@ -1,12 +1,9 @@
-﻿using BlazorDiffusion.ServiceModel;
-using BlazorDiffusion.UI;
-using Ljbc1994.Blazor.IntersectionObserver;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Routing;
-using Microsoft.AspNetCore.Http;
 using Microsoft.JSInterop;
-using ServiceStack.Blazor;
-using System.Diagnostics;
+using BlazorDiffusion.UI;
+using BlazorDiffusion.ServiceModel;
+using Ljbc1994.Blazor.IntersectionObserver;
 
 namespace BlazorDiffusion.Pages;
 

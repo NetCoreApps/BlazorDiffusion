@@ -92,7 +92,8 @@ public partial class Create : AppAuthComponentBase, IDisposable
     void selectGroup(string group)
     {
         selectedGroup = group;
-        selectedCategory = AppData.CategoryGroups.FirstOrDefault(x => x.Name == selectedGroup)?.Items.FirstNonDefault();
+        selectedCategory = AppData.CategoryGroups.FirstOrDefault(x => x.Name == selectedGroup)
+            ?.Items.First(x => !string.IsNullOrEmpty(x));
     }
 
     void selectCategory(string category)
