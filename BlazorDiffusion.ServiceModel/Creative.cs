@@ -158,6 +158,7 @@ public class Artist : AuditBase
 public class QueryModifiers : QueryDb<Modifier> { }
 
 [ValidateHasRole(AppRoles.Moderator)]
+[AutoApply(Behavior.AuditCreate)]
 public class CreateModifier : ICreateDb<Modifier>, IReturn<Modifier>
 {
     [ValidateNotEmpty, Required]
@@ -168,7 +169,8 @@ public class CreateModifier : ICreateDb<Modifier>, IReturn<Modifier>
 }
 
 [ValidateHasRole(AppRoles.Moderator)]
-public class UpdateModifier : ICreateDb<Modifier>, IReturn<Modifier>
+[AutoApply(Behavior.AuditModify)]
+public class UpdateModifier : IPatchDb<Modifier>, IReturn<Modifier>
 {
     public int Id { get; set; }
     public string? Name { get; set; }
@@ -177,6 +179,7 @@ public class UpdateModifier : ICreateDb<Modifier>, IReturn<Modifier>
 }
 
 [ValidateHasRole(AppRoles.Moderator)]
+[AutoApply(Behavior.AuditSoftDelete)]
 public class DeleteModifier : IDeleteDb<Modifier>, IReturnVoid
 {
     public int Id { get; set; }
