@@ -265,9 +265,10 @@ public partial class ArtifactGallery : AppAuthComponentBase, IDisposable
 
     async Task OnChange()
     {
-        log("OnChange");
+        var state = new GalleryChangeEventArgs(Selected?.Id, Viewing?.Id);
+        log("ArtifactGallery OnChange{0}", state);
         UserStateChanged();
-        await Change.InvokeAsync(new(Selected?.Id, Viewing?.Id));
+        await Change.InvokeAsync(state);
     }
 
     public void Dispose()

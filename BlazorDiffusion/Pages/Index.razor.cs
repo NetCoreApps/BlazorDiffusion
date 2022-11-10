@@ -41,8 +41,8 @@ public partial class Index : AppAuthComponentBase, IDisposable
     SearchArtifacts request = new();
 
     List<Artifact> results = new();
-    List<ArtifactResult>? lastResults = null;
     HashSet<int> resultIds = new();
+    bool hasMore;
 
     const int InitialTake = 30;
     const int NextPageTake = 100;
@@ -103,17 +103,8 @@ public partial class Index : AppAuthComponentBase, IDisposable
         Log.LogDebug($"\n\n{0}", request.Dump());
         if (!existingQuery)
         {
-            request.Skip = 0;
-            api = await ApiAsync(request);
-            if (api.Succeeded)
-            {
-                addResults(api.Response?.Results ?? new(), reset:true);
-                lastRequest = request.Clone();
-            }
+            await reloadResults();
         }
-
-        var galleryResults = new GalleryResults(results);
-        GalleryResults = await galleryResults.LoadAsync(UserState, Id, View);
         StateHasChanged();
 
         SelectedUser = user != null
@@ -125,25 +116,39 @@ public partial class Index : AppAuthComponentBase, IDisposable
             : album != null
                 ? await UserState.GetAlbumByRefAsync(album)
                 : null;
+    }
 
-        if (!existingQuery && request.Take == InitialTake)
+    void setResults(IEnumerable<Artifact> results)
+    {
+        this.results = results.ToList();
+        GalleryResults = X.Apply(GalleryResults.Clone(), x => x.Artifacts = this.results);
+        StateHasChanged();
+    }
+
+    async Task reloadResults()
+    {
+        request.Skip = 0;
+        request.Take = InitialTake;
+        api = await ApiAsync(request);
+        clearResults();
+        if (api.Succeeded)
         {
-            request.Skip += InitialTake;
-            request.Take = NextPageTake;
-
-            api = await ApiAsync(request);
-            addResults(api.Response?.Results ?? new());
+            if (api.Response?.Results != null)
+            {
+                addResults(api.Response.Results);
+            }
             lastRequest = request.Clone();
         }
     }
 
     async Task loadMore()
     {
-        Log.LogDebug($"Index loadMore() {0} >= {1} / {2}...", lastResults?.Count, request.Take, results.Count);
-        if (lastResults == null || lastResults?.Count >= request.Take)
+        Log.LogDebug("{0} Index loadMore({1}) [{2}..{3}] {4} -> [{5}..{6}]", i++, 
+            hasMore, request.Skip, request.Take, results.Count, request.Skip + request.Take, NextPageTake);
+        if (hasMore)
         {
-            request.Skip += NextPageTake;
-            Log.LogDebug(request.Dump());
+            request.Skip += request.Take;
+            request.Take = NextPageTake;
             api = await ApiAsync(request);
             if (api.Succeeded)
             {
@@ -186,7 +191,6 @@ public partial class Index : AppAuthComponentBase, IDisposable
         lastRequest = null;
         results.Clear();
         resultIds.Clear();
-        lastResults = null;
         log("\n{0} CLEAR RESULTS: {1}", i++, results.Count);
     }
 
@@ -195,7 +199,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
         if (reset)
             clearResults();
 
-        lastResults = artifacts;
+        hasMore = artifacts.Count >= request.Take;
         foreach (var artifact in artifacts)
         {
             if (resultIds.Contains(artifact.Id))
@@ -204,8 +208,8 @@ public partial class Index : AppAuthComponentBase, IDisposable
             resultIds.Add(artifact.Id);
             results.Add(artifact);
         }
-        log("\n{0} RESULTS: {1}", i++, results.Count);
-        StateHasChanged();
+        log("\n{0} RESULTS: {1}, more: {2}", i++, results.Count, hasMore);
+        setResults(results);
     }
 
     async Task OnKeyPress(KeyboardEventArgs e)
@@ -229,6 +233,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
 
         //preemptive to hopefully reduce re-renders with invalid args
         await GalleryResults.LoadAsync(UserState, args.SelectedId, args.ViewingId);
+        await reloadResults();
 
         if (args.SelectedId == null && args.ViewingId == null)
         {
