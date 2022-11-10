@@ -294,7 +294,7 @@
                 var albumCover = UserState.GetAlbumCoverArtifact(album);
                 @if (albumCover != null)
                 {
-                    <NavLink @key=album.AlbumRef href=@($"/?album={album.AlbumRef}") class="flex flex-col group mr-2">
+                    <NavLink @key=album.AlbumRef href=@($"/?album={album.AlbumRef}&source=in") class="flex flex-col group mr-2">
                         <div class=@ClassNames("mt-2 hover:opacity-80 cursor-pointer h-24 w-24 overflow-hidden rounded-lg border-2 border-transparent")>
                             <ArtifactImage Artifact=@albumCover class="flex w-full h-full" ImageClass="object-cover" />
                         </div>

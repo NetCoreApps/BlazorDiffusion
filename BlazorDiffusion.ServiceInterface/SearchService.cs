@@ -179,6 +179,7 @@ public class SearchService : Service
                 Artist = query.Artist,
                 Album = query.Album,
                 ArtifactId = similarToArtifact?.Id,
+                Source = query.Source,                
             }.WithRequest(Request, await GetSessionAsync()),
         });
 
