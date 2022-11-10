@@ -267,8 +267,10 @@ public class UserState
 
     public async Task<Creative?> GetCreativeAsync(int? creativeId)
     {
+        if (creativeId == null)
+            return null;
         var creative = GetCachedCreative(creativeId);
-        if (creativeId == null || creative != null)
+        if (creative != null)
             return creative;
 
         var request = new QueryCreatives { Id = creativeId };
@@ -286,8 +288,10 @@ public class UserState
 
     public async Task<Artifact?> GetArtifactAsync(int? artifactId)
     {
+        if (artifactId == null)
+            return null;
         var artifact = GetCachedArtifact(artifactId);
-        if (artifactId == null || artifact != null)
+        if (artifact != null)
             return artifact;
 
         var request = new QueryArtifacts { Id = artifactId };
@@ -421,21 +425,32 @@ public class UserState
         return api;
     }
 
-    public async Task<AlbumResult[]> GetCreativeInAlbumsAsync(int creativeId)
+    public async Task<AlbumResult[]> GetCreativeInAlbumsAsync(int? creativeId)
     {
-        if (CreativesInAlbumsMap.TryGetValue(creativeId, out var albums))
+        if (creativeId == null)
+            return Array.Empty<AlbumResult>();
+
+        var id = creativeId.Value;
+        if (CreativesInAlbumsMap.TryGetValue(id, out var albums))
             return albums;
 
-        var api = await ApiAsync(new GetCreativesInAlbums { CreativeId = creativeId });
+        var api = await ApiAsync(new GetCreativesInAlbums { CreativeId = id });
         if (api.Succeeded)
         {
-            return CreativesInAlbumsMap[creativeId] = (api.Response!.Results ?? new()).ToArray();
+            return CreativesInAlbumsMap[id] = (api.Response!.Results ?? new()).ToArray();
         }
         return Array.Empty<AlbumResult>();
     }
 
     public event Action? OnChange;
-    private void NotifyStateChanged() => OnChange?.Invoke();
+    private void NotifyStateChanged()
+    {
+        if (OnChange != null)
+        {
+            BlazorUtils.LogDebug("UserState NotifyStateChanged()");
+            OnChange.Invoke();
+        }
+    }
 
     public bool HasArtifactInAlbum(Artifact artifact)
     {

@@ -4,6 +4,7 @@ using Microsoft.JSInterop;
 using BlazorDiffusion.UI;
 using BlazorDiffusion.ServiceModel;
 using Ljbc1994.Blazor.IntersectionObserver;
+using BlazorDiffusion.Shared;
 
 namespace BlazorDiffusion.Pages;
 
@@ -12,21 +13,20 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
     [Inject] NavigationManager NavigationManager { get; set; } = default!;
     [Inject] IIntersectionObserverService ObserverService { get; set; } = default!;
     [Inject] IJSRuntime JS { get; set; }
+    [Inject] ILogger<Favorites> Log { get; set; } = default!;
 
-    [Parameter] public int? Album { get; set; }
-    [Parameter] public int? Id { get; set; }
-    [Parameter] public int? View { get; set; }
-    
-    Artifact? SelectedArtifact { get; set; }
 
-    public AlbumResult? SelectedAlbum => Album == null 
-        ? null 
-        : UserState.UserAlbums.FirstOrDefault(x => x.Id == Album.Value)
-            ?? UserState.LikedAlbums.FirstOrDefault(x => x.Id == Album.Value);
+    [Parameter, SupplyParameterFromQuery] public int? Album { get; set; }
+    [Parameter, SupplyParameterFromQuery] public int? Id { get; set; }
+    [Parameter, SupplyParameterFromQuery] public int? View { get; set; }
+
+    Artifact? ActiveArtifact => GalleryResults.Viewing ?? GalleryResults.Selected;
+    AlbumResult? SelectedAlbum { get; set; }
+    GalleryResults GalleryResults = new();
 
     const string TextGray200 = "e7ebe5";
     const string TextGray700 = "374151";
-    string SelectedColor => SelectedArtifact != null ? TextGray200 : TextGray700;
+    string SelectedColor => ActiveArtifact != null ? TextGray200 : TextGray700;
 
     public ElementReference BottomElement { get; set; }
     IntersectionObserver? bottomObserver;
@@ -37,37 +37,69 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        log("\n\n\nOnInitializedAsync() += UserState.OnChange, NavigationManager.LocationChanged");
-        UserState.OnChange += StateHasChanged;
-        NavigationManager.LocationChanged += HandleLocationChanged;
+        log("\n\n\n Favorites OnInitializedAsync() += UserState.OnChange");
+        UserState.OnChange += UserStateChanged;
     }
 
+    void UserStateChanged()
+    {
+        if (settingParams)
+        {
+            log("Favorites ignore UserStateChanged whilst setting params");
+            return;
+        }
+
+        log("Favorites UserStateChanged()");
+        StateHasChanged();
+    }
+
+    // When navigate + ArtifactMenu Adds/Removes to Albums
+    async Task OnGalleryChange(GalleryChangeEventArgs args)
+    {
+        if (settingParams)
+        {
+            log("Favorites ignore onChange whilst setting params");
+            return;
+        }
+
+        log("Favorites OnGalleryChange{0}", args);
+        //await handleParametersChanged();
+
+        //preemptive to hopefully reduce re-renders with invalid args
+        await GalleryResults.LoadAsync(UserState, args.SelectedId, args.ViewingId);
+
+        if (args.SelectedId == null && args.ViewingId == null)
+        {
+            NavigationManager.NavigateTo(NavigationManager.Uri.SetQueryParam("id", args.SelectedId?.ToString()));
+        }
+        else
+        {
+            NavigationManager.NavigateTo(NavigationManager.Uri
+                .SetQueryParam("id", args.SelectedId?.ToString())
+                .SetQueryParam("view", args.ViewingId?.ToString()));
+        }
+    }
+
+    bool settingParams;
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
-        log("\n\n\n");
+        settingParams = true;
+        log("\n\n\nFavorites OnParametersSetAsync()");
         await loadUserState();
-        StateHasChanged();
-
         await handleParametersChanged();
-
-        log("LoadAlbumCoverArtifacts()...");
-        await UserState.LoadAlbumCoverArtifacts();
-        StateHasChanged();
-
-        log("LoadLikedAlbumsAsync()...");
-        await UserState.LoadLikedAlbumsAsync();
+        settingParams = false;
     }
 
+    int counter = 0;
     async Task handleParametersChanged()
     {
-        var query = ServiceStack.Pcl.HttpUtility.ParseQueryString(new Uri(NavigationManager.Uri).Query)!;
-        int? asInt(string name) => X.Map(query[name], x => int.TryParse(x, out var num) ? num : (int?)null);
-
-        Album = asInt(nameof(Album));
-        Id = asInt(nameof(Id));
-        View = asInt(nameof(View));
         pageView = null;
+        log("\n\n Favorites handleParametersChanged({0},{1},{2}) {3}", Album, Id, View, counter++);
+
+        SelectedAlbum = Album == null ? null
+            : UserState.UserAlbums.FirstOrDefault(x => x.Id == Album.Value) ??
+              UserState.LikedAlbums.FirstOrDefault(x => x.Id == Album.Value);
 
         if (Album != null)
         {
@@ -88,21 +120,16 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
             results = await UserState.GetLikedArtifactsAsync(UserState.InitialTake);
         }
 
-        SelectedArtifact = View != null
-            ? UserState.GetCachedArtifact(View)
-            : Id != null
-                ? UserState.GetCachedArtifact(Id)
-                : null;
-
+        var galleryResults = new GalleryResults(results);
+        GalleryResults = await galleryResults.LoadAsync(UserState, Id, View);
         StateHasChanged();
-    }
 
-    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
-    {
-        base.InvokeAsync(async () =>
-        {
-            await handleParametersChanged();
-        });
+        log("LoadAlbumCoverArtifacts()...");
+        await UserState.LoadAlbumCoverArtifacts();
+        StateHasChanged();
+
+        log("LoadLikedAlbumsAsync()...");
+        await UserState.LoadLikedAlbumsAsync();
     }
 
     async Task loadMore()
@@ -154,20 +181,29 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
 
     void navTo(string href)
     {
+        log("Favorites navTo({0})", href);
         NavigationManager.NavigateTo(href);
     }
 
     public async Task SetupObserver()
     {
-        bottomObserver = await ObserverService.Observe(BottomElement, async (entries) =>
+        try
         {
-            var entry = entries.FirstOrDefault();
-            if (entry?.IsIntersecting == true)
+            bottomObserver = await ObserverService.Observe(BottomElement, async (entries) =>
             {
-                await loadMore();
-            }
-            StateHasChanged();
-        });
+                var entry = entries.FirstOrDefault();
+                if (entry?.IsIntersecting == true)
+                {
+                    await loadMore();
+                }
+                StateHasChanged();
+            });
+        }
+        catch (Exception e)
+        {
+            // throws on initial load
+            Log.LogError("Favorites ObserverService.Observe(BottomElement): {0}", e.ToString());
+        }
     }
 
     public Artifact? GetAlbumCover(AlbumResult album) => UserState.GetAlbumCoverArtifact(album);
@@ -261,12 +297,6 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
         pageView = null;
     }
 
-    // When ArtifactMenu Adds/Removes to Albums
-    async Task OnChange()
-    {
-        await handleParametersChanged();
-    }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -277,9 +307,9 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
 
     public void Dispose()
     {
-        log("Dispose() -= UserState.OnChange, NavigationManager.LocationChanged\n\n\n");
-        UserState.OnChange -= StateHasChanged;
-        NavigationManager.LocationChanged -= HandleLocationChanged;
+        log("Dispose() -= UserState.OnChange\n\n\n");
+        UserState.OnChange -= UserStateChanged;
+        
         bottomObserver?.Dispose();
         bottomObserver = null;
     }

@@ -177,7 +177,7 @@ public class QueryAlbumArtifacts : QueryDb<AlbumArtifact> { }
 
 
 [Description("Retrieve Albums containing at least one of creative Artifacts")]
-public class GetCreativesInAlbums : IReturn<GetCreativesInAlbumsResponse>
+public class GetCreativesInAlbums : IGet, IReturn<GetCreativesInAlbumsResponse>
 {
     public int CreativeId { get; set; }
 }
