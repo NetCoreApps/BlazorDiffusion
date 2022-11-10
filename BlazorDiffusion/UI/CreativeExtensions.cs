@@ -42,11 +42,11 @@ public static class CreativeExtensions
     }
 
     public static string? GetPublicUrl(this UserResult user) => user.Avatar != null
-        ? AppConfig.Instance.AssetsBasePath + user.Avatar
+        ? BlazorConfig.Instance.AssetsBasePath + user.Avatar
         : user.ProfileUrl;
 
     public static string? GetFallbackUrl(this UserResult user) => user.Avatar != null
-        ? AppConfig.Instance.FallbackAssetsBasePath + user.Avatar
+        ? BlazorConfig.Instance.FallbackAssetsBasePath + user.Avatar
         : user.ProfileUrl;
 
     public static string GetImageErrorUrl(this UserResult user, string? lastImageSrc)

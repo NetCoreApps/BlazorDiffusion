@@ -87,6 +87,7 @@ public class SearchArtifacts : QueryDb<Artifact, ArtifactResult>
     public string? Modifier { get; set; }
     public string? Artist { get; set; }
     public string? Album { get; set; }
+    public string? Source { get; set; }
 
     public SearchArtifacts Clone() => new()
     {
@@ -125,6 +126,43 @@ public class SearchArtifacts : QueryDb<Artifact, ArtifactResult>
                Modifier == artifacts.Modifier &&
                Artist == artifacts.Artist &&
                Album == artifacts.Album;
+    }
+
+    public bool Matches(SearchArtifacts artifacts)
+    {
+        return OrderBy == artifacts.OrderBy &&
+               OrderByDesc == artifacts.OrderByDesc &&
+               Include == artifacts.Include &&
+               Fields == artifacts.Fields &&
+               EqualityComparer<Dictionary<string, string>>.Default.Equals(Meta, artifacts.Meta) &&
+               EqualityComparer<Dictionary<string, string>>.Default.Equals(QueryParams, artifacts.QueryParams) &&
+               Query == artifacts.Query &&
+               Similar == artifacts.Similar &&
+               By == artifacts.By &&
+               User == artifacts.User &&
+               Modifier == artifacts.Modifier &&
+               Artist == artifacts.Artist &&
+               Album == artifacts.Album;
+    }
+
+    public List<string> GetDirtyFields(SearchArtifacts other)
+    {
+        var to = new List<string>();
+        if (Skip != other.Skip) to.Add(nameof(Skip));
+        if (Take != other.Take) to.Add(nameof(Take));
+        if (OrderBy != other.OrderBy) to.Add(nameof(OrderBy));
+        if (OrderByDesc != other.OrderByDesc) to.Add(nameof(OrderByDesc));
+        if (Include != other.Include) to.Add(nameof(Include));
+        if (!EqualityComparer<Dictionary<string, string>>.Default.Equals(Meta, other.Meta)) to.Add(nameof(Meta));
+        if (!EqualityComparer<Dictionary<string, string>>.Default.Equals(QueryParams, other.QueryParams)) to.Add(nameof(QueryParams));
+        if (Query != other.Query) to.Add(nameof(Query));
+        if (Similar != other.Similar) to.Add(nameof(Similar));
+        if (By != other.By) to.Add(nameof(By));
+        if (User != other.User) to.Add(nameof(User));
+        if (Modifier != other.Modifier) to.Add(nameof(Modifier));
+        if (Artist != other.Artist) to.Add(nameof(Artist));
+        if (Album != other.Album) to.Add(nameof(Album));
+        return to;
     }
 }
 
@@ -271,7 +309,7 @@ public class DeleteArtifactReport : IDeleteDb<ArtifactReport>, IReturnVoid
 }
 
 [Route("/download/artifact/{RefId}")]
-public class DownloadArtifact
+public class DownloadArtifact : IGet, IReturn<byte[]>
 {
     public string RefId { get; set; }
 }

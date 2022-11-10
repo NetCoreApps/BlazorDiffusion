@@ -1,8 +1,11 @@
 ﻿using BlazorDiffusion.ServiceModel;
+using BlazorDiffusion.Shared;
 using BlazorDiffusion.UI;
 using Ljbc1994.Blazor.IntersectionObserver;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
+using ServiceStack.Blazor;
 using ServiceStack.Text;
 
 namespace BlazorDiffusion.Pages;
@@ -12,6 +15,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
     ApiResult<QueryResponse<ArtifactResult>> api = new();
     [Inject] ILogger<Index> Log { get; set; } = default!;
     [Inject] IIntersectionObserverService ObserverService { get; set; } = default!;
+    [Inject] IJSRuntime JS { get; set; } = default!;
 
     string[] VisibleFields => new[] { 
         nameof(SearchArtifacts.Query), 
@@ -25,6 +29,14 @@ public partial class Index : AppAuthComponentBase, IDisposable
     [Parameter, SupplyParameterFromQuery] public string? modifier { get; set; }
     [Parameter, SupplyParameterFromQuery] public string? artist { get; set; }
     [Parameter, SupplyParameterFromQuery] public string? album { get; set; }
+    [Parameter, SupplyParameterFromQuery] public string? source { get; set; }
+    [Parameter, SupplyParameterFromQuery] public int? Id { get; set; }
+    [Parameter, SupplyParameterFromQuery] public int? View { get; set; }
+
+    GalleryResults GalleryResults = new(); // composite params to hopefully reduce params
+
+    int? lastId = null;
+    int? lastView = null;
 
     SearchArtifacts request = new();
 
@@ -59,6 +71,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
         request.Modifier = modifier;
         request.Artist = artist;
         request.Album = album;
+        request.Source = source;
         request.Skip = 0;
         request.Take = InitialTake;
         await loadUserState();
@@ -66,32 +79,54 @@ public partial class Index : AppAuthComponentBase, IDisposable
         await updateAsync();
     }
 
+    int i = 0;
+
     async Task updateAsync()
     {
-        var existingQuery = lastRequest != null && lastRequest.Equals(request);
-        if (existingQuery)
+        var existingQuery = lastRequest != null && lastRequest.Matches(request);
+        var existingSelection = lastId == Id && lastView == View;
+        if (existingQuery && existingSelection)
             return;
+        lastId = Id;
+        lastView = View;
+
+        if (lastRequest != null)
+        {
+            var dirtyFields = request.GetDirtyFields(lastRequest);
+            log("\n\n\n\nDirty Fields:", string.Join(", ", dirtyFields));
+        }
+        else
+        {
+            log("Loading new request...");
+        }
 
         Log.LogDebug($"\n\n{0}", request.Dump());
-        api = await ApiAsync(request);
-        if (api.Succeeded)
+        if (!existingQuery)
         {
-            clearResults();
-
-            addResults(api.Response?.Results ?? new());
-            lastRequest = request.Clone();
+            request.Skip = 0;
+            api = await ApiAsync(request);
+            if (api.Succeeded)
+            {
+                addResults(api.Response?.Results ?? new(), reset:true);
+                lastRequest = request.Clone();
+            }
         }
+
+        var galleryResults = new GalleryResults(results);
+        GalleryResults = await galleryResults.LoadAsync(UserState, Id, View);
         StateHasChanged();
+
         SelectedUser = user != null
             ? await UserState.GetUserByRefIdAsync(user)
             : null;
 
         SelectedAlbum = SelectedUser != null && album != null
             ? SelectedUser.Albums.FirstOrDefault(x => x.AlbumRef == album)
-            : await UserState.GetAlbumByRefAsync(album);
+            : album != null
+                ? await UserState.GetAlbumByRefAsync(album)
+                : null;
 
-        await Task.Delay(1);
-        if (request.Take == InitialTake)
+        if (!existingQuery && request.Take == InitialTake)
         {
             request.Skip += InitialTake;
             request.Take = NextPageTake;
@@ -120,15 +155,22 @@ public partial class Index : AppAuthComponentBase, IDisposable
 
     public async Task SetupObserver()
     {
-        bottomObserver = await ObserverService.Observe(BottomElement, async (entries) =>
+        try
         {
-            var entry = entries.FirstOrDefault();
-            if (entry?.IsIntersecting == true)
+            bottomObserver = await ObserverService.Observe(BottomElement, async (entries) =>
             {
-                await loadMore();
-            }
-            StateHasChanged();
-        });
+                var entry = entries.FirstOrDefault();
+                if (entry?.IsIntersecting == true)
+                {
+                    await loadMore();
+                }
+            });
+        }
+        catch (Exception e)
+        {
+            // throws on initial load
+            Log.LogError("Index ObserverService.Observe(BottomElement): {0}", e.ToString());
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -145,10 +187,14 @@ public partial class Index : AppAuthComponentBase, IDisposable
         results.Clear();
         resultIds.Clear();
         lastResults = null;
+        log("\n{0} CLEAR RESULTS: {1}", i++, results.Count);
     }
 
-    void addResults(List<ArtifactResult> artifacts)
+    void addResults(List<ArtifactResult> artifacts, bool reset = false)
     {
+        if (reset)
+            clearResults();
+
         lastResults = artifacts;
         foreach (var artifact in artifacts)
         {
@@ -158,6 +204,8 @@ public partial class Index : AppAuthComponentBase, IDisposable
             resultIds.Add(artifact.Id);
             results.Add(artifact);
         }
+        log("\n{0} RESULTS: {1}", i++, results.Count);
+        StateHasChanged();
     }
 
     async Task OnKeyPress(KeyboardEventArgs e)
@@ -173,8 +221,30 @@ public partial class Index : AppAuthComponentBase, IDisposable
         NavigationManager.NavigateTo("/".AddQueryParam("q", request.Query));
     }
 
+    // When navigate + ArtifactMenu Adds/Removes to Albums
+    async Task OnGalleryChange(GalleryChangeEventArgs args)
+    {
+        log("Index OnGalleryChange{0}", args);
+        //await handleParametersChanged();
+
+        //preemptive to hopefully reduce re-renders with invalid args
+        await GalleryResults.LoadAsync(UserState, args.SelectedId, args.ViewingId);
+
+        if (args.SelectedId == null && args.ViewingId == null)
+        {
+            NavigationManager.NavigateTo(NavigationManager.Uri.SetQueryParam("id", args.SelectedId?.ToString()));
+        }
+        else
+        {
+            NavigationManager.NavigateTo(NavigationManager.Uri
+                .SetQueryParam("id", args.SelectedId?.ToString())
+                .SetQueryParam("view", args.ViewingId?.ToString()));
+        }
+    }
+
     public void Dispose()
     {
         bottomObserver?.Dispose();
+        bottomObserver = null;
     }
 }

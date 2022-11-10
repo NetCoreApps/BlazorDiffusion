@@ -50,6 +50,10 @@
         <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\src\ServiceStack\ServiceStack.csproj" />
     </ItemGroup>-->
 
+    <ItemGroup>
+        <Protobuf Include="proto\generation.proto" GrpcServices="Client" />
+    </ItemGroup>
+
     <Target Name="CreateAppDataFolderBuild" AfterTargets="AfterBuild">
       <MakeDir Directories="$(BuildDir)App_Data" Condition="!Exists('$(BuildDir)App_Data')" />
     </Target>
@@ -57,10 +61,6 @@
     <Target Name="CreateAppDataFolder" AfterTargets="AfterPublish">
         <MakeDir Directories="$(PublishDir)App_Data" Condition="!Exists('$(PublishDir)App_Data')" />
     </Target>
-
-    <ItemGroup>
-        <Protobuf Include="proto\generation.proto" GrpcServices="Client" />
-    </ItemGroup>
 
     <ItemGroup>
       <Content Remove="App_Files\artifacts\**\*" />
