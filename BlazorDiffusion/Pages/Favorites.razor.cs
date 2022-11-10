@@ -140,6 +140,8 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
             if (results.Count < UserState.LikedArtifactIds.Count)
             {
                 results = await UserState.GetLikedArtifactsAsync(results.Count + UserState.InitialTake);
+                GalleryResults = X.Apply(GalleryResults.Clone(), x => x.Artifacts = results);
+                StateHasChanged();
             }
         }
         else
@@ -148,9 +150,10 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
             if (results.Count < SelectedAlbum.ArtifactIds.Count)
             {
                 results = await UserState.GetAlbumArtifactsAsync(SelectedAlbum, results.Count + UserState.InitialTake);
+                GalleryResults = X.Apply(GalleryResults.Clone(), x => x.Artifacts = results);
+                StateHasChanged();
             }
         }
-        StateHasChanged();
     }
 
     string GetBorderColor(Artifact artifact, int? activeId, UserState userState)

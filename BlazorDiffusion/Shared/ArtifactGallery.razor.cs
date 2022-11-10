@@ -23,6 +23,7 @@ public class GalleryResults
     {
         Artifacts = artifacts ?? new();
     }
+
     public async Task<GalleryResults> LoadAsync(UserState userState, int? selectedId, int? viewingId)
     {
         if (selectedId != Selected?.Id || viewingId != Viewing?.Id)
@@ -37,6 +38,15 @@ public class GalleryResults
 
         return this;
     }
+
+    public GalleryResults Clone() => new GalleryResults
+    {
+        Artifacts = Artifacts,
+        Selected = Selected,
+        Viewing = Viewing,
+        Creative = Creative,
+        CreativeAlbums = CreativeAlbums,        
+    };
 }
 
 public record struct GalleryChangeEventArgs(int? SelectedId, int? ViewingId)

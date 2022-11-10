@@ -117,7 +117,7 @@ public static class Scores
                 Count = Sql.Count("*"),
             })));
 
-        AlbumSearchCountMap = new(db.Dictionary<int, int>(db.From<SearchStat>().Where(s => s.AlbumId != null)
+        AlbumSearchCountMap = new(db.Dictionary<int, int>(db.From<SearchStat>().Where(s => s.AlbumId != null && s.Source != "top")
             .GroupBy(x => x.Album).Select(s => new {
                 s.AlbumId,
                 Count = Sql.Count("*"),
