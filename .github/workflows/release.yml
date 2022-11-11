@@ -168,6 +168,16 @@ jobs:
           source: ".deploy/${{ github.event.repository.name }}-docker-compose.yml"
           target: "~/"
 
+      - name: Clean db.sqlite during development
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.DEPLOY_API }}
+          username: ${{ secrets.DEPLOY_USERNAME }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          port: 22
+          script: |
+            rm /var/lib/docker/volumes/deploy_BlazorDiffusion-mydb/_data/db.sqlite
+      
       # Populate litestream.yml with variables from build process, including TAG_NAME.
       - name: litestream.yml file prep
         uses: danielr1996/envsubst-action@1.1.0
@@ -206,16 +216,6 @@ jobs:
             docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-restore --exit-code-from ${{ github.event.repository.name }}-restore     
             docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-restore-analytics --exit-code-from ${{ github.event.repository.name }}-restore-analytics
       
-      - name: Copy BlazorDiffusion Assets to Remote Server
-        uses: appleboy/ssh-action@v0.1.4
-        with:
-          host: ${{ secrets.DEPLOY_API }}
-          username: ${{ secrets.DEPLOY_USERNAME }}
-          key: ${{ secrets.DEPLOY_KEY }}
-          port: 22
-          script: |
-            aws s3 sync s3://diffusion/artifacts /var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data/artifacts --endpoint-url https://b95f38ca3a6ac31ea582cd624e6eb385.r2.cloudflarestorage.com
-          
       - name: Copy BlazorDiffusion Seed Data to Remote Server
         uses: appleboy/scp-action@v0.1.1
         with:
@@ -227,16 +227,6 @@ jobs:
           source: "./BlazorDiffusion/App_Data/seed/*"
           target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-mydb/_data/seed/"
 
-      - name: Clean db.sqlite during development
-        uses: appleboy/ssh-action@v0.1.4
-        with:
-          host: ${{ secrets.DEPLOY_API }}
-          username: ${{ secrets.DEPLOY_USERNAME }}
-          key: ${{ secrets.DEPLOY_KEY }}
-          port: 22
-          script: |
-            rm /var/lib/docker/volumes/deploy_BlazorDiffusion-mydb/_data/db.sqlite
-      
       - name: Run remote db migrations
         uses: appleboy/ssh-action@v0.1.4
         env:
