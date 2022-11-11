@@ -71,7 +71,7 @@
                         </div>
                     </LeftHeader>
                     <TopRightIcon>
-                        @if (SelectedAlbum.PrimaryArtifactId == context.Id)
+                        @if (context != null && SelectedAlbum?.PrimaryArtifactId == context.Id)
                         {
                             <svg @onclick="_ => unpinArtifact(context)" @onclick:stopPropagation @onclick:preventDefault
                                  class="w-6 h-6 text-cyan-600 hover:text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">

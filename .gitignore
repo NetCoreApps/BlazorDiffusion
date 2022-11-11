@@ -2,6 +2,7 @@
 **/wwwroot/docs/
 **/wwwroot/prerender/
 BlazorDiffusion/App_Files/
+BlazorDiffusion/App_Data/*.sqlite
 
 
 ## Ignore Visual Studio temporary files, build results, and

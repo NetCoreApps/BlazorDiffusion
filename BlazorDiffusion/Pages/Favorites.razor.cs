@@ -43,12 +43,6 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
 
     void UserStateChanged()
     {
-        if (settingParams)
-        {
-            log("Favorites ignore UserStateChanged whilst setting params");
-            return;
-        }
-
         log("Favorites UserStateChanged()");
         StateHasChanged();
     }
@@ -67,6 +61,7 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
 
         //preemptive to hopefully reduce re-renders with invalid args
         await GalleryResults.LoadAsync(UserState, args.SelectedId, args.ViewingId);
+        await reloadResults();
 
         if (args.SelectedId == null && args.ViewingId == null)
         {
@@ -100,29 +95,16 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
         SelectedAlbum = Album == null ? null
             : UserState.UserAlbums.FirstOrDefault(x => x.Id == Album.Value) ??
               UserState.LikedAlbums.FirstOrDefault(x => x.Id == Album.Value);
-
-        if (Album != null)
+        
+        if (Album != null && SelectedAlbum == null)
         {
-            if (SelectedAlbum == null)
-            {
-                log("resetting results...");
-                results = new();
-                navTo("/favorites"); // album no longer exists, e.g. after last image was deleted
-                return;
-            }
-
-            log("loading album '{0}' results...", SelectedAlbum.Id);
-            results = await UserState.GetAlbumArtifactsAsync(SelectedAlbum, UserState.InitialTake);
-        }
-        else
-        {
-            log("loading {0} artifact likes", UserState.InitialTake);
-            results = await UserState.GetLikedArtifactsAsync(UserState.InitialTake);
+            log("resetting results...");
+            results = new();
+            navTo("/favorites"); // album no longer exists, e.g. after last image was deleted
+            return;
         }
 
-        var galleryResults = new GalleryResults(results);
-        GalleryResults = await galleryResults.LoadAsync(UserState, Id, View);
-        StateHasChanged();
+        await reloadResults();
 
         log("LoadAlbumCoverArtifacts()...");
         await UserState.LoadAlbumCoverArtifacts();
@@ -132,6 +114,27 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
         await UserState.LoadLikedAlbumsAsync();
     }
 
+    async Task reloadResults()
+    {
+        if (SelectedAlbum != null)
+            log("loading album '{0}' results...", SelectedAlbum.Id);
+        else
+            log("loading {0} artifact likes", UserState.InitialTake);
+
+        var results = SelectedAlbum != null
+            ? await UserState.GetAlbumArtifactsAsync(SelectedAlbum, UserState.InitialTake)
+            : await UserState.GetLikedArtifactsAsync(UserState.InitialTake);
+
+        setResults(results);
+    }
+
+    void setResults(List<Artifact> results)
+    {
+        this.results = results;
+        GalleryResults = X.Apply(GalleryResults.Clone(), x => x.Artifacts = results);
+        StateHasChanged();
+    }
+
     async Task loadMore()
     {
         if (SelectedAlbum == null)
@@ -139,7 +142,7 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
             log("Favorites likes.loadMore(): {0} < {1}", results.Count, UserState.LikedArtifactIds.Count);
             if (results.Count < UserState.LikedArtifactIds.Count)
             {
-                results = await UserState.GetLikedArtifactsAsync(results.Count + UserState.InitialTake);
+                setResults(await UserState.GetLikedArtifactsAsync(results.Count + UserState.NextPage));
             }
         }
         else
@@ -147,10 +150,9 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
             log("Favorites album.loadMore(): {0} < {1}", results.Count, SelectedAlbum.ArtifactIds.Count);
             if (results.Count < SelectedAlbum.ArtifactIds.Count)
             {
-                results = await UserState.GetAlbumArtifactsAsync(SelectedAlbum, results.Count + UserState.InitialTake);
+                setResults(await UserState.GetAlbumArtifactsAsync(SelectedAlbum, results.Count + UserState.NextPage));
             }
         }
-        StateHasChanged();
     }
 
     string GetBorderColor(Artifact artifact, int? activeId, UserState userState)
@@ -221,14 +223,14 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
         SelectedAlbum.PrimaryArtifactId = artifact.Id;
         
         var holdResults = results;
-        results = ResultsWithPrimaryArtifact(artifact.Id);
+        setResults(ResultsWithPrimaryArtifact(artifact.Id));
         StateHasChanged();
 
         var api = await ApiAsync(new UpdateAlbum { Id = SelectedAlbum.Id, PrimaryArtifactId = artifact.Id });
         if (!api.Succeeded)
         {
             SelectedAlbum.PrimaryArtifactId = hold;
-            results = holdResults;
+            setResults(holdResults);
         }
         StateHasChanged();
     }
@@ -287,7 +289,7 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
             newResults.Insert(0, artifactResult);
             if (primaryArtifact != null)
                 newResults.Insert(0, primaryArtifact);
-            results = newResults;
+            setResults(newResults);
             StateHasChanged();
         }
     }

@@ -122,8 +122,8 @@ public partial class ArtifactMenu : AppAuthComponentBase
             if (api.Succeeded)
             {
                 UserState.AddArtifactToAlbum(album, Artifact);
-                await OnDone();
                 await OnChange();
+                await OnDone();
             }
         }
         else
@@ -137,8 +137,8 @@ public partial class ArtifactMenu : AppAuthComponentBase
             if (api.Succeeded)
             {
                 UserState.RemoveArtifactFromAlbum(album, Artifact);
-                await OnDone();
                 await OnChange();
+                await OnDone();
             }
         }
     }

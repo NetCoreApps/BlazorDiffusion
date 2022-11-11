@@ -22,11 +22,12 @@ public abstract class AppAuthComponentBase : AuthBlazorComponentBase
 
     protected async Task loadUserState(bool force = false)
     {
+        var task = UserState.LoadAnonAsync(force);
         if (IsAuthenticated)
         {
-            log("loadUserState...");
             await UserState.LoadAsync(force);
         }
+        await task;
     }
 
     public void RegisterKeyboardNavigation(Func<string, Task> target)

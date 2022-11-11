@@ -60,10 +60,17 @@ public class ModifierInfo
     public override int GetHashCode() => HashCode.Combine(Id, Name, Category);
 }
 
-[ValidateIsAuthenticated]
-public class UserData : IReturn<UserDataResponse>
+public class AnonData : IReturn<AnonDataResponse> { }
+
+public class AnonDataResponse
 {
+    public List<AlbumResult> TopAlbums { get; set; }
+    public ResponseStatus ResponseStatus { get; set; }
 }
+
+
+[ValidateIsAuthenticated]
+public class UserData : IReturn<UserDataResponse> {}
 
 public class Likes
 {
@@ -76,7 +83,6 @@ public class UserDataResponse
     public UserResult User { get; set; }
     public List<SignupType> Signups { get; set; }
     public List<string> Roles { get; set; }
-    public List<AlbumResult> TopAlbums { get; set; }
     public ResponseStatus ResponseStatus { get; set; }
 }
 

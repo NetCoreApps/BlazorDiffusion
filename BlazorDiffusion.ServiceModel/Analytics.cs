@@ -43,6 +43,7 @@ public class SearchStat : StatBase
     public string? Artist { get; set; }
     public string? Album { get; set; }
     public string? Show { get; set; }
+    public string? Source { get; set; }
 
     public int? ArtifactId { get; set; }
     public int? AlbumId { get; set; }
