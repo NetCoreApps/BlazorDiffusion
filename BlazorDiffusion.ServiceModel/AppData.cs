@@ -25,3 +25,10 @@ public static class AppData
         new() { Name = "Mood",      Items = new[] { "Positive Mood", "Negative Mood" } },
     }.ToList();
 }
+
+public class AppSource
+{
+    public const string Top = "top";
+    public const string User = "user";
+    public const string InAlbum = "in";
+}

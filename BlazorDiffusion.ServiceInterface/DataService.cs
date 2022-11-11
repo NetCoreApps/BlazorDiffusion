@@ -44,6 +44,18 @@ public class DataService : Service
         };
     }
 
+    public async Task<object> Any(AnonData request)
+    {
+        var topAlbumResults = (await Db.LoadSelectAsync(Db.From<Album>().Where(x => x.DeletedDate == null)
+                .OrderByDescending(x => new { x.Score, x.Id }).Take(10)))
+            .Map(x => x.ToAlbumResult());
+
+        return new AnonDataResponse
+        {
+            TopAlbums = topAlbumResults,
+        };
+    }
+
     public async Task<object> Any(UserData request)
     {
         var session = await SessionAsAsync<CustomUserSession>();
@@ -54,15 +66,10 @@ public class DataService : Service
         var signupTypes = await dbAnalytics.ColumnAsync<SignupType>(Db.From<Signup>()
             .Where(x => x.AppUserId == userId && x.Type == SignupType.Beta && x.CancelledDate == null).Select(x => x.Type));
 
-        var topAlbumResults = (await Db.LoadSelectAsync(Db.From<Album>().Where(x => x.DeletedDate == null)
-                .OrderByDescending(x => new { x.Score, x.Id }).Take(10)))
-            .Map(x => x.ToAlbumResult());
-
         return new UserDataResponse
         {
             User = result,
             Signups = signupTypes,
-            TopAlbums = topAlbumResults,
             Roles = (await session.GetRolesAsync(AuthRepositoryAsync)).ToList(),
         };
     }

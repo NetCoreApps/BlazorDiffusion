@@ -46,7 +46,7 @@
                         var albumCover = UserState.GetAlbumCoverArtifact(userAlbum);
                         @if (albumCover != null)
                         {
-                            <NavLink href=@($"/?user={SelectedUser.RefId}&album={userAlbum.AlbumRef}&source=user")>
+                            <NavLink href=@($"/?user={SelectedUser.RefId}&album={userAlbum.AlbumRef}&source={AppSource.User}")>
                                 <div class=@ClassNames("mt-2 hover:opacity-80 cursor-pointer h-24 w-24 overflow-hidden rounded-lg border-2",
                                     album == userAlbum.AlbumRef ? "border-yellow-400" : "border-transparent")>
                                     <ArtifactImage Artifact=@albumCover class="flex w-full h-full" ImageClass="object-cover" />
@@ -87,7 +87,7 @@
                         var albumCover = UserState.GetAlbumCoverArtifact(userAlbum);
                         @if (albumCover != null)
                         {
-                            <NavLink href=@($"/?album={userAlbum.AlbumRef}&source=top")>
+                            <NavLink href=@($"/?album={userAlbum.AlbumRef}&source={AppSource.Top}")>
                                 <div class=@ClassNames("mt-2 hover:opacity-80 cursor-pointer h-24 w-24 overflow-hidden rounded-lg border-2",
                                      album == userAlbum.AlbumRef ? "border-yellow-400" : "border-transparent")>
                                     <ArtifactImage Artifact=@albumCover class="flex w-full h-full" ImageClass="object-cover" />

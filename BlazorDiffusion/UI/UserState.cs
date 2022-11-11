@@ -41,6 +41,7 @@ public class UserState
     public bool IsLoading { get; set; }
 
     NavigationManager NavigationManager { get; }
+
     public UserState(CachedLocalStorage localStorage, IServiceGateway client, NavigationManager navigationManager)
     {
         LocalStorage = localStorage;
@@ -80,6 +81,8 @@ public class UserState
             await BlazorConfig.Instance.OnApiErrorAsync(requestDto, apiError);
     }
 
+    void log(string message, params object[] args) => BlazorConfig.Instance.GetLog()?.LogDebug(message, args);
+
     public async Task SaveAppPrefs()
     {
         await LocalStorage.SetItemAsync(nameof(AppPrefs), AppPrefs);
@@ -91,23 +94,36 @@ public class UserState
         NotifyStateChanged();
     }
 
+    public async Task LoadAnonAsync(bool force = false)
+    {
+        if (force || TopAlbums.Count == 0)
+        {
+            log("LoadAnonAsync...");
+            var api = await ApiAsync(new AnonData());
+            if (api.Succeeded)
+            {
+                TopAlbums = api.Response?.TopAlbums ?? new();
+                LoadAlbums(TopAlbums);
+                await LoadAlbumCoverArtifacts();
+            }
+        }
+    }
+
     public async Task LoadAsync(bool force = false)
     {
         if (force || RefId == null)
         {
-            var request = new UserData();
-            var api = await ApiAsync(request);
+            log("LoadAsync...");
+            var api = await ApiAsync(new UserData());
             if (api.Succeeded)
             {
                 var r = api.Response!;
                 User = r.User;
                 Roles = r.Roles ?? new();
                 Signups = r.Signups ?? new();
-                TopAlbums = r.TopAlbums ?? new();
                 LikedArtifactIds = r.User.Likes.ArtifactIds ?? new();
                 LikedAlbumIds = r.User.Likes.AlbumIds ?? new();
                 UserAlbums = r.User.Albums ?? new();
-                LoadAlbums(TopAlbums);
                 LoadAlbums(UserAlbums);
                 await LoadAlbumCoverArtifacts();
             }

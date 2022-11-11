@@ -274,12 +274,15 @@ public class BackgroundMqServices : Service
             if (request.RecordSearchStat.ArtifactId != null)
                 await Scores.IncrementArtifactSearchAsync(Db, request.RecordSearchStat.ArtifactId.Value);
 
-            var albumId = request.RecordSearchStat.AlbumId
-                ?? (request.RecordSearchStat.Album != null
-                    ? await Db.ScalarAsync<int>(Db.From<Album>().Where(x => x.RefId == request.RecordSearchStat.Album).Select(x => x.Id))
-                    : null);
-            if (albumId != null)
-                await Scores.IncrementAlbumSearchAsync(Db, albumId.Value);
+            if (request.RecordSearchStat.Source != AppSource.Top)
+            {
+                var albumId = request.RecordSearchStat.AlbumId
+                    ?? (request.RecordSearchStat.Album != null
+                        ? await Db.ScalarAsync<int>(Db.From<Album>().Where(x => x.RefId == request.RecordSearchStat.Album).Select(x => x.Id))
+                        : null);
+                if (albumId != null)
+                    await Scores.IncrementAlbumSearchAsync(Db, albumId.Value);
+            }
         }
 
         await PulseSyncTasks();
