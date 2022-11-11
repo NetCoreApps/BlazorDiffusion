@@ -49,7 +49,6 @@ public class Migration1002 : MigrationBase
 
         public int? ArtifactId { get; set; }
         public int? AlbumId { get; set; }
-        public int? AppUserId { get; set; }
         public int? ModifierId { get; set; }
         public int? ArtistId { get; set; }
     }

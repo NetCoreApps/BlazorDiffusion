@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using BlazorDiffusion.ServiceModel;
+using Microsoft.AspNetCore.Http;
 using ServiceStack;
 using ServiceStack.Auth;
 using ServiceStack.Html;
@@ -412,4 +413,10 @@ public class ImageGenerationResult
     public int Width { get; set; }
     public int Height { get; set; }
     public ImageDetails? ImageDetails { get; set; }
+}
+
+public interface IComponentRenderer
+{
+    Task<string> RenderComponentAsync(string typeName, HttpContext httpContext, Dictionary<object, object>? args = null);
+    Task<string> RenderComponentAsync<T>(HttpContext httpContext, Dictionary<object, object>? args = null);
 }
