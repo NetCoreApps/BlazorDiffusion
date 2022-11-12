@@ -76,4 +76,5 @@ public class ViewCreativeMetadata : IGet, IReturn<Creative>
 public class RenderComponent : IGet, IReturn<string>
 {
     public string Type { get; set; }
+    public bool TestContext { get; set; }
 }

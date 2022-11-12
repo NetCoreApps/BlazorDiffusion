@@ -293,7 +293,10 @@ public class BackgroundMqServices : Service
 
     public async Task<object> Any(RenderComponent request)
     {
-        var httpContext = ((NetCoreRequest)Request).HttpContext;
+        var httpContext = (!request.TestContext
+            ? (Request as NetCoreRequest)?.HttpContext
+            : null) ?? HttpContextFactory.CreateHttpContext(Request.GetBaseUrl());
+
         var obj = Request.GetRequestParams().ToObjectDictionary();
         var args = new Dictionary<object, object>();
         foreach (var entry in obj)

@@ -27,31 +27,38 @@ public class AppHost : AppHostBase, IHostingStartup
             UseSameSiteCookies = true,
         });
 
+        var cdnUrl = Environment.GetEnvironmentVariable("DEPLOY_CDN");
+
+        var baseUrl = string.IsNullOrEmpty(cdnUrl)
+            ? "https://localhost:5001"
+            : cdnUrl;
+
         Plugins.Add(new CorsFeature(allowedHeaders: "Content-Type,Authorization",
             allowOriginWhitelist: new[]{
             "http://localhost:5000",
-            "https://localhost:5001",
-            "https://" + Environment.GetEnvironmentVariable("DEPLOY_CDN")
+            baseUrl,
         }, allowCredentials: true));
 
         var r2AccessId = Environment.GetEnvironmentVariable("R2_ACCESS_KEY_ID")!;
         var r2AccessKey = Environment.GetEnvironmentVariable("R2_SECRET_ACCESS_KEY")!;
         
         var appConfig = AppConfig.Set(new AppConfig {
+            BaseUrl = baseUrl,
             R2Account = "b95f38ca3a6ac31ea582cd624e6eb385",
             R2AccessId = r2AccessId,
             R2AccessKey = r2AccessKey,
             ArtifactBucket = "diffusion",
+            CdnBucket = "diffusion-client",
             AssetsBasePath = "https://cdn.diffusion.works",
             FallbackAssetsBasePath = "https://pub-97bba6b94a944260b10a6e7d4bf98053.r2.dev",
         });
         Log.Warn($"R2: Account:{appConfig.R2Account}, Id:{appConfig.R2AccessId}, Key:{appConfig.R2AccessKey}, Bucket:{appConfig.ArtifactBucket}");
-
         container.Register(appConfig);
 
         var s3Client = new AmazonS3Client(appConfig.R2AccessId, appConfig.R2AccessKey, new AmazonS3Config {
             ServiceURL = $"https://{appConfig.R2Account}.r2.cloudflarestorage.com"
         });
+        container.Register(s3Client);
         var appFs = VirtualFiles = new R2VirtualFilesProvider(s3Client, appConfig.ArtifactBucket);
         Plugins.Add(new FilesUploadFeature(
             new UploadLocation("artifacts", appFs,

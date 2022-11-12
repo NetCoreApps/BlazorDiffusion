@@ -415,6 +415,11 @@ public class ImageGenerationResult
     public ImageDetails? ImageDetails { get; set; }
 }
 
+public interface IPrerenderer
+{
+    Task RenderPages(HttpContext? httpContext = null);
+}
+
 public interface IComponentRenderer
 {
     Task<string> RenderComponentAsync(string typeName, HttpContext httpContext, Dictionary<object, object>? args = null);
