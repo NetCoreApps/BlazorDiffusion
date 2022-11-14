@@ -26,8 +26,11 @@ public class ConfigureUi : IHostingStartup
             var s3Client = container.Resolve<AmazonS3Client>();
             var appConfig = container.Resolve<AppConfig>();
 
+            var blazorWebRoot = appHost.AppSettings.GetString("BlazorWebRoot");
+            var blazorWebRootPath = Path.GetFullPath(Path.Combine(appHost.GetWebRootPath(), blazorWebRoot));
+
             IVirtualFiles virtualFiles = appHost.Config.DebugMode
-                ? new FileSystemVirtualFiles(Path.GetFullPath(Path.Combine(appHost.GetWebRootPath(), "../BlazorDiffusion.Client/wwwroot")))
+                ? new FileSystemVirtualFiles(blazorWebRootPath)
                 : new R2VirtualFilesProvider(s3Client, appConfig.CdnBucket);
 
             container.Register<IPrerenderer>(c => new Prerenderer

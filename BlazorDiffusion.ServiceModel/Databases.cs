@@ -51,6 +51,9 @@ public static class Users
         Handle = "imagineer",
     };
 
+    public static AppUser GetUserById(string? userId) => string.IsNullOrEmpty(userId)
+        ? System
+        : GetUserById(int.Parse(userId));
     public static AppUser GetUserById(int? userId) => userId switch
     {
         1 => Admin,

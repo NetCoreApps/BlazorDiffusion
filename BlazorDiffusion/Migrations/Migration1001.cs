@@ -420,7 +420,7 @@ public class Migration1001 : MigrationBase
             creative.Modifiers = new List<CreativeModifier>();
             creative.ModifierNames ??= new List<string>();
             creative.ArtistNames ??= new List<string>();
-            creative.OwnerId = creative.CreatedBy != null ? creative.CreatedBy.ToInt() : 2;
+            creative.OwnerId = Users.GetUserById(creative.CreatedBy).Id;
             var id = creative.Id = (int)Db.Insert(creative, selectIdentity: true);
             foreach (var text in creative.ModifierNames)
             {
@@ -479,6 +479,7 @@ public class Migration1001 : MigrationBase
                     foreach (var artifactLikeRef in artifactLikeRefs)
                     {
                         var artifactLike = X.Apply(artifactLikeRef.ConvertTo<ArtifactLike>(), x => x.ArtifactId = artifact.Id);
+                        artifactLike.AppUserId = Users.GetUserById(artifactLike.AppUserId).Id;
                         Db.Insert(artifactLike);
                     }
                 }
@@ -529,6 +530,7 @@ public class Migration1001 : MigrationBase
                 foreach (var albumLikeRef in albumLikeRefs)
                 {
                     var albumLike = X.Apply(albumLikeRef.ConvertTo<AlbumLike>(), x => x.AlbumId = album.Id);
+                    albumLike.AppUserId = Users.GetUserById(albumLike.AppUserId).Id;
                     Db.Insert(albumLike);
                 }
             }
