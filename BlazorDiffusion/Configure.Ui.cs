@@ -8,6 +8,7 @@ using ServiceStack.IO;
 using BlazorDiffusion.ServiceModel;
 using Amazon.S3;
 using ServiceStack.Logging;
+using System.Diagnostics;
 
 [assembly: HostingStartup(typeof(BlazorDiffusion.ConfigureUi))]
 
@@ -25,20 +26,36 @@ public class ConfigureUi : IHostingStartup
             var s3Client = container.Resolve<AmazonS3Client>();
             var appConfig = container.Resolve<AppConfig>();
 
+            IVirtualFiles virtualFiles = appHost.Config.DebugMode
+                ? new FileSystemVirtualFiles(Path.GetFullPath(Path.Combine(appHost.GetWebRootPath(), "../BlazorDiffusion.Client/wwwroot")))
+                : new R2VirtualFilesProvider(s3Client, appConfig.CdnBucket);
+
             container.Register<IPrerenderer>(c => new Prerenderer
             {
                 BaseUrl = appConfig.BaseUrl,
-                VirtualFiles = appHost.Config.DebugMode
-                    ? new FileSystemVirtualFiles(appHost.GetWebRootPath())
-                    : new R2VirtualFilesProvider(s3Client, appConfig.CdnBucket),
+                VirtualFiles = virtualFiles,
                 PrerenderDir = "/prerender",
                 Renderer = c.Resolve<IComponentRenderer>(),
                 Pages = {
-                    [typeof(Pages.Index)] = "/index.html",
-                    [typeof(Pages.Create)] = "/create.html",
+                    new(typeof(Pages.Index),  "/index.html", new() { [nameof(Pages.Index.LazyLoad)] = "false" }),
+                    new(typeof(Pages.Create), "/create.html"),
                 }
             });
         });
+}
+
+public class PrerenderPage
+{
+    public Type Component { get; set; }
+    public Dictionary<string, object> ComponentArgs { get; set; }
+    public string WritePath { get; set; }
+
+    public PrerenderPage(Type component, string writePath, Dictionary<string, object>? componentArgs = null)
+    {
+        Component = component;
+        ComponentArgs = componentArgs ?? new();
+        WritePath = writePath;
+    }
 }
 
 public class Prerenderer : IPrerenderer
@@ -47,19 +64,30 @@ public class Prerenderer : IPrerenderer
     public IVirtualFiles VirtualFiles { get; init; }
     public string PrerenderDir { get; set; }
     public IComponentRenderer Renderer { get; init; }
-    public Dictionary<Type, string> Pages { get; } = new();
+    public List<PrerenderPage> Pages { get; } = new();
 
     public async Task RenderPages(HttpContext? httpContext = null)
     {
         var log = LogManager.GetLogger(GetType());
         httpContext ??= HttpContextFactory.CreateHttpContext(BaseUrl);
 
-        foreach (var entry in Pages)
+        var sw = Stopwatch.StartNew();
+        foreach (var page in Pages)
         {
-            var path = PrerenderDir.CombineWith(entry.Value);
-            log.DebugFormat("Rendering {0} to {1} {2}...", entry.Key.FullName, VirtualFiles.RootDirectory.RealPath, path);
-            var html = await Renderer.RenderComponentAsync(entry.Value, httpContext);
-            await VirtualFiles.WriteFileAsync(path, html);
+            sw.Restart();
+            var path = PrerenderDir.CombineWith(page.WritePath);
+            log.DebugFormat("Rendering {0} to {1} {2}...", page.Component.FullName, VirtualFiles.GetType().Name, path);
+            var html = await Renderer.RenderComponentAsync(page.Component, httpContext, page.ComponentArgs);
+            log.DebugFormat("Rendered {0} in {1} bytes, took {2}ms", page.Component.FullName, html?.Length ?? -1, sw.ElapsedMilliseconds);
+
+            if (!string.IsNullOrEmpty(html))
+            {
+                VirtualFiles.WriteFile(path, html);
+            }
+            else
+            {
+                VirtualFiles.DeleteFile(path);
+            }
         }
     }
 }
@@ -73,7 +101,7 @@ public class ComponentRenderer : IComponentRenderer
         Types = types.ToList();
     }
 
-    public Task<string> RenderComponentAsync(string typeName, HttpContext httpContext, Dictionary<object, object>? args = null)
+    public Task<string> RenderComponentAsync(string typeName, HttpContext httpContext, Dictionary<string, object>? args = null)
     {
         var type = typeName.IndexOf('.') < 0 
             ? Types.FirstOrDefault(x => x.Name == typeName)
@@ -84,22 +112,38 @@ public class ComponentRenderer : IComponentRenderer
         return RenderComponentAsync(type, httpContext, args);
     }
 
-    public Task<string> RenderComponentAsync<T>(HttpContext httpContext, Dictionary<object, object>? args = null) =>
+    public Task<string> RenderComponentAsync<T>(HttpContext httpContext, Dictionary<string, object>? args = null) =>
         RenderComponentAsync(typeof(T), httpContext, args);
 
-    public async Task<string> RenderComponentAsync(Type type, HttpContext httpContext, Dictionary<object, object>? args = null)
+    public async Task<string> RenderComponentAsync(Type componentType, HttpContext httpContext, Dictionary<string, object>? args = null)
     {
+        var componentArgs = new Dictionary<string, object>();
+        if (args != null)
+        {
+            var accessors = TypeProperties.Get(componentType);
+            foreach (var entry in args)
+            {
+                var prop = accessors.GetPublicProperty(entry.Key);
+                if (prop == null)
+                    continue;
+
+                var value = entry.Value.ConvertTo(prop.PropertyType);
+                componentArgs[prop.Name] = value;
+            }
+        }
+
         var componentTagHelper = new ComponentTagHelper
         {
-            ComponentType = type,
-            RenderMode = RenderMode.Static,
-            Parameters = new Dictionary<string, object>(), //TODO: Overload and pass in parameters
+            ComponentType = componentType,
+            RenderMode = RenderMode.WebAssemblyPrerendered,
+            Parameters = componentArgs,
             ViewContext = new ViewContext { HttpContext = httpContext },
         };
 
+        var objArgs = new Dictionary<object, object>();
         var tagHelperContext = new TagHelperContext(
             new TagHelperAttributeList(),
-            args ?? new Dictionary<object, object>(),
+            objArgs,
             "uniqueid");
 
         var tagHelperOutput = new TagHelperOutput(

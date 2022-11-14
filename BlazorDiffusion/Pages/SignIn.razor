@@ -15,7 +15,7 @@
 
 <div class="max-w-screen-md">
 
-<form method="post" action="/auth/credentials" class="max-w-xl">
+<form method="post" action="/auth/credentials" @onsubmit="submit" @onsubmit:preventDefault class="max-w-xl">
 <input type="hidden" name="continue" value=@(ReturnUrl ?? "/signin") />
 <CascadingValue Value=@api.Error>
     <div class="shadow overflow-hidden sm:rounded-md">

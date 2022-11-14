@@ -78,3 +78,13 @@ public class RenderComponent : IGet, IReturn<string>
     public string Type { get; set; }
     public bool TestContext { get; set; }
 }
+
+[ExcludeMetadata]
+[ValidateHasRole(AppRoles.Moderator)]
+public class Prerender : IGet, IReturn<PrerenderResponse> { }
+
+public class PrerenderResponse
+{
+    public List<string> Results { get; set; }
+    public ResponseStatus ResponseStatus { get; set; }
+}

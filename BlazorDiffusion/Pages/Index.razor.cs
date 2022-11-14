@@ -32,6 +32,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
     [Parameter, SupplyParameterFromQuery] public string? source { get; set; }
     [Parameter, SupplyParameterFromQuery] public int? Id { get; set; }
     [Parameter, SupplyParameterFromQuery] public int? View { get; set; }
+    [Parameter, SupplyParameterFromQuery] public bool? LazyLoad { get; set; }
 
     GalleryResults GalleryResults = new(); // composite params to hopefully reduce params
 

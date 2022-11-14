@@ -52,7 +52,7 @@
         <div class="relative p-2 flex flex-col cursor-pointer items-center" style=@($"max-width:{artifact.Width}px")
              @oncontextmenu="e => showArtifactMenu(e, artifact)" @oncontextmenu:preventDefault>
 
-            <ArtifactImage Artifact="artifact" LazyLoad="true" 
+            <ArtifactImage Artifact="artifact" LazyLoad="LazyLoad ?? true" 
                 class=@ClassNames("rounded-xl border-2", ResolveBorderColor(artifact, Selected?.Id, UserState)) />
 
             <div class="absolute top-0 left-0 w-full h-full group select-none overflow-hidden m-1 rounded-xl">

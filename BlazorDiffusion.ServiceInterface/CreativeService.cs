@@ -422,6 +422,7 @@ public interface IPrerenderer
 
 public interface IComponentRenderer
 {
-    Task<string> RenderComponentAsync(string typeName, HttpContext httpContext, Dictionary<object, object>? args = null);
-    Task<string> RenderComponentAsync<T>(HttpContext httpContext, Dictionary<object, object>? args = null);
+    Task<string> RenderComponentAsync(string typeName, HttpContext httpContext, Dictionary<string, object>? args = null);
+    Task<string> RenderComponentAsync<T>(HttpContext httpContext, Dictionary<string, object>? args = null);
+    Task<string> RenderComponentAsync(Type type, HttpContext httpContext, Dictionary<string, object>? args = null);
 }
