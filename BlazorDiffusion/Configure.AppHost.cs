@@ -37,6 +37,8 @@ public class AppHost : AppHostBase, IHostingStartup
             allowOriginWhitelist: new[]{
             "http://localhost:5000",
             baseUrl,
+            "https://blazordiffusion.com",
+            "https://pub-e17dff5b2d09437a97efdbb7f6ee3701.r2.dev", // CDN diffusion-client public bucket
         }, allowCredentials: true));
 
         var r2AccessId = Environment.GetEnvironmentVariable("R2_ACCESS_KEY_ID")!;
