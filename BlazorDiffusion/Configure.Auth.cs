@@ -74,7 +74,12 @@ public class ConfigureAuth : IHostingStartup
                     }
                 })
             {
-                IncludeDefaultLogin = false
+                IncludeDefaultLogin = false,
+                ValidateRedirectLinks = (ServiceStack.Web.IRequest req, string redirect) => {
+                    // Allow external redirect from WASM
+                    if (!redirect.StartsWith("https://blazordiffusion.com"))
+                        AuthFeature.NoExternalRedirects(req, redirect);
+                }
             });
 
             appHost.Plugins.Add(new RegistrationFeature()); //Enable /register Service
