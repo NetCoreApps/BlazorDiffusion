@@ -42,30 +42,27 @@
         <PackageReference Include="bunit" Version="1.4.*" />
     </ItemGroup>
     
-    <ItemGroup>
+    <!--ItemGroup>
         <PackageReference Include="ServiceStack" Version="6.*" />
         <PackageReference Include="ServiceStack.Aws" Version="6.4.1" />
         <PackageReference Include="ServiceStack.Blazor" Version="6.*" />
         <PackageReference Include="ServiceStack.OrmLite.Sqlite.Data" Version="6.*" />
         <PackageReference Include="ServiceStack.Server" Version="6.*" />
         <PackageReference Include="ServiceStack.Kestrel" Version="6.*" />
-    </ItemGroup>
+    </ItemGroup-->
     
     <ItemGroup>
-      <Folder Include="App_Files\avatars\" />
+        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack.Aws\src\ServiceStack.Aws\ServiceStack.Aws.csproj" />
+        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack.Blazor\src\ServiceStack.Blazor\ServiceStack.Blazor.csproj" />
+        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack.OrmLite\src\ServiceStack.OrmLite.Sqlite.Data\ServiceStack.OrmLite.Sqlite.Data.csproj" />
+        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack.OrmLite\src\ServiceStack.OrmLite\ServiceStack.OrmLite.csproj" />
+        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack.Text\src\ServiceStack.Text\ServiceStack.Text.csproj" />
+        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack\src\ServiceStack.Client\ServiceStack.Client.csproj" />
+        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack\src\ServiceStack.Common\ServiceStack.Common.csproj" />
+        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack\src\ServiceStack.Interfaces\ServiceStack.Interfaces.csproj" />
+        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack\src\ServiceStack.Server\ServiceStack.Server.csproj" />
+        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack\src\ServiceStack\ServiceStack.csproj" />
+        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack\src\ServiceStack.Kestrel\ServiceStack.Kestrel.csproj" />
     </ItemGroup>
-    <!--<ItemGroup>
-        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack.Aws\src\ServiceStack.Aws\ServiceStack.Aws.csproj" />
-        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack.Blazor\src\ServiceStack.Blazor\ServiceStack.Blazor.csproj" />
-        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack.OrmLite\src\ServiceStack.OrmLite.Sqlite.Data\ServiceStack.OrmLite.Sqlite.Data.csproj" />
-        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack.OrmLite\src\ServiceStack.OrmLite\ServiceStack.OrmLite.csproj" />
-        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack.Text\src\ServiceStack.Text\ServiceStack.Text.csproj" />
-        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\src\ServiceStack.Client\ServiceStack.Client.csproj" />
-        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\src\ServiceStack.Common\ServiceStack.Common.csproj" />
-        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\src\ServiceStack.Interfaces\ServiceStack.Interfaces.csproj" />
-        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\src\ServiceStack.Server\ServiceStack.Server.csproj" />
-        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\src\ServiceStack\ServiceStack.csproj" />
-        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\src\ServiceStack.Kestrel\ServiceStack.Kestrel.csproj" />
-    </ItemGroup>-->
 
 </Project>
