@@ -1,5 +1,9 @@
-﻿
-using ServiceStack;
+﻿using ServiceStack;
+using SixLabors.ImageSharp;
+using System.Collections.Generic;
+using System;
+using ServiceStack.Configuration;
+using BlazorDiffusion.ServiceModel;
 
 namespace BlazorDiffusion.ServiceInterface;
 
@@ -11,4 +15,16 @@ public class CustomUserSession : AuthUserSession
     public string RefIdStr { get; set; }
 
     public int GetUserId() => UserAuthId.ToInt();
+}
+
+public static class UsersExtensions
+{
+    public static CustomUserSession ToUserSession(this AppUser appUser)
+    {
+        var session = appUser.ConvertTo<CustomUserSession>();
+        session.Id = SessionExtensions.CreateRandomSessionId();
+        session.IsAuthenticated = true;
+        session.FromToken = true; // use embedded roles
+        return session;
+    }
 }

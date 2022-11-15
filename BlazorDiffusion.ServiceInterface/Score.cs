@@ -10,20 +10,44 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BlazorDiffusion.ServiceInterface;
 
 public static class Updated
 {
+    public static long Scores = 0;
     public static ConcurrentBag<int> CreativeIds = new();
     public static ConcurrentBag<int> ArtifactIds = new();
     public static ConcurrentBag<int> AlbumIds = new();
+
+    public static void CreativeScore(int creativeId)
+    {
+        CreativeIds.Add(creativeId);
+        Interlocked.Increment(ref Scores);
+    }
+    public static void ArtifactScore(int artifactId)
+    {
+        ArtifactIds.Add(artifactId);
+        Interlocked.Increment(ref Scores);
+    }
+    public static void AlbumScore(int albumId)
+    {
+        AlbumIds.Add(albumId);
+        Interlocked.Increment(ref Scores);
+    }
+    public static long ResetScores()
+    {
+        var to = Interlocked.CompareExchange(ref Scores, 0, Scores);
+        return to;
+    }
 }
 
 public static class Scores
 {
     public static ILog Log = LogManager.GetLogger(typeof(Scores));
+
 
     public static class Weights
     {
@@ -250,14 +274,14 @@ public static class Scores
             await db.UpdateAddAsync(() => new Artifact { Score = -Weights.PrimaryArtifact }, where: x => x.Id == fromArtifactId.Value);
             CreativePrimaryArtifactMap.TryRemove(creativeId, out _);
             PrimaryArtifactCreativeMap.TryRemove(fromArtifactId.Value, out _);
-            Updated.ArtifactIds.Add(fromArtifactId.Value);
+            Updated.ArtifactScore(fromArtifactId.Value);
         }
         if (toArtifactId != null)
         {
             await db.UpdateAddAsync(() => new Artifact { Score = Weights.PrimaryArtifact }, where: x => x.Id == toArtifactId.Value);
             CreativePrimaryArtifactMap[creativeId] = toArtifactId.Value;
             PrimaryArtifactCreativeMap[toArtifactId.Value] = creativeId;
-            Updated.ArtifactIds.Add(toArtifactId.Value);
+            Updated.ArtifactScore(toArtifactId.Value);
         }
     }
 
@@ -267,7 +291,7 @@ public static class Scores
         PrimaryArtifactCreativeMap[artifactId] = creativeId;
 
         await db.UpdateAddAsync(() => new Artifact { Score = Weights.PrimaryArtifact }, where: x => x.Id == artifactId);
-        Updated.ArtifactIds.Add(artifactId);
+        Updated.ArtifactScore(artifactId);
     }
 
     public static async Task IncrementArtifactLikeAsync(IDbConnection db, int artifactId)
@@ -276,7 +300,7 @@ public static class Scores
             ? count + 1
             : 1;
         await db.UpdateAddAsync(() => new Artifact { LikesCount = 1, Score = Weights.Like }, where: x => x.Id == artifactId);
-        Updated.ArtifactIds.Add(artifactId);
+        Updated.ArtifactScore(artifactId);
     }
 
     public static async Task DecrementArtifactLikeAsync(IDbConnection db, int artifactId)
@@ -285,7 +309,7 @@ public static class Scores
             ? Math.Max(count - 1, 0)
             : 0;
         await db.UpdateAddAsync(() => new Artifact { LikesCount = -1, Score = -Weights.Like }, where: x => x.Id == artifactId);
-        Updated.ArtifactIds.Add(artifactId);
+        Updated.ArtifactScore(artifactId);
     }
 
     public static async Task IncrementAlbumLikeAsync(IDbConnection db, int albumId)
@@ -294,7 +318,7 @@ public static class Scores
             ? count + 1
             : 1;
         await db.UpdateAddAsync(() => new Album { LikesCount = 1, Score = Weights.Like }, where: x => x.Id == albumId);
-        Updated.AlbumIds.Add(albumId);
+        Updated.AlbumScore(albumId);
     }
 
     public static async Task DecrementAlbumLikeAsync(IDbConnection db, int albumId)
@@ -312,7 +336,7 @@ public static class Scores
             ? count + 1
             : 1;
         await db.UpdateAddAsync(() => new Artifact { AlbumsCount = 1, Score = Weights.InAlbum }, where: x => x.Id == artifactId);
-        Updated.ArtifactIds.Add(artifactId);
+        Updated.ArtifactScore(artifactId);
     }
 
     public static async Task DencrementArtifactInAlbumAsync(IDbConnection db, int artifactId)
@@ -321,7 +345,7 @@ public static class Scores
             ? Math.Max(count - 1, 0)
             : 0;
         await db.UpdateAddAsync(() => new Artifact { AlbumsCount = -1, Score = -Weights.InAlbum }, where: x => x.Id == artifactId);
-        Updated.ArtifactIds.Add(artifactId);
+        Updated.ArtifactScore(artifactId);
     }
 
     public static async Task IncrementArtifactDownloadAsync(IDbConnection db, int artifactId)
@@ -330,7 +354,7 @@ public static class Scores
             ? count + 1
             : 1;
         await db.UpdateAddAsync(() => new Artifact { DownloadsCount = 1, Score = Weights.Download }, where: x => x.Id == artifactId);
-        Updated.ArtifactIds.Add(artifactId);
+        Updated.ArtifactScore(artifactId);
     }
 
     public static async Task IncrementArtifactSearchAsync(IDbConnection db, int artifactId)
@@ -339,7 +363,7 @@ public static class Scores
             ? count + 1
             : 1;
         await db.UpdateAddAsync(() => new Artifact { SearchCount = 1, Score = Weights.Search }, where: x => x.Id == artifactId);
-        Updated.ArtifactIds.Add(artifactId);
+        Updated.ArtifactScore(artifactId);
     }
 
     public static async Task IncrementAlbumSearchAsync(IDbConnection db, int albumId)
@@ -348,6 +372,6 @@ public static class Scores
             ? count + 1
             : 1;
         await db.UpdateAddAsync(() => new Album { SearchCount = 1, Score = Weights.Search }, where: x => x.Id == albumId);
-        Updated.AlbumIds.Add(albumId);
+        Updated.AlbumScore(albumId);
     }
 }

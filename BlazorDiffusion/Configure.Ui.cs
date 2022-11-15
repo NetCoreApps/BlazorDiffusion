@@ -77,19 +77,26 @@ public class Prerenderer : IPrerenderer
         var sw = Stopwatch.StartNew();
         foreach (var page in Pages)
         {
-            sw.Restart();
-            var path = PrerenderDir.CombineWith(page.WritePath);
-            log.DebugFormat("Rendering {0} to {1} {2}...", page.Component.FullName, VirtualFiles.GetType().Name, path);
-            var html = await Renderer.RenderComponentAsync(page.Component, httpContext, page.ComponentArgs);
-            log.DebugFormat("Rendered {0} in {1} bytes, took {2}ms", page.Component.FullName, html?.Length ?? -1, sw.ElapsedMilliseconds);
+            try
+            {
+                sw.Restart();
+                var path = PrerenderDir.CombineWith(page.WritePath);
+                log.DebugFormat("Rendering {0} to {1} {2}...", page.Component.FullName, VirtualFiles.GetType().Name, path);
+                var html = await Renderer.RenderComponentAsync(page.Component, httpContext, page.ComponentArgs);
+                log.DebugFormat("Rendered {0} in {1} bytes, took {2}ms", page.Component.FullName, html?.Length ?? -1, sw.ElapsedMilliseconds);
 
-            if (!string.IsNullOrEmpty(html))
-            {
-                VirtualFiles.WriteFile(path, html);
+                if (!string.IsNullOrEmpty(html))
+                {
+                    VirtualFiles.WriteFile(path, html);
+                }
+                else
+                {
+                    VirtualFiles.DeleteFile(path);
+                }
             }
-            else
+            catch (Exception e)
             {
-                VirtualFiles.DeleteFile(path);
+                LogManager.GetLogger(GetType()).Error(e, "Error trying to render {0}: {1}", page.Component.FullName, e.Message);
             }
         }
     }

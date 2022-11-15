@@ -1,4 +1,7 @@
-﻿namespace BlazorDiffusion.ServiceModel;
+﻿using System.Collections.Generic;
+using System;
+
+namespace BlazorDiffusion.ServiceModel;
 
 public static class Databases
 {
@@ -63,4 +66,6 @@ public static class Users
         5 => Test,
         _ => System,
     };
+
+    public static bool IsAdminOrSystem(int? appUserId) => appUserId == 1 || appUserId == 2;
 }

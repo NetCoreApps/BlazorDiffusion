@@ -169,19 +169,26 @@ public class SearchService : Service
             q.SelectDistinct<Artifact, Creative>((a, c) => new { a, c.UserPrompt, c.ArtistNames, c.ModifierNames, c.PrimaryArtifactId, c.OwnerRef });
         }
 
-        PublishMessage(new AnalyticsTasks {
-            RecordSearchStat = new SearchStat {
-                Query = query.Query,
-                Similar = query.Similar,
-                User = query.User,
-                Show = query.Show,
-                Modifier = query.Modifier,
-                Artist = query.Artist,
-                Album = query.Album,
-                ArtifactId = similarToArtifact?.Id,
-                Source = query.Source,                
-            }.WithRequest(Request, await GetSessionAsync()),
-        });
+        // Don't record analytics when prerendering
+        var session = await SessionAsAsync<CustomUserSession>();
+        if (session.RefIdStr != Users.Admin.RefIdStr && session.RefIdStr != Users.System.RefIdStr)
+        {
+            base.PublishMessage(new AnalyticsTasks
+            {
+                RecordSearchStat = new SearchStat
+                {
+                    Query = query.Query,
+                    Similar = query.Similar,
+                    User = query.User,
+                    Show = query.Show,
+                    Modifier = query.Modifier,
+                    Artist = query.Artist,
+                    Album = query.Album,
+                    ArtifactId = similarToArtifact?.Id,
+                    Source = query.Source,
+                }.WithRequest(Request, session),
+            });
+        }
 
         return AutoQuery.ExecuteAsync(query, q, base.Request, db);
     }

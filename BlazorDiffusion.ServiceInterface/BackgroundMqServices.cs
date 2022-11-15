@@ -1,5 +1,6 @@
 ﻿using BlazorDiffusion.ServiceModel;
 using ServiceStack;
+using ServiceStack.Auth;
 using ServiceStack.Host.NetCore;
 using ServiceStack.Logging;
 using ServiceStack.OrmLite;
@@ -9,8 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using static BlazorDiffusion.HttpContextFactory;
 
 namespace BlazorDiffusion.ServiceInterface;
 
@@ -18,9 +19,13 @@ public class BackgroundMqServices : Service
 {
     public IStableDiffusionClient StableDiffusionClient { get; set; }
     public static ILog Log = LogManager.GetLogger(typeof(BackgroundMqServices));
+    public AppConfig AppConfig { get; set; }
 
     public async Task Any(DiskTasks request)
     {
+        if (Interlocked.Read(ref InSyncTasks) > 0)
+            return;
+
         var creative = request.SaveCreative ?? (request.SaveCreativeId != null
             ? await Db.LoadSingleByIdAsync<Creative>(request.SaveCreativeId)
             : null);
@@ -52,6 +57,9 @@ public class BackgroundMqServices : Service
     TimeSpan SyncTasksInterval = TimeSpan.FromMinutes(10);
     async Task PulseSyncTasks()
     {
+        if (Interlocked.Read(ref InSyncTasks) > 0)
+            return;
+
         var lastRun = DateTime.UtcNow - lastSyncTasksPeriodicRun;
         if (lastRun > SyncTasksInterval)
         {
@@ -60,153 +68,175 @@ public class BackgroundMqServices : Service
         }
     }
 
+    static long InSyncTasks = 0;
     public async Task<object> Any(SyncTasks request)
     {
-        // Update temporal scores + save all creatives with Artifacts that have changed
-        var sw = Stopwatch.StartNew();
-        var msgs = new List<string>();
-        void log(string message, params object[] args)
+        if (Interlocked.CompareExchange(ref InSyncTasks, 1, 0) > 0)
+            return new SyncTasksResponse();
+
+        try
         {
-            msgs.Add(string.Format(message, args));
-            Log.DebugFormat(message, args);
-        }
-
-        var type = request.Periodic == true 
-            ? nameof(request.Periodic) 
-                : request.Daily == true 
-                    ? nameof(request.Daily) 
-                    : "";
-
-        log("SyncTasks {0} started at {1}", type, DateTime.UtcNow.ToString("s"));
-
-        if (request.Periodic == true)
-        {
-            var swTask = Stopwatch.StartNew();
-            var thresholdDate = DateTime.UtcNow.Add(-Scores.TemporalScoreThreshold);
-            var artifacts = Db.Select(Db.From<Artifact>()
-                .Join<Creative>((a,c) => a.Id == c.PrimaryArtifactId)
-                .Where(x => x.TemporalScore > 0 || x.CreatedDate >= thresholdDate));
-
-            log("Found {0} artifacts created before {1}", artifacts.Count, thresholdDate.ToString("s"));
-
-            var count = 0;
-            foreach (var artifact in artifacts)
+            // Update temporal scores + save all creatives with Artifacts that have changed
+            var sw = Stopwatch.StartNew();
+            var msgs = new List<string>();
+            void log(string message, params object[] args)
             {
-                if (Scores.PopulateTemporalScore(artifact))
-                {
-                    count++;
-                    await Db.UpdateOnlyAsync(() => new Artifact { TemporalScore = artifact.TemporalScore }, x => x.Id == artifact.Id);
-                    Updated.ArtifactIds.Add(artifact.Id);
-                }
+                msgs.Add(string.Format(message, args));
+                Log.DebugFormat(message, args);
             }
-            log("SyncTasks Periodic updated {0} artifacts, took {1}ms", count, swTask.ElapsedMilliseconds);
 
-            count = 0;
-            swTask.Restart();
-            var updatedAlbumsIds = new HashSet<int>();
-            while (Updated.AlbumIds.TryTake(out var albumId)) updatedAlbumsIds.Add(albumId);
+            var type = request.Periodic == true 
+                ? nameof(request.Periodic) 
+                    : request.Daily == true 
+                        ? nameof(request.Daily) 
+                        : "";
 
-            var updatedAlbums = await Db.SelectAsync<Album>(x => updatedAlbumsIds.Contains(x.Id));
-            foreach (var album in updatedAlbums)
+            log("SyncTasks {0} started at {1}", type, DateTime.UtcNow.ToString("s"));
+
+            if (request.Periodic == true)
             {
-                var needsUpdating = Scores.PopulateAlbumScores(album);
-                if (needsUpdating)
+                var swTask = Stopwatch.StartNew();
+                var thresholdDate = DateTime.UtcNow.Add(-Scores.TemporalScoreThreshold);
+                var artifacts = Db.Select(Db.From<Artifact>()
+                    .Join<Creative>((a,c) => a.Id == c.PrimaryArtifactId)
+                    .Where(x => x.TemporalScore > 0 || x.CreatedDate >= thresholdDate));
+
+                log("Found {0} artifacts created before {1}", artifacts.Count, thresholdDate.ToString("s"));
+
+                var count = 0;
+                foreach (var artifact in artifacts)
                 {
-                    count++;
-                    await Db.UpdateOnlyAsync(() => new Album
+                    if (Scores.PopulateTemporalScore(artifact))
                     {
-                        LikesCount = album.LikesCount,
-                        SearchCount = album.SearchCount,
-                        Score = album.Score,
-                    }, x => x.Id == album.Id);
+                        count++;
+                        await Db.UpdateOnlyAsync(() => new Artifact { TemporalScore = artifact.TemporalScore }, x => x.Id == artifact.Id);
+                        Updated.ArtifactScore(artifact.Id);
+                    }
                 }
-            }
-            log("SyncTasks Periodic updated {0} albums, took {1}ms", count, swTask.ElapsedMilliseconds);
+                log("SyncTasks Periodic updated {0} artifacts, took {1}ms", count, swTask.ElapsedMilliseconds);
 
-            swTask.Restart();
-            await Prerenderer.RenderPages();
-            log("SyncTasks Prerenderer.RenderPages took {0}ms", swTask.ElapsedMilliseconds);
-        }
+                count = 0;
+                swTask.Restart();
+                var updatedAlbumsIds = new HashSet<int>();
+                while (Updated.AlbumIds.TryTake(out var albumId)) updatedAlbumsIds.Add(albumId);
 
-        if (request.Daily == true)
-        {
-            var swTask = Stopwatch.StartNew();
-            Scores.Clear();
-            Scores.Load(Db);
-            using var dbAnalytics = OpenDbConnection(Databases.Analytics);
-            Scores.LoadAnalytics(dbAnalytics);
-
-            var count = 0;
-            var allCreatives = await Db.LoadSelectAsync(Db.From<Creative>());
-            foreach (var creative in allCreatives)
-            {
-                foreach (var artifact in creative.Artifacts.OrEmpty())
+                var updatedAlbums = await Db.SelectAsync<Album>(x => updatedAlbumsIds.Contains(x.Id));
+                foreach (var album in updatedAlbums)
                 {
-                    var needsUpdating = Scores.PopulateArtifactScores(artifact) || Scores.PopulateTemporalScore(artifact);
+                    var needsUpdating = Scores.PopulateAlbumScores(album);
                     if (needsUpdating)
                     {
                         count++;
-                        await Db.UpdateOnlyAsync(() => new Artifact { 
-                            TemporalScore = artifact.TemporalScore,
-                            LikesCount = artifact.LikesCount,
-                            AlbumsCount = artifact.AlbumsCount,
-                            DownloadsCount = artifact.DownloadsCount,
-                            SearchCount = artifact.SearchCount,
-                            Score = artifact.Score,
-                        }, x => x.Id == artifact.Id);
-                        Updated.ArtifactIds.Add(artifact.Id);
+                        await Db.UpdateOnlyAsync(() => new Album
+                        {
+                            LikesCount = album.LikesCount,
+                            SearchCount = album.SearchCount,
+                            Score = album.Score,
+                        }, x => x.Id == album.Id);
+                        Updated.AlbumScore(album.Id);
                     }
                 }
-            }
-            log("SyncTasks Daily updated {0} artifacts, took {1}ms", count, swTask.ElapsedMilliseconds);
+                log("SyncTasks Periodic updated {0} albums, took {1}ms", count, swTask.ElapsedMilliseconds);
 
-            count = 0;
-            swTask.Restart();
-            var allAlbums = await Db.SelectAsync<Album>();
-            foreach (var album in allAlbums)
-            {
-                var needsUpdating = Scores.PopulateAlbumScores(album);
-                if (needsUpdating)
+                if (Updated.ResetScores() > 0)
                 {
-                    count++;
-                    await Db.UpdateOnlyAsync(() => new Album
-                    {
-                        LikesCount = album.LikesCount,
-                        SearchCount = album.SearchCount,
-                        Score = album.Score,
-                    }, x => x.Id == album.Id);
+                    swTask.Restart();
+                    await Prerenderer.RenderPages(); //endless loop when using InProcGateway
+                    //var jwtProvider = (JwtAuthProvider)AuthenticateService.GetRequiredJwtAuthProvider();
+                    //var jwtAdmin = jwtProvider.CreateJwtBearerToken(Users.System.ToUserSession());
+                    //var client = new JsonApiClient(AppConfig.BaseUrl) {
+                    //    BearerToken = jwtAdmin
+                    //};
+                    //var api = await client.ApiAsync(new Prerender());
+                    //if (!api.Succeeded) log("SyncTasks Prerenderer.RenderPages Failed: {0}", api.Error.GetDetailedError());
+                    log("SyncTasks Prerenderer.RenderPages took {0}ms", swTask.ElapsedMilliseconds);
                 }
             }
-            log("SyncTasks Daily updated {0} albums, took {1}ms", count, swTask.ElapsedMilliseconds);
+
+            if (request.Daily == true)
+            {
+                var swTask = Stopwatch.StartNew();
+                Scores.Clear();
+                Scores.Load(Db);
+                using var dbAnalytics = OpenDbConnection(Databases.Analytics);
+                Scores.LoadAnalytics(dbAnalytics);
+
+                var count = 0;
+                var allCreatives = await Db.LoadSelectAsync(Db.From<Creative>());
+                foreach (var creative in allCreatives)
+                {
+                    foreach (var artifact in creative.Artifacts.OrEmpty())
+                    {
+                        var needsUpdating = Scores.PopulateArtifactScores(artifact) || Scores.PopulateTemporalScore(artifact);
+                        if (needsUpdating)
+                        {
+                            count++;
+                            await Db.UpdateOnlyAsync(() => new Artifact { 
+                                TemporalScore = artifact.TemporalScore,
+                                LikesCount = artifact.LikesCount,
+                                AlbumsCount = artifact.AlbumsCount,
+                                DownloadsCount = artifact.DownloadsCount,
+                                SearchCount = artifact.SearchCount,
+                                Score = artifact.Score,
+                            }, x => x.Id == artifact.Id);
+                            Updated.ArtifactIds.Add(artifact.Id);
+                        }
+                    }
+                }
+                log("SyncTasks Daily updated {0} artifacts, took {1}ms", count, swTask.ElapsedMilliseconds);
+
+                count = 0;
+                swTask.Restart();
+                var allAlbums = await Db.SelectAsync<Album>();
+                foreach (var album in allAlbums)
+                {
+                    var needsUpdating = Scores.PopulateAlbumScores(album);
+                    if (needsUpdating)
+                    {
+                        count++;
+                        await Db.UpdateOnlyAsync(() => new Album
+                        {
+                            LikesCount = album.LikesCount,
+                            SearchCount = album.SearchCount,
+                            Score = album.Score,
+                        }, x => x.Id == album.Id);
+                    }
+                }
+                log("SyncTasks Daily updated {0} albums, took {1}ms", count, swTask.ElapsedMilliseconds);
+            }
+
+            var swWrites = Stopwatch.StartNew();
+            int id = 0;
+            var creativeIds = new HashSet<int>();
+            while (Updated.CreativeIds.TryTake(out id)) creativeIds.Add(id);
+
+            var artifactIds = new HashSet<int>();
+            while (Updated.ArtifactIds.TryTake(out id)) artifactIds.Add(id);
+
+            var albumIds = new HashSet<int>();
+            while (Updated.AlbumIds.TryTake(out id)) albumIds.Add(id);
+
+            var artifactCreativeIds = await Db.ColumnDistinctAsync<int>(Db.From<Artifact>()
+                .Where(x => artifactIds.Contains(x.Id))
+                .Select(x => x.CreativeId));
+            artifactCreativeIds.Each(x => creativeIds.Add(x));
+
+            log("SyncTasks SaveCreatives {0} / {1}: {2}", creativeIds.Count, artifactCreativeIds.Count, string.Join(",", creativeIds));
+            var creatives = await Db.LoadSelectAsync<Creative>(x => creativeIds.Contains(x.Id));
+            foreach (var creative in creatives)
+            {
+                await StableDiffusionClient.SaveCreativeAsync(creative);
+            }
+            log("SyncTasks SaveCreatives took {0}ms", swWrites.ElapsedMilliseconds);
+
+            log("SyncTasks {0} Total took {1}ms", type, sw.ElapsedMilliseconds);
+
+            return new SyncTasksResponse { Results = msgs };
         }
-
-        var swWrites = Stopwatch.StartNew();
-        int id = 0;
-        var creativeIds = new HashSet<int>();
-        while (Updated.CreativeIds.TryTake(out id)) creativeIds.Add(id);
-
-        var artifactIds = new HashSet<int>();
-        while (Updated.ArtifactIds.TryTake(out id)) artifactIds.Add(id);
-
-        var albumIds = new HashSet<int>();
-        while (Updated.AlbumIds.TryTake(out id)) albumIds.Add(id);
-
-        var artifactCreativeIds = await Db.ColumnDistinctAsync<int>(Db.From<Artifact>()
-            .Where(x => artifactIds.Contains(x.Id))
-            .Select(x => x.CreativeId));
-        artifactCreativeIds.Each(x => creativeIds.Add(x));
-
-        log("SyncTasks SaveCreatives {0} / {1}: {2}", creativeIds.Count, artifactCreativeIds.Count, string.Join(",", creativeIds));
-        var creatives = await Db.LoadSelectAsync<Creative>(x => creativeIds.Contains(x.Id));
-        foreach (var creative in creatives)
+        finally
         {
-            await StableDiffusionClient.SaveCreativeAsync(creative);
+            Interlocked.CompareExchange(ref InSyncTasks, 0, 1);
         }
-        log("SyncTasks SaveCreatives took {0}ms", swWrites.ElapsedMilliseconds);
-
-        log("SyncTasks {0} Total took {1}ms", type, sw.ElapsedMilliseconds);
-
-        return new SyncTasksResponse { Results = msgs };
     }
 
     public async Task Any(BackgroundTasks request)
@@ -265,7 +295,7 @@ public class BackgroundMqServices : Service
     {
         using var analyticsDb = HostContext.AppHost.GetDbConnection(Databases.Analytics);
         
-        if (request.RecordArtifactStat != null)
+        if (request.RecordArtifactStat != null && !Users.IsAdminOrSystem(request.RecordArtifactStat.AppUserId))
         {
             await analyticsDb.InsertAsync(request.RecordArtifactStat);
 
@@ -273,7 +303,7 @@ public class BackgroundMqServices : Service
                 await Scores.IncrementArtifactDownloadAsync(Db, request.RecordArtifactStat.ArtifactId);
         }
 
-        if (request.RecordSearchStat != null)
+        if (request.RecordSearchStat != null && !Users.IsAdminOrSystem(request.RecordSearchStat.AppUserId))
         {
             await analyticsDb.InsertAsync(request.RecordSearchStat);
 

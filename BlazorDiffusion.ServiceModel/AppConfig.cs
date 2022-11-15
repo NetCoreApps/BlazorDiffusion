@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ServiceStack.Caching;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,6 +19,5 @@ public class AppConfig
     public string R2Account { get; set; }
     public string AssetsBasePath { get; set; }
     public string FallbackAssetsBasePath { get; set; }
-
     public static AppConfig Set(AppConfig instance) => Instance = instance;
 }
