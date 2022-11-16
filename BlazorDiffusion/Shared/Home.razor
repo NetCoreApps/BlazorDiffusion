@@ -32,7 +32,7 @@
                     <div class="mt-8 flex gap-4 justify-center">
                         @if (Page == AppPage.Search)
                         {
-                            <PrimaryButton @onclick="navToSearch"   class="!rounded-full py-2 px-4" Style="ButtonStyle.Sky">Search</PrimaryButton>
+                            <PrimaryButton @onclick="navToSearch" class="!rounded-full py-2 px-4" Style="ButtonStyle.Sky">Search</PrimaryButton>
                             <SecondaryButton @onclick="navToCreate" class="!rounded-full py-2 px-4">Create</SecondaryButton>
                             @if (IsAuthenticated)
                             {

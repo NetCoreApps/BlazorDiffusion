@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using ServiceStack.Blazor;
 using ServiceStack.Text;
+using System;
 
 namespace BlazorDiffusion.Pages;
 
@@ -15,7 +16,8 @@ public partial class Index : AppAuthComponentBase, IDisposable
     ApiResult<QueryResponse<ArtifactResult>> api = new();
     [Inject] ILogger<Index> Log { get; set; } = default!;
     [Inject] IIntersectionObserverService ObserverService { get; set; } = default!;
-    [Inject] IJSRuntime JS { get; set; } = default!;
+    [Inject] NavigationManager NavigationManager { get; set; }
+    [Inject] IJSRuntime JS { get; set; }
 
     string[] VisibleFields => new[] { 
         nameof(SearchArtifacts.Query), 
@@ -55,11 +57,6 @@ public partial class Index : AppAuthComponentBase, IDisposable
 
     public ElementReference BottomElement { get; set; }
     IntersectionObserver? bottomObserver;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await base.OnInitializedAsync();
-    }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -117,6 +114,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
             : album != null
                 ? await UserState.GetAlbumByRefAsync(album)
                 : null;
+        UserState.RemovePrerenderedHtml();
     }
 
     void setResults(IEnumerable<Artifact> results)

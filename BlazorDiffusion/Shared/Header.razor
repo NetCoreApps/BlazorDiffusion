@@ -7,12 +7,12 @@
     <div class="flex flex-wrap items-center">
         <div class="flex flex-grow flex-shrink flex-nowrap justify-end items-center">
             <NavLink href="/" class="flex items-center flex-shrink-0 px-4 text-2xl whitespace-nowrap overflow-x-hidden flex items-center">
-                <img class="h-8 w-auto"
+                <img class="h-8 w-8"
                      src="/img/blazor.svg"
                      alt="My App">
                 <div class="ml-2 text-black dark:text-white">Diffusion</div>
             </NavLink>
-            <nav class="relative flex flex-grow">
+            <nav class="relative flex flex-grow" style="min-height:55px">
                 <ul class="flex flex-wrap items-center justify-end w-full m-0">
                     @foreach (var item in NavItems)
                     {

@@ -1,7 +1,6 @@
 ﻿@page "/"
 @using Ljbc1994.Blazor.IntersectionObserver.Components
 @inherits AppAuthComponentBase
-@inject NavigationManager NavigationManager
 
 <Home Page="AppPage.Search">
 
@@ -11,7 +10,7 @@
         <input class="hidden" type="submit" />
         <ErrorSummary Except=@VisibleFields />
 
-        <TextInput @bind-Value="request.Query" Label="" placeholder="Search existing images" @onkeypress="OnKeyPress" />
+        <TextInput @bind-Value="request.Query" name="q" Label="" placeholder="Search existing images" @onkeypress="OnKeyPress" />
 
     </CascadingValue>
     </form>
@@ -35,7 +34,7 @@
                     <div class="mb-2">
                         <NavLink href=@($"/?user={SelectedUser.RefId}&show=likes")>
                             <svg class=@ClassNames("w-24 h-24", show == "likes" ? "text-red-600 hover:text-red-400" : "text-cyan-600 hover:text-cyan-400 cursor-pointer")
-                             xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24">
+                            xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24">
                                 <path fill="currentColor" d="M4.244 12.252a4.25 4.25 0 1 1 6.697-5.111h1.118a4.25 4.25 0 1 1 6.697 5.111L11.5 19.51l-7.256-7.257Zm15.218.71A5.25 5.25 0 1 0 11.5 6.167a5.25 5.25 0 1 0-7.962 6.795l7.962 7.961l7.962-7.96Z" />
                             </svg>
                         </NavLink>
@@ -48,7 +47,7 @@
                         {
                             <NavLink href=@($"/?user={SelectedUser.RefId}&album={userAlbum.AlbumRef}&source={AppSource.User}")>
                                 <div class=@ClassNames("mt-2 hover:opacity-80 cursor-pointer h-24 w-24 overflow-hidden rounded-lg border-2",
-                                    album == userAlbum.AlbumRef ? "border-yellow-400" : "border-transparent")>
+                                        album == userAlbum.AlbumRef ? "border-yellow-400" : "border-transparent")>
                                     <ArtifactImage Artifact=@albumCover class="flex w-full h-full" ImageClass="object-cover" />
                                 </div>
                             </NavLink>
@@ -73,7 +72,7 @@
                         <div class="text-xl">Creations</div>
                     }
                     </div>
-                    </LeftHeader>                    
+                    </LeftHeader>
                 </ArtifactGallery>
             </div>
         }
