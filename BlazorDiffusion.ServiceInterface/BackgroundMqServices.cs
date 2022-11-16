@@ -141,7 +141,8 @@ public class BackgroundMqServices : Service
                 if (Updated.ResetScores() > 0)
                 {
                     swTask.Restart();
-                    await Prerenderer.RenderPages(); //endless loop when using InProcGateway
+                    await Prerenderer.RenderPages();
+                    // if external request is needed in future
                     //var jwtProvider = (JwtAuthProvider)AuthenticateService.GetRequiredJwtAuthProvider();
                     //var jwtAdmin = jwtProvider.CreateJwtBearerToken(Users.System.ToUserSession());
                     //var client = new JsonApiClient(AppConfig.BaseUrl) {

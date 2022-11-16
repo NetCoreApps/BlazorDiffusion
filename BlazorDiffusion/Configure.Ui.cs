@@ -41,7 +41,7 @@ public class ConfigureUi : IHostingStartup
                 Renderer = c.Resolve<IComponentRenderer>(),
                 Pages = {
                     new(typeof(Pages.Index),  "/index.html", new() { [nameof(Pages.Index.LazyLoad)] = "false" }),
-                    new(typeof(Pages.Create), "/create.html"),
+                    //new(typeof(Pages.Create), "/create.html"), // needs to be signed in
                 }
             });
         });
@@ -145,7 +145,7 @@ public class ComponentRenderer : IComponentRenderer
         var componentTagHelper = new ComponentTagHelper
         {
             ComponentType = componentType,
-            RenderMode = RenderMode.WebAssemblyPrerendered,
+            RenderMode = RenderMode.Static,
             Parameters = componentArgs,
             ViewContext = new ViewContext { HttpContext = httpContext },
         };

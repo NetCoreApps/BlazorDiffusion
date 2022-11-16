@@ -6,15 +6,7 @@
         <AuthorizeRouteView RouteData="@routeData"
                             DefaultLayout="@GetPageLayout(routeData)">
             <NotAuthorized>
-                <h1 class="mb-4 text-2xl font-semibold text-gray-900">
-                    Sorry
-                </h1>
-                <p>You're not authorized to reach this page.</p>
-                <p>
-                    Please
-                    <NavLink class="underline hover:text-green-600" @onclick=@login href="javascript:void">login</NavLink>
-                    as a different user.
-                </p>
+                <BlazorDiffusion.Pages.SignIn ReturnUrl=@NavigationManager.Uri />
             </NotAuthorized>
 
             <Authorizing>
