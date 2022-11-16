@@ -22,17 +22,12 @@ public class ConfigureUi : IHostingStartup
                 typeof(Pages.Index).Assembly.GetTypes().Where(x => typeof(ComponentBase).IsAssignableFrom(x))));
         }).ConfigureAppHost(afterConfigure:appHost => {
 
-            var blazorWebRoot = appHost.AppSettings.GetString("BlazorWebRoot");
-            if (string.IsNullOrEmpty(blazorWebRoot)) // migrations
-                return;
-
             var container = appHost.GetContainer();
             var s3Client = container.Resolve<AmazonS3Client>();
             var appConfig = container.Resolve<AppConfig>();
-            var blazorWebRootPath = Path.GetFullPath(Path.Combine(appHost.GetWebRootPath(), blazorWebRoot));
 
-            IVirtualFiles virtualFiles = appHost.Config.DebugMode
-                ? new FileSystemVirtualFiles(blazorWebRootPath)
+            IVirtualFiles virtualFiles = appHost.GetHostingEnvironment().IsDevelopment()
+                ? new FileSystemVirtualFiles(Path.GetFullPath(Path.Combine(appHost.GetWebRootPath(), appHost.AppSettings.GetString("BlazorWebRoot"))))
                 : new R2VirtualFilesProvider(s3Client, appConfig.CdnBucket);
 
             container.Register<IPrerenderer>(c => new Prerenderer
