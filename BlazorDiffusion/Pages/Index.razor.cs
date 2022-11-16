@@ -41,6 +41,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
     int? lastId = null;
     int? lastView = null;
 
+
     SearchArtifacts request = new();
 
     List<Artifact> results = new();
@@ -51,6 +52,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
     const int NextPageTake = 100;
 
     SearchArtifacts? lastRequest;
+    bool existingQuery => lastRequest != null && lastRequest.Matches(request);
 
     UserResult? SelectedUser;
     public AlbumResult? SelectedAlbum;
@@ -81,7 +83,6 @@ public partial class Index : AppAuthComponentBase, IDisposable
 
     async Task updateAsync()
     {
-        var existingQuery = lastRequest != null && lastRequest.Matches(request);
         var existingSelection = lastId == Id && lastView == View;
         if (existingQuery && existingSelection)
             return;
@@ -94,6 +95,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
             log("Loading new request...");
 
         await reloadResults();
+        await GalleryResults.LoadAsync(UserState, Id, View);
         StateHasChanged();
 
         SelectedUser = user != null
@@ -117,7 +119,6 @@ public partial class Index : AppAuthComponentBase, IDisposable
 
     async Task reloadResults()
     {
-        var existingQuery = lastRequest != null && lastRequest.Matches(request);
         if (existingQuery)
             return;
 

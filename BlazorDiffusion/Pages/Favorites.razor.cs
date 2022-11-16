@@ -20,6 +20,9 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
     [Parameter, SupplyParameterFromQuery] public int? Id { get; set; }
     [Parameter, SupplyParameterFromQuery] public int? View { get; set; }
 
+    int? lastAlbum;
+    bool existingQuery => results.Count > 0 && Album == lastAlbum;
+
     Artifact? ActiveArtifact => GalleryResults.Viewing ?? GalleryResults.Selected;
     AlbumResult? SelectedAlbum { get; set; }
     GalleryResults GalleryResults = new();
@@ -45,34 +48,6 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
     {
         log("Favorites UserStateChanged()");
         StateHasChanged();
-    }
-
-    // When navigate + ArtifactMenu Adds/Removes to Albums
-    async Task OnGalleryChange(GalleryChangeEventArgs args)
-    {
-        if (settingParams)
-        {
-            log("Favorites ignore onChange whilst setting params");
-            return;
-        }
-
-        log("Favorites OnGalleryChange{0}", args);
-        //await handleParametersChanged();
-
-        //preemptive to hopefully reduce re-renders with invalid args
-        await GalleryResults.LoadAsync(UserState, args.SelectedId, args.ViewingId);
-        await reloadResults();
-
-        if (args.SelectedId == null && args.ViewingId == null)
-        {
-            NavigationManager.NavigateTo(NavigationManager.Uri.SetQueryParam("id", args.SelectedId?.ToString()));
-        }
-        else
-        {
-            NavigationManager.NavigateTo(NavigationManager.Uri
-                .SetQueryParam("id", args.SelectedId?.ToString())
-                .SetQueryParam("view", args.ViewingId?.ToString()));
-        }
     }
 
     bool settingParams;
@@ -104,7 +79,8 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
             return;
         }
 
-        await reloadResults();
+        await loadResults();
+        await GalleryResults.LoadAsync(UserState, Id, View);
 
         log("LoadAlbumCoverArtifacts()...");
         await UserState.LoadAlbumCoverArtifacts();
@@ -114,18 +90,44 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
         await UserState.LoadLikedAlbumsAsync();
     }
 
-    async Task reloadResults()
+    async Task loadResults()
     {
+        if (existingQuery)
+            return;
+        lastAlbum = Album;
+
         if (SelectedAlbum != null)
-            log("loading album '{0}' results...", SelectedAlbum.Id);
+            log("loadResults Album[{0}] {1}...", SelectedAlbum.Name, UserState.InitialTake);
         else
-            log("loading {0} artifact likes", UserState.InitialTake);
+            log("loadResults Likes {0}...", UserState.InitialTake);
 
-        var results = SelectedAlbum != null
-            ? await UserState.GetAlbumArtifactsAsync(SelectedAlbum, UserState.InitialTake)
-            : await UserState.GetLikedArtifactsAsync(UserState.InitialTake);
+        await fetchResults(UserState.InitialTake);
+    }
 
-        setResults(results);
+    async Task loadMore()
+    {
+        log("loadMore {0}...", results.Count + UserState.NextPage);
+        await fetchResults(results.Count + UserState.NextPage);
+    }
+
+    async Task fetchResults(int count)
+    {
+        if (SelectedAlbum == null)
+        {
+            log("Favorites Likes fetchResults(): {0} < {1}", results.Count, UserState.LikedArtifactIds.Count);
+            if (results.Count < UserState.LikedArtifactIds.Count)
+            {
+                setResults(await UserState.GetLikedArtifactsAsync(count));
+            }
+        }
+        else
+        {
+            log("Favorites Album[{0}] fetchResults(): {1} < {2}", SelectedAlbum.Name, results.Count, SelectedAlbum.ArtifactIds.Count);
+            if (results.Count < SelectedAlbum.ArtifactIds.Count)
+            {
+                setResults(await UserState.GetAlbumArtifactsAsync(SelectedAlbum, count));
+            }
+        }
     }
 
     void setResults(List<Artifact> results)
@@ -135,23 +137,31 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
         StateHasChanged();
     }
 
-    async Task loadMore()
+    // When navigate + ArtifactMenu Adds/Removes to Albums
+    async Task OnGalleryChange(GalleryChangeEventArgs args)
     {
-        if (SelectedAlbum == null)
+        if (settingParams)
         {
-            log("Favorites likes.loadMore(): {0} < {1}", results.Count, UserState.LikedArtifactIds.Count);
-            if (results.Count < UserState.LikedArtifactIds.Count)
-            {
-                setResults(await UserState.GetLikedArtifactsAsync(results.Count + UserState.NextPage));
-            }
+            log("Favorites ignore onChange whilst setting params");
+            return;
+        }
+
+        log("Favorites OnGalleryChange{0}", args);
+        //await handleParametersChanged();
+
+        //preemptive to hopefully reduce re-renders with invalid args
+        await GalleryResults.LoadAsync(UserState, args.SelectedId, args.ViewingId);
+        await fetchResults(results.Count);
+
+        if (args.SelectedId == null && args.ViewingId == null)
+        {
+            NavigationManager.NavigateTo(NavigationManager.Uri.SetQueryParam("id", args.SelectedId?.ToString()));
         }
         else
         {
-            log("Favorites album.loadMore(): {0} < {1}", results.Count, SelectedAlbum.ArtifactIds.Count);
-            if (results.Count < SelectedAlbum.ArtifactIds.Count)
-            {
-                setResults(await UserState.GetAlbumArtifactsAsync(SelectedAlbum, results.Count + UserState.NextPage));
-            }
+            NavigationManager.NavigateTo(NavigationManager.Uri
+                .SetQueryParam("id", args.SelectedId?.ToString())
+                .SetQueryParam("view", args.ViewingId?.ToString()));
         }
     }
 
