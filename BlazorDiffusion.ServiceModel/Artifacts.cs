@@ -103,6 +103,7 @@ public class SearchArtifacts : QueryDb<Artifact, ArtifactResult>
         Similar = Similar,
         By = By,
         User = User,
+        Show = Show,
         Modifier = Modifier,
         Artist = Artist,
         Album = Album,
@@ -123,6 +124,7 @@ public class SearchArtifacts : QueryDb<Artifact, ArtifactResult>
                Similar == artifacts.Similar &&
                By == artifacts.By &&
                User == artifacts.User &&
+               Show == artifacts.Show &&
                Modifier == artifacts.Modifier &&
                Artist == artifacts.Artist &&
                Album == artifacts.Album;
@@ -140,6 +142,7 @@ public class SearchArtifacts : QueryDb<Artifact, ArtifactResult>
                Similar == artifacts.Similar &&
                By == artifacts.By &&
                User == artifacts.User &&
+               Show == artifacts.Show &&
                Modifier == artifacts.Modifier &&
                Artist == artifacts.Artist &&
                Album == artifacts.Album;
@@ -159,6 +162,7 @@ public class SearchArtifacts : QueryDb<Artifact, ArtifactResult>
         if (Similar != other.Similar) to.Add(nameof(Similar));
         if (By != other.By) to.Add(nameof(By));
         if (User != other.User) to.Add(nameof(User));
+        if (Show != other.Show) to.Add(nameof(Show));
         if (Modifier != other.Modifier) to.Add(nameof(Modifier));
         if (Artist != other.Artist) to.Add(nameof(Artist));
         if (Album != other.Album) to.Add(nameof(Album));

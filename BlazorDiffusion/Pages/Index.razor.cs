@@ -85,7 +85,10 @@ public partial class Index : AppAuthComponentBase, IDisposable
     {
         var existingSelection = lastId == Id && lastView == View;
         if (existingQuery && existingSelection)
+        {
+            log("Ignoring existingQuery && existingSelection");
             return;
+        }
         lastId = Id;
         lastView = View;
 
@@ -94,7 +97,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
         else
             log("Loading new request...");
 
-        await reloadResults();
+        await loadResults();
         await GalleryResults.LoadAsync(UserState, Id, View);
         StateHasChanged();
 
@@ -117,7 +120,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
         StateHasChanged();
     }
 
-    async Task reloadResults()
+    async Task loadResults()
     {
         if (existingQuery)
             return;
@@ -228,7 +231,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
 
         //preemptive to hopefully reduce re-renders with invalid args
         await GalleryResults.LoadAsync(UserState, args.SelectedId, args.ViewingId);
-        await reloadResults();
+        await loadResults();
 
         if (args.SelectedId == null && args.ViewingId == null)
         {
