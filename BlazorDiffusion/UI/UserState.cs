@@ -11,6 +11,13 @@ public class UserState
     public const int InitialTake = 30;
     public const int NextPage = 100;
 
+    public void RemovePrerenderedHtml()
+    {
+        OnRemovePrerenderedHtml?.Invoke();
+    }
+
+    public Action? OnRemovePrerenderedHtml { get; set; }
+
     public CachedLocalStorage LocalStorage { get; }
     public IServiceGateway Client { get; }
     public AppPrefs AppPrefs { get; internal set; } = new();
