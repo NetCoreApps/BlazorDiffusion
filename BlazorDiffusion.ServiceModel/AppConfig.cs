@@ -19,5 +19,9 @@ public class AppConfig
     public string R2Account { get; set; }
     public string AssetsBasePath { get; set; }
     public string FallbackAssetsBasePath { get; set; }
+    /// <summary>
+    /// Ignore saving creatives + pre-rendering pages to avoid Hot Reload reloading page
+    /// </summary>
+    public bool DisableWrites { get; set; }
     public static AppConfig Set(AppConfig instance) => Instance = instance;
 }

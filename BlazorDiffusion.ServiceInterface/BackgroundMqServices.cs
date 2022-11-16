@@ -25,6 +25,8 @@ public class BackgroundMqServices : Service
     {
         if (Interlocked.Read(ref InSyncTasks) > 0)
             return;
+        if (AppConfig.DisableWrites)
+            return;
 
         var creative = request.SaveCreative ?? (request.SaveCreativeId != null
             ? await Db.LoadSingleByIdAsync<Creative>(request.SaveCreativeId)
@@ -138,19 +140,22 @@ public class BackgroundMqServices : Service
                 }
                 log("SyncTasks Periodic updated {0} albums, took {1}ms", count, swTask.ElapsedMilliseconds);
 
-                if (Updated.ResetScores() > 0)
+                if (!AppConfig.DisableWrites)
                 {
-                    swTask.Restart();
-                    await Prerenderer.RenderPages();
-                    // if external request is needed in future
-                    //var jwtProvider = (JwtAuthProvider)AuthenticateService.GetRequiredJwtAuthProvider();
-                    //var jwtAdmin = jwtProvider.CreateJwtBearerToken(Users.System.ToUserSession());
-                    //var client = new JsonApiClient(AppConfig.BaseUrl) {
-                    //    BearerToken = jwtAdmin
-                    //};
-                    //var api = await client.ApiAsync(new Prerender());
-                    //if (!api.Succeeded) log("SyncTasks Prerenderer.RenderPages Failed: {0}", api.Error.GetDetailedError());
-                    log("SyncTasks Prerenderer.RenderPages took {0}ms", swTask.ElapsedMilliseconds);
+                    if (Updated.ResetScores() > 0)
+                    {
+                        swTask.Restart();
+                        await Prerenderer.RenderPages();
+                        // if external request is needed in future
+                        //var jwtProvider = (JwtAuthProvider)AuthenticateService.GetRequiredJwtAuthProvider();
+                        //var jwtAdmin = jwtProvider.CreateJwtBearerToken(Users.System.ToUserSession());
+                        //var client = new JsonApiClient(AppConfig.BaseUrl) {
+                        //    BearerToken = jwtAdmin
+                        //};
+                        //var api = await client.ApiAsync(new Prerender());
+                        //if (!api.Succeeded) log("SyncTasks Prerenderer.RenderPages Failed: {0}", api.Error.GetDetailedError());
+                        log("SyncTasks Prerenderer.RenderPages took {0}ms", swTask.ElapsedMilliseconds);
+                    }
                 }
             }
 
@@ -222,13 +227,16 @@ public class BackgroundMqServices : Service
                 .Select(x => x.CreativeId));
             artifactCreativeIds.Each(x => creativeIds.Add(x));
 
-            log("SyncTasks SaveCreatives {0} / {1}: {2}", creativeIds.Count, artifactCreativeIds.Count, string.Join(",", creativeIds));
-            var creatives = await Db.LoadSelectAsync<Creative>(x => creativeIds.Contains(x.Id));
-            foreach (var creative in creatives)
+            if (!AppConfig.DisableWrites)
             {
-                await StableDiffusionClient.SaveCreativeAsync(creative);
+                log("SyncTasks SaveCreatives {0} / {1}: {2}", creativeIds.Count, artifactCreativeIds.Count, string.Join(",", creativeIds));
+                var creatives = await Db.LoadSelectAsync<Creative>(x => creativeIds.Contains(x.Id));
+                foreach (var creative in creatives)
+                {
+                    await StableDiffusionClient.SaveCreativeAsync(creative);
+                }
+                log("SyncTasks SaveCreatives took {0}ms", swWrites.ElapsedMilliseconds);
             }
-            log("SyncTasks SaveCreatives took {0}ms", swWrites.ElapsedMilliseconds);
 
             log("SyncTasks {0} Total took {1}ms", type, sw.ElapsedMilliseconds);
 
@@ -343,7 +351,15 @@ public class BackgroundMqServices : Service
 
     public async Task<object> Any(Prerender request)
     {
-        await Prerenderer.RenderPages();
+        if (!AppConfig.DisableWrites)
+            await Prerenderer.RenderPages();
         return new PrerenderResponse();
+    }
+
+    public object Any(DevTasks request)
+    {
+        if (request.DisableWrites != null)
+            AppConfig.DisableWrites = request.DisableWrites.Value;
+        return new StringResponse { Result = $"DisableWrites = {AppConfig.DisableWrites}" };
     }
 }
