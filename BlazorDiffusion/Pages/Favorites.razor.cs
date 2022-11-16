@@ -115,24 +115,18 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
         if (SelectedAlbum == null)
         {
             log("Favorites Likes fetchResults(): {0} < {1}", results.Count, UserState.LikedArtifactIds.Count);
-            if (results.Count < UserState.LikedArtifactIds.Count)
-            {
-                setResults(await UserState.GetLikedArtifactsAsync(count));
-            }
+            setResults(await UserState.GetLikedArtifactsAsync(count));
         }
         else
         {
             log("Favorites Album[{0}] fetchResults(): {1} < {2}", SelectedAlbum.Name, results.Count, SelectedAlbum.ArtifactIds.Count);
-            if (results.Count < SelectedAlbum.ArtifactIds.Count)
-            {
-                setResults(await UserState.GetAlbumArtifactsAsync(SelectedAlbum, count));
-            }
+            setResults(await UserState.GetAlbumArtifactsAsync(SelectedAlbum, count));
         }
     }
 
     void setResults(List<Artifact> results)
     {
-        this.results = results;
+        this.results = results.DistinctBy(x => x.Id).ToList();
         GalleryResults = X.Apply(GalleryResults.Clone(), x => x.Artifacts = results);
         StateHasChanged();
     }
@@ -232,15 +226,20 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
         var hold = SelectedAlbum!.PrimaryArtifactId;
         SelectedAlbum.PrimaryArtifactId = artifact.Id;
         
-        var holdResults = results;
-        setResults(ResultsWithPrimaryArtifact(artifact.Id));
+        var holdArtifactIds = SelectedAlbum.ArtifactIds;
+        var restIds = new List<int> { artifact.Id };
+        restIds.AddRange(SelectedAlbum.ArtifactIds.Where(x => x != artifact.Id));
+        SelectedAlbum.ArtifactIds = restIds;
+
+        await fetchResults(results.Count);
         StateHasChanged();
 
         var api = await ApiAsync(new UpdateAlbum { Id = SelectedAlbum.Id, PrimaryArtifactId = artifact.Id });
         if (!api.Succeeded)
         {
             SelectedAlbum.PrimaryArtifactId = hold;
-            setResults(holdResults);
+            SelectedAlbum.ArtifactIds = holdArtifactIds;
+            await fetchResults(results.Count);
         }
         StateHasChanged();
     }
@@ -291,15 +290,16 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
         if (api.Succeeded)
         {
             await KeyboardNavigation.SendKeyAsync("Escape");
-            var artifactResult = results.First(x => x.Id == artifact.Id);
-            var primaryArtifact = SelectedAlbum.PrimaryArtifactId != null
-                ? results.FirstOrDefault(x => x.Id == SelectedAlbum.PrimaryArtifactId.Value)
-                : null;
-            var newResults = results.Where(x => x.Id != artifact.Id && (primaryArtifact == null || x.Id != primaryArtifact.Id)).ToList();
-            newResults.Insert(0, artifactResult);
-            if (primaryArtifact != null)
-                newResults.Insert(0, primaryArtifact);
-            setResults(newResults);
+
+            var isPrimary = SelectedAlbum.PrimaryArtifactId == artifact.Id;  
+            var restIds = SelectedAlbum.ArtifactIds
+                .Where(x => x != artifact.Id && SelectedAlbum.PrimaryArtifactId != x).ToList();
+            restIds.Insert(0, artifact.Id);
+            if (!isPrimary && SelectedAlbum.PrimaryArtifactId != null)
+                restIds.Insert(0, SelectedAlbum.PrimaryArtifactId.Value);
+            SelectedAlbum.ArtifactIds = restIds;
+            await fetchResults(results.Count);
+
             StateHasChanged();
         }
     }
