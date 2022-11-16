@@ -1,5 +1,6 @@
 ﻿@page "/admin/creatives"
 @attribute [Authorize(Roles = "Admin")]
+@inherits AuthBlazorComponentBase
 
 @inject NavigationManager NavigationManager
 
@@ -9,22 +10,128 @@
     </Breadcrumb>
 </Breadcrumbs>
 
-<AutoQueryGrid Model="Creative" Apis="Apis.AutoQuery<QueryCreatives,CreateCreative,UpdateCreative,HardDeleteCreative>()">
+<div>
+  <div class="sm:hidden">
+    <label for="tabs" class="sr-only">Select a tab</label>
+    <!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
+    <select id="tabs" name="tabs" class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+      <option selected>Missing Primary Artifact</option>
+
+      <option>Reported</option>
+    </select>
+  </div>
+  <div class="hidden sm:block">
+    <div class="border-b border-gray-200">
+      <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+        <!-- Current: "border-indigo-500 text-indigo-600", Default: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" -->
+        <a href="#" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm">
+          <!--
+            Heroicon name: mini/user
+
+            Current: "text-indigo-500", Default: "text-gray-400 group-hover:text-gray-500"
+          -->
+          <svg class="text-gray-400 group-hover:text-gray-500 -ml-0.5 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path d="M10 8a3 3 0 100-6 3 3 0 000 6zM3.465 14.493a1.23 1.23 0 00.41 1.412A9.957 9.957 0 0010 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 00-13.074.003z" />
+          </svg>
+          <span class="text-lg">Missing Primary Artifact</span>
+        </a>
+
+        <a href="#" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm">
+          <!-- Heroicon name: mini/building-office -->
+          <svg class="text-gray-400 group-hover:text-gray-500 -ml-0.5 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M4 16.5v-13h-.25a.75.75 0 010-1.5h12.5a.75.75 0 010 1.5H16v13h.25a.75.75 0 010 1.5h-3.5a.75.75 0 01-.75-.75v-2.5a.75.75 0 00-.75-.75h-2.5a.75.75 0 00-.75.75v2.5a.75.75 0 01-.75.75h-3.5a.75.75 0 010-1.5H4zm3-11a.5.5 0 01.5-.5h1a.5.5 0 01.5.5v1a.5.5 0 01-.5.5h-1a.5.5 0 01-.5-.5v-1zM7.5 9a.5.5 0 00-.5.5v1a.5.5 0 00.5.5h1a.5.5 0 00.5-.5v-1a.5.5 0 00-.5-.5h-1zM11 5.5a.5.5 0 01.5-.5h1a.5.5 0 01.5.5v1a.5.5 0 01-.5.5h-1a.5.5 0 01-.5-.5v-1zm.5 3.5a.5.5 0 00-.5.5v1a.5.5 0 00.5.5h1a.5.5 0 00.5-.5v-1a.5.5 0 00-.5-.5h-1z" clip-rule="evenodd" />
+          </svg>
+          <span class="text-lg">Reported</span>
+        </a>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<ErrorSummary ExplicitStatus=@(apiResult?.Error) />
+
+<AutoQueryGrid Model="Creative" Apis="Apis.AutoQuery<QueryCreatives, UpdateCreative, HardDeleteCreative>()"
+               RowSelected="RowSelected"
+               
+               ConfigureQuery=@((x) => { x.AddQueryParam("PrimaryArtifactId", ""); })>
+    <EditForm>
+        @if (reviewItem != null)
+        {
+            <div class="relative z-10" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+                <div class="">
+                    <div class="">
+                        <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
+                            <div class="@CssDefaults.Form.PanelClass @CssDefaults.Form.SlideOverTransition @editPanelClass">
+                                <form class=@CssDefaults.Form.FormClass @onsubmit="OnSave" @onsubmit:preventDefault>
+                                    <!-- Header -->
+                                    <div class="h-0 flex-1 overflow-y-auto">
+                                        <div class=@CssDefaults.Form.TitlebarClass>
+                                            <div class="flex items-start justify-between space-x-3">
+                                                <div class="space-y-1">
+                                                    <h2 class=@CssDefaults.Form.HeadingClass id="slide-over-title">@reviewItem?.UserPrompt</h2>
+                                                    <div class="mt-1">
+                                                        <p class="text-sm text-gray-500">@reviewItem?.ModifierNames.Join(",")</p>
+                                                    </div>
+                                                </div>
+                                                <div class="flex h-7 items-center">
+                                                    <button type="button" class=@CssDefaults.Form.CloseButtonClass @onclick="OnClose">
+                                                        <span class="sr-only">Close panel</span>
+                                                        <!-- Heroicon name: outline/x-mark -->
+                                                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-1 flex-col justify-between">
+                                            <div class="divide-y divide-gray-200 px-4 sm:px-6">
+                                                <div class="space-y-6 pt-6 pb-5">
+                                                    <ul role="list" class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
+                                                        @foreach (var artifact in reviewItem?.Artifacts ?? Array.Empty<Artifact>().ToList())
+                                                        {
+                                                            <li class="relative" @onclick="(x) => selectPrimaryArtifact(artifact,reviewItem)">
+                                                                <div class="group aspect-w-10 aspect-h-7 block w-full overflow-hidden rounded-lg bg-gray-100">
+                                                                    <img src="https://cdn.diffusion.works@(artifact.FilePath)" alt="" 
+                                                                    class="object-cover group-hover:opacity-75 @((artifact == selectedPrimary) ? "border-yellow-500 rounded-xl border-4" : "")" style="background-color: @artifact.Background">
+                                                                    <button type="button" class="absolute inset-0 focus:outline-none">
+                                                                        <span class="sr-only">Select as Primary Artifact</span>
+                                                                    </button>
+                                                                </div>
+                                                                <p class="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">@(artifact.FileName)</p>
+                                                                <p class="pointer-events-none block text-sm font-medium text-gray-500">@(artifact.ContentLength / 1024) Kb</p>
+                                                            </li>
+                                                        }
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 px-4 py-3 bg-gray-50 dark:bg-gray-900 sm:px-6 flex flex-wrap justify-between">
+                                        <div class="flex justify-end">
+                                            <SecondaryButton onclick="OnClose">Cancel</SecondaryButton>
+                                            <PrimaryButton type="submit" class="ml-4">Save</PrimaryButton>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+    </EditForm>
     <Columns>
-        <Column Field="(Creative x) => x.Id" />
-        <Column Title="User" Field="(Creative x) => x.OwnerId" />
-        <Column Field="(Creative x) => x.Prompt" />
-        <Column Field="(Creative x) => x.Images" />
-        <Column Field="(Creative x) => x.Width" />
-        <Column Field="(Creative x) => x.Height" />
-        <Column Field="(Creative x) => x.Steps" />
-        <Column Field="(Creative x) => x.PrimaryArtifactId" Title="Primary Artifact" />
+        <Column Title="User" Field="(Creative x) => x.OwnerId"/>
+        <Column Title="Id" Field="(Creative x) => x.Id"/>
         <Column Field="(Creative x) => x.Modifiers">
             <Template>
                 @if (context.Modifiers?.Count > 0)
                 {
                     <TextLink class="flex" href=@($"/admin/modifiers?Ids={string.Join(",", context.Modifiers.Select(x => x.ModifierId))}")>
-                        <Icon class="w-6 h-6 mr-1" Image=@typeof(Modifier).GetIcon() />
+                        <Icon class="w-6 h-6 mr-1" Image=@typeof(Modifier).GetIcon()/>
                         @TextUtils.Pluralize("Modifier", context.Modifiers)
                     </TextLink>
                 }
@@ -35,7 +142,7 @@
                 @if (context.Artists?.Count > 0)
                 {
                     <TextLink class="flex" href=@($"/admin/artists?Ids={string.Join(",", context.Artists.Select(x => x.ArtistId))}")>
-                        <Icon class="w-6 h-6 mr-1" Image=@typeof(Artist).GetIcon() />
+                        <Icon class="w-6 h-6 mr-1" Image=@typeof(Artist).GetIcon()/>
                         @TextUtils.Pluralize("Artist", context.Artists)
                     </TextLink>
                 }
@@ -46,17 +153,69 @@
                 @if (context.Artifacts?.Count > 0)
                 {
                     <TextLink class="flex" href=@($"/admin/artifacts?CreativeId={context.Id}")>
-                        <Icon class="w-6 h-6 mr-1" Image=@typeof(Artifact).GetIcon() />
+                        <Icon class="w-6 h-6 mr-1" Image=@typeof(Artifact).GetIcon()/>
                         @TextUtils.Pluralize("Artifact", context.Artifacts)
                     </TextLink>
                 }
             </Template>
         </Column>
-        <Column Field="(Creative x) => x.Key" />
-        <Column Field="(Creative x) => x.CreatedDate" Format="s" />
+        <Column Field="(Creative x) => x.Key"/>
+        <Column Field="(Creative x) => x.CreatedDate" Format="s"/>
+        <Column Field="(Creative x) => x.UserPrompt"/>
     </Columns>
 </AutoQueryGrid>
 
 @code {
-    [Parameter, SupplyParameterFromQuery] public string? Edit { get; set; }
+
+    [Parameter, SupplyParameterFromQuery]
+    public string? Edit { get; set; }
+
+    public Creative reviewItem = null;
+    public Artifact selectedPrimary = null;
+
+    string editPanelClass = "show";
+    ApiResult<Creative> apiResult = null;
+
+    async Task OnClose()
+    {
+        editPanelClass = "hidden";
+        NavigationManager.NavigateTo(NavigationManager.Uri.SetQueryParam("edit", null));
+        reviewItem = null;
+        selectedPrimary = null;
+        StateHasChanged();
+    }
+
+    Creative getCreative()
+    {
+        return reviewItem;
+    }
+
+    void selectPrimaryArtifact(Artifact artifact, Creative creative)
+    {
+        if (artifact == null)
+            return;
+        selectedPrimary = artifact;
+        StateHasChanged();
+    }
+
+    async Task RowSelected(Creative item)
+    {
+        reviewItem = item;
+        editPanelClass = "show";
+        StateHasChanged();
+    }
+
+    async Task OnSave()
+    {
+        var request = new UpdateCreative
+            {
+                PrimaryArtifactId = selectedPrimary.Id,
+                Id = reviewItem.Id
+            };
+        apiResult = await ApiAsync(request);
+
+        if(!apiResult.Errors.Any())
+            await OnClose();
+    }
+
 }
