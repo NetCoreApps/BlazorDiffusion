@@ -89,20 +89,11 @@ public partial class Index : AppAuthComponentBase, IDisposable
         lastView = View;
 
         if (lastRequest != null)
-        {
-            var dirtyFields = request.GetDirtyFields(lastRequest);
-            log("\n\n\n\nDirty Fields:", string.Join(", ", dirtyFields));
-        }
+            log("Dirty Fields:", string.Join(", ", request.GetDirtyFields(lastRequest)));
         else
-        {
             log("Loading new request...");
-        }
 
-        Log.LogDebug($"\n\n{0}", request.Dump());
-        if (!existingQuery)
-        {
-            await reloadResults();
-        }
+        await reloadResults();
         StateHasChanged();
 
         SelectedUser = user != null
@@ -126,6 +117,10 @@ public partial class Index : AppAuthComponentBase, IDisposable
 
     async Task reloadResults()
     {
+        var existingQuery = lastRequest != null && lastRequest.Matches(request);
+        if (existingQuery)
+            return;
+
         request.Skip = 0;
         request.Take = InitialTake;
         api = await ApiAsync(request);
