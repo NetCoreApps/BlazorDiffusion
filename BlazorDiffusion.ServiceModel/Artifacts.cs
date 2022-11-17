@@ -15,9 +15,7 @@ public class Artifact : AuditBase
 
     [References(typeof(Creative))]
     public int CreativeId { get; set; }
-
-    [Reference]
-    public Creative Creative { get; set; }
+    
 
     public string FileName { get; set; }
 

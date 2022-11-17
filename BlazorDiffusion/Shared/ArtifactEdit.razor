@@ -10,7 +10,7 @@
                     <div class="space-y-1">
                         <TextLink class="flex" href=@($"/admin/creatives?Id={Artifact.CreativeId}")>
                             <Icon class="w-6 h-6 mr-1" Image=@typeof(Creative).GetIcon() />
-                            <h2 class=@CssDefaults.Form.HeadingClass title="@Artifact.FileName">@Artifact.Creative.UserPrompt</h2>
+                            <h2 class=@CssDefaults.Form.HeadingClass title="@Artifact.FileName">@Artifact.Prompt</h2>
                         </TextLink>
 
                         <div class="mt-1">
