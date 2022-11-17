@@ -1408,12 +1408,12 @@ input[data-autocompleted] {
   height: 6rem;
 }
 
-.h-14 {
-  height: 3.5rem;
-}
-
 .h-0 {
   height: 0px;
+}
+
+.h-14 {
+  height: 3.5rem;
 }
 
 .h-20 {
@@ -1578,12 +1578,12 @@ input[data-autocompleted] {
   max-width: 20rem;
 }
 
-.max-w-7xl {
-  max-width: 80rem;
-}
-
 .max-w-full {
   max-width: 100%;
+}
+
+.max-w-7xl {
+  max-width: 80rem;
 }
 
 .max-w-lg {
@@ -1823,6 +1823,15 @@ input[data-autocompleted] {
   row-gap: 1rem;
 }
 
+.gap-x-4 {
+  -moz-column-gap: 1rem;
+       column-gap: 1rem;
+}
+
+.gap-y-8 {
+  row-gap: 2rem;
+}
+
 .space-x-3 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-x-reverse: 0;
   margin-right: calc(0.75rem * var(--tw-space-x-reverse));
@@ -1845,6 +1854,12 @@ input[data-autocompleted] {
   --tw-space-x-reverse: 0;
   margin-right: calc(-0.25rem * var(--tw-space-x-reverse));
   margin-left: calc(-0.25rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
+.space-x-8 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 0;
+  margin-right: calc(2rem * var(--tw-space-x-reverse));
+  margin-left: calc(2rem * calc(1 - var(--tw-space-x-reverse)));
 }
 
 .space-x-4 > :not([hidden]) ~ :not([hidden]) {
@@ -1960,6 +1975,10 @@ input[data-autocompleted] {
 
 .border {
   border-width: 1px;
+}
+
+.border-4 {
+  border-width: 4px;
 }
 
 .border-y {
@@ -2099,6 +2118,11 @@ input[data-autocompleted] {
 .bg-gray-200 {
   --tw-bg-opacity: 1;
   background-color: rgb(229 231 235 / var(--tw-bg-opacity));
+}
+
+.bg-indigo-300 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(165 180 252 / var(--tw-bg-opacity));
 }
 
 .bg-white\/40 {
@@ -2392,6 +2416,14 @@ input[data-autocompleted] {
   padding-left: 1rem;
 }
 
+.pt-6 {
+  padding-top: 1.5rem;
+}
+
+.pb-5 {
+  padding-bottom: 1.25rem;
+}
+
 .pb-4 {
   padding-bottom: 1rem;
 }
@@ -2406,6 +2438,10 @@ input[data-autocompleted] {
 
 .pl-5 {
   padding-left: 1.25rem;
+}
+
+.pl-10 {
+  padding-left: 2.5rem;
 }
 
 .pt-8 {
@@ -2430,18 +2466,6 @@ input[data-autocompleted] {
 
 .pt-0 {
   padding-top: 0px;
-}
-
-.pl-10 {
-  padding-left: 2.5rem;
-}
-
-.pt-6 {
-  padding-top: 1.5rem;
-}
-
-.pb-5 {
-  padding-bottom: 1.25rem;
 }
 
 .pl-1 {
@@ -3352,6 +3376,10 @@ input[data-autocompleted] {
   opacity: 1;
 }
 
+.group:hover .group-hover\:opacity-75 {
+  opacity: 0.75;
+}
+
 .dark .dark\:divide-gray-800 > :not([hidden]) ~ :not([hidden]) {
   --tw-divide-opacity: 1;
   border-color: rgb(31 41 55 / var(--tw-divide-opacity));
@@ -3872,6 +3900,10 @@ input[data-autocompleted] {
     max-width: 65ch;
   }
 
+  .sm\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .sm\:flex-row-reverse {
     flex-direction: row-reverse;
   }
@@ -3882,6 +3914,11 @@ input[data-autocompleted] {
 
   .sm\:items-center {
     align-items: center;
+  }
+
+  .sm\:gap-x-6 {
+    -moz-column-gap: 1.5rem;
+         column-gap: 1.5rem;
   }
 
   .sm\:space-x-5 > :not([hidden]) ~ :not([hidden]) {
@@ -3951,16 +3988,16 @@ input[data-autocompleted] {
     padding-top: 0.25rem;
   }
 
+  .sm\:pl-16 {
+    padding-left: 4rem;
+  }
+
   .sm\:pr-6 {
     padding-right: 1.5rem;
   }
 
   .sm\:pb-4 {
     padding-bottom: 1rem;
-  }
-
-  .sm\:pl-16 {
-    padding-left: 4rem;
   }
 
   .sm\:pb-0 {
@@ -4114,6 +4151,10 @@ input[data-autocompleted] {
     transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
   }
 
+  .lg\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
   .lg\:rounded-md {
     border-radius: 0.375rem;
   }
@@ -4176,6 +4217,11 @@ input[data-autocompleted] {
 
   .xl\:max-w-screen-lg {
     max-width: 1024px;
+  }
+
+  .xl\:gap-x-8 {
+    -moz-column-gap: 2rem;
+         column-gap: 2rem;
   }
 
   .xl\:pl-10 {
