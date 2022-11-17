@@ -173,21 +173,31 @@ public class SearchService : Service
         var session = await SessionAsAsync<CustomUserSession>();
         if (session.RefIdStr != Users.Admin.RefIdStr && session.RefIdStr != Users.System.RefIdStr)
         {
-            base.PublishMessage(new AnalyticsTasks
+            var recordSearch = query.Query != null
+                || query.Similar != null
+                || query.Modifier != null
+                || query.Artist != null
+                || (query.Album != null && query.Source != AppSource.Top)
+                || similarToArtifact?.Id != null;
+
+            if (recordSearch)
             {
-                RecordSearchStat = new SearchStat
+                base.PublishMessage(new AnalyticsTasks
                 {
-                    Query = query.Query,
-                    Similar = query.Similar,
-                    User = query.User,
-                    Show = query.Show,
-                    Modifier = query.Modifier,
-                    Artist = query.Artist,
-                    Album = query.Album,
-                    ArtifactId = similarToArtifact?.Id,
-                    Source = query.Source,
-                }.WithRequest(Request, session),
-            });
+                    RecordSearchStat = new SearchStat
+                    {
+                        Query = query.Query,
+                        Similar = query.Similar,
+                        User = query.User,
+                        Show = query.Show,
+                        Modifier = query.Modifier,
+                        Artist = query.Artist,
+                        Album = query.Album,
+                        ArtifactId = similarToArtifact?.Id,
+                        Source = query.Source,
+                    }.WithRequest(Request, session),
+                });
+            }
         }
 
         return AutoQuery.ExecuteAsync(query, q, base.Request, db);

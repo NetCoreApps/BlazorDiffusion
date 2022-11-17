@@ -88,3 +88,10 @@ public class PrerenderResponse
     public List<string> Results { get; set; }
     public ResponseStatus ResponseStatus { get; set; }
 }
+
+[ExcludeMetadata]
+[ValidateHasRole(AppRoles.Moderator)]
+public class DevTasks : IGet, IReturn<StringResponse>
+{
+    public bool? DisableWrites { get; set; }
+}

@@ -41,6 +41,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
     int? lastId = null;
     int? lastView = null;
 
+
     SearchArtifacts request = new();
 
     List<Artifact> results = new();
@@ -51,6 +52,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
     const int NextPageTake = 100;
 
     SearchArtifacts? lastRequest;
+    bool existingQuery => lastRequest != null && lastRequest.Matches(request);
 
     UserResult? SelectedUser;
     public AlbumResult? SelectedAlbum;
@@ -81,28 +83,22 @@ public partial class Index : AppAuthComponentBase, IDisposable
 
     async Task updateAsync()
     {
-        var existingQuery = lastRequest != null && lastRequest.Matches(request);
         var existingSelection = lastId == Id && lastView == View;
         if (existingQuery && existingSelection)
+        {
+            log("Ignoring existingQuery && existingSelection");
             return;
+        }
         lastId = Id;
         lastView = View;
 
         if (lastRequest != null)
-        {
-            var dirtyFields = request.GetDirtyFields(lastRequest);
-            log("\n\n\n\nDirty Fields:", string.Join(", ", dirtyFields));
-        }
+            log("Dirty Fields:", string.Join(", ", request.GetDirtyFields(lastRequest)));
         else
-        {
             log("Loading new request...");
-        }
 
-        Log.LogDebug($"\n\n{0}", request.Dump());
-        if (!existingQuery)
-        {
-            await reloadResults();
-        }
+        await loadResults();
+        await GalleryResults.LoadAsync(UserState, Id, View);
         StateHasChanged();
 
         SelectedUser = user != null
@@ -124,8 +120,11 @@ public partial class Index : AppAuthComponentBase, IDisposable
         StateHasChanged();
     }
 
-    async Task reloadResults()
+    async Task loadResults()
     {
+        if (existingQuery)
+            return;
+
         request.Skip = 0;
         request.Take = InitialTake;
         api = await ApiAsync(request);
@@ -232,7 +231,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
 
         //preemptive to hopefully reduce re-renders with invalid args
         await GalleryResults.LoadAsync(UserState, args.SelectedId, args.ViewingId);
-        await reloadResults();
+        await loadResults();
 
         if (args.SelectedId == null && args.ViewingId == null)
         {

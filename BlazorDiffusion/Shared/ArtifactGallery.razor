@@ -146,7 +146,9 @@
 @if (Creative != null && Selected != null)
 {
     <SlideOver Done=@(_ => navTo()) ShowTitlebar="false" ShowFooter="false">
-
+    @*Guard against NRE when navigating away whilst SlideOver is open*@
+    @if (Creative != null && Selected != null)
+    {
     <div class=@CssDefaults.SlideOver.TitlebarClass>
         <div class="flex items-start justify-between space-x-3">
             <div class="space-y-1">
@@ -314,8 +316,9 @@
             <ConfirmDelete OnDelete="async () => await hardDelete(Selected.CreativeId)" />
         </div>
     }
-    
-</SlideOver>
+
+    }
+    </SlideOver>
 }
 
 @if (artifactMenu != null)

@@ -55,6 +55,7 @@ public class AppHost : AppHostBase, IHostingStartup
             CdnBucket = "diffusion-client",
             AssetsBasePath = "https://cdn.diffusion.works",
             FallbackAssetsBasePath = "https://pub-97bba6b94a944260b10a6e7d4bf98053.r2.dev",
+            DisableWrites = HostingEnvironment.IsDevelopment(),
         });
         Log.Warn($"R2: Account:{appConfig.R2Account}, Id:{appConfig.R2AccessId}, Key:{appConfig.R2AccessKey}, Bucket:{appConfig.ArtifactBucket}");
         container.Register(appConfig);
