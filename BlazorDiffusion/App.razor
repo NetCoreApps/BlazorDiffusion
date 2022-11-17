@@ -1,5 +1,6 @@
 @inject NavigationManager NavigationManager
 @inject ServiceStackStateProvider AuthStateProvider
+@inject HostState HostState
 
 <Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true">
     <Found Context="routeData">
@@ -44,11 +45,18 @@
 @code {
     Type GetPageLayout(RouteData route) => route.PageType?.FirstAttribute<LayoutAttribute>()?.LayoutType ?? typeof(MainLayout);
 
+    [Parameter] public InitialHostState? InitialState { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        HostState.Load(InitialState);
+        return base.OnInitializedAsync();
+    }
+
     async Task login()
     {
         var loginUrl = NavigationManager.GetLoginUrl();
         await AuthStateProvider.LogoutIfAuthenticatedAsync();
         NavigationManager.NavigateTo(loginUrl, true);
     }
-
 }
