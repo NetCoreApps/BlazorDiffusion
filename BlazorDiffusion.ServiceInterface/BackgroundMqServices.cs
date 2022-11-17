@@ -55,7 +55,7 @@ public class BackgroundMqServices : Service
         return metadataCreative;
     }
 
-    DateTime lastSyncTasksPeriodicRun = DateTime.MinValue;
+    static DateTime lastSyncTasksPeriodicRun = DateTime.MinValue;
     async Task PulseSyncTasks()
     {
         if (Interlocked.Read(ref InSyncTasks) > 0)
