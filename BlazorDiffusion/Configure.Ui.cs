@@ -22,6 +22,11 @@ public class ConfigureUi : IHostingStartup
                 typeof(Pages.Index).Assembly.GetTypes().Where(x => typeof(ComponentBase).IsAssignableFrom(x))));
         }).ConfigureAppHost(afterConfigure:appHost => {
 
+            //TODO replace with appHost.IsRunAsAppTask()
+            var isAppTask = Environment.GetCommandLineArgs().Any(x => x.IndexOf(nameof(AppTasks)) >= 0);
+            if (isAppTask)
+                return;
+
             var container = appHost.GetContainer();
             var s3Client = container.Resolve<AmazonS3Client>();
             var appConfig = container.Resolve<AppConfig>();
