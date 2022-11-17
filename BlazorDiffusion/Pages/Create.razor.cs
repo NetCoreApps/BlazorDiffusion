@@ -112,6 +112,8 @@ public partial class Create : AppAuthComponentBase, IDisposable
         }
         if (selectedGroup == null)
             selectGroup(AppData.CategoryGroups[0].Name);
+
+        await loadHistory();
     }
 
     Creative? creative;
@@ -122,7 +124,6 @@ public partial class Create : AppAuthComponentBase, IDisposable
         RegisterKeyboardNavigation(this.OnNavKeyAsync);
 
         api.ClearErrors();
-        await loadHistory();
 
         if (Id != null)
         {
@@ -209,7 +210,7 @@ public partial class Create : AppAuthComponentBase, IDisposable
         api = await ApiAsync(request);
         creative = api.Response?.Result;
 
-        await loadUserState();
+        await loadHistory();
     }
 
     async Task pinArtifact(Artifact artifact)
