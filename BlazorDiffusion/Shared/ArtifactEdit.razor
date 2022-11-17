@@ -1,0 +1,155 @@
+﻿@inherits AuthBlazorComponentBase
+@inject NavigationManager NavigationManager
+
+<div class="@CssDefaults.Form.PanelClass @CssDefaults.Form.SlideOverTransition @EditPanelCss">
+    <form class=@CssDefaults.Form.FormClass @onsubmit="Save" @onsubmit:preventDefault>
+        <!-- Header -->
+        <div class="h-0 flex-1 overflow-y-auto">
+            <div class=@CssDefaults.Form.TitlebarClass>
+                <div class="flex items-start justify-between space-x-3">
+                    <div class="space-y-1">
+                        <TextLink class="flex" href=@($"/admin/creatives?Id={Artifact.CreativeId}")>
+                            <Icon class="w-6 h-6 mr-1" Image=@typeof(Creative).GetIcon() />
+                            <h2 class=@CssDefaults.Form.HeadingClass title="@Artifact.FileName">@Artifact.Creative.UserPrompt</h2>
+                        </TextLink>
+
+                        <div class="mt-1">
+
+                            <div class="w-12">
+
+                                <div class="flex items-center">
+                                    <div class="flex-1 text-center">
+                                        <span class="w-12 group flex items-center text-gray-500 text-base leading-6 font-medium rounded-full">
+                                            <svg class="text-center h-7 w-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                            </svg>
+                                            @Artifact.LikesCount
+                                        </span>
+                                    </div>
+
+                                    <div class="flex-1 text-center ml-2">
+                                        <span class="w-12 group flex items-center text-gray-500 text-base leading-6 font-medium rounded-full">
+                                            <svg class="text-center h-7 w-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.172a1 1 0 00.707-.293l2.414-2.414a1 1 0 01.707-.293H20"></path>
+                                            </svg>
+                                            @Artifact.DownloadsCount
+                                        </span>
+                                    </div>
+                                    <div class="flex-1 text-center ml-2">
+                                        <span class="w-12 group flex items-center text-gray-500 text-base leading-6 font-medium rounded-full">
+                                            <svg class="text-center h-7 w-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                            </svg>
+                                            @Artifact.SearchCount
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-gray-500">@(Artifact.ContentLength / 1024) Kb</p>
+                        </div>
+                    </div>
+                    <div class="flex h-7 items-center">
+                        <button type="button" class=@CssDefaults.Form.CloseButtonClass @onclick="Close">
+                            <span class="sr-only">Close panel</span>
+                            <!-- Heroicon name: outline/x-mark -->
+                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-1 flex-col justify-between">
+                <div class="divide-y divide-gray-200 px-4 sm:px-6">
+                    <div class="space-y-6 pt-6 pb-5">
+                        <div>
+                            <CheckboxInput @bind-Value="Artifact.Nsfw" Label="NSFW"></CheckboxInput>
+                        </div>
+                        <div>
+                            <select @bind="Quality">
+                                @foreach (var item in options)
+                                {
+                                    <option value="@item.Key">@item.Value</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="">
+                            <img src="https://cdn.diffusion.works@(Artifact.FilePath)" alt=""
+                                 class="object-cover group-hover:opacity-75">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 px-4 py-3 bg-gray-50 dark:bg-gray-900 sm:px-6 flex flex-wrap justify-between">
+            <div class="flex justify-end">
+                <SecondaryButton onclick="Close">Cancel</SecondaryButton>
+                <PrimaryButton type="submit" class="ml-4 bg-indigo-300">Save</PrimaryButton>
+            </div>
+        </div>
+        <ErrorSummary ExplicitStatus=@(apiResult?.Error) />
+    </form>
+</div>
+
+@code {
+
+    [Parameter]
+    public Artifact Artifact { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    [Parameter]
+    public EventCallback OnSave { get; set; }
+
+    [Parameter]
+    public EventCallback OnDelete { get; set; }
+
+    [Parameter]
+    public string EditPanelCss { get; set; }
+
+    ApiResult<Artifact> apiResult = null;
+
+    string Quality = "0";
+
+    Dictionary<string, string> options = new()
+    {
+        { "0", "Good" },
+        { "-1", "Malformed" },
+        { "-2", "Blurred" },
+        { "-3", "Low Quality" }
+    };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Quality = Artifact.Quality.ToString();
+        await base.OnParametersSetAsync();
+    }
+
+
+    async Task Save()
+    {
+        var request = new UpdateArtifact
+        {
+            Id = Artifact.Id
+        };
+        if (Artifact.Nsfw != null)
+            request.Nsfw = Artifact.Nsfw;
+        request.Quality = int.Parse(Quality);
+
+        apiResult = await ApiAsync(request);
+
+        if (!apiResult.Errors.Any())
+            await Close();
+        await OnSave.InvokeAsync();
+    }
+
+    async Task Close()
+    {
+        await OnClose.InvokeAsync();
+
+        NavigationManager.NavigateTo(NavigationManager.Uri.SetQueryParam("edit", null));
+    }
+
+}

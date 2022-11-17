@@ -9,4 +9,154 @@
     </Breadcrumb>
 </Breadcrumbs>
 
-<AutoQueryGrid Model="Artifact" Apis="Apis.AutoQuery<QueryArtifacts,UpdateArtifact>()" />
+
+<div>
+  <div class="sm:hidden">
+    <label for="tabs" class="sr-only">Select a tab</label>
+    <!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
+    <select id="tabs" name="tabs" @onchange="TabSelection" class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+      <option value="All" selected>All</option>
+
+      <option value="Reported">Reported</option>
+      <option value="Stats">Artifacts Stats</option>
+    </select>
+  </div>
+  <div class="hidden sm:block">
+    <div class="border-b border-gray-200">
+      <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+        <!-- Current: "border-indigo-500 text-indigo-600", Default: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" -->
+        <button @onclick="(e) => ChangeTab(ArtifactTab.All)" class="@(tab == ArtifactTab.All ? "border-indigo-500 text-indigo-600" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300") group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm">
+          <span class="text-lg">All</span>
+        </button>
+
+        <button @onclick="(e) => ChangeTab(ArtifactTab.Reported)" class="@(tab == ArtifactTab.Reported ? "border-indigo-500 text-indigo-600" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300") group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm">
+
+          <span class="text-lg">Reported Artifacts</span>
+        </button>
+
+        <button @onclick="(e) => ChangeTab(ArtifactTab.Stats)" class="@(tab == ArtifactTab.Stats ? "border-indigo-500 text-indigo-600" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300") group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm">
+
+          <span class="text-lg">Artifacts Stats</span>
+        </button>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+<AutoQueryGrid Model="Artifact" Apis="Apis.AutoQuery<QueryArtifacts,UpdateArtifact>()"
+               @ref="autoQueryGrid"
+               RowSelected="RowSelected">
+    <EditForm>
+        @if (reviewItem != null)
+        {
+            <div class="relative z-10" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+                <div class="">
+                    <div class="">
+                        <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
+                            <ArtifactEdit Artifact="reviewItem" OnClose="Close" 
+                                OnDelete="Delete" OnSave="Save"
+                                EditPanelCss=@editPanelClass></ArtifactEdit>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+    </EditForm>
+    <Columns>
+        <Column Title="Creative" Field="(Artifact x) => x.CreativeId">
+            <Template>
+                 <TextLink class="flex" href=@($"/admin/creatives?Id={context.CreativeId}")>
+                        <Icon class="w-6 h-6 mr-1" Image=@typeof(Creative).GetIcon()/>
+                        @context.CreativeId
+                    </TextLink>
+            </Template>
+        </Column>
+        <Column Title="Id" Field="(Artifact x) => x.Id"/>
+        <Column Field="(Artifact x) => x.FilePath">
+            <Template>
+                <img src="https://cdn.diffusion.works@(context.FilePath)" alt=@context.FileName height="2em" />
+            </Template>
+        </Column>
+        <Column Field="(Artifact x) => x.CreatedDate" Format="s"/>
+        <Column Field="(Artifact x) => x.Prompt">
+            <Template>
+                @Truncate(context.Prompt)
+            </Template>
+        </Column>
+        <Column Field="(Artifact x) => x.Width" Title="Dimensions">
+            <Template>
+                <span title="@context.Width x @context.Height">@ImageSizeDescription(context)</span>
+            </Template>
+        </Column>
+    </Columns>
+</AutoQueryGrid>
+
+@code {
+    AutoQueryGrid<Artifact> autoQueryGrid;
+    public Artifact reviewItem = null;
+
+    string editPanelClass = "show";
+
+    ArtifactTab tab = ArtifactTab.All;
+
+    string Truncate(string prompt)
+    {
+        return prompt.Length < 100 ? prompt :
+            prompt[..100] + "...";
+    }
+
+    string ImageSizeDescription(Artifact artifact)
+    {
+        if (artifact.Width == artifact.Height)
+            return "Square";
+        if (artifact.Width > artifact.Height)
+            return "Landscape";
+        return "Portrait";
+    }
+
+    async Task RowSelected(Artifact item)
+    {
+        reviewItem = item;
+        editPanelClass = "show";
+        StateHasChanged();
+    }
+
+    async Task Close()
+    {
+        editPanelClass = "hidden";
+        reviewItem = null;
+    }
+
+    async Task Save()
+    {
+        await autoQueryGrid.RefreshAsync();
+    }
+
+    async Task Delete()
+    {
+        await autoQueryGrid.RefreshAsync();
+    }
+
+    async Task TabSelection(ChangeEventArgs e)
+    {
+        var tabVal = e.Value?.ConvertTo<ArtifactTab>() ?? ArtifactTab.All;
+        tab = tabVal;
+        await autoQueryGrid.RefreshAsync();
+    }
+
+
+    async Task ChangeTab(ArtifactTab tabVal)
+    {
+        tab = tabVal;
+        await autoQueryGrid.RefreshAsync();
+    }
+    
+    public enum ArtifactTab
+    {
+        All,
+        Reported,
+        Stats
+    }
+}
