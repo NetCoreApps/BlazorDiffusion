@@ -30,7 +30,7 @@
                         <div class="">
                             @if (selectedPrimary != null)
                            {
-                               <img src="https://cdn.diffusion.works@(selectedPrimary.FilePath)" alt="" 
+                               <img src="https://cdn.diffusion.works@(selectedPrimary.FilePath)" @onclick="UnpinArtifact" alt="" 
                                         class="object-cover group-hover:opacity-75 border-yellow-500 rounded-xl border-4">
                            }
                         </div>
@@ -61,7 +61,7 @@
             </div>
             <div class="flex justify-end">
                 <SecondaryButton onclick="Close">Cancel</SecondaryButton>
-                <PrimaryButton type="submit" class="ml-4 bg-indigo-300" disabled=@saveDisabled>Save</PrimaryButton>
+                <PrimaryButton type="submit" class="ml-4 bg-indigo-300">Save</PrimaryButton>
             </div>
         </div>
         <ErrorSummary ExplicitStatus=@(apiResult?.Error) />
@@ -86,16 +86,35 @@
 
     ApiResult<Creative> apiResult = null;
     ApiResult<EmptyResponse> deleteResult = null;
-    public Artifact selectedPrimary = null;
-    bool saveDisabled => selectedPrimary == null;
+    public Artifact? selectedPrimary = null;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Creative.PrimaryArtifactId != null)
+            selectedPrimary = Creative.Artifacts.SingleOrDefault(x => x.Id == Creative.PrimaryArtifactId);
+        else
+            selectedPrimary = null;
+        await base.OnParametersSetAsync();
+    }
+
+    async Task UnpinArtifact(EventArgs e)
+    {
+        if(selectedPrimary != null)
+        {
+            selectedPrimary = null;
+        }
+    }
 
     async Task Save()
     {
         var request = new UpdateCreative
             {
-                PrimaryArtifactId = selectedPrimary.Id,
                 Id = Creative.Id
             };
+        if (selectedPrimary != null)
+            request.PrimaryArtifactId = selectedPrimary.Id;
+        else
+            request.UnpinPrimaryArtifact = true;
         apiResult = await ApiAsync(request);
 
         if(!apiResult.Errors.Any())
@@ -122,7 +141,6 @@
         if (artifact == null)
             return;
         selectedPrimary = artifact;
-        StateHasChanged();
     }
 
     async Task Close()
@@ -131,6 +149,5 @@
         
         NavigationManager.NavigateTo(NavigationManager.Uri.SetQueryParam("edit", null));
         selectedPrimary = null;
-        StateHasChanged();
     }
 }

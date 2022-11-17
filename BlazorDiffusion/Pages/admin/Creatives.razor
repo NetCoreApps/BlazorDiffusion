@@ -14,47 +14,35 @@
   <div class="sm:hidden">
     <label for="tabs" class="sr-only">Select a tab</label>
     <!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
-    <select id="tabs" name="tabs" class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-      <option selected>Missing Primary Artifact</option>
+    <select id="tabs" name="tabs" @onchange="TabSelection" class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+      <option value="All" selected>All</option>
 
-      <option>Reported</option>
+      <option value="MissingPrimaryArtifact">Missing Primary Artifact</option>
     </select>
   </div>
   <div class="hidden sm:block">
     <div class="border-b border-gray-200">
       <nav class="-mb-px flex space-x-8" aria-label="Tabs">
         <!-- Current: "border-indigo-500 text-indigo-600", Default: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" -->
-        <a href="#" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm">
-          <!--
-            Heroicon name: mini/user
+        <button @onclick="(e) => ChangeTab(CreativesTab.All)" class="@(tab == CreativesTab.All ? "border-indigo-500 text-indigo-600" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300") group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm">
+          <span class="text-lg">All</span>
+        </button>
 
-            Current: "text-indigo-500", Default: "text-gray-400 group-hover:text-gray-500"
-          -->
-          <svg class="text-gray-400 group-hover:text-gray-500 -ml-0.5 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path d="M10 8a3 3 0 100-6 3 3 0 000 6zM3.465 14.493a1.23 1.23 0 00.41 1.412A9.957 9.957 0 0010 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 00-13.074.003z" />
-          </svg>
+        <button @onclick="(e) => ChangeTab(CreativesTab.MissingPrimaryArtifact)" class="@(tab == CreativesTab.MissingPrimaryArtifact ? "border-indigo-500 text-indigo-600" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300") group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm">
+
           <span class="text-lg">Missing Primary Artifact</span>
-        </a>
-
-        <a href="#" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm">
-          <!-- Heroicon name: mini/building-office -->
-          <svg class="text-gray-400 group-hover:text-gray-500 -ml-0.5 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path fill-rule="evenodd" d="M4 16.5v-13h-.25a.75.75 0 010-1.5h12.5a.75.75 0 010 1.5H16v13h.25a.75.75 0 010 1.5h-3.5a.75.75 0 01-.75-.75v-2.5a.75.75 0 00-.75-.75h-2.5a.75.75 0 00-.75.75v2.5a.75.75 0 01-.75.75h-3.5a.75.75 0 010-1.5H4zm3-11a.5.5 0 01.5-.5h1a.5.5 0 01.5.5v1a.5.5 0 01-.5.5h-1a.5.5 0 01-.5-.5v-1zM7.5 9a.5.5 0 00-.5.5v1a.5.5 0 00.5.5h1a.5.5 0 00.5-.5v-1a.5.5 0 00-.5-.5h-1zM11 5.5a.5.5 0 01.5-.5h1a.5.5 0 01.5.5v1a.5.5 0 01-.5.5h-1a.5.5 0 01-.5-.5v-1zm.5 3.5a.5.5 0 00-.5.5v1a.5.5 0 00.5.5h1a.5.5 0 00.5-.5v-1a.5.5 0 00-.5-.5h-1z" clip-rule="evenodd" />
-          </svg>
-          <span class="text-lg">Reported</span>
-        </a>
+        </button>
       </nav>
     </div>
   </div>
 </div>
 
 
-
 <AutoQueryGrid Model="Creative" Apis="Apis.AutoQuery<QueryCreatives, UpdateCreative, HardDeleteCreative>()"
                @ref="autoQueryGrid"
                RowSelected="RowSelected"
                
-               ConfigureQuery=@((x) => { x.AddQueryParam("PrimaryArtifactId", ""); })>
+               ConfigureQuery="ConfigureQuery">
     <EditForm>
         @if (reviewItem != null)
         {
@@ -114,6 +102,7 @@
     </Columns>
 </AutoQueryGrid>
 
+
 @code {
 
     [Parameter, SupplyParameterFromQuery]
@@ -123,7 +112,33 @@
     AutoQueryGrid<Creative> autoQueryGrid;
 
     string editPanelClass = "show";
+    CreativesTab tab = CreativesTab.All;
 
+    async Task TabSelection(ChangeEventArgs e)
+    {
+        var tabVal = e.Value?.ConvertTo<CreativesTab>() ?? CreativesTab.All;
+        tab = tabVal;
+        await autoQueryGrid.RefreshAsync();
+    }
+
+    async Task ChangeTab(CreativesTab tabVal)
+    {
+        tab = tabVal;
+        await autoQueryGrid.RefreshAsync();
+    }
+
+    void ConfigureQuery(QueryBase query)
+    {
+        switch(tab)
+        {
+            case CreativesTab.MissingPrimaryArtifact:
+                query.AddQueryParam("PrimaryArtifactId", "");
+                break;
+            default:
+            case CreativesTab.All:
+                break;
+        }
+    }
 
     async Task RowSelected(Creative item)
     {
@@ -140,14 +155,17 @@
 
     async Task Save()
     {
-        await Task.Delay(500);
         await autoQueryGrid.RefreshAsync();
     }
 
     async Task Delete()
     {
-        await Task.Delay(500);
         await autoQueryGrid.RefreshAsync();
     }
 
+    public enum CreativesTab
+    {
+        All,
+        MissingPrimaryArtifact
+    }
 }
