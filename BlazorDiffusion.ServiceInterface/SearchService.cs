@@ -134,7 +134,8 @@ public class SearchService : Service
                 if (query.Show == "likes")
                 {
                     q.Join<AppUser>((a,u) => u.RefIdStr == query.User)
-                     .Join<Artifact,ArtifactLike,AppUser>((a, l, u) => a.Id == l.ArtifactId && u.Id == l.AppUserId);
+                     .Join<Artifact,ArtifactLike,AppUser>((a, l, u) => a.Id == l.ArtifactId && u.Id == l.AppUserId)
+                     .ThenByDescending(a => a.Id);
                 }
                 else if (query.Album != null)
                 {
@@ -147,7 +148,9 @@ public class SearchService : Service
                 }
                 else
                 {
-                    q.Where<Artifact,Creative>((a, c) => c.OwnerRef == query.User && c.PrimaryArtifactId == a.Id); // only pinned
+                    // only pinned
+                    q.Where<Artifact,Creative>((a, c) => c.OwnerRef == query.User && c.PrimaryArtifactId == a.Id)
+                     .ThenByDescending(a => a.Id);
                 }
             }
             else if (query.Album != null)
