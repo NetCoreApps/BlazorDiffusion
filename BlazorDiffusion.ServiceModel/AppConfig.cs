@@ -23,5 +23,6 @@ public class AppConfig
     /// Ignore saving creatives + pre-rendering pages to avoid Hot Reload reloading page
     /// </summary>
     public bool DisableWrites { get; set; }
+    public TimeSpan SyncTasksInterval { get; set; }
     public static AppConfig Set(AppConfig instance) => Instance = instance;
 }
