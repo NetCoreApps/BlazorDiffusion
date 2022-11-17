@@ -124,7 +124,7 @@ public class CreativeService : Service
                 ModifiedDate = DateTime.UtcNow,
             }, where:x => x.Id == request.Id);
 
-        PublishMessage(new DiskTasks { SaveCreativeId = creative.Id });
+        Updated.CreativeIds.Add(creative.Id);
         
         PublishMessage(new BackgroundTasks {
             RecordPrimaryArtifact = new() {
@@ -171,7 +171,7 @@ public class CreativeService : Service
             artifact.Quality = request.Quality.Value;
         }
 
-        PublishMessage(new DiskTasks { SaveCreativeId = creative.Id });
+        Updated.CreativeIds.Add(creative.Id);
 
         return artifact;
     }
@@ -303,7 +303,7 @@ public class CreativeService : Service
                 DeletedDate = now,
             }, where: x => x.Id == request.Id);
 
-        PublishMessage(new DiskTasks { SaveCreativeId = creative.Id });
+        Updated.CreativeIds.Add(creative.Id);
     }
 
     public async Task Delete(HardDeleteCreative request)

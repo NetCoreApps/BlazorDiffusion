@@ -56,14 +56,13 @@ public class BackgroundMqServices : Service
     }
 
     DateTime lastSyncTasksPeriodicRun = DateTime.MinValue;
-    TimeSpan SyncTasksInterval = TimeSpan.FromMinutes(10);
     async Task PulseSyncTasks()
     {
         if (Interlocked.Read(ref InSyncTasks) > 0)
             return;
 
         var lastRun = DateTime.UtcNow - lastSyncTasksPeriodicRun;
-        if (lastRun > SyncTasksInterval)
+        if (lastRun > AppConfig.SyncTasksInterval)
         {
             lastSyncTasksPeriodicRun = DateTime.UtcNow;
             await Any(new SyncTasks { Periodic = true });
@@ -147,7 +146,7 @@ public class BackgroundMqServices : Service
                         swTask.Restart();
                         await Prerenderer.RenderPages();
                         // if external request is needed in future
-                        //var jwtProvider = (JwtAuthProvider)AuthenticateService.GetRequiredJwtAuthProvider();
+                        //var jwtProvider = AssertPlugin<AuthFeature>().GetRequiredJwtAuthProvider();
                         //var jwtAdmin = jwtProvider.CreateJwtBearerToken(Users.System.ToUserSession());
                         //var client = new JsonApiClient(AppConfig.BaseUrl) {
                         //    BearerToken = jwtAdmin
