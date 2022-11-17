@@ -312,8 +312,8 @@ public class CreativeService : Service
         if (creative == null)
             throw HttpError.NotFound($"Creative {request.Id} does not exist");
 
-        var artifacts = await Db.SelectAsync<Artifact>(x => x.CreativeId == request.Id);
-        var artifactIds = artifacts.Select(x => x.Id).ToList();
+        var artifactIds = await Db.ColumnDistinctAsync<int>(
+            Db.From<Artifact>().Where(x => x.CreativeId == request.Id).Select(x => x.Id));
 
         using var transaction = Db.OpenTransaction();
 
@@ -324,6 +324,7 @@ public class CreativeService : Service
         await Db.DeleteAsync<CreativeArtist>(x => x.CreativeId == request.Id);
         await Db.DeleteAsync<CreativeModifier>(x => x.CreativeId == request.Id);
         await Db.DeleteAsync<Creative>(x => x.Id == request.Id);
+        await Db.DeleteAsync<ArtifactFts>(x => x.CreativeId == request.Id);
 
         transaction.Commit();
 
