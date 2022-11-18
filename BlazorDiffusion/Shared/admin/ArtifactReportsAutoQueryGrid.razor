@@ -1,0 +1,81 @@
+﻿@inject NavigationManager NavigationManager
+
+<AutoQueryGrid Model="ArtifactReport" Apis="Apis.AutoQuery<QueryArtifactReports>()"
+               @ref="autoQueryGrid"
+               RowSelected="RowSelected">
+    <EditForm>
+        @if (reviewItem != null)
+        {
+            <div class="relative z-10" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+                <div class="">
+                    <div class="">
+                        <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
+                            <ArtifactEdit Artifact="reviewItem.Artifact" OnClose="Close" 
+                                OnDelete="Delete" OnSave="Save"
+                                EditPanelCss=@editPanelClass></ArtifactEdit>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+    </EditForm>
+    <Columns>
+        <Column Title="Artifact" Field="(ArtifactReport x) => x.ArtifactId">
+            <Template>
+                 <TextLink class="flex" @onclick="(x) => NavigateToArtifact(context.ArtifactId)">
+                        <Icon class="w-6 h-6 mr-1" Image=@typeof(Artifact).GetIcon()/>
+                        @context.ArtifactId
+                    </TextLink>
+            </Template>
+        </Column>
+        <Column Title="Id" Field="(ArtifactReport x) => x.Id" />
+        <Column Field="(ArtifactReport x) => x.Notes" />
+        <Column Field="(ArtifactReport x) => x.CreatedDate" Format="s"/>
+        <Column Field="(ArtifactReport x) => x.Description" />
+        <Column Field="(ArtifactReport x) => x.ActionedDate" Format="s" />
+        <Column Field="(ArtifactReport x) => x.ActionedBy" />
+    </Columns>
+</AutoQueryGrid>
+
+@code {
+    AutoQueryGrid<ArtifactReport> autoQueryGrid;
+    public ArtifactReport reviewItem = null;
+
+    string editPanelClass = "show";
+
+    string Truncate(string prompt)
+    {
+        return prompt.Length < 100 ? prompt :
+            prompt[..100] + "...";
+    }
+
+    async Task NavigateToArtifact(int artifactId)
+    {
+        
+        NavigationManager.NavigateTo($"/admin/artifacts?id={artifactId}&tab=All");
+    }
+
+    async Task RowSelected(ArtifactReport item)
+    {
+        reviewItem = item;
+        editPanelClass = "show";
+        StateHasChanged();
+    }
+
+    async Task Close()
+    {
+        editPanelClass = "hidden";
+        reviewItem = null;
+    }
+
+    async Task Save()
+    {
+        await autoQueryGrid.RefreshAsync();
+    }
+
+    async Task Delete()
+    {
+        await autoQueryGrid.RefreshAsync();
+    }
+}

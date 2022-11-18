@@ -261,6 +261,9 @@ public class ArtifactReport
     [References(typeof(AppUser))]
     public int AppUserId { get; set; }
 
+    [Reference]
+    public Artifact Artifact { get; set; }
+
     public ReportType Type { get; set; }
     public string? Description { get; set; }
     public DateTime CreatedDate { get; set; }

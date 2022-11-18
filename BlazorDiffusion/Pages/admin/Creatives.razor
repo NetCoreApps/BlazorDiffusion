@@ -10,38 +10,12 @@
     </Breadcrumb>
 </Breadcrumbs>
 
-<div>
-  <div class="sm:hidden">
-    <label for="tabs" class="sr-only">Select a tab</label>
-    <!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
-    <select id="tabs" name="tabs" @onchange="TabSelection" class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-      <option value="All" selected>All</option>
-
-      <option value="MissingPrimaryArtifact">Missing Primary Artifact</option>
-    </select>
-  </div>
-  <div class="hidden sm:block">
-    <div class="border-b border-gray-200">
-      <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-        <!-- Current: "border-indigo-500 text-indigo-600", Default: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" -->
-        <button @onclick="(e) => ChangeTab(CreativesTab.All)" class="@(tab == CreativesTab.All ? "border-indigo-500 text-indigo-600" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300") group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm">
-          <span class="text-lg">All</span>
-        </button>
-
-        <button @onclick="(e) => ChangeTab(CreativesTab.MissingPrimaryArtifact)" class="@(tab == CreativesTab.MissingPrimaryArtifact ? "border-indigo-500 text-indigo-600" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300") group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm">
-
-          <span class="text-lg">Missing Primary Artifact</span>
-        </button>
-      </nav>
-    </div>
-  </div>
-</div>
+<Tabs TabOptions="TabOptions" TabChanged="TabChanged" />
 
 
 <AutoQueryGrid Model="Creative" Apis="Apis.AutoQuery<QueryCreatives, UpdateCreative, HardDeleteCreative>()"
                @ref="autoQueryGrid"
                RowSelected="RowSelected"
-               
                ConfigureQuery="ConfigureQuery">
     <EditForm>
         @if (reviewItem != null)
@@ -50,9 +24,9 @@
                 <div class="">
                     <div class="">
                         <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
-                            <PrimaryArtifactSelection Creative="reviewItem" OnClose="Close" 
+                            <CreativeEdit Creative="reviewItem" OnClose="Close" 
                                 OnDelete="Delete" OnSave="Save"
-                                EditPanelCss=@editPanelClass></PrimaryArtifactSelection>
+                                EditPanelCss=@editPanelClass></CreativeEdit>
                         </div>
                     </div>
                 </div>
@@ -111,33 +85,32 @@
     public Creative reviewItem = null;
     AutoQueryGrid<Creative> autoQueryGrid;
 
+    public string? Tab { get; set; }
+    public Dictionary<string, string> TabOptions = new()
+    {
+        {"All","All"},
+        {"MissingPrimaryArtifact","Missing Primary Artifact"}
+    };
+
     string editPanelClass = "show";
-    CreativesTab tab = CreativesTab.All;
-
-    async Task TabSelection(ChangeEventArgs e)
-    {
-        var tabVal = e.Value?.ConvertTo<CreativesTab>() ?? CreativesTab.All;
-        tab = tabVal;
-        await autoQueryGrid.RefreshAsync();
-    }
-
-    async Task ChangeTab(CreativesTab tabVal)
-    {
-        tab = tabVal;
-        await autoQueryGrid.RefreshAsync();
-    }
 
     void ConfigureQuery(QueryBase query)
     {
-        switch(tab)
+        switch(Tab)
         {
-            case CreativesTab.MissingPrimaryArtifact:
+            case "MissingPrimaryArtifact":
                 query.AddQueryParam("PrimaryArtifactId", "");
                 break;
             default:
-            case CreativesTab.All:
                 break;
         }
+    }
+
+    async Task TabChanged(string tab)
+    {
+        Tab = tab;
+        if(autoQueryGrid != null)
+            await autoQueryGrid.RefreshAsync();
     }
 
     async Task RowSelected(Creative item)
@@ -161,11 +134,5 @@
     async Task Delete()
     {
         await autoQueryGrid.RefreshAsync();
-    }
-
-    public enum CreativesTab
-    {
-        All,
-        MissingPrimaryArtifact
     }
 }

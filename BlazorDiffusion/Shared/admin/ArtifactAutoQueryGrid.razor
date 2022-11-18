@@ -1,0 +1,93 @@
+﻿<AutoQueryGrid Model="Artifact" Apis="Apis.AutoQuery<QueryArtifacts,UpdateArtifact>()"
+               @ref="autoQueryGrid"
+               RowSelected="RowSelected">
+    <EditForm>
+        @if (reviewItem != null)
+        {
+            <div class="relative z-10" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+                <div class="">
+                    <div class="">
+                        <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
+                            <ArtifactEdit Artifact="reviewItem" OnClose="Close" 
+                                OnDelete="Delete" OnSave="Save"
+                                EditPanelCss=@editPanelClass></ArtifactEdit>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+    </EditForm>
+    <Columns>
+        <Column Title="Creative" Field="(Artifact x) => x.CreativeId">
+            <Template>
+                 <TextLink class="flex" href=@($"/admin/creatives?Id={context.CreativeId}")>
+                        <Icon class="w-6 h-6 mr-1" Image=@typeof(Creative).GetIcon()/>
+                        @context.CreativeId
+                    </TextLink>
+            </Template>
+        </Column>
+        <Column Title="Id" Field="(Artifact x) => x.Id"/>
+        <Column Field="(Artifact x) => x.FilePath">
+            <Template>
+                <img src="https://cdn.diffusion.works@(context.FilePath)" alt=@context.FileName height="2em" />
+            </Template>
+        </Column>
+        <Column Field="(Artifact x) => x.CreatedDate" Format="s"/>
+        <Column Field="(Artifact x) => x.Prompt">
+            <Template>
+                @Truncate(context.Prompt)
+            </Template>
+        </Column>
+        <Column Field="(Artifact x) => x.Width" Title="Dimensions">
+            <Template>
+                <span title="@context.Width x @context.Height">@ImageSizeDescription(context)</span>
+            </Template>
+        </Column>
+    </Columns>
+</AutoQueryGrid>
+
+@code {
+     AutoQueryGrid<Artifact> autoQueryGrid;
+    public Artifact reviewItem = null;
+
+    string editPanelClass = "show";
+
+    string Truncate(string prompt)
+    {
+        return prompt.Length < 100 ? prompt :
+            prompt[..100] + "...";
+    }
+
+    string ImageSizeDescription(Artifact artifact)
+    {
+        if (artifact.Width == artifact.Height)
+            return "Square";
+        if (artifact.Width > artifact.Height)
+            return "Landscape";
+        return "Portrait";
+    }
+
+    async Task RowSelected(Artifact item)
+    {
+        reviewItem = item;
+        editPanelClass = "show";
+        StateHasChanged();
+    }
+
+    async Task Close()
+    {
+        editPanelClass = "hidden";
+        reviewItem = null;
+    }
+
+    async Task Save()
+    {
+        await autoQueryGrid.RefreshAsync();
+    }
+
+    async Task Delete()
+    {
+        await autoQueryGrid.RefreshAsync();
+    }
+}
