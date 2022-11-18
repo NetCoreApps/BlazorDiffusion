@@ -48,14 +48,11 @@ public class UserState
     public bool IsLoading { get; set; }
 
     NavigationManager NavigationManager { get; }
-    public HostState HostState { get; set; }
 
-    public UserState(CachedLocalStorage localStorage, IServiceGateway client, HostState hostState, NavigationManager navigationManager) //
+    public UserState(CachedLocalStorage localStorage, IClientFactory clientFactory, NavigationManager navigationManager)
     {
         LocalStorage = localStorage;
-        HostState = hostState;
-        //Client = hostState.Client;
-        Client = client;
+        Client = clientFactory.GetGateway();
         NavigationManager = navigationManager;
     }
 
