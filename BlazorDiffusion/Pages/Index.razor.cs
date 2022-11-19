@@ -110,6 +110,16 @@ public partial class Index : AppAuthComponentBase, IDisposable
             : album != null
                 ? await UserState.GetAlbumByRefAsync(album)
                 : null;
+
+        if (SelectedAlbum != null)
+        {
+            SetTitle(SelectedAlbum.Name);
+        }
+        else if (SelectedUser != null)
+        {
+            SetTitle((SelectedUser?.Handle != null ? "@" + SelectedUser?.Handle : "User") + " " + (show ?? "creations"));
+        }
+
         UserState.RemovePrerenderedHtml();
     }
 

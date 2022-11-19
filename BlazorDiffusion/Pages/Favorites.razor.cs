@@ -79,6 +79,8 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
             return;
         }
 
+        SetTitle(SelectedAlbum?.Name ?? "My Likes");
+
         await loadResults();
         await GalleryResults.LoadAsync(UserState, Id, View);
 

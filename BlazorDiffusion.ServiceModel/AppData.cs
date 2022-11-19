@@ -9,6 +9,8 @@ namespace BlazorDiffusion.ServiceModel;
 
 public static class AppData
 {
+    public const string Title = "Blazor Diffusion";
+
     public const int MaxArtiactSize = 10 * 1024 * 1024;
     public const int MaxAvatarSize = 1024 * 1024;
 
