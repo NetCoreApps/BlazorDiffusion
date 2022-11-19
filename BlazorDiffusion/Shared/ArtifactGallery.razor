@@ -9,11 +9,21 @@
     {
         <div class="w-1/3"></div>
     }
-    <div class="w-1/3 flex justify-center">
+    <div class="w-1/3 flex justify-center items-center align-middle">
         <div class=@ClassNames(ColumnsSliderClass ?? "mb-4 overflow-hidden sm:rounded-md w-[320px] text-center")>
             <label for="steps-range" class="block text-sm font-medium text-gray-600 dark:text-gray-400">@UserState.AppPrefs.ArtifactGalleryColumns columns</label>
             <input id="steps-range" @bind="UserState.AppPrefs.ArtifactGalleryColumns" @bind:event="oninput" @onchange="UserState.SaveAppPrefs" type="range" min="1" max="12" step="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
         </div>
+        @if (IsModerator)
+        {
+            <div title=@(Unshuffled ? "Shuffle" : "Unshuffle")>
+                <svg @onclick="_ => Unshuffled = !Unshuffled"
+                 class=@ClassNames("ml-4 cursor-pointer text-gray-400 w-6 h-6", Unshuffled ? "rotate-180" : "")
+                     xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M3 11h12v2H3m0 5v-2h18v2M3 6h6v2H3Z"/>
+                </svg>
+            </div>
+        }
     </div>
     @if (RightHeader != null)
     {
@@ -43,9 +53,10 @@
     };
 }
 <div class=@ClassNames("grid", colCls.TryGetValue(UserState.AppPrefs.ArtifactGalleryColumns, out var cls) ? cls : "grid-cols-6")>
-@foreach (var artifact in Artifacts.OrEmpty())
+@foreach (var artifact in GridArtifacts())
 {
-    <div @key=@artifact.Id class=@ClassNames(artifact.Width > artifact.Height ? "col-span-2" : artifact.Height > artifact.Width ? "row-span-2" : "")>
+    <div @key=@artifact.Id class=@ClassNames(
+        artifact.Width > artifact.Height ? "col-span-2" : artifact.Height > artifact.Width ? "row-span-2" : "")>
 
     <div @onclick="_ => navTo(artifact.Id)"
              class=@ClassNames("overflow-hidden flex justify-center")>

@@ -48,9 +48,6 @@ public partial class Index : AppAuthComponentBase, IDisposable
     HashSet<int> resultIds = new();
     bool hasMore;
 
-    const int InitialTake = 30;
-    const int NextPageTake = 100;
-
     SearchArtifacts? lastRequest;
     bool existingQuery => lastRequest != null && lastRequest.Matches(request);
 
@@ -73,7 +70,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
         request.Album = album;
         request.Source = source;
         request.Skip = 0;
-        request.Take = InitialTake;
+        request.Take = UserState.InitialTake;
         await loadUserState();
 
         await updateAsync();
@@ -136,7 +133,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
             return;
 
         request.Skip = 0;
-        request.Take = InitialTake;
+        request.Take = UserState.InitialTake;
         api = await ApiAsync(request);
         clearResults();
         if (api.Succeeded)
@@ -152,11 +149,11 @@ public partial class Index : AppAuthComponentBase, IDisposable
     async Task loadMore()
     {
         Log.LogDebug("{0} Index loadMore({1}) [{2}..{3}] {4} -> [{5}..{6}]", i++, 
-            hasMore, request.Skip, request.Take, results.Count, request.Skip + request.Take, NextPageTake);
+            hasMore, request.Skip, request.Take, results.Count, request.Skip + request.Take, UserState.NextPage);
         if (hasMore)
         {
             request.Skip += request.Take;
-            request.Take = NextPageTake;
+            request.Take = UserState.NextPage;
             api = await ApiAsync(request);
             if (api.Succeeded)
             {

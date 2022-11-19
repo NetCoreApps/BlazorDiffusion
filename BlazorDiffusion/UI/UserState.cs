@@ -8,7 +8,7 @@ namespace BlazorDiffusion.UI;
 
 public class UserState
 {
-    public const int InitialTake = 30;
+    public const int InitialTake = 50;
     public const int NextPage = 100;
 
     public void RemovePrerenderedHtml()

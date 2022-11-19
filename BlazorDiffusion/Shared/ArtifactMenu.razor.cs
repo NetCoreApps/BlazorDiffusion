@@ -43,7 +43,7 @@ public partial class ArtifactMenu : AppAuthComponentBase
         var api = await ApiAsync(new UpdateArtifact
         {
             Id = Artifact.Id,
-            Nsfw = !Artifact.Nsfw,
+            Nsfw = !Artifact.Nsfw.GetValueOrDefault(),
         });
         if (api.Succeeded)
         {

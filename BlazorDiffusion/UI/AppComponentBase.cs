@@ -100,3 +100,10 @@ public enum PageView
     NewAlbum,
     EditProfile,
 }
+
+public enum ImageSize
+{
+    Square,
+    Portrait,
+    Landscape,
+}

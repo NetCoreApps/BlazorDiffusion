@@ -35,12 +35,6 @@ public partial class Create : AppAuthComponentBase, IDisposable
 
 
     ImageSize imageSize;
-    enum ImageSize
-    {
-        Square,
-        Portrait,
-        Landscape,
-    }
 
     enum CreateMenu
     {
