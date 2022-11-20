@@ -1,4 +1,5 @@
-﻿using BlazorDiffusion.ServiceModel;
+﻿using BlazorDiffusion.Pages.admin;
+using BlazorDiffusion.ServiceModel;
 using BlazorDiffusion.Shared;
 using BlazorDiffusion.UI;
 using Ljbc1994.Blazor.IntersectionObserver;
@@ -123,7 +124,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
     void setResults(IEnumerable<Artifact> results)
     {
         this.results = results.ToList();
-        GalleryResults = X.Apply(GalleryResults.Clone(), x => x.Artifacts = this.results);
+        GalleryResults = X.Apply(GalleryResults.Clone(), x => x.Artifacts = UserState.GetArtifactsForGrid(this.results));
         StateHasChanged();
     }
 
@@ -238,6 +239,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
 
         //preemptive to hopefully reduce re-renders with invalid args
         await GalleryResults.LoadAsync(UserState, args.SelectedId, args.ViewingId);
+        GalleryResults.Artifacts = UserState.GetArtifactsForGrid(results);
         await loadResults();
 
         if (args.SelectedId == null && args.ViewingId == null)

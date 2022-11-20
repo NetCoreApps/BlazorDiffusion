@@ -79,11 +79,6 @@
 
                 <div @onclick="OnDone" class="whitespace-nowrap text-gray-700 dark:text-gray-100 bg-gray-300 dark:bg-gray-700 px-4 py-2 text-sm" role="menuitem" tabindex="-1">Albums</div>
 
-                @if (BottomMenu != null)
-                {
-                    @BottomMenu(Artifact)
-                }
-
                 <div @onclick="openNewAlbum" class="group whitespace-nowrap flex items-center cursor-pointer text-gray-700 dark:text-gray-300 dark:text-gray-300 dark:hover:bg-gray-800 px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-0">
                     <svg class="mr-2 h-5 w-5 text-gray-400 group-hover:text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12"><path fill="currentColor" d="M6 1.5a.5.5 0 0 0-1 0V5H1.5a.5.5 0 0 0 0 1H5v3.5a.5.5 0 0 0 1 0V6h3.5a.5.5 0 0 0 0-1H6V1.5Z"/></svg>
                     New Album
@@ -104,6 +99,11 @@
                         }
                         @album.Name
                     </div>
+                }
+
+                @if (BottomMenu != null)
+                {
+                    @BottomMenu(Artifact)
                 }
 
             </div>

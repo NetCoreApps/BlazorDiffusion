@@ -16,9 +16,9 @@
         </div>
         @if (IsModerator)
         {
-            <div title=@(Unshuffled ? "Shuffle" : "Unshuffle")>
-                <svg @onclick="_ => Unshuffled = !Unshuffled"
-                 class=@ClassNames("ml-4 cursor-pointer text-gray-400 w-6 h-6", Unshuffled ? "rotate-180" : "")
+            <div title=@(UserState.AppPrefs.Shuffle ? "Unshuffle" : "Shuffle")>
+                <svg @onclick="ToggleShuffleAsync"
+                     class=@ClassNames("ml-4 cursor-pointer text-gray-400 w-6 h-6", UserState.AppPrefs.Shuffle ? "" : "rotate-180")
                      xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M3 11h12v2H3m0 5v-2h18v2M3 6h6v2H3Z"/>
                 </svg>
@@ -53,7 +53,7 @@
     };
 }
 <div class=@ClassNames("grid", colCls.TryGetValue(UserState.AppPrefs.ArtifactGalleryColumns, out var cls) ? cls : "grid-cols-6")>
-@foreach (var artifact in GridArtifacts())
+@foreach (var artifact in Artifacts.OrEmpty())
 {
     <div @key=@artifact.Id class=@ClassNames(
         artifact.Width > artifact.Height ? "col-span-2" : artifact.Height > artifact.Width ? "row-span-2" : "")>

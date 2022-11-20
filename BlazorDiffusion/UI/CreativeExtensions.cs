@@ -113,4 +113,160 @@ public static class CreativeExtensions
             album.Artifacts.RemoveAll(x => x.ArtifactId == artifact.Id);
         }
     }
+
+    public static int GetRowSpan(this Artifact artifact) => artifact.Height > artifact.Width ? 2 : 1;
+    public static int GetColSpan(this Artifact artifact) => artifact.Width > artifact.Height ? 2 : 1;
+
+    // Reorder Artifacts to minimize gaps
+    public static IEnumerable<Artifact> ShuffleGridArtifacts(this IEnumerable<Artifact> artifacts, int columns)
+    {
+        var deferPortraits = new Queue<Artifact>();
+        var deferLandscapes = new Queue<Artifact>();
+
+        var topColSpan = 0;
+        var endColSpan = 0;
+        var portraits = 0;
+
+        foreach (var next in artifacts)
+        {
+            var colSpan = next.GetColSpan();
+            var rowSpan = next.GetRowSpan();
+            var isPortrait = rowSpan > 1;
+
+            while (deferPortraits.Count > 0 && topColSpan < columns)
+            {
+                if (deferPortraits.TryDequeue(out var portrait))
+                {
+                    topColSpan += 1;
+                    portraits++;
+                    yield return portrait;
+                }
+                else break;
+            }
+            if (isPortrait && topColSpan < columns)
+            {
+                topColSpan += 1;
+                portraits++;
+                yield return next;
+                continue;
+            }
+
+            while (deferLandscapes.Count > 0 && topColSpan < columns - 2)
+            {
+                if (deferLandscapes.TryDequeue(out var landscape))
+                {
+                    topColSpan += 2;
+                    yield return landscape;
+                }
+            }
+
+            if (topColSpan < columns)
+            {
+                if (topColSpan + colSpan > columns)
+                {
+                    deferLandscapes.Enqueue(next);
+                }
+                else
+                {
+                    // only show portraits from start to avoid:
+                    // | S P . . . |
+                    // | - L . . . |
+                    if (topColSpan > 0 && isPortrait)
+                    {
+                        deferPortraits.Enqueue(next);
+                    }
+                    else
+                    {
+                        topColSpan += colSpan;
+                        if (isPortrait)
+                            portraits++;
+
+                        yield return next;
+                    }
+                }
+            }
+            else
+            {
+                // include spans of portraits on top row when calculating bottom row spans
+                if (portraits > 0)
+                {
+                    endColSpan += portraits;
+                    portraits = 0;
+                }
+
+                if (endColSpan < columns - 2)
+                {
+                    while (deferLandscapes.Count > 0 && endColSpan < columns - 2)
+                    {
+                        if (deferLandscapes.TryDequeue(out var landscape))
+                        {
+                            endColSpan += 2;
+                            yield return landscape;
+                        }
+                    }
+                }
+
+                if (isPortrait)
+                {
+                    deferPortraits.Enqueue(next); // no portraits on bottom row
+                }
+                else
+                {
+                    if (endColSpan + colSpan > columns)
+                    {
+                        deferLandscapes.Enqueue(next);
+                    }
+                    else
+                    {
+                        endColSpan += colSpan;
+                        if (endColSpan == columns)
+                        {
+                            topColSpan = endColSpan = portraits = 0;
+                        }
+                        yield return next;
+                    }
+                }
+            }
+        }
+
+        // fill in missing cols with landscapes
+        var missing = (columns * 2) - topColSpan - endColSpan;
+        while (missing > 1 && deferLandscapes.Count > 0)
+        {
+            if (deferLandscapes.TryDequeue(out var artifact))
+            {
+                var colSpan = GetColSpan(artifact);
+                missing -= colSpan;
+                yield return artifact;
+            }
+        }
+
+        var remaining = new List<Artifact>();
+        while (deferPortraits.Count > 0 || deferLandscapes.Count > 0)
+        {
+            // split deferred artifacts in lots of 2 rows
+            var cols = columns * 2;
+            while (deferPortraits.TryDequeue(out var next) && cols > 0)
+            {
+                remaining.Add(next);
+                cols -= next.GetColSpan();
+            }
+
+            cols = columns * 2;
+            while (deferLandscapes.TryDequeue(out var next) && cols > 0)
+            {
+                remaining.Add(next);
+                cols -= next.GetColSpan();
+            }
+        }
+
+        if (remaining.Count > 0)
+        {
+            foreach (var artifact in ShuffleGridArtifacts(remaining, columns))
+            {
+                yield return artifact;
+            }
+        }
+    }
+
 }

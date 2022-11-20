@@ -126,7 +126,7 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
     void setResults(List<Artifact> results)
     {
         this.results = results.DistinctBy(x => x.Id).ToList();
-        GalleryResults = X.Apply(GalleryResults.Clone(), x => x.Artifacts = results);
+        GalleryResults = X.Apply(GalleryResults.Clone(), x => x.Artifacts = UserState.GetArtifactsForGrid(this.results));
         StateHasChanged();
     }
 
@@ -138,6 +138,7 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
 
         //preemptive to hopefully reduce re-renders with invalid args
         await GalleryResults.LoadAsync(UserState, args.SelectedId, args.ViewingId);
+        GalleryResults.Artifacts = UserState.GetArtifactsForGrid(results);
         await fetchResults(results.Count);
 
         if (args.SelectedId == null && args.ViewingId == null)

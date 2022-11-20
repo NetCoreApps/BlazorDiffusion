@@ -533,9 +533,24 @@ public class UserState
         
         return null;
     }
+
+    public async Task ToggleShuffleAsync()
+    {
+        AppPrefs.Shuffle = !AppPrefs.Shuffle;
+        await SaveAppPrefs();
+        NotifyStateChanged();
+    }
+
+    public List<Artifact> GetArtifactsForGrid(IEnumerable<Artifact> artifacts)
+    {
+        return AppPrefs.Shuffle
+            ? artifacts.ShuffleGridArtifacts(AppPrefs.ArtifactGalleryColumns.ToInt()).ToList()
+            : artifacts.ToList();
+    }
 }
 
 public class AppPrefs
 {
     public string ArtifactGalleryColumns { get; set; } = "5";
+    public bool Shuffle { get; set; } = true;
 }
