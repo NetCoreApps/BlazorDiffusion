@@ -34,6 +34,7 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
     public ElementReference BottomElement { get; set; }
     IntersectionObserver? bottomObserver;
     PageView? pageView;
+    bool hasMore = false;
 
     public List<Artifact> results { get; set; } = new();
 
@@ -105,8 +106,11 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
 
     async Task loadMore()
     {
-        log("loadMore {0}...", results.Count + UserState.NextPage);
-        await fetchResults(results.Count + UserState.NextPage);
+        log("loadMore({0}) {1}...", hasMore, results.Count + UserState.NextPage);
+        if (hasMore)
+        {
+            await fetchResults(results.Count + UserState.NextPage);
+        }
     }
 
     async Task fetchResults(int count)
@@ -114,12 +118,16 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
         if (SelectedAlbum == null)
         {
             log("Favorites Likes fetchResults(): {0} < {1}", results.Count, UserState.LikedArtifactIds.Count);
-            setResults(await UserState.GetLikedArtifactsAsync(count));
+            var nextResults = await UserState.GetLikedArtifactsAsync(count);
+            hasMore = nextResults.Count >= count;
+            setResults(nextResults);
         }
         else
         {
             log("Favorites Album[{0}] fetchResults(): {1} < {2}", SelectedAlbum.Name, results.Count, SelectedAlbum.ArtifactIds.Count);
-            setResults(await UserState.GetAlbumArtifactsAsync(SelectedAlbum, count));
+            var nextResults = await UserState.GetAlbumArtifactsAsync(SelectedAlbum, count);
+            hasMore = nextResults.Count >= count;
+            setResults(nextResults);
         }
     }
 

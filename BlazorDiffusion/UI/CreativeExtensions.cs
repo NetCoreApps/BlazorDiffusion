@@ -246,14 +246,14 @@ public static class CreativeExtensions
         {
             // split deferred artifacts in lots of 2 rows
             var cols = columns * 2;
-            while (deferPortraits.TryDequeue(out var next) && cols > 0)
+            while (cols > 0 && deferPortraits.TryDequeue(out var next))
             {
                 remaining.Add(next);
                 cols -= next.GetColSpan();
             }
 
             cols = columns * 2;
-            while (deferLandscapes.TryDequeue(out var next) && cols > 0)
+            while (cols > 0 && deferLandscapes.TryDequeue(out var next))
             {
                 remaining.Add(next);
                 cols -= next.GetColSpan();
