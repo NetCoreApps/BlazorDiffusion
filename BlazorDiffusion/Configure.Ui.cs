@@ -33,7 +33,7 @@ public class ConfigureUi : IHostingStartup
 
             IVirtualFiles virtualFiles = appHost.GetHostingEnvironment().IsDevelopment()
                 ? new FileSystemVirtualFiles(Path.GetFullPath(Path.Combine(appHost.GetWebRootPath(), appHost.AppSettings.GetString("BlazorWebRoot"))))
-                : new R2VirtualFilesProvider(s3Client, appConfig.CdnBucket);
+                : new R2VirtualFiles(s3Client, appConfig.CdnBucket);
 
             container.Register<IPrerenderer>(c => new Prerenderer
             {
