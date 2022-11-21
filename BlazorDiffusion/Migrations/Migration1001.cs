@@ -42,6 +42,7 @@ public class Migration1001 : MigrationBase
 
         [Reference]
         public List<CreativeArtist> Artists { get; set; }
+
         [Reference]
         public List<CreativeModifier> Modifiers { get; set; }
 
@@ -53,6 +54,7 @@ public class Migration1001 : MigrationBase
 
         [References(typeof(AppUser))]
         public int? OwnerId { get; set; }
+
         public string? OwnerRef { get; set; }
         public string? Key { get; set; }
 
@@ -73,8 +75,10 @@ public class Migration1001 : MigrationBase
 
         [References(typeof(Artifact))]
         public int ArtifactId { get; set; }
+
         [References(typeof(AppUser))]
         public int AppUserId { get; set; }
+
         public DateTime CreatedDate { get; set; }
     }
 
@@ -85,6 +89,7 @@ public class Migration1001 : MigrationBase
 
         [References(typeof(Artifact))]
         public int ArtifactId { get; set; }
+
         [References(typeof(AppUser))]
         public int AppUserId { get; set; }
 
@@ -114,6 +119,7 @@ public class Migration1001 : MigrationBase
 
         [Format(FormatMethods.Attachment)]
         public string FilePath { get; set; }
+
         public string ContentType { get; set; }
 
         [Format(FormatMethods.Bytes)]
@@ -126,11 +132,15 @@ public class Migration1001 : MigrationBase
         public bool? Nsfw { get; set; }
         public Int64? AverageHash { get; set; }
         public Int64? PerceptualHash { get; set; }
+
         public Int64? DifferenceHash { get; set; }
+
         // Dominant Color to show before download
         public string? Background { get; set; }
+
         // Low Quality Image Placeholder for fast load in
         public string? Lqip { get; set; }
+
         // Set Low Quality images to:
         //  - Malformed: -1
         //  - Blurred: -2
@@ -153,11 +163,12 @@ public class Migration1001 : MigrationBase
         public string Prompt { get; set; }
         public string RefId { get; set; }
     }
-    
+
     public class Artist : AuditBase
     {
         [AutoIncrement]
         public int Id { get; set; }
+
         public string? FirstName { get; set; }
         public string LastName { get; set; }
         public int? YearDied { get; set; }
@@ -170,6 +181,7 @@ public class Migration1001 : MigrationBase
     {
         [AutoIncrement]
         public int Id { get; set; }
+
         public string Name { get; set; }
         public string Category { get; set; }
         public string? Description { get; set; }
@@ -181,23 +193,28 @@ public class Migration1001 : MigrationBase
     {
         [AutoIncrement]
         public int Id { get; set; }
+
         [References(typeof(Creative))]
         public int CreativeId { get; set; }
+
         [References(typeof(Artist))]
         public int ArtistId { get; set; }
-        
+
         [Reference]
         public Artist Artist { get; set; }
     }
+
     public class CreativeModifier
     {
         [AutoIncrement]
         public int Id { get; set; }
+
         [References(typeof(Creative))]
         public int CreativeId { get; set; }
+
         [References(typeof(Modifier))]
         public int ModifierId { get; set; }
-        
+
         [Reference]
         public Modifier Modifier { get; set; }
     }
@@ -206,18 +223,25 @@ public class Migration1001 : MigrationBase
     {
         [AutoIncrement]
         public int Id { get; set; }
+
         public string UserName { get; set; }
         public string DisplayName { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+
         [Index(Unique = true)]
         public string? Handle { get; set; }
+
         public string Company { get; set; }
+
         [Index]
         public string Email { get; set; }
+
         public string? ProfileUrl { get; set; }
+
         [Input(Type = "file"), UploadTo("avatars")]
         public string? Avatar { get; set; } //overrides ProfileUrl
+
         public string? LastLoginIp { get; set; }
         public bool IsArchived { get; set; }
         public DateTime? ArchivedDate { get; set; }
@@ -240,9 +264,16 @@ public class Migration1001 : MigrationBase
         public string TimeZone { get; set; }
         public Dictionary<string, string> Meta { get; set; }
         public string PrimaryEmail { get; set; }
-        [IgnoreDataMember] public string Salt { get; set; }
-        [IgnoreDataMember] public string PasswordHash { get; set; }
-        [IgnoreDataMember] public string DigestHa1Hash { get; set; }
+
+        [IgnoreDataMember]
+        public string Salt { get; set; }
+
+        [IgnoreDataMember]
+        public string PasswordHash { get; set; }
+
+        [IgnoreDataMember]
+        public string DigestHa1Hash { get; set; }
+
         public List<string> Roles { get; set; }
         public List<string> Permissions { get; set; }
         public int? RefId { get; set; }
@@ -258,13 +289,16 @@ public class Migration1001 : MigrationBase
     {
         [AutoIncrement]
         public int Id { get; set; }
+
         public string Name { get; set; }
         public string Description { get; set; }
         public string Slug { get; set; }
         public List<string> Tags { get; set; }
         public string RefId { get; set; }
+
         [References(typeof(AppUser))]
         public int OwnerId { get; set; }
+
         public string OwnerRef { get; set; }
         public int? PrimaryArtifactId { get; set; }
         public bool Private { get; set; }
@@ -275,6 +309,7 @@ public class Migration1001 : MigrationBase
         public int Score { get; set; }
         public int Rank { get; set; }
         public int? PrefColumns { get; set; }
+
         [Reference]
         public List<AlbumArtifact> Artifacts { get; set; }
     }
@@ -286,11 +321,14 @@ public class Migration1001 : MigrationBase
 
         [References(typeof(Album))]
         public int AlbumId { get; set; }
+
         [References(typeof(Artifact))]
         public int ArtifactId { get; set; }
+
         public string? Description { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime ModifiedDate { get; set; }
+
         [Reference]
         public List<Artifact> Artifact { get; set; }
     }
@@ -302,8 +340,10 @@ public class Migration1001 : MigrationBase
 
         [References(typeof(Album))]
         public int AlbumId { get; set; }
+
         [References(typeof(AppUser))]
         public int AppUserId { get; set; }
+
         public DateTime CreatedDate { get; set; }
     }
 
@@ -325,10 +365,12 @@ public class Migration1001 : MigrationBase
         var authRepo = CreateAuthRepo();
         authRepo.InitSchema(Db);
 
-        void CreateUser(string email, string name, string refId, List<string>? roles = null, string? avatar = null, string? handle = null)
+        void CreateUser(string email, string name, string refId, List<string>? roles = null, string? avatar = null,
+            string? handle = null)
         {
             var password = "p@55wOrd";
-            var newAdmin = new AppUser { Email = email, DisplayName = name, RefIdStr = refId, Avatar = avatar, Handle = handle };
+            var newAdmin = new AppUser
+                { Email = email, DisplayName = name, RefIdStr = refId, Avatar = avatar, Handle = handle };
             var user = authRepo.CreateUserAuth(Db, newAdmin, password);
             if (roles?.Count > 0)
             {
@@ -336,11 +378,16 @@ public class Migration1001 : MigrationBase
             }
         }
 
-        CreateUser(Users.Admin.Email, Users.Admin.DisplayName, Users.Admin.RefIdStr, Users.Admin.Roles, Users.Admin.Avatar, Users.Admin.Handle);
-        CreateUser(Users.System.Email, Users.System.DisplayName, Users.System.RefIdStr, Users.System.Roles, Users.System.Avatar, Users.System.Handle);
-        CreateUser(Users.Demis.Email, Users.Demis.DisplayName, Users.Demis.RefIdStr, Users.Demis.Roles, Users.Demis.Avatar, Users.Demis.Handle);
-        CreateUser(Users.Darren.Email, Users.Darren.DisplayName, Users.Darren.RefIdStr, Users.Darren.Roles, Users.Darren.Avatar, Users.Darren.Handle);
-        CreateUser(Users.Test.Email, Users.Test.DisplayName, Users.Test.RefIdStr, Users.Test.Roles, Users.Test.Avatar, Users.Test.Handle);
+        CreateUser(Users.Admin.Email, Users.Admin.DisplayName, Users.Admin.RefIdStr, Users.Admin.Roles,
+            Users.Admin.Avatar, Users.Admin.Handle);
+        CreateUser(Users.System.Email, Users.System.DisplayName, Users.System.RefIdStr, Users.System.Roles,
+            Users.System.Avatar, Users.System.Handle);
+        CreateUser(Users.Demis.Email, Users.Demis.DisplayName, Users.Demis.RefIdStr, Users.Demis.Roles,
+            Users.Demis.Avatar, Users.Demis.Handle);
+        CreateUser(Users.Darren.Email, Users.Darren.DisplayName, Users.Darren.RefIdStr, Users.Darren.Roles,
+            Users.Darren.Avatar, Users.Darren.Handle);
+        CreateUser(Users.Test.Email, Users.Test.DisplayName, Users.Test.RefIdStr, Users.Test.Roles,
+            Users.Test.Avatar, Users.Test.Handle);
 
         Db.CreateTable<Artist>();
         Db.CreateTable<Modifier>();
@@ -369,6 +416,7 @@ public class Migration1001 : MigrationBase
                 Db.Insert(new Modifier { Name = modifier, Category = category }.BySystemUser());
             }
         }
+
         /// Check for duplicates
         var savedModifiers = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         var allMods = Db.Select<Modifier>();
@@ -380,7 +428,8 @@ public class Migration1001 : MigrationBase
         }
 
         // Import Artists
-        var Artists = File.ReadAllText(seedDir.CombineWith("artists.csv")).FromCsv<List<Artist>>().Select(x => x.BySystemUser()).ToList();
+        var Artists = File.ReadAllText(seedDir.CombineWith("artists.csv")).FromCsv<List<Artist>>()
+            .Select(x => x.BySystemUser()).ToList();
         Db.InsertAll(Artists);
         /// Check for duplicates
         var savedArtistIds = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
@@ -397,7 +446,8 @@ public class Migration1001 : MigrationBase
         var artifactRefIdsMap = new Dictionary<string, int>();
 
         // Import Creatives + Artifacts
-        var allArtifactLikeRefs = File.ReadAllText(seedDir.CombineWith("artifact-likes.csv")).FromCsv<List<ArtifactLikeRef>>();
+        var allArtifactLikeRefs = File.ReadAllText(seedDir.CombineWith("artifact-likes.csv"))
+            .FromCsv<List<ArtifactLikeRef>>();
         var appFiles = new DirectoryInfo("./App_Files");
         if (!appFiles.Exists)
             appFiles.Create();
@@ -442,7 +492,8 @@ public class Migration1001 : MigrationBase
             {
                 if (savedArtistIds.TryGetValue(artistName.Trim(), out var artist))
                 {
-                    Db.Insert(new CreativeArtist {
+                    Db.Insert(new CreativeArtist
+                    {
                         ArtistId = artist,
                         CreativeId = id
                     });
@@ -466,7 +517,7 @@ public class Migration1001 : MigrationBase
                 artifactRefIdsMap[artifact.RefId] = artifact.Id;
 
                 if (artifact == primaryArtifact)
-                {   
+                {
                     creative.PrimaryArtifactId = artifact.Id;
                     Db.UpdateOnly(() => new Creative { PrimaryArtifactId = artifact.Id },
                         where: x => x.Id == creative.Id);
@@ -478,7 +529,8 @@ public class Migration1001 : MigrationBase
                 {
                     foreach (var artifactLikeRef in artifactLikeRefs)
                     {
-                        var artifactLike = X.Apply(artifactLikeRef.ConvertTo<ArtifactLike>(), x => x.ArtifactId = artifact.Id);
+                        var artifactLike = X.Apply(artifactLikeRef.ConvertTo<ArtifactLike>(),
+                            x => x.ArtifactId = artifact.Id);
                         artifactLike.AppUserId = Users.GetUserById(artifactLike.AppUserId).Id;
                         Db.Insert(artifactLike);
                     }
@@ -489,8 +541,10 @@ public class Migration1001 : MigrationBase
 
         // Import Albums
         var albumRefs = File.ReadAllText(seedDir.CombineWith("albums.csv")).FromCsv<List<AlbumRef>>();
-        var albumArtifactRefs = File.ReadAllText(seedDir.CombineWith("album-artifacts.csv")).FromCsv<List<AlbumArtifactRef>>();
-        var allAlbumLikeRefs = File.ReadAllText(seedDir.CombineWith("album-likes.csv")).FromCsv<List<AlbumLikeRef>>();
+        var albumArtifactRefs = File.ReadAllText(seedDir.CombineWith("album-artifacts.csv"))
+            .FromCsv<List<AlbumArtifactRef>>();
+        var allAlbumLikeRefs =
+            File.ReadAllText(seedDir.CombineWith("album-likes.csv")).FromCsv<List<AlbumLikeRef>>();
         foreach (var albumnRef in albumRefs)
         {
             var owner = Users.GetUserById(albumnRef.OwnerId);
@@ -515,11 +569,12 @@ public class Migration1001 : MigrationBase
                     CreatedDate = album.CreatedDate,
                 };
                 albumArtifact.Id = (int)Db.Insert(albumArtifact, selectIdentity: true);
-                
+
                 if (albumnRef.PrimaryArtifactRef == x.ArtifactRefId)
                 {
                     album.PrimaryArtifactId = albumArtifact.ArtifactId;
-                    Db.UpdateOnly(() => new Album { PrimaryArtifactId = album.PrimaryArtifactId }, where: x => x.Id == album.Id);
+                    Db.UpdateOnly(() => new Album { PrimaryArtifactId = album.PrimaryArtifactId },
+                        where: x => x.Id == album.Id);
                 }
             }
 
@@ -561,7 +616,7 @@ SELECT
         if (errors.Count > 0)
         {
             throw new Exception($"{nameof(Migration1001)} had {errors.Count} errors:\n"
-                + string.Join("\n", errors.Map(x => $"   {x}")));
+                                + string.Join("\n", errors.Map(x => $"   {x}")));
         }
     }
 
@@ -570,7 +625,7 @@ SELECT
         var finalPrompt = userPrompt;
         finalPrompt += $", {modifiers.Select(x => x).Join(",").TrimEnd(',')}";
         var artistsSuffix = artists.Select(x => $"inspired by {x}").Join(",").TrimEnd(',');
-        if(artists.Count > 0)
+        if (artists.Count > 0)
             finalPrompt += $", {artistsSuffix}";
         return finalPrompt;
     }
@@ -594,5 +649,4 @@ SELECT
         var authRepo = CreateAuthRepo();
         authRepo.DropSchema(Db);
     }
-
 }
