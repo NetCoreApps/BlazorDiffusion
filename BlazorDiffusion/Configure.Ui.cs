@@ -89,7 +89,7 @@ public class Prerenderer : IPrerenderer
 
                 if (!string.IsNullOrEmpty(html))
                 {
-                    VirtualFiles.WriteFile(path, html);
+                    await VirtualFiles.WriteFileAsync(path, html);
                 }
                 else
                 {
