@@ -110,7 +110,6 @@ jobs:
     runs-on: ubuntu-20.04
     if: ${{ github.event.workflow_run.conclusion != 'failure' }}
     steps:
-      # Checkout latest or specific tag
       - name: checkout
         if: ${{ github.event.inputs.version == '' || github.event.inputs.version == 'latest' }}
         uses: actions/checkout@v2
@@ -199,24 +198,25 @@ jobs:
           source: ".deploy/litestream.yml"
           target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data"
 
-      - name: Restore db using litestream if needed
-        uses: appleboy/ssh-action@v0.1.4
-        env:
-          APPTOKEN: ${{ secrets.GITHUB_TOKEN }}
-          USERNAME: ${{ secrets.DEPLOY_USERNAME }}
-        with:
-          host: ${{ secrets.DEPLOY_API }}
-          username: ${{ secrets.DEPLOY_USERNAME }}
-          key: ${{ secrets.DEPLOY_KEY }}
-          port: 22
-          envs: APPTOKEN,USERNAME
-          script: |
-            echo $APPTOKEN | docker login ghcr.io -u $USERNAME --password-stdin
-            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml pull
-            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-restore --exit-code-from ${{ github.event.repository.name }}-restore     
-            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-restore-analytics --exit-code-from ${{ github.event.repository.name }}-restore-analytics
-      
+#      - name: Restore db using litestream if needed
+#        uses: appleboy/ssh-action@v0.1.4
+#        env:
+#          APPTOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          USERNAME: ${{ secrets.DEPLOY_USERNAME }}
+#        with:
+#          host: ${{ secrets.DEPLOY_API }}
+#          username: ${{ secrets.DEPLOY_USERNAME }}
+#          key: ${{ secrets.DEPLOY_KEY }}
+#          port: 22
+#          envs: APPTOKEN,USERNAME
+#          script: |
+#            echo $APPTOKEN | docker login ghcr.io -u $USERNAME --password-stdin
+#            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml pull
+#            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-restore --exit-code-from ${{ github.event.repository.name }}-restore     
+#            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-restore-analytics --exit-code-from ${{ github.event.repository.name }}-restore-analytics
+#      
       - name: Copy BlazorDiffusion Seed Data to Remote Server
+        timeout-minutes: 30
         uses: appleboy/scp-action@v0.1.1
         with:
           host: ${{ secrets.DEPLOY_API }}
