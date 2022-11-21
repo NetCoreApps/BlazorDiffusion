@@ -471,6 +471,15 @@ public class Migration1001 : MigrationBase
             creative.ModifierNames ??= new List<string>();
             creative.ArtistNames ??= new List<string>();
             creative.OwnerId = Users.GetUserById(creative.CreatedBy).Id;
+
+            var primaryArtifact = creative.PrimaryArtifactId != null
+                ? creative.Artifacts.FirstOrDefault(x => x.Id == creative.PrimaryArtifactId)
+                : null;
+
+            // If PrimaryArtifactId doesn't refer to one of its Artifacts, unset it to avoid dupes
+            if (primaryArtifact == null)
+                creative.PrimaryArtifactId = null;
+
             var id = creative.Id = (int)Db.Insert(creative, selectIdentity: true);
             foreach (var text in creative.ModifierNames)
             {
@@ -503,10 +512,6 @@ public class Migration1001 : MigrationBase
                     errors.Add($"{creative.Key} NotFound: Artist {artistName}");
                 }
             }
-
-            var primaryArtifact = creative.PrimaryArtifactId != null
-                ? creative.Artifacts.FirstOrDefault(x => x.Id == creative.PrimaryArtifactId)
-                : null;
 
             foreach (var artifact in creative.Artifacts)
             {

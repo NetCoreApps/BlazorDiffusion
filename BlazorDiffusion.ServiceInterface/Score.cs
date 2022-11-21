@@ -71,7 +71,7 @@ public static class Scores
     public static ConcurrentDictionary<int, int> AlbumSearchCountMap = new();
     public static ConcurrentDictionary<int, int> AlbumLikesCountMap = new();
 
-    static bool LogDuplicates = false;
+    static bool LogDuplicates = true;
 
     public static void Clear()
     {
@@ -99,11 +99,15 @@ public static class Scores
         {
             var artifactRefsMap = db.Dictionary<int, string>(db.From<Artifact>().Select(x => new { x.Id, x.RefId }));
             var lastValue = -1;
-            foreach (var entry in CreativePrimaryArtifactMap.ToList().OrderBy(x => x.Value))
+            var ordredCreativePrimaryArtifactIds = CreativePrimaryArtifactMap.ToList().OrderBy(x => x.Value).ToList();
+            foreach (var entry in ordredCreativePrimaryArtifactIds)
             {
                 var dupe = lastValue == entry.Value ? "DUPLICATE" : "";
                 var refId = artifactRefsMap[entry.Value];
-                $"{entry.Value.ToString().PadRight(4, ' ')}: {entry.Key} {refId} {dupe}".Print();
+                if (lastValue == entry.Value)
+                {
+                    Log.ErrorFormat("{0}: {1} {2} {3}", entry.Value.ToString().PadRight(4, ' '), entry.Key, refId, dupe);
+                }
                 lastValue = entry.Value;
             }
         }
