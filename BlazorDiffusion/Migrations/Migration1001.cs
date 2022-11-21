@@ -362,247 +362,245 @@ public class Migration1001 : MigrationBase
 
     public override void Up()
     {
-        try
+        var authRepo = CreateAuthRepo();
+        authRepo.InitSchema(Db);
+
+        void CreateUser(string email, string name, string refId, List<string>? roles = null, string? avatar = null,
+            string? handle = null)
         {
-            var authRepo = CreateAuthRepo();
-            authRepo.InitSchema(Db);
-
-            void CreateUser(string email, string name, string refId, List<string>? roles = null, string? avatar = null,
-                string? handle = null)
+            var password = "p@55wOrd";
+            var newAdmin = new AppUser
+                { Email = email, DisplayName = name, RefIdStr = refId, Avatar = avatar, Handle = handle };
+            var user = authRepo.CreateUserAuth(Db, newAdmin, password);
+            if (roles?.Count > 0)
             {
-                var password = "p@55wOrd";
-                var newAdmin = new AppUser
-                    { Email = email, DisplayName = name, RefIdStr = refId, Avatar = avatar, Handle = handle };
-                var user = authRepo.CreateUserAuth(Db, newAdmin, password);
-                if (roles?.Count > 0)
+                authRepo.AssignRoles(Db, user.Id.ToString(), roles);
+            }
+        }
+
+        CreateUser(Users.Admin.Email, Users.Admin.DisplayName, Users.Admin.RefIdStr, Users.Admin.Roles,
+            Users.Admin.Avatar, Users.Admin.Handle);
+        CreateUser(Users.System.Email, Users.System.DisplayName, Users.System.RefIdStr, Users.System.Roles,
+            Users.System.Avatar, Users.System.Handle);
+        CreateUser(Users.Demis.Email, Users.Demis.DisplayName, Users.Demis.RefIdStr, Users.Demis.Roles,
+            Users.Demis.Avatar, Users.Demis.Handle);
+        CreateUser(Users.Darren.Email, Users.Darren.DisplayName, Users.Darren.RefIdStr, Users.Darren.Roles,
+            Users.Darren.Avatar, Users.Darren.Handle);
+        CreateUser(Users.Test.Email, Users.Test.DisplayName, Users.Test.RefIdStr, Users.Test.Roles,
+            Users.Test.Avatar, Users.Test.Handle);
+
+        Db.CreateTable<Artist>();
+        Db.CreateTable<Modifier>();
+        Db.CreateTable<Creative>();
+        Db.CreateTable<CreativeArtist>();
+        Db.CreateTable<CreativeModifier>();
+        Db.CreateTable<Artifact>();
+        Db.CreateTable<ArtifactLike>();
+        Db.CreateTable<ArtifactReport>();
+        Db.CreateTable<Album>();
+        Db.CreateTable<AlbumArtifact>();
+        Db.CreateTable<AlbumLike>();
+
+        var seedDir = Path.GetFullPath(Path.Combine("./App_Data/seed"));
+
+        var errors = new List<string>();
+
+
+        // Import Modifiers
+        foreach (var line in File.ReadAllLines(seedDir.CombineWith("modifiers.txt")))
+        {
+            var category = line.LeftPart(':').Trim();
+            var modifiers = line.RightPart(':').Split(',').Select(x => x.Trim()).ToList();
+            foreach (var modifier in modifiers)
+            {
+                Db.Insert(new Modifier { Name = modifier, Category = category }.BySystemUser());
+            }
+        }
+
+        /// Check for duplicates
+        var savedModifiers = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        var allMods = Db.Select<Modifier>();
+        foreach (var modifier in allMods)
+        {
+            var isUnique = savedModifiers.TryAdd(modifier.Name, modifier.Id);
+            if (!isUnique)
+                errors.Add($"Duplicate Modifier - {modifier.Category}/{modifier.Name}");
+        }
+
+        // Import Artists
+        var Artists = File.ReadAllText(seedDir.CombineWith("artists.csv")).FromCsv<List<Artist>>()
+            .Select(x => x.BySystemUser()).ToList();
+        Db.InsertAll(Artists);
+        /// Check for duplicates
+        var savedArtistIds = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        var allArtists = Db.Select<Artist>();
+        foreach (var a in allArtists)
+        {
+            var artistName = GetArtistName(a);
+            var isUnique = savedArtistIds.TryAdd(artistName, a.Id);
+            if (!isUnique)
+                errors.Add($"Duplicate Artist - {artistName}");
+        }
+
+        // When needing to match on Artifact Ids
+        var artifactRefIdsMap = new Dictionary<string, int>();
+
+        // Import Creatives + Artifacts
+        var allArtifactLikeRefs = File.ReadAllText(seedDir.CombineWith("artifact-likes.csv"))
+            .FromCsv<List<ArtifactLikeRef>>();
+        var appFiles = new DirectoryInfo("./App_Files");
+        if (!appFiles.Exists)
+            appFiles.Create();
+        var seedFromDirectory = new DirectoryInfo("./App_Files/artifacts");
+        if (!seedFromDirectory.Exists)
+            seedFromDirectory.Create();
+        var filesToLoad = seedFromDirectory.GetMatchingFiles("*metadata.json").OrderBy(x => x);
+        var creativeEntries = new List<Creative>();
+        foreach (var file in filesToLoad)
+        {
+            var creative = File.ReadAllText(file).FromJson<Creative>();
+            creative.Prompt = ConstructPrompt(creative.UserPrompt, creative.ModifierNames, creative.ArtistNames);
+            creativeEntries.Add(creative);
+        }
+
+
+        foreach (var creative in creativeEntries)
+        {
+            creative.Id = 0;
+            creative.Modifiers = new List<CreativeModifier>();
+            creative.ModifierNames ??= new List<string>();
+            creative.ArtistNames ??= new List<string>();
+            creative.OwnerId = Users.GetUserById(creative.CreatedBy).Id;
+            var id = creative.Id = (int)Db.Insert(creative, selectIdentity: true);
+            foreach (var text in creative.ModifierNames)
+            {
+                if (savedModifiers.TryGetValue(text, out var mod))
                 {
-                    authRepo.AssignRoles(Db, user.Id.ToString(), roles);
+                    Db.Insert(new CreativeModifier
+                    {
+                        ModifierId = mod,
+                        CreativeId = id
+                    });
+                }
+                else
+                {
+                    errors.Add($"{creative.Key} NotFound: Modifier {text}");
                 }
             }
 
-            CreateUser(Users.Admin.Email, Users.Admin.DisplayName, Users.Admin.RefIdStr, Users.Admin.Roles,
-                Users.Admin.Avatar, Users.Admin.Handle);
-            CreateUser(Users.System.Email, Users.System.DisplayName, Users.System.RefIdStr, Users.System.Roles,
-                Users.System.Avatar, Users.System.Handle);
-            CreateUser(Users.Demis.Email, Users.Demis.DisplayName, Users.Demis.RefIdStr, Users.Demis.Roles,
-                Users.Demis.Avatar, Users.Demis.Handle);
-            CreateUser(Users.Darren.Email, Users.Darren.DisplayName, Users.Darren.RefIdStr, Users.Darren.Roles,
-                Users.Darren.Avatar, Users.Darren.Handle);
-            CreateUser(Users.Test.Email, Users.Test.DisplayName, Users.Test.RefIdStr, Users.Test.Roles,
-                Users.Test.Avatar, Users.Test.Handle);
-
-            Db.CreateTable<Artist>();
-            Db.CreateTable<Modifier>();
-            Db.CreateTable<Creative>();
-            Db.CreateTable<CreativeArtist>();
-            Db.CreateTable<CreativeModifier>();
-            Db.CreateTable<Artifact>();
-            Db.CreateTable<ArtifactLike>();
-            Db.CreateTable<ArtifactReport>();
-            Db.CreateTable<Album>();
-            Db.CreateTable<AlbumArtifact>();
-            Db.CreateTable<AlbumLike>();
-
-            var seedDir = Path.GetFullPath(Path.Combine("./App_Data/seed"));
-
-            var errors = new List<string>();
-
-
-            // Import Modifiers
-            foreach (var line in File.ReadAllLines(seedDir.CombineWith("modifiers.txt")))
+            foreach (var artistName in creative.ArtistNames)
             {
-                var category = line.LeftPart(':').Trim();
-                var modifiers = line.RightPart(':').Split(',').Select(x => x.Trim()).ToList();
-                foreach (var modifier in modifiers)
+                if (savedArtistIds.TryGetValue(artistName.Trim(), out var artist))
                 {
-                    Db.Insert(new Modifier { Name = modifier, Category = category }.BySystemUser());
+                    Db.Insert(new CreativeArtist
+                    {
+                        ArtistId = artist,
+                        CreativeId = id
+                    });
+                }
+                else
+                {
+                    errors.Add($"{creative.Key} NotFound: Artist {artistName}");
                 }
             }
 
-            /// Check for duplicates
-            var savedModifiers = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-            var allMods = Db.Select<Modifier>();
-            foreach (var modifier in allMods)
+            var primaryArtifact = creative.PrimaryArtifactId != null
+                ? creative.Artifacts.FirstOrDefault(x => x.Id == creative.PrimaryArtifactId)
+                : null;
+
+            foreach (var artifact in creative.Artifacts)
             {
-                var isUnique = savedModifiers.TryAdd(modifier.Name, modifier.Id);
-                if (!isUnique)
-                    errors.Add($"Duplicate Modifier - {modifier.Category}/{modifier.Name}");
-            }
+                artifact.Id = 0;
+                artifact.CreativeId = id;
+                var filePath = $"./App_Files/{artifact.FilePath}";
+                artifact.Id = (int)Db.Insert(artifact, selectIdentity: true);
+                artifactRefIdsMap[artifact.RefId] = artifact.Id;
 
-            // Import Artists
-            var Artists = File.ReadAllText(seedDir.CombineWith("artists.csv")).FromCsv<List<Artist>>()
-                .Select(x => x.BySystemUser()).ToList();
-            Db.InsertAll(Artists);
-            /// Check for duplicates
-            var savedArtistIds = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-            var allArtists = Db.Select<Artist>();
-            foreach (var a in allArtists)
-            {
-                var artistName = GetArtistName(a);
-                var isUnique = savedArtistIds.TryAdd(artistName, a.Id);
-                if (!isUnique)
-                    errors.Add($"Duplicate Artist - {artistName}");
-            }
-
-            // When needing to match on Artifact Ids
-            var artifactRefIdsMap = new Dictionary<string, int>();
-
-            // Import Creatives + Artifacts
-            var allArtifactLikeRefs = File.ReadAllText(seedDir.CombineWith("artifact-likes.csv"))
-                .FromCsv<List<ArtifactLikeRef>>();
-            var appFiles = new DirectoryInfo("./App_Files");
-            if (!appFiles.Exists)
-                appFiles.Create();
-            var seedFromDirectory = new DirectoryInfo("./App_Files/artifacts");
-            if (!seedFromDirectory.Exists)
-                seedFromDirectory.Create();
-            var filesToLoad = seedFromDirectory.GetMatchingFiles("*metadata.json").OrderBy(x => x);
-            var creativeEntries = new List<Creative>();
-            foreach (var file in filesToLoad)
-            {
-                var creative = File.ReadAllText(file).FromJson<Creative>();
-                creative.Prompt = ConstructPrompt(creative.UserPrompt, creative.ModifierNames, creative.ArtistNames);
-                creativeEntries.Add(creative);
-            }
-
-
-            foreach (var creative in creativeEntries)
-            {
-                creative.Id = 0;
-                creative.Modifiers = new List<CreativeModifier>();
-                creative.ModifierNames ??= new List<string>();
-                creative.ArtistNames ??= new List<string>();
-                creative.OwnerId = Users.GetUserById(creative.CreatedBy).Id;
-                var id = creative.Id = (int)Db.Insert(creative, selectIdentity: true);
-                foreach (var text in creative.ModifierNames)
+                if (artifact == primaryArtifact)
                 {
-                    if (savedModifiers.TryGetValue(text, out var mod))
-                    {
-                        Db.Insert(new CreativeModifier
-                        {
-                            ModifierId = mod,
-                            CreativeId = id
-                        });
-                    }
-                    else
-                    {
-                        errors.Add($"{creative.Key} NotFound: Modifier {text}");
-                    }
+                    creative.PrimaryArtifactId = artifact.Id;
+                    Db.UpdateOnly(() => new Creative { PrimaryArtifactId = artifact.Id },
+                        where: x => x.Id == creative.Id);
                 }
 
-                foreach (var artistName in creative.ArtistNames)
+                // Add ArtifactLikes
+                var artifactLikeRefs = allArtifactLikeRefs.Where(x => x.RefId == artifact.RefId).ToList();
+                if (artifactLikeRefs.Count > 0)
                 {
-                    if (savedArtistIds.TryGetValue(artistName.Trim(), out var artist))
+                    foreach (var artifactLikeRef in artifactLikeRefs)
                     {
-                        Db.Insert(new CreativeArtist
-                        {
-                            ArtistId = artist,
-                            CreativeId = id
-                        });
-                    }
-                    else
-                    {
-                        errors.Add($"{creative.Key} NotFound: Artist {artistName}");
-                    }
-                }
-
-                var primaryArtifact = creative.PrimaryArtifactId != null
-                    ? creative.Artifacts.FirstOrDefault(x => x.Id == creative.PrimaryArtifactId)
-                    : null;
-
-                foreach (var artifact in creative.Artifacts)
-                {
-                    artifact.Id = 0;
-                    artifact.CreativeId = id;
-                    var filePath = $"./App_Files/{artifact.FilePath}";
-                    artifact.Id = (int)Db.Insert(artifact, selectIdentity: true);
-                    artifactRefIdsMap[artifact.RefId] = artifact.Id;
-
-                    if (artifact == primaryArtifact)
-                    {
-                        creative.PrimaryArtifactId = artifact.Id;
-                        Db.UpdateOnly(() => new Creative { PrimaryArtifactId = artifact.Id },
-                            where: x => x.Id == creative.Id);
-                    }
-
-                    // Add ArtifactLikes
-                    var artifactLikeRefs = allArtifactLikeRefs.Where(x => x.RefId == artifact.RefId).ToList();
-                    if (artifactLikeRefs.Count > 0)
-                    {
-                        foreach (var artifactLikeRef in artifactLikeRefs)
-                        {
-                            var artifactLike = X.Apply(artifactLikeRef.ConvertTo<ArtifactLike>(),
-                                x => x.ArtifactId = artifact.Id);
-                            artifactLike.AppUserId = Users.GetUserById(artifactLike.AppUserId).Id;
-                            Db.Insert(artifactLike);
-                        }
+                        var artifactLike = X.Apply(artifactLikeRef.ConvertTo<ArtifactLike>(),
+                            x => x.ArtifactId = artifact.Id);
+                        artifactLike.AppUserId = Users.GetUserById(artifactLike.AppUserId).Id;
+                        Db.Insert(artifactLike);
                     }
                 }
             }
+        }
 
 
-            // Import Albums
-            var albumRefs = File.ReadAllText(seedDir.CombineWith("albums.csv")).FromCsv<List<AlbumRef>>();
-            var albumArtifactRefs = File.ReadAllText(seedDir.CombineWith("album-artifacts.csv"))
-                .FromCsv<List<AlbumArtifactRef>>();
-            var allAlbumLikeRefs =
-                File.ReadAllText(seedDir.CombineWith("album-likes.csv")).FromCsv<List<AlbumLikeRef>>();
-            foreach (var albumnRef in albumRefs)
+        // Import Albums
+        var albumRefs = File.ReadAllText(seedDir.CombineWith("albums.csv")).FromCsv<List<AlbumRef>>();
+        var albumArtifactRefs = File.ReadAllText(seedDir.CombineWith("album-artifacts.csv"))
+            .FromCsv<List<AlbumArtifactRef>>();
+        var allAlbumLikeRefs =
+            File.ReadAllText(seedDir.CombineWith("album-likes.csv")).FromCsv<List<AlbumLikeRef>>();
+        foreach (var albumnRef in albumRefs)
+        {
+            var owner = Users.GetUserById(albumnRef.OwnerId);
+            var album = new Album
             {
-                var owner = Users.GetUserById(albumnRef.OwnerId);
-                var album = new Album
-                {
-                    RefId = albumnRef.RefId,
-                    OwnerId = owner.Id,
-                    OwnerRef = owner.RefIdStr,
-                    Name = albumnRef.Name,
-                    Description = albumnRef.Description,
-                    Tags = albumnRef.Tags,
-                }.WithAudit($"{owner.Id}");
-                album.Id = (int)Db.Insert(album, selectIdentity: true);
+                RefId = albumnRef.RefId,
+                OwnerId = owner.Id,
+                OwnerRef = owner.RefIdStr,
+                Name = albumnRef.Name,
+                Description = albumnRef.Description,
+                Tags = albumnRef.Tags,
+            }.WithAudit($"{owner.Id}");
+            album.Id = (int)Db.Insert(album, selectIdentity: true);
 
-                foreach (var x in albumArtifactRefs.Where(x => x.AlbumRefId == albumnRef.RefId))
+            foreach (var x in albumArtifactRefs.Where(x => x.AlbumRefId == albumnRef.RefId))
+            {
+                var albumArtifact = new AlbumArtifact
                 {
-                    var albumArtifact = new AlbumArtifact
-                    {
-                        AlbumId = album.Id,
-                        ArtifactId = artifactRefIdsMap[x.ArtifactRefId],
-                        Description = x.Description,
-                        CreatedDate = album.CreatedDate,
-                    };
-                    albumArtifact.Id = (int)Db.Insert(albumArtifact, selectIdentity: true);
+                    AlbumId = album.Id,
+                    ArtifactId = artifactRefIdsMap[x.ArtifactRefId],
+                    Description = x.Description,
+                    CreatedDate = album.CreatedDate,
+                };
+                albumArtifact.Id = (int)Db.Insert(albumArtifact, selectIdentity: true);
 
-                    if (albumnRef.PrimaryArtifactRef == x.ArtifactRefId)
-                    {
-                        album.PrimaryArtifactId = albumArtifact.ArtifactId;
-                        Db.UpdateOnly(() => new Album { PrimaryArtifactId = album.PrimaryArtifactId },
-                            where: x => x.Id == album.Id);
-                    }
-                }
-
-                // Add AlbumLikes
-                var albumLikeRefs = allAlbumLikeRefs.Where(x => x.RefId == album.RefId).ToList();
-                if (albumLikeRefs.Count > 0)
+                if (albumnRef.PrimaryArtifactRef == x.ArtifactRefId)
                 {
-                    foreach (var albumLikeRef in albumLikeRefs)
-                    {
-                        var albumLike = X.Apply(albumLikeRef.ConvertTo<AlbumLike>(), x => x.AlbumId = album.Id);
-                        albumLike.AppUserId = Users.GetUserById(albumLike.AppUserId).Id;
-                        Db.Insert(albumLike);
-                    }
+                    album.PrimaryArtifactId = albumArtifact.ArtifactId;
+                    Db.UpdateOnly(() => new Album { PrimaryArtifactId = album.PrimaryArtifactId },
+                        where: x => x.Id == album.Id);
                 }
             }
 
+            // Add AlbumLikes
+            var albumLikeRefs = allAlbumLikeRefs.Where(x => x.RefId == album.RefId).ToList();
+            if (albumLikeRefs.Count > 0)
+            {
+                foreach (var albumLikeRef in albumLikeRefs)
+                {
+                    var albumLike = X.Apply(albumLikeRef.ConvertTo<AlbumLike>(), x => x.AlbumId = album.Id);
+                    albumLike.AppUserId = Users.GetUserById(albumLike.AppUserId).Id;
+                    Db.Insert(albumLike);
+                }
+            }
+        }
 
-            // Create virtual tables for SQLite Full Text Search
-            Db.ExecuteNonQuery($@"CREATE VIRTUAL TABLE {nameof(ArtifactFts)}
+
+        // Create virtual tables for SQLite Full Text Search
+        Db.ExecuteNonQuery($@"CREATE VIRTUAL TABLE {nameof(ArtifactFts)}
 USING FTS5(
 {nameof(ArtifactFts.Prompt)},
 {nameof(ArtifactFts.CreativeId)},
 {nameof(ArtifactFts.RefId)});"
-            );
+        );
 
-            Db.ExecuteNonQuery($@"INSERT INTO {nameof(ArtifactFts)} 
+        Db.ExecuteNonQuery($@"INSERT INTO {nameof(ArtifactFts)} 
 (rowid,
 {nameof(ArtifactFts.Prompt)},
 {nameof(ArtifactFts.CreativeId)},
@@ -614,17 +612,11 @@ SELECT
 {nameof(Artifact.RefId)} FROM {nameof(Artifact)}");
 
 
-            Console.WriteLine($"{nameof(Migration1001)} had {errors.Count} errors:");
-            if (errors.Count > 0)
-            {
-                throw new Exception($"{nameof(Migration1001)} had {errors.Count} errors:\n"
-                                    + string.Join("\n", errors.Map(x => $"   {x}")));
-            }
-        }
-        catch (Exception e)
+        Console.WriteLine($"{nameof(Migration1001)} had {errors.Count} errors:");
+        if (errors.Count > 0)
         {
-            Console.WriteLine(e);
-            throw;
+            throw new Exception($"{nameof(Migration1001)} had {errors.Count} errors:\n"
+                                + string.Join("\n", errors.Map(x => $"   {x}")));
         }
     }
 
