@@ -3,7 +3,7 @@
 @inject ServiceStackStateProvider provider
 @inject NavigationManager NavigationManager
 
-@if (IsAuthenticated)
+@if (IsAuthenticated && !NotAuthorized)
 {
     NavigationManager.NavigateTo(ReturnUrl ?? NavigationManager.GetReturnUrl(), forceLoad:true);
     return;
@@ -105,6 +105,7 @@
 </div>
 
 @code {
+    [Parameter] public bool NotAuthorized { get; set; }
     [Parameter] public string? ReturnUrl { get; set; }
     [Parameter, SupplyParameterFromQuery] public string? f { get; set; }
 
