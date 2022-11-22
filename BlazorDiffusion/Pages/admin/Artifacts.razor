@@ -10,7 +10,6 @@
     </Breadcrumb>
 </Breadcrumbs>
 
-
 <Tabs TabOptions="TabOptions" @bind-Tab=Tab></Tabs>
 
 @if(Tab == "Reported")
@@ -19,15 +18,13 @@
 } 
 else if(Tab == "Stats")
 {
-
+    <AutoQueryGrid Model="ArtifactStat" Apis="Apis.AutoQuery<QueryArtifactStats>()" />
 }
 else
 {
     <!--All Artifacts-->
     <ArtifactAutoQueryGrid></ArtifactAutoQueryGrid>
 }
-
-
 
 @code {
     public string? Tab { get; set; }

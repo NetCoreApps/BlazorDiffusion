@@ -59,6 +59,13 @@
                     </div>
                 </div>
             </div>
+            @if(ChildContent != null)
+            {
+                <div>
+                    @ChildContent
+            </div>
+            }
+            
             <div class="flex flex-1 flex-col justify-between">
                 <div class="divide-y divide-gray-200 px-4 sm:px-6">
                     <div class="space-y-6 pt-6 pb-5">
@@ -111,6 +118,9 @@
 
     ApiResult<Artifact> apiResult = null;
 
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
     string Quality = "0";
 
     Dictionary<string, string> options = new()
@@ -141,8 +151,10 @@
         apiResult = await ApiAsync(request);
 
         if (!apiResult.Errors.Any())
+        {
+            await OnSave.InvokeAsync();
             await Close();
-        await OnSave.InvokeAsync();
+        }
     }
 
     async Task Close()
