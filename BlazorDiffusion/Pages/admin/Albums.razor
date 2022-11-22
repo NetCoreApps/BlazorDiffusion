@@ -21,21 +21,15 @@
 
         </AutoQueryGrid>
         break;
-    case "AddToAlbum":
+    case "AlbumContents":
         <AutoQueryGrid @ref="addToAlbumGrid" Model="Album" Apis="Apis.AutoQuery<QueryAlbums>()"
                        RowSelected="AddAlbumRowSelected">
-        </AutoQueryGrid>
-        break;
-    case "RemoveFromAlbum":
-        <AutoQueryGrid @ref="removeFromAlbumGrid" Model="Album" Apis="Apis.AutoQuery<QueryAlbums, UpdateAlbum>()"
-                       RowSelected="RemoveAlbumRowSelected">
-
         </AutoQueryGrid>
         break;
 }
 
 <ModalDialog Id="addModal" Show=@showAddDiaglog Close="CloseModal">
-    
+    <ErrorSummary Status="api?.Error" />
     @if(addArtifactsToggle)
     {
           <AutoQueryGrid Model="Artifact"
@@ -58,22 +52,10 @@
             </button>
         </ToolbarButtons>
         <Columns>
-            <Column Field="(Artifact x) => x.Id"></Column>
             <Column Field="(Artifact x) => x.FilePath">
                 <Template>
-                    <img src="https://cdn.diffusion.works@(context.FilePath)" class="h-48" alt=@context.Prompt />
-                </Template>
-            </Column>
-            <Column Title="In Album" Field="(Artifact x) => x.AlbumsCount">
-                <Template>
-                    @if (IsInAlbum(context) == true)
-                    {
-                        <span>Selected</span>
-                    }
-                    else
-                    {
-                        <span>Add</span>
-                    }
+                    <img src="https://cdn.diffusion.works@(context.FilePath)" class="m-auto h-48 @(IsInAlbum(context) == true ? "rounded-xl border-2 border-green-500" : "")"
+                    alt=@context.Prompt />
                 </Template>
             </Column>
         </Columns>
@@ -104,25 +86,18 @@
         <Columns>
             <Column Field="(AlbumArtifact x) => x.Artifact">
                 <Template>
-                    <img src="https://cdn.diffusion.works@(context.Artifact?.FilePath)" class="h-48" alt=@context.Artifact?.Prompt />
-                </Template>
-            </Column>
-            <Column Title="In Album" Field="(AlbumArtifact x) => x.Id">
-                <Template>
-                    @if (IsInAlbum(context.Artifact) == true)
-                    {
-                        <span>Selected</span>
-                    }
-                    else
-                    {
-                        <span>Add</span>
-                    }
+                    <img src="https://cdn.diffusion.works@(context.Artifact?.FilePath)" class="m-auto h-48 @(IsInAlbum(context.Artifact) == true ? "" : "rounded-xl border-2 border-red-500")" alt=@context.Artifact?.Prompt />
                 </Template>
             </Column>
         </Columns>
     </AutoQueryGrid>
     }
-
+<div class="mt-4 px-4 py-3 bg-gray-50 dark:bg-gray-900 text-right sm:px-6">
+    <div class="flex justify-end items-center">
+        <SecondaryButton class="mr-2" @onclick="CloseModal">Cancel</SecondaryButton>
+        <PrimaryButton @onclick="SaveChanges">Save</PrimaryButton>
+    </div>
+</div>
 </ModalDialog>
 
 
@@ -132,8 +107,7 @@
     public Dictionary<string, string> TabOptions = new()
     {
         { "All", "All" },
-        { "AddToAlbum", "Add To Album" },
-        { "RemoveFromAlbum", "Remove From Album" }
+        { "AlbumContents", "Album Contents" }
     };
 
     string editPanelAdd = "show";
@@ -145,9 +119,12 @@
 
     AutoQueryGrid<Artifact> allArtifactsGrid;
     AutoQueryGrid<AlbumArtifact> albumArtifactsGrid;
+    Album? managedAlbum;
 
     List<Artifact> addToAlbum = new();
     List<Artifact> removeFromAlbum = new();
+
+    ApiResult<Album> api;
 
     async Task CloseModal()
     {
@@ -155,6 +132,24 @@
         var url = NavigationManager.Uri.SetQueryParam("skip", null).SetQueryParam("edit", null);
         NavigationManager.NavigateTo(url);
         StateHasChanged();
+    }
+
+    async Task SaveChanges()
+    {
+        var request = new UpdateAlbum
+            {
+                Id = managedAlbum.Id
+            };
+        request.AddArtifactIds = addToAlbum.Select(x => x.Id).ToList();
+        request.RemoveArtifactIds = removeFromAlbum.Select(x => x.Id).ToList();
+        api = await ApiAsync(request);
+
+        if (api.Succeeded)
+        {
+            managedAlbum = null;
+            await CloseModal();
+        }
+
     }
 
     async Task ToggleManageAlbumGrids(MouseEventArgs args)
@@ -166,16 +161,16 @@
 
     void ConfigureQuery(QueryBase query)
     {
-        if(managedAlbumAdd == null)
+        if(managedAlbum == null)
             return;
-        query.AddQueryParam("ArtifactIds", managedAlbumAdd.Artifacts.Select(x => x.ArtifactId).Join(","));
+        query.AddQueryParam("ArtifactIds", managedAlbum.Artifacts.Select(x => x.ArtifactId).Join(","));
     }
 
     bool IsInAlbum(Artifact artifact)
     {
-        if(managedAlbumAdd == null)
+        if(managedAlbum == null)
             return false;
-        return (managedAlbumAdd.Artifacts.Any(x => x.ArtifactId == artifact.Id) && 
+        return (managedAlbum.Artifacts.Any(x => x.ArtifactId == artifact.Id) && 
                 removeFromAlbum.All(x => x.Id != artifact.Id)) || 
             addToAlbum.Any(x => x.Id == artifact.Id);
     }
@@ -183,7 +178,7 @@
     async Task AddAlbumRowSelected(Album album)
     {
         showAddDiaglog = true;
-        managedAlbumAdd = album;
+        managedAlbum = album;
         if(albumArtifactsGrid != null)
             await albumArtifactsGrid.RefreshAsync();
         if(allArtifactsGrid != null)
@@ -210,24 +205,4 @@
         else
             removeFromAlbum.Remove(existing);
     }
-
-    void RemoveAlbumRowSelected(Album album)
-    {
-        editPanelRemove = "show";
-        managedAlbumRemove = album;
-    }
-
-    async Task CloseAddToAlbum()
-    {
-        editPanelAdd = "hidden";
-    }
-
-    async Task CloseRemoveFromAlbum()
-    {
-        editPanelAdd = "hidden";
-    }
-
-    Album managedAlbumAdd;
-    Album managedAlbumRemove;
-
 }
