@@ -7,7 +7,7 @@
         <AuthorizeRouteView RouteData="@routeData"
                             DefaultLayout="@GetPageLayout(routeData)">
             <NotAuthorized>
-                <BlazorDiffusion.Pages.SignIn ReturnUrl=@NavigationManager.Uri />
+                <BlazorDiffusion.Pages.SignIn NotAuthorized="true" ReturnUrl=@NavigationManager.Uri />
             </NotAuthorized>
 
             <Authorizing>
