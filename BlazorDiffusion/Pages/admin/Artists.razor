@@ -1,5 +1,6 @@
 ﻿@page "/admin/artists"
 @attribute [Authorize(Roles = "Admin")]
+@using BlazorDiffusion.Shared.admin;
 
 @inject NavigationManager NavigationManager
 
@@ -9,4 +10,53 @@
     </Breadcrumb>
 </Breadcrumbs>
 
-<AutoQueryGrid Model="Artist" Apis="Apis.AutoQuery<QueryArtists,CreateArtist,UpdateArtist,DeleteArtist>()" />
+<AutoQueryGrid Model="Artist"
+               RowSelected="RowSelect"
+               Apis="Apis.AutoQuery<QueryArtists, CreateArtist, UpdateArtist, DeleteArtist>()">
+    <EditForm>
+        @if (SelectedArtist != null)
+        {
+            <div class="relative z-10" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+                <div class="">
+                    <div class="">
+                        <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
+                            <ArtistEdit Artist="SelectedArtist" EditPanelCss="EditPanelCss" OnClose="Close"></ArtistEdit>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </EditForm>
+    <Columns>
+        <Column Field="(Artist x) => x.FirstName"></Column>
+        <Column Field="(Artist x) => x.LastName"></Column>
+        <Column Field="(Artist x) => x.YearDied"></Column>
+        <Column Field="(Artist x) => x.Type">
+            <Template>
+                <span>@context.Type.Join(",")</span>
+            </Template>
+        </Column>
+        <Column Field="(Artist x) => x.Score"></Column>
+        <Column Field="(Artist x) => x.Rank"></Column>
+        <Column Field="(Artist x) => x.CreatedDate"></Column>
+        <Column Field="(Artist x) => x.CreatedBy"></Column>
+    </Columns>
+</AutoQueryGrid>
+
+@code {
+    public Artist? SelectedArtist { get; set; }
+
+    public string EditPanelCss { get; set; } = "show";
+
+    async Task Close()
+    {
+        EditPanelCss = "hidden";
+        SelectedArtist = null;
+    }
+
+    async Task RowSelect(Artist artist)
+    {
+        SelectedArtist = artist;
+    }
+
+}

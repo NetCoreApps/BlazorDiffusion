@@ -1,0 +1,148 @@
+﻿@inherits AuthBlazorComponentBase
+
+@inject NavigationManager NavigationManager;
+
+<div class="@CssDefaults.Form.PanelClass @CssDefaults.Form.SlideOverTransition @EditPanelCss">
+    <form class=@CssDefaults.Form.FormClass @onsubmit="Save" @onsubmit:preventDefault>
+        <!-- Header -->
+        <div class="h-0 flex-1 overflow-y-auto">
+            <div class=@CssDefaults.Form.TitlebarClass>
+                <div class="flex items-start justify-between space-x-3">
+                    <div class="space-y-1">
+                        <h2 class=@CssDefaults.Form.HeadingClass id="slide-over-title">@Artist?.FirstName @Artist?.LastName</h2>
+                        <div class="mt-1">
+                            <p class="text-sm text-gray-500">@Artist?.Type.Join(",")</p>
+                        </div>
+                    </div>
+                    <div class="flex h-7 items-center">
+                        <button type="button" class=@CssDefaults.Form.CloseButtonClass @onclick="Close">
+                            <span class="sr-only">Close panel</span>
+                            <!-- Heroicon name: outline/x-mark -->
+                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-1 flex-col justify-between">
+                <div class="divide-y divide-gray-200 px-4 sm:px-6">
+                    <div class="space-y-6 pt-6 pb-5">
+                        @*<AutoFormFields Type="ApiType" Api="apiResult" FormLayout="FormLayout" ModelDictionary="ModelDictionary"/>*@
+                        <div class="flex flex-1 flex-col justify-between">
+                            <div class="divide-y divide-gray-200 px-4 sm:px-6">
+                                <div class="space-y-6 pt-6 pb-5">
+
+                                    <fieldset class="grid grid-cols-12 gap-6">
+                                            <div class="col-span-12 xl:col-span-6" style="width:100%">
+                                                <TextInput @bind-Value="Artist.FirstName"></TextInput>
+                                            </div>
+                                            <div class="col-span-12 xl:col-span-6" style="width:100%">
+                                                <TextInput @bind-Value="Artist.LastName"></TextInput>
+                                            </div>
+                                            <div class="col-span-12 xl:col-span-6" style="width:100%">
+                                                <TextInput type="number" @bind-Value="Artist.YearDied"></TextInput>
+                                            </div>
+                                            <div class="col-span-12 xl:col-span-6" style="width:100%">
+                                                <TagInput Tags="Artist.Type"></TagInput>
+                                            </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 px-4 py-3 bg-gray-50 dark:bg-gray-900 sm:px-6 flex flex-wrap justify-between">
+            <div>
+                <ConfirmDelete OnDelete="Delete" />
+            </div>
+            <div class="flex justify-end">
+                <SecondaryButton onclick="Close">Cancel</SecondaryButton>
+                <PrimaryButton type="submit" class="ml-4 bg-indigo-300">Save</PrimaryButton>
+            </div>
+        </div>
+        <ErrorSummary ExplicitStatus=@(apiResult?.Error) />
+    </form>
+</div>
+
+@code {
+
+    [Parameter]
+    public Artist Artist { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    [Parameter]
+    public EventCallback OnSave { get; set; }
+
+    [Parameter]
+    public EventCallback OnDelete { get; set; }
+
+    [Parameter]
+    public string EditPanelCss { get; set; }
+
+    [Parameter]
+    public List<InputInfo>? FormLayout { get; set; }
+
+    public Type ApiType { get; set; } = typeof(UpdateArtist);
+    protected MetadataType? metadataType;
+
+    [CascadingParameter]
+    public AppMetadata? AppMetadata { get; set; }
+
+    public MetadataType MetadataType => metadataType ??= AppMetadata?.Api.Types.FirstOrDefault(x => x.Name == ApiType.Name)
+                                                         ?? ApiType.ToMetadataType();
+
+    Dictionary<string, object> ModelDictionary;
+
+    ApiResult<Artist> apiResult = null;
+    ApiResult<EmptyResponse> deleteResult = null;
+    UpdateArtist request = new();
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        if (Artist != null)
+            ModelDictionary = Artist.ToModelDictionary();
+        FormLayout ??= MetadataType.CreateFormLayout(ApiType, AppMetadata);
+    }
+
+    async Task Save()
+    {
+        var request = Artist.ConvertTo<UpdateArtist>();
+
+        apiResult = await ApiAsync(request);
+
+        if (!apiResult.Errors.Any())
+            await Close();
+        await OnSave.InvokeAsync();
+    }
+
+    async Task Delete()
+    {
+        var request = new DeleteArtist
+        {
+            Id = Artist.Id
+        };
+
+        deleteResult = await ApiAsync(request);
+
+        if (!deleteResult.Errors.Any())
+            await Close();
+        await OnDelete.InvokeAsync();
+    }
+
+
+    async Task Close()
+    {
+        await OnClose.InvokeAsync();
+
+        NavigationManager.NavigateTo(NavigationManager.Uri.SetQueryParam("edit", null));
+    }
+
+}
