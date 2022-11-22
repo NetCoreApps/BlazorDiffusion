@@ -12,7 +12,7 @@
     <div class="w-1/3 flex justify-center items-center align-middle">
         <div class=@ClassNames(ColumnsSliderClass ?? "mb-4 overflow-hidden sm:rounded-md w-[320px] text-center")>
             <label for="steps-range" class="block text-sm font-medium text-gray-600 dark:text-gray-400">@UserState.AppPrefs.ArtifactGalleryColumns columns</label>
-            <input id="steps-range" @bind="UserState.AppPrefs.ArtifactGalleryColumns" @bind:event="oninput" @onchange="UserState.SaveAppPrefs" type="range" min="1" max="12" step="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+            <input id="steps-range" @bind="UserState.AppPrefs.ArtifactGalleryColumns" @bind:event="oninput" @onchange="SaveAppPrefsAsync" type="range" min="1" max="12" step="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
         </div>
         @if (IsModerator)
         {

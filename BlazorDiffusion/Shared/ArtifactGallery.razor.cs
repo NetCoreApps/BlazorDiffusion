@@ -120,6 +120,12 @@ public partial class ArtifactGallery : AppAuthComponentBase, IDisposable
         log("ArtifactGallery OnParametersSetAsync{0}", currentState());
     }
 
+    async Task SaveAppPrefsAsync()
+    {
+        await UserState.SaveAppPrefsAsync();
+        await OnChange();
+    }
+
     async Task ToggleShuffleAsync()
     {
         await UserState.ToggleShuffleAsync();

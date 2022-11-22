@@ -89,7 +89,7 @@
             dotnetRef = DotNetObjectReference.Create(this);
             await JS.InvokeVoidAsync("JS.registerKeyNav", dotnetRef);
             await JS.InvokeVoidAsync("JS.addClass", "html", "dark");
-            await UserState.LoadAppPrefs();
+            await UserState.LoadAppPrefsAsync();
         }
     }
 
