@@ -117,9 +117,12 @@
             request.UnpinPrimaryArtifact = true;
         apiResult = await ApiAsync(request);
 
-        if(!apiResult.Errors.Any())
+        if (apiResult.Succeeded)
+        {
+            await OnSave.InvokeAsync();
             await Close();
-        await OnSave.InvokeAsync();
+        }
+            
     }
 
     async Task DeleteCreative()
@@ -131,9 +134,12 @@
 
         deleteResult = await ApiAsync(request);
 
-        if(!deleteResult.Errors.Any())
+        if (deleteResult.Succeeded)
+        {
+            await OnDelete.InvokeAsync();
             await Close();
-        await OnDelete.InvokeAsync();
+        }
+            
     }
 
     void selectPrimaryArtifact(Artifact artifact)

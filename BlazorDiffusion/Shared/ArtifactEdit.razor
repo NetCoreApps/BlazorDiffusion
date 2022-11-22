@@ -150,7 +150,7 @@
 
         apiResult = await ApiAsync(request);
 
-        if (!apiResult.Errors.Any())
+        if (apiResult.Succeeded)
         {
             await OnSave.InvokeAsync();
             await Close();
