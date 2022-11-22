@@ -90,12 +90,12 @@ public class UserState
 
     void log(string message, params object[] args) => BlazorConfig.Instance.GetLog()?.LogDebug(message, args);
 
-    public async Task SaveAppPrefs()
+    public async Task SaveAppPrefsAsync()
     {
         await LocalStorage.SetItemAsync(nameof(AppPrefs), AppPrefs);
     }
 
-    public async Task LoadAppPrefs()
+    public async Task LoadAppPrefsAsync()
     {
         AppPrefs = await LocalStorage.GetItemAsync<AppPrefs>(nameof(AppPrefs)) ?? new AppPrefs();
         NotifyStateChanged();
@@ -111,7 +111,7 @@ public class UserState
             {
                 TopAlbums = api.Response?.TopAlbums ?? new();
                 LoadAlbums(TopAlbums);
-                await LoadAlbumCoverArtifacts();
+                await LoadAlbumCoverArtifactsAsync();
             }
         }
     }
@@ -132,7 +132,7 @@ public class UserState
                 LikedAlbumIds = r.User.Likes.AlbumIds ?? new();
                 UserAlbums = r.User.Albums ?? new();
                 LoadAlbums(UserAlbums);
-                await LoadAlbumCoverArtifacts();
+                await LoadAlbumCoverArtifactsAsync();
             }
         }
 
@@ -160,7 +160,7 @@ public class UserState
         NotifyStateChanged();
     }
 
-    public async Task LoadAlbumCoverArtifacts()
+    public async Task LoadAlbumCoverArtifactsAsync()
     {
         var albumArtifactIds = UserAlbums.Select(GetAlbumCoverArtifactId).ToList();
         albumArtifactIds.AddDistinctRange(TopAlbums.Select(GetAlbumCoverArtifactId));
@@ -537,7 +537,7 @@ public class UserState
     public async Task ToggleShuffleAsync()
     {
         AppPrefs.Shuffle = !AppPrefs.Shuffle;
-        await SaveAppPrefs();
+        await SaveAppPrefsAsync();
         NotifyStateChanged();
     }
 

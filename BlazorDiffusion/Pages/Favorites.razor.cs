@@ -83,7 +83,7 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
         await GalleryResults.LoadAsync(UserState, Id, View);
 
         log("LoadAlbumCoverArtifacts()...");
-        await UserState.LoadAlbumCoverArtifacts();
+        await UserState.LoadAlbumCoverArtifactsAsync();
         StateHasChanged();
 
         log("LoadLikedAlbumsAsync()...");
