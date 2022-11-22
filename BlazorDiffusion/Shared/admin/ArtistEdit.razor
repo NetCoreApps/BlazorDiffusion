@@ -4,6 +4,8 @@
 
 <div class="@CssDefaults.Form.PanelClass @CssDefaults.Form.SlideOverTransition @EditPanelCss">
     <form class=@CssDefaults.Form.FormClass @onsubmit="Save" @onsubmit:preventDefault>
+        <!-- Prevent implicit submission of the form -->
+        <button type="submit" disabled style="display: none" aria-hidden="true"></button>
         <!-- Header -->
         <div class="h-0 flex-1 overflow-y-auto">
             <div class=@CssDefaults.Form.TitlebarClass>
