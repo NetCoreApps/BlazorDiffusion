@@ -13,7 +13,7 @@
                     <div class="space-y-1">
                         <h2 class=@CssDefaults.Form.HeadingClass id="slide-over-title">@Artist?.FirstName @Artist?.LastName</h2>
                         <div class="mt-1">
-                            <p class="text-sm text-gray-500">@Artist?.Type.Join(",")</p>
+                            <p class="text-sm text-gray-500">@Artist?.Type.Join(", ") &nbsp;</p>
                         </div>
                     </div>
                     <div class="flex h-7 items-center">
@@ -46,7 +46,7 @@
                                                 <TextInput type="number" @bind-Value="Artist.YearDied"></TextInput>
                                             </div>
                                             <div class="col-span-12 xl:col-span-6" style="width:100%">
-                                                <TagInput Tags="Artist.Type"></TagInput>
+                                                <TagInput @bind-Value="Artist.Type" />
                                             </div>
                                     </fieldset>
                                 </div>
@@ -96,15 +96,14 @@
     [CascadingParameter]
     public AppMetadata? AppMetadata { get; set; }
 
-    public MetadataType MetadataType => metadataType ??= AppMetadata?.Api.Types.FirstOrDefault(x => x.Name == ApiType.Name)
-                                                         ?? ApiType.ToMetadataType();
+    public MetadataType MetadataType => metadataType ??= 
+        AppMetadata?.Api.Types.FirstOrDefault(x => x.Name == ApiType.Name) ?? ApiType.ToMetadataType();
 
-    Dictionary<string, object> ModelDictionary;
+    Dictionary<string, object> ModelDictionary = new();
 
-    ApiResult<Artist> apiResult = null;
-    ApiResult<EmptyResponse> deleteResult = null;
+    ApiResult<Artist>? apiResult = null;
+    ApiResult<EmptyResponse>? deleteResult = null;
     UpdateArtist request = new();
-
 
     protected override async Task OnParametersSetAsync()
     {

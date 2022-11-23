@@ -33,7 +33,7 @@
         <Column Field="(Artist x) => x.YearDied"></Column>
         <Column Field="(Artist x) => x.Type">
             <Template>
-                <span>@context.Type.Join(",")</span>
+                <span>@context.Type?.Join(", ")</span>
             </Template>
         </Column>
         <Column Field="(Artist x) => x.Score"></Column>
