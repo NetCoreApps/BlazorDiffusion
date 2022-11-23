@@ -30,7 +30,7 @@
         <Column Title="Id" Field="(Artifact x) => x.Id"/>
         <Column Field="(Artifact x) => x.FilePath">
             <Template>
-                <img src="https://cdn.diffusion.works@(context.FilePath)" alt=@context.FileName height="2em" />
+                <img class="h-20" src="https://cdn.diffusion.works@(context.FilePath)" alt=@context.FileName />
             </Template>
         </Column>
         <Column Field="(Artifact x) => x.CreatedDate" Format="s"/>
