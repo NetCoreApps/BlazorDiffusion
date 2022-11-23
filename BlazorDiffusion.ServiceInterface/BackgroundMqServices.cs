@@ -301,10 +301,10 @@ public class BackgroundMqServices : Service
 
     public async Task Any(AnalyticsTasks request)
     {
-        using var analyticsDb = HostContext.AppHost.GetDbConnection(Databases.Analytics);
         
         if (request.RecordArtifactStat != null && !Users.IsAdminOrSystem(request.RecordArtifactStat.AppUserId))
         {
+            using var analyticsDb = HostContext.AppHost.GetDbConnection(Databases.Analytics);
             await analyticsDb.InsertAsync(request.RecordArtifactStat);
 
             if (request.RecordArtifactStat.Type == StatType.Download)
@@ -313,6 +313,7 @@ public class BackgroundMqServices : Service
 
         if (request.RecordSearchStat != null && !Users.IsAdminOrSystem(request.RecordSearchStat.AppUserId))
         {
+            using var analyticsDb = HostContext.AppHost.GetDbConnection(Databases.Analytics);
             await analyticsDb.InsertAsync(request.RecordSearchStat);
 
             if (request.RecordSearchStat.ArtifactId != null)

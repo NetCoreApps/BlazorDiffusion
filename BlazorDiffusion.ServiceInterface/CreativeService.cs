@@ -332,6 +332,7 @@ public class CreativeService : Service
 
         using var analyticsDb = OpenDbConnection(Databases.Analytics);
         await analyticsDb.DeleteAsync<ArtifactStat>(x => artifactIds.Contains(x.ArtifactId));
+        await analyticsDb.DeleteAsync<SearchStat>(x => x.ArtifactId != null && artifactIds.Contains(x.ArtifactId.Value));
     }
 }
 

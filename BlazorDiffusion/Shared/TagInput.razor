@@ -22,6 +22,7 @@
     public EventCallback<List<string>> TagsChanged { get; set; }
 
     List<string> _tags = new();
+    
     [Parameter]
     public List<string> Tags
     {
@@ -37,7 +38,6 @@
     }
 
     List<string> tags = new();
-
 
     protected override async Task OnParametersSetAsync()
     {
@@ -61,7 +61,7 @@
         var tag = CurrentTag.EndsWith(",") ? CurrentTag.Substring(0, CurrentTag.Length - 1) : CurrentTag;
         if (string.IsNullOrEmpty(tag))
             return;
-        if(args.Key == "," || args.Code == "Enter" || args.Code == "NumpadEnter")
+        if (args.Key == "," || args.Code == "Enter" || args.Code == "NumpadEnter")
         {
             _tags.Add(tag);
             Tags = _tags;
