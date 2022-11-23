@@ -9,13 +9,13 @@
 <h3 class="text-base font-medium mb-3 dark:text-gray-100">Sort</h3>
 <div class="flex w-full justify-center">
 <button type="button" title="Sort Ascending" @onclick="_ => sort(SortOrder.Ascending)"
-class=@ClassNames(Column.Settings.SortOrder == SortOrder.Ascending ? "bg-indigo-100 dark:bg-indigo-800 border-indigo-500 dark:border-indigo-400" : "bg-white dark:bg-black hover:bg-gray-50 hover:bg-gray-800 border-gray-300 dark:border-gray-700",
+class=@ClassNames(Column.Settings.SortOrder == SortOrder.Ascending ? "bg-indigo-100 dark:bg-indigo-800 border-indigo-500 dark:border-indigo-400" : "bg-white dark:bg-black hover:bg-gray-50 dark:hover:bg-gray-900 border-gray-300 dark:border-gray-700",
 "mr-1 inline-flex items-center px-2.5 py-1.5 border shadow-sm text-sm font-medium rounded text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500")>
 <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><g fill="currentColor"><path fill-rule="evenodd" d="M10.082 5.629L9.664 7H8.598l1.789-5.332h1.234L13.402 7h-1.12l-.419-1.371h-1.781zm1.57-.785L11 2.687h-.047l-.652 2.157h1.351z" /><path d="M12.96 14H9.028v-.691l2.579-3.72v-.054H9.098v-.867h3.785v.691l-2.567 3.72v.054h2.645V14zm-8.46-.5a.5.5 0 0 1-1 0V3.707L2.354 4.854a.5.5 0 1 1-.708-.708l2-1.999l.007-.007a.498.498 0 0 1 .7.006l2 2a.5.5 0 1 1-.707.708L4.5 3.707V13.5z" /></g></svg>
 <span>ASC</span>
 </button>
 <button type="button" title="Sort Descending" @onclick="_ => sort(SortOrder.Descending)"
-class=@ClassNames(Column.Settings.SortOrder == SortOrder.Descending ? "bg-indigo-100 dark:bg-indigo-800 border-indigo-500 dark:border-indigo-400" : "bg-white dark:bg-black hover:bg-gray-50 hover:bg-gray-900 border-gray-300 dark:border-gray-700",
+class=@ClassNames(Column.Settings.SortOrder == SortOrder.Descending ? "bg-indigo-100 dark:bg-indigo-800 border-indigo-500 dark:border-indigo-400" : "bg-white dark:bg-black hover:bg-gray-50 dark:hover:bg-gray-900 border-gray-300 dark:border-gray-700",
 "ml-1 inline-flex items-center px-2.5 py-1.5 border shadow-sm text-sm font-medium rounded text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500")>
 <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><g fill="currentColor"><path d="M12.96 7H9.028v-.691l2.579-3.72v-.054H9.098v-.867h3.785v.691l-2.567 3.72v.054h2.645V7z" /><path fill-rule="evenodd" d="M10.082 12.629L9.664 14H8.598l1.789-5.332h1.234L13.402 14h-1.12l-.419-1.371h-1.781zm1.57-.785L11 9.688h-.047l-.652 2.156h1.351z" /><path d="M4.5 2.5a.5.5 0 0 0-1 0v9.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999l.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L4.5 12.293V2.5z" /></g></svg>
 <span>DESC</span>
@@ -326,7 +326,7 @@ bool dismissed = false;
 }
 @typeparam T
 @inherits TextInputBase
-<div id=@($"{Id}-autocomplete")>
+<div id=@($"{Id}-autocomplete") class=@FieldClass>
 @if (!string.IsNullOrEmpty(Label))
 {
 <label for=@Id class=@ClassNames("block text-sm font-medium text-gray-700 dark:text-gray-300", LabelClass)>@UseLabel</label>
@@ -335,8 +335,8 @@ bool dismissed = false;
 <input id=@Id type="text" @bind="txtValue" class=@ClassNames("block w-full sm:text-sm rounded-md dark:text-white dark:bg-gray-900",
 CssClass("shadow-sm focus:ring-indigo-500 focus:border-indigo-500 border-gray-300 dark:border-gray-600",
 "pr-10 border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500"))
-role="combobox" aria-controls="options" aria-expanded="false" autocomplete="off" placeholder=@(Multiple || Value == null ? placeholder : "")
-@bind:event="oninput" @onkeydown="OnKeyDown" @onkeyup="OnKeyUp" @onclick="update" @attributes="IncludeAttributes">
+role="combobox" aria-controls="options" aria-expanded="false" autocomplete="off" spellcheck="false" placeholder=@(Multiple || Value == null ? placeholder : "")
+@bind:event="oninput" @onkeydown="OnKeyDownAsync" @onkeyup="OnKeyUp" @onclick="update" @onpaste="OnPasteAsync" @attributes="IncludeAttributes">
 <button type="button" @onclick="toggle" class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none" tabindex="-1">
 <svg class="h-5 w-5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
 <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
@@ -345,7 +345,7 @@ role="combobox" aria-controls="options" aria-expanded="false" autocomplete="off"
 @if (showPopup)
 {
 <ul class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-black py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-@onkeydown="OnKeyDown" id=@("{Id}-options") role="listbox">
+@onkeydown="OnKeyDownAsync" id=@("{Id}-options") role="listbox">
 @foreach (var option in FilteredValues)
 {
 <li class=@ClassNames(option.Equals(active) ? "active bg-indigo-600 text-white" : "text-gray-900 dark:text-gray-100", "relative cursor-default select-none py-2 pl-3 pr-9")
@@ -365,7 +365,7 @@ role="combobox" aria-controls="options" aria-expanded="false" autocomplete="off"
 }
 else if (!Multiple && Value is not null)
 {
-<div @onkeydown="OnKeyDown" @onclick="toggle" class="h-8 -mt-8 ml-3 pt-0.5">
+<div @onkeydown="OnKeyDownAsync" @onclick="toggle" class="h-8 -mt-8 ml-3 pt-0.5">
 @Item!(Value)
 </div>
 }
@@ -670,7 +670,7 @@ else
 @if (hasPrefs && ShowResetPreferences)
 {
 <div class="pl-2">
-<button type="button" @onclick="clearPrefs" title="Reset Preferences & Filters" class=@ToolbarButtonClass>
+<button type="button" @onclick="ResetPreferencesAsync" title="Reset Preferences & Filters" class=@ToolbarButtonClass>
 <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" viewBox="0 0 24 24"><path fill="currentColor" d="M6.78 2.72a.75.75 0 0 1 0 1.06L4.56 6h8.69a7.75 7.75 0 1 1-7.75 7.75a.75.75 0 0 1 1.5 0a6.25 6.25 0 1 0 6.25-6.25H4.56l2.22 2.22a.75.75 0 1 1-1.06 1.06l-3.5-3.5a.75.75 0 0 1 0-1.06l3.5-3.5a.75.75 0 0 1 1.06 0Z" /></svg>
 </button>
 </div>
@@ -825,7 +825,7 @@ class=@ClassNames(confirmDelete ? "bg-red-600 hover:bg-red-700" : "bg-red-400 da
 }
 else
 {
-@("Delete")
+@Label
 }
 </button>
 @inherits UiComponentBase
@@ -859,7 +859,7 @@ else
 <tr class=@TableHeaderRowClass>
 @foreach (var column in VisibleColumns)
 {
-var allowFiltering = AllowFiltering && !TextUtils.IsComplexType(column.FieldType) && !column.IsComputed;
+var allowFiltering = AllowFiltering && column.AllowFiltering && !TextUtils.IsComplexType(column.FieldType) && !column.IsComputed;
 var isOpen = column == ShowFilters;
 <td class=@ClassNames(column.VisibleFrom != null ? $"hidden {column.VisibleFrom.Value.ToBreakpointCellClass()}" : null,
 column.HeaderClass ?? ClassNames(TableHeaderCellClass, isOpen ? "text-gray-900 dark:text-gray-50" : "text-gray-500 dark:text-gray-400", column.@class))>
@@ -1110,14 +1110,14 @@ return null;
 bool isDataUri(string? src) => src == null ? false : src.StartsWith("data:") || src.StartsWith("blob:");
 string imgCls(string? src) => string.IsNullOrEmpty(src) || src.StartsWith("data:") || src.EndsWith(".svg")
 ? ""
-: "rounded-full";
+: "rounded-full object-cover";
 }
 @using Microsoft.AspNetCore.Components.Forms
 @typeparam TReq
-@inherits UiComponentBase
+@inherits BlazorComponentBase
 <div class="m-2 mt-4" @ref="fileDropContainer">
 <label for="blazor-input-file"
-class=@(ClassNames("flex justify-center w-full h-32 px-4 transition border-2 border-gray-300 border-dashed rounded-md appearance-none cursor-pointer hover:border-gray-400 focus:outline-none", CssClass()))>
+class=@(ClassNames("flex justify-center w-full h-32 px-4 transition border-2 border-gray-300 border-dashed rounded-md appearance-none cursor-pointer hover:border-gray-400 focus:outline-none", CssUtils.ClassNames(@class)))>
 <span class="flex items-center space-x-2">
 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24"
 stroke="currentColor" stroke-width="2">
@@ -1163,7 +1163,7 @@ else
 }
 else
 {
-<div class=@ClassNames("mb-4 text-2xl font-semibold text-gray-900", @class)>
+<div class=@ClassNames("mb-4 text-2xl font-semibold text-gray-900 dark:text-gray-300", @class)>
 <h1 class="flex">
 <svg class=@ClassNames("self-center inline mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-gray-600 dark:fill-gray-300", ImageClass)
 role="status" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1359,6 +1359,42 @@ TableStyle="TableStyle.FullWidth">
 </div>
 </ModalDialog>
 <QueryPrefs Show=@ShowQueryPrefs Columns="ViewModelColumns" Prefs="ApiPrefs" Done="() => ShowQueryPrefs = false" Save="saveApiPrefs" />
+@inherits UiComponentBase
+@if (!string.IsNullOrEmpty(Title))
+{
+<h2 class="text-base font-semibold text-gray-500 dark:text-gray-400">
+@Title
+</h2>
+}
+<ul role="list" class="mt-4 divide-y divide-gray-200 dark:divide-gray-800 border-t border-b border-gray-200 dark:border-gray-800">
+<CascadingValue IsFixed="true" Value="this">@ChildContent</CascadingValue>
+</ul>
+@inherits UiComponentBase
+<li class="relative flex items-start space-x-4 py-6">
+<div class="flex-shrink-0">
+<span class="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-900">
+<Icon class="w-6 h-6 text-indigo-700 dark:text-indigo-300" Image=@Icon Src=@IconSrc Svg=@IconSvg Alt=@IconAlt />
+</span>
+</div>
+<div class="min-w-0 flex-1">
+<h3 class="text-base font-medium text-gray-900 dark:text-gray-100">
+<span class="rounded-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2">
+<a href=@href class="focus:outline-none">
+<span class="absolute inset-0" aria-hidden="true"></span>
+@Title
+</a>
+</span>
+</h3>
+<p class="text-base text-gray-500">
+@ChildContent
+</p>
+</div>
+<div class="flex-shrink-0 self-center">
+<svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+<path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+</svg>
+</div>
+</li>
 @using System.Collections
 @using ServiceStack.Text
 @{
@@ -1504,13 +1540,13 @@ RenderValue(Value);
 @inherits UiComponentBase
 @if (!string.IsNullOrEmpty(href))
 {
-<a href=@href class=@ClassNames(cls, Class) title=@title target=@target @onclick:stopPropagation>
+<a href=@href class=@ClassNames(cls, Class) title=@title target=@target @onclick:stopPropagation @attributes="IncludeAttributes">
 @ChildContent
 </a>
 }
 else
 {
-<button type=@type @onclick="onclick" class=@ClassNames(cls, Class)>
+<button type=@type @onclick="onclick" class=@ClassNames(cls, Class) @attributes="IncludeAttributes">
 @ChildContent
 </button>
 }
@@ -1523,20 +1559,20 @@ ButtonStyle.Red => "dark:ring-offset-black focus:ring-red-300 text-white bg-red-
 ButtonStyle.Green => "dark:ring-offset-black focus:ring-green-300 text-white bg-green-600 hover:bg-green-700 focus:ring-green-500 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-500",
 ButtonStyle.Sky => "dark:ring-offset-black focus:ring-sky-300 text-white bg-sky-600 hover:bg-sky-700 focus:ring-sky-500 dark:bg-sky-600 dark:hover:bg-sky-700 dark:focus:ring-sky-500",
 ButtonStyle.Cyan => "dark:ring-offset-black focus:ring-cyan-300 text-white bg-cyan-600 hover:bg-cyan-700 focus:ring-cyan-500 dark:bg-cyan-600 dark:hover:bg-cyan-700 dark:focus:ring-cyan-500",
-_ => "focus:ring-2 focus:ring-offset-2 text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+_ => "dark:ring-offset-black focus:ring-2 focus:ring-offset-2 text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
 };
 string cls => "inline-flex justify-center rounded-md border border-transparent py-2 px-4 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 " + colors;
 }
 @inherits UiComponentBase
 @if (!string.IsNullOrEmpty(href))
 {
-<a href=@href class=@ClassNames(cls, Class) title=@title target=@target @onclick:stopPropagation>
+<a href=@href class=@ClassNames(cls, Class) title=@title target=@target @onclick:stopPropagation @attributes="IncludeAttributes">
 @ChildContent
 </a>
 }
 else
 {
-<button type=@type @onclick="onclick" class=@ClassNames(cls, Class)>
+<button type=@type @onclick="onclick" class=@ClassNames(cls, Class) @attributes="IncludeAttributes">
 @ChildContent
 </button>
 }
@@ -1567,14 +1603,16 @@ invalid:"text-red-900 focus:ring-red-500 focus:border-red-500"))
 }
 </div>
 @inherits BlazorComponentBase
-<div class="relative z-10" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+<div class=@SlideOverClass aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
 <div class="">
 <div class="">
-<div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
+<div class=@DialogClass>
 <div class=@ClassNames(PanelClass, SlideOverTransition.Class)>
 <form class=@FormClass @onsubmit="CloseAsync">
 <!-- Header -->
 <div class="h-0 flex-1 overflow-y-auto">
+@if (ShowTitlebar)
+{
 <div class=@TitlebarClass>
 <div class="flex items-start justify-between space-x-3">
 <div class="space-y-1">
@@ -1586,8 +1624,10 @@ invalid:"text-red-900 focus:ring-red-500 focus:border-red-500"))
 </div>
 }
 </div>
+@if (ShowCloseButton)
+{
 <div class="flex h-7 items-center">
-<button type="button" @onclick="CloseAsync" class="rounded-md bg-gray-50 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+<button type="button" @onclick="CloseAsync" class=@CloseButtonClass>
 <span class="sr-only">Close panel</span>
 <!-- Heroicon name: outline/x-mark -->
 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
@@ -1595,20 +1635,77 @@ invalid:"text-red-900 focus:ring-red-500 focus:border-red-500"))
 </svg>
 </button>
 </div>
+}
 </div>
 </div>
+}
 @ChildContent
 </div>
+@if (ShowFooter)
+{
 <div class="flex flex-shrink-0 justify-end px-4 py-4">
-<button type="button" @onclick="CloseAsync" class="rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+<SecondaryButton @onclick="CloseAsync">
 Close
-</button>
+</SecondaryButton>
 </div>
+}
 </form>
 </div>
 </div>
 </div>
 </div>
+</div>
+@inherits TextInputBase<List<string>>
+<div>
+@if (!string.IsNullOrEmpty(UseLabel))
+{
+<label for=@Id class=@ClassNames("block text-sm font-medium text-gray-700 dark:text-gray-300", LabelClass)>@UseLabel</label>
+}
+<div class="mt-1 w-full relative rounded-md shadow-sm">
+@{
+var cls = ClassNames("w-full cursor-text flex flex-wrap sm:text-sm rounded-md dark:text-white dark:bg-gray-900 border focus-within:border-transparent focus-within:ring-1 focus-within:outline-none",
+CssClass("shadow-sm border-gray-300 dark:border-gray-600 focus-within:ring-indigo-500 focus-within:border-indigo-500",
+"pr-10 border-red-300 text-red-900 placeholder-red-300 focus-within:outline-none focus-within:ring-red-500 focus-within:border-red-500"));
+}
+<button class=@cls @onclick="handleClick" @onclick:preventDefault>
+<div class="flex flex-wrap pb-1.5">
+@foreach (var tag in Value.OrEmpty())
+{
+<div class="pt-1.5 pl-1">
+<span class="inline-flex rounded-full items-center py-0.5 pl-2.5 pr-1 text-sm font-medium bg-indigo-100 dark:bg-indigo-800 text-indigo-700 dark:text-indigo-300">
+@tag
+<button type="button" @onclick="_ => RemoveTagAsync(tag)" class="flex-shrink-0 ml-1 h-4 w-4 rounded-full inline-flex items-center justify-center text-indigo-400 dark:text-indigo-500 hover:bg-indigo-200 dark:hover:bg-indigo-800 hover:text-indigo-500 dark:hover:text-indigo-400 focus:outline-none focus:bg-indigo-500 focus:text-white dark:focus:text-black">
+<svg class="h-2 w-2" stroke="currentColor" fill="none" viewBox="0 0 8 8"><path stroke-linecap="round" stroke-width="1.5" d="M1 1l6 6m0-6L1 7"></path></svg>
+</button>
+</span>
+</div>
+}
+<div class="pt-1.5 pl-1 shrink">
+<input @ref=@txtInput type=@UseType id=@Id name=@Id @bind="InputValue" placeHolder=@placeholder
+class="p-0 dark:bg-transparent rounded-md border-none focus:!border-none focus:!outline-none"
+style=@($"box-shadow:none !important;width:{InputValue.Length + 1}ch")
+@onkeydown="KeyDownAsync" @onkeypress="KeyPressAsync" @bind:event="oninput" @onpaste="OnPasteAsync"
+@attributes="IncludeAttributes">
+</div>
+</div>
+</button>
+@if (HasErrorField)
+{
+<div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+<svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+</svg>
+</div>
+}
+</div>
+@if (HasErrorField)
+{
+<p class="mt-2 text-sm text-red-500" id=@($"{Id}-error")>@ErrorFieldMessage</p>
+}
+else if (!string.IsNullOrEmpty(UseHelp))
+{
+<p id=@($"{Id}-description") class="text-gray-500">@UseHelp</p>
+}
 </div>
 @typeparam TValue
 @inherits TextInputBase<TValue>
@@ -1736,7 +1833,8 @@ public const string FormClass = "flex h-full flex-col divide-y divide-gray-200 d
 public const string PanelClass = "pointer-events-auto w-screen xl:max-w-3xl md:max-w-xl max-w-lg";
 public const string TitlebarClass = "bg-gray-50 dark:bg-gray-900 px-4 py-6 sm:px-6";
 public const string HeadingClass = "text-lg font-medium text-gray-900 dark:text-gray-100";
-public const string CloseButtonClass = "rounded-md bg-gray-50 dark:bg-gray-900 text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500";
+public const string CloseButtonClass = "rounded-md bg-gray-50 dark:bg-gray-900 text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:ring-offset-black";
+public const string LegendClass = "text-base font-medium text-gray-900 dark:text-gray-100 text-center mb-4";
 public static DataTransition SlideOverTransition = new DataTransition(
 entering: new(@class: "transform transition ease-in-out duration-500 sm:duration-700", from: "translate-x-full", to: "translate-x-0"),
 leaving: new(@class: "transform transition ease-in-out duration-500 sm:duration-700", from: "translate-x-0", to: "translate-x-full"),
@@ -1748,10 +1846,13 @@ public const string SizeClass = "sm:max-w-prose lg:max-w-screen-md xl:max-w-scre
 }
 public static class SlideOver
 {
+public const string SlideOverClass = "relative z-10";
+public const string DialogClass = "pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16";
 public const string PanelClass = "pointer-events-auto w-screen xl:max-w-3xl md:max-w-xl max-w-lg";
-public const string FormClass = "flex h-full flex-col divide-y divide-gray-200 dark:divide-gray-100 bg-white dark:bg-black shadow-xl";
+public const string FormClass = "flex h-full flex-col divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-black shadow-xl";
 public const string TitlebarClass = "bg-gray-50 dark:bg-gray-900 px-4 py-6 sm:px-6";
 public const string HeadingClass = "text-lg font-medium text-gray-900 dark:text-gray-50";
+public const string CloseButtonClass = "rounded-md bg-gray-50 dark:bg-black text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:ring-offset-black";
 public const string TransitionClass = "transform transition ease-in-out duration-500 sm:duration-700";
 }
 public static class HtmlFormat
