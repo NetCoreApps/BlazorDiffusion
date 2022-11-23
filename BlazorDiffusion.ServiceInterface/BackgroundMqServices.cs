@@ -269,9 +269,9 @@ public class BackgroundMqServices : Service
             await Scores.DecrementArtifactLikeAsync(Db, request.RecordArtifactUnlikeId.Value);
 
         if (request.RecordAlbumLikeId != null)
-            await Scores.IncrementArtifactLikeAsync(Db, request.RecordAlbumLikeId.Value);
+            await Scores.IncrementAlbumLikeAsync(Db, request.RecordAlbumLikeId.Value);
         if (request.RecordAlbumUnlikeId != null)
-            await Scores.DecrementArtifactLikeAsync(Db, request.RecordAlbumUnlikeId.Value);
+            await Scores.DecrementAlbumLikeAsync(Db, request.RecordAlbumUnlikeId.Value);
 
         if (request.ArtifactIdsAddedToAlbums?.Count > 0)
         {
