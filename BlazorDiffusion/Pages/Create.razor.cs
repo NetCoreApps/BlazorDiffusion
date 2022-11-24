@@ -33,17 +33,7 @@ public partial class Create : AppAuthComponentBase, IDisposable
     public SlideOver? SlideOver { get; set; }
     public List<Creative> CreativeHistory { get; set; } = new();
 
-
     ImageSize imageSize;
-
-    enum CreateMenu
-    {
-        History,
-    }
-    CreateMenu? createMenu = CreateMenu.History;
-    void toggleMenu(CreateMenu menu) => createMenu = menu == createMenu ? null : menu;
-    void closeMenu() => createMenu = null;
-
 
     void selectImageSize(ImageSize size) => imageSize = size;
 

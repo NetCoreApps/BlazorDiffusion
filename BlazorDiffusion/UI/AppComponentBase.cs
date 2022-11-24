@@ -107,3 +107,8 @@ public enum ImageSize
     Portrait,
     Landscape,
 }
+
+public enum CreateMenu
+{
+    History,
+}

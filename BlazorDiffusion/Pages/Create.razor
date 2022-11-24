@@ -289,7 +289,7 @@
     @if (CreativeHistory.Count > 0)
     {
         <div class="select-none text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100">
-            <div class="group cursor-pointer" @onclick="_ => toggleMenu(CreateMenu.History)">
+            <div class="group cursor-pointer" @onclick="_ => UserState.ToggleCreateMenuAsync(CreateMenu.History)">
                 <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M19.5 12A7.5 7.5 0 0 0 6.9 6.5h1.35a.75.75 0 0 1 0 1.5h-3a.75.75 0 0 1-.75-.75v-3a.75.75 0 0 1 1.5 0v1.042a9 9 0 1 1-2.895 5.331a.749.749 0 0 1 .752-.623c.46 0 .791.438.724.892A7.5 7.5 0 1 0 19.5 12Zm-7-4.25a.75.75 0 0 0-1.5 0v4.5c0 .414.336.75.75.75h2.5a.75.75 0 0 0 0-1.5H12.5V7.75Z" /></svg>
                 <span class="block -mt-0.5 text-xs invisible group-hover:visible">history</span>
             </div>
@@ -298,7 +298,7 @@
     </div>
 </div>
 
-@if (createMenu == CreateMenu.History && CreativeHistory.Count > 0)
+@if (UserState.AppPrefs.CreateMenu == CreateMenu.History && CreativeHistory.Count > 0)
 {
     <div class="rounded-md absolute top-24 mt-2 right-2 shadow bg-white dark:bg-black flex flex-col z-10">        
         <nav class="p-2 space-y-1" aria-label="Sidebar">

@@ -547,10 +547,18 @@ public class UserState
             ? artifacts.ShuffleGridArtifacts(AppPrefs.ArtifactGalleryColumns.ToInt()).ToList()
             : artifacts.ToList();
     }
+
+    public async Task ToggleCreateMenuAsync(CreateMenu? menu)
+    {
+        AppPrefs.CreateMenu = menu == AppPrefs.CreateMenu ? null : menu;
+        await SaveAppPrefsAsync();
+        NotifyStateChanged();
+    }
 }
 
 public class AppPrefs
 {
     public string ArtifactGalleryColumns { get; set; } = "5";
     public bool Shuffle { get; set; } = true;
+    public CreateMenu? CreateMenu { get; set; } = UI.CreateMenu.History;
 }
