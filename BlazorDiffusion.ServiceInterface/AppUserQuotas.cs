@@ -81,8 +81,9 @@ public class AppUserQuotas
 
     public async Task<int> GetCreditsUsedAsync(IDbConnection db, int userId, DateTime since)
     {
-        var creditsUsed = await db.ScalarAsync<int>(db.From<Creative>()
-            .Where(x => x.OwnerId == userId && x.CreatedDate >= since)
+        var creditsUsed = await db.ScalarAsync<int>(db.From<Artifact>()
+            .Join<Creative>((x,y) => x.CreativeId == y.Id)
+            .Where<Creative>(x => x.OwnerId == userId && x.CreatedDate >= since)
             .Select(x => new {
                 Credits = Sql.Sum(x.Width > 512
                     ? 3
