@@ -40,21 +40,17 @@
             ShowPreferences="false"
             RowSelected="SelectAddRow">
         <ToolbarButtons>
-            <button type="button" @onclick="ToggleManageAlbumGrids" title="Refresh" class="mx-2 inline-flex items-center px-2.5 py-1.5 border border-gray-300 dark:border-gray-700 shadow-sm text-sm font-medium rounded text-gray-700 dark:text-gray-300 bg-white dark:bg-black hover:bg-gray-50 dark:hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:ring-offset-black">
-                @if (addArtifactsToggle)
-                {
-                    <span>Add Artifacts View</span>
-                }
-                else
-                {
-                    <span>Remove Artifacts View</span>
-                }
-            </button>
+            <div class="flex items-center justify-between">
+                <span class="px-2">Remove</span>
+                <Toggle @bind-Value="addArtifactsToggle"></Toggle>
+                <span class="px-2">Add</span>
+            </div>
         </ToolbarButtons>
         <Columns>
             <Column Field="(Artifact x) => x.FilePath">
                 <Template>
-                    <img src="https://cdn.diffusion.works@(context.FilePath)" class="m-auto h-48 @(IsInAlbum(context) == true ? "rounded-xl border-2 border-green-500" : "")"
+                    <img src="https://cdn.diffusion.works@(context.FilePath)" 
+                    class="m-auto h-48 @(IsInAlbum(context) == true ? "rounded-xl border-2 border-fuchsia-700" : "rounded-xl border-2 border-transparent")"
                     alt=@context.Prompt />
                 </Template>
             </Column>
@@ -72,21 +68,18 @@
             ShowDownloadCsv="false"
             ShowPreferences="false">
         <ToolbarButtons>
-            <button type="button" @onclick="ToggleManageAlbumGrids" title="Refresh" class="mx-2 inline-flex items-center px-2.5 py-1.5 border border-gray-300 dark:border-gray-700 shadow-sm text-sm font-medium rounded text-gray-700 dark:text-gray-300 bg-white dark:bg-black hover:bg-gray-50 dark:hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:ring-offset-black">
-                @if (addArtifactsToggle)
-                {
-                    <span>Add Artifacts View</span>
-                }
-                else
-                {
-                    <span>Remove Artifacts View</span>
-                }
-            </button>
+            <div class="flex items-center justify-between">
+                <span class="px-2">Remove</span>
+                <Toggle @bind-Value="addArtifactsToggle"></Toggle>
+                <span class="px-2">Add</span>
+            </div>
         </ToolbarButtons>
         <Columns>
             <Column Field="(AlbumArtifact x) => x.Artifact">
                 <Template>
-                    <img src="https://cdn.diffusion.works@(context.Artifact?.FilePath)" class="m-auto h-48 @(IsInAlbum(context.Artifact) == true ? "" : "rounded-xl border-2 border-red-500")" alt=@context.Artifact?.Prompt />
+                    <img src="https://cdn.diffusion.works@(context.Artifact?.FilePath)" 
+                    class="m-auto h-48 @(IsInAlbum(context.Artifact) == true ? "rounded-xl border-2 border-transparent" : "rounded-xl border-2 border-fuchsia-700")" 
+                    alt=@context.Artifact?.Prompt />
                 </Template>
             </Column>
         </Columns>
