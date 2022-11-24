@@ -1,16 +1,16 @@
 ﻿@inherits AppAuthComponentBase
 
-<div class="flex justify-between w-full">
+<div class="flex flex-wrap justify-between w-full">
     @if (LeftHeader != null)
     {
         @LeftHeader
     }
     else
     {
-        <div class="w-1/3"></div>
+        <div class="w-full sm:w-1/3"></div>
     }
-    <div class="w-1/3 flex justify-center items-center align-middle">
-        <div class=@ClassNames(ColumnsSliderClass ?? "mb-4 overflow-hidden sm:rounded-md w-[320px] text-center")>
+    <div class="w-full sm:w-1/3 flex justify-center items-center align-middle whitespace-nowrap">
+        <div class=@ClassNames(ColumnsSliderClass ?? "mb-4 overflow-hidden rounded sm:rounded-md text-center")>
             <label for="steps-range" class="block text-sm font-medium text-gray-600 dark:text-gray-400">@UserState.AppPrefs.ArtifactGalleryColumns columns</label>
             <input id="steps-range" @bind="UserState.AppPrefs.ArtifactGalleryColumns" @bind:event="oninput" @onchange="SaveAppPrefsAsync" type="range" min="1" max="12" step="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
         </div>
@@ -31,7 +31,7 @@
     }
     else
     {
-        <div class="w-1/3"></div>
+        <div class="w-full sm:w-1/3"></div>
     }
 </div>
 
@@ -60,18 +60,18 @@
 
     <div @onclick="_ => navTo(artifact.Id)"
              class=@ClassNames("overflow-hidden flex justify-center")>
-        <div class="relative p-2 flex flex-col cursor-pointer items-center" style=@($"max-width:{artifact.Width}px")
+        <div class="relative sm:p-2 flex flex-col cursor-pointer items-center" style=@($"max-width:{artifact.Width}px")
              @oncontextmenu="e => showArtifactMenu(e, artifact)" @oncontextmenu:preventDefault>
 
-            <ArtifactImage Artifact="artifact" LazyLoad="LazyLoad ?? true" 
-                class=@ClassNames("rounded-xl border-2", ResolveBorderColor(artifact, Selected?.Id, UserState)) />
+            <ArtifactImage Artifact="artifact" LazyLoad="LazyLoad ?? true"
+                class=@ClassNames("rounded sm:rounded-xl border sm:border-2", ResolveBorderColor(artifact, Selected?.Id, UserState)) />
 
-            <div class="absolute top-0 left-0 w-full h-full group select-none overflow-hidden m-1 rounded-xl">
-                <div class="w-full h-full absolute inset-0 z-10 block text-zinc-100 drop-shadow pointer-events-none line-clamp px-2 pb-2 text-sm px-2 opacity-0 group-hover:opacity-40 transition duration-300 ease-in-out bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-700 via-gray-900 to-black"></div>
+                <div class="absolute top-0 left-0 w-full h-full group select-none overflow-hidden sm:m-1 rounded sm:rounded-xl">
+                <div class="w-full h-full absolute inset-0 z-10 block text-zinc-100 drop-shadow pointer-events-none line-clamp sm:px-2 sm:pb-2 text-sm opacity-0 group-hover:opacity-40 transition duration-300 ease-in-out bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-700 via-gray-900 to-black"></div>
 
-                <div class="absolute w-full h-full flex z-10 text-zinc-100 justify-between drop-shadow opacity-0 group-hover:opacity-100 transition-opacity mb-1 text-sm">
+                <div class="absolute w-full h-full flex z-10 text-zinc-100 justify-between drop-shadow opacity-0 group-hover:opacity-100 transition-opacity sm:mb-1 text-sm">
                     <div class="relative w-full h-full overflow-hidden flex flex-col justify-between overflow-hidden">
-                        <div class="p-4 flex justify-between flex-none">
+                        <div class="p-0.5 sm:p-4 flex justify-between flex-none">
                             @if (TopRightIcon != null)
                             {
                                 @TopRightIcon(artifact)
@@ -79,7 +79,7 @@
                             else
                             {
                                 <div class="cursor-pointer" @onclick="e => exploreSimilar(artifact)" @onclick:stopPropagation @onclick:preventDefault>
-                                    <svg class="w-6 h-6 text-cyan-600 hover:text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+                                    <svg class="w-4 h-4 sm:w-6 sm:h-6 text-cyan-600 hover:text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
                                         <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
                                             <title>explore similar</title>
                                             <path d="m11.25 11.25l3 3" /><circle cx="7.5" cy="7.5" r="4.75" />
@@ -87,18 +87,18 @@
                                     </svg>
                                 </div>
                             }
-                            <div class="px-1 cursor-pointer" @onclick="e => showArtifactMenu(e, artifact)" @onclick:stopPropagation @onclick:preventDefault>
-                                <svg class="w-6 h-6 text-cyan-600 hover:text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+                            <div class="sm:px-1 cursor-pointer" @onclick="e => showArtifactMenu(e, artifact)" @onclick:stopPropagation @onclick:preventDefault>
+                                <svg class="w-4 h-4 sm:w-6 sm:h-6 text-cyan-600 hover:text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
                                     <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><circle cx="8" cy="2.5" r=".75" /><circle cx="8" cy="8" r=".75" /><circle cx="8" cy="13.5" r=".75" /></g>
                                 </svg>
                             </div>
                         </div>
                         <div>
-                            <div class="pb-2 px-4">
+                            <div class="sm:pb-2 sm:px-4">
                             @if (UserState.HasLiked(artifact))
                             {
                                 <svg @onclick="_ => UnlikeArtifactAsync(artifact)" @onclick:stopPropagation @onclick:preventDefault
-                                     class="w-6 h-6 text-red-600 hover:text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                     class="w-4 h-4 sm:w-6 sm:h-6 text-red-600 hover:text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                                     <title>undo like</title>
                                     <path fill="currentColor" d="M2 8.4A5.4 5.4 0 0 1 7.5 3A5.991 5.991 0 0 1 12 5a5.991 5.991 0 0 1 4.5-2A5.4 5.4 0 0 1 22 8.4c0 5.356-6.379 9.4-10 12.6C8.387 17.773 2 13.76 2 8.4Z" />
                                 </svg>
@@ -106,7 +106,7 @@
                             else
                             {
                                 <svg @onclick="_ => LikeArtifactAsync(artifact)" @onclick:stopPropagation @onclick:preventDefault
-                                     class="w-6 h-6 text-cyan-600 hover:text-cyan-400" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24">
+                                     class="w-4 h-4 sm:w-6 sm:h-6 text-cyan-600 hover:text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                                     <title>like</title>
                                     <path fill="currentColor" d="M12 21c-.645-.572-1.374-1.167-2.145-1.8h-.01c-2.715-2.22-5.792-4.732-7.151-7.742c-.446-.958-.683-2-.694-3.058A5.39 5.39 0 0 1 7.5 3a6.158 6.158 0 0 1 3.328.983A5.6 5.6 0 0 1 12 5c.344-.39.738-.732 1.173-1.017A6.152 6.152 0 0 1 16.5 3A5.39 5.39 0 0 1 22 8.4a7.422 7.422 0 0 1-.694 3.063c-1.359 3.01-4.435 5.521-7.15 7.737l-.01.008c-.772.629-1.5 1.224-2.145 1.8L12 21ZM7.5 5a3.535 3.535 0 0 0-2.5.992A3.342 3.342 0 0 0 4 8.4c.011.77.186 1.53.512 2.228A12.316 12.316 0 0 0 7.069 14.1c.991 1 2.131 1.968 3.117 2.782c.273.225.551.452.829.679l.175.143c.267.218.543.444.81.666l.013-.012l.006-.005h.006l.009-.007h.01l.018-.015l.041-.033l.007-.006l.011-.008h.006l.009-.008l.664-.545l.174-.143c.281-.229.559-.456.832-.681c.986-.814 2.127-1.781 3.118-2.786a12.298 12.298 0 0 0 2.557-3.471c.332-.704.51-1.472.52-2.25A3.343 3.343 0 0 0 19 6a3.535 3.535 0 0 0-2.5-1a3.988 3.988 0 0 0-2.99 1.311L12 8.051l-1.51-1.74A3.988 3.988 0 0 0 7.5 5Z" />
                                 </svg>
@@ -115,7 +115,7 @@
 
                             @if (artifact is ArtifactResult result)
                             {
-                                <div class="flex bg-white/40 bg-black/40 pt-2 pl-4 pb-4 pr-4 w-full">
+                                <div class="hidden sm:flex bg-white/40 bg-black/40 sm:pt-2 sm:pl-4 sm:pb-4 sm:pr-4 w-full">
                                     <div class="w-full">
                                         <h2 class="truncate text-base font-medium text-gray-900 dark:text-gray-200">@result.UserPrompt</h2>
                                         <div class="mt-1">
@@ -137,7 +137,7 @@
                             }
                             else
                             {
-                                <div class="mt-4"></div>
+                                <div class="sm:mt-4"></div>
                             }
                         </div>
 
@@ -160,12 +160,12 @@
     @*Guard against NRE when navigating away whilst SlideOver is open*@
     @if (Creative != null && Selected != null)
     {
-    <div class=@CssDefaults.SlideOver.TitlebarClass>
-        <div class="flex items-start justify-between space-x-3">
+    <div class=@ClassNames(CssDefaults.SlideOver.TitlebarClass)>
+        <div class="flex items-start justify-between space-x-1 sm:space-x-3">
             <div class="space-y-1">
-                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-200">@Creative.UserPrompt</h2>
+                <h2 class="sm:text-lg font-medium text-gray-900 dark:text-gray-200">@Creative.UserPrompt</h2>
                 <div class="mt-1">
-                    <p class="text-sm text-gray-500">
+                    <p class="text-xs sm:text-sm text-gray-500">
                         @{ var i = 0; }
                         @foreach (var modifier in Creative.ModifierNames)
                         {
@@ -201,17 +201,18 @@
         <div class="relative p-2 flex flex-col"
              @oncontextmenu="e => showArtifactMenu(e, Active)" @oncontextmenu:preventDefault>
 
-            <ArtifactImage Artifact="Active" class="rounded-lg" />
+            <ArtifactImage Artifact="Active" class="rounded sm:rounded-lg" />
 
-            <div class="absolute top-0 left-0 w-full h-full group select-none overflow-hidden m-1 rounded-xl">
-                <div class="w-full h-full absolute inset-0 z-10 block text-zinc-100 drop-shadow pointer-events-none line-clamp px-2 pb-2 text-sm px-2 opacity-0 group-hover:opacity-40 transition duration-300 ease-in-out bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-700 via-gray-900 to-black"></div>
+            <div class="absolute top-0 left-0 w-full h-full group select-none overflow-hidden sm:m-1 rounded sm:rounded-xl">
+                <div class="w-full h-full absolute inset-0 z-10 block text-zinc-100 drop-shadow pointer-events-none line-clamp px-2 pb-2 text-sm opacity-0 group-hover:opacity-40 transition duration-300 ease-in-out bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-700 via-gray-900 to-black"></div>
 
                 <div class="absolute w-full h-full flex z-10 text-zinc-100 justify-between drop-shadow opacity-0 group-hover:opacity-100 transition-opacity mb-1 text-sm">
                     <div class="relative w-full h-full overflow-hidden flex flex-col justify-between overflow-hidden">
 
                         <div class="p-4 flex justify-between flex-none">
                             <div class="cursor-pointer" @onclick="e => exploreSimilar(Selected)" @onclick:stopPropagation @onclick:preventDefault>
-                                <svg class="w-6 h-6 text-cyan-600 hover:text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+                                <svg class="h-6 w-6 text-cyan-600 hover:text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+                                    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
                                     <title>explore similar</title>
                                     <path d="m11.25 11.25l3 3"/><circle cx="7.5" cy="7.5" r="4.75"/></g>
                                 </svg>
@@ -274,11 +275,12 @@
         {
             <div @key=@a.Id @onclick=@(_ => navTo(Selected.Id, a.Id)) @onclick:stopPropagation @onclick:preventDefault
                 class="relative overflow-hidden cursor-pointer">
-                <div class="relative flex justify-center mr-4 mb-4">
-                    <ArtifactImage Artifact="a" MinSize="128" class=@ClassNames("rounded-xl border-2", ResolveBorderColor(a, Viewing?.Id, UserState)) />
+                <div class="relative flex justify-center mr-1 mb-1 sm:mr-4 sm:mb-4">
+                    <ArtifactImage Artifact="a" MinSize="128" class=@ClassNames("rounded sm:rounded-xl border-2 max-w-[108px] sm:max-w-none object-cover", 
+                        ResolveBorderColor(a, Viewing?.Id, UserState)) />
 
-                    <div class="absolute top-0 left-0 w-full h-full group select-none overflow-hidden rounded-xl">
-                        <div class="w-full h-full absolute inset-0 z-10 block text-zinc-100 drop-shadow pointer-events-none line-clamp px-2 pb-2 text-sm px-2 opacity-0 group-hover:opacity-40 transition duration-300 ease-in-out bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-700 via-gray-900 to-black"></div>
+                    <div class="absolute top-0 left-0 w-full h-full group select-none overflow-hidden rounded sm:rounded-xl">
+                        <div class="w-full h-full absolute inset-0 z-10 block text-zinc-100 drop-shadow pointer-events-none line-clamp sm:px-2 sm:pb-2 text-sm opacity-0 group-hover:opacity-40 transition duration-300 ease-in-out bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-700 via-gray-900 to-black"></div>
                     </div>
 
                 </div>
@@ -308,7 +310,7 @@
                 @if (albumCover != null)
                 {
                     <NavLink @key=album.AlbumRef href=@($"/?album={album.AlbumRef}&source={AppSource.InAlbum}") class="flex flex-col group mr-2">
-                        <div class=@ClassNames("mt-2 hover:opacity-80 cursor-pointer h-24 w-24 overflow-hidden rounded-lg border-2 border-transparent")>
+                        <div class=@ClassNames("mt-2 hover:opacity-80 cursor-pointer h-24 w-24 overflow-hidden rounded sm:rounded-lg border sm:border-2 border-transparent")>
                             <ArtifactImage Artifact=@albumCover class="flex w-full h-full" ImageClass="object-cover" />
                         </div>
                         <div class="w-24 text-xs text-center overflow-hidden group-hover:text-gray-200">

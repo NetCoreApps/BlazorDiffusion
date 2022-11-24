@@ -20,25 +20,25 @@ public class AppHost : AppHostBase, IHostingStartup
 {
     public AppHost() : base("Blazor Diffusion", typeof(MyServices).Assembly) { }
 
+    public const string LocalBaseUrl = "https://localhost:5001";
+
     public override void Configure(Container container)
     {
         SetConfig(new HostConfig {
             AddRedirectParamsToQueryString = true,
             UseSameSiteCookies = true,
         });
-        
+
         //Plugins.Add(new ProfilingFeature());
-
         var cdnUrl = Environment.GetEnvironmentVariable("DEPLOY_CDN");
-
-        var baseUrl = string.IsNullOrEmpty(cdnUrl)
-            ? "https://localhost:5001"
-            : cdnUrl;
+        var baseUrl = !string.IsNullOrEmpty(cdnUrl)
+            ? cdnUrl
+            : LocalBaseUrl;
 
         Plugins.Add(new CorsFeature(allowedHeaders: "Content-Type,Authorization",
             allowOriginWhitelist: new[]{
             "http://localhost:5000",
-            baseUrl,
+             baseUrl,
             "https://blazordiffusion.com",
             "https://pub-e17dff5b2d09437a97efdbb7f6ee3701.r2.dev", // CDN diffusion-client public bucket
         }, allowCredentials: true));

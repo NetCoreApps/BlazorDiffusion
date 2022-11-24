@@ -2,7 +2,7 @@
 @inject ServiceStackStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 
-<div class="overflow-hidden absolute w-full left-0 -mt-6" style="z-index:-1">
+<div class=@ClassNames("overflow-hidden absolute w-full left-0 -mt-6", @class) style="z-index:-1">
     <div class="py-8 sm:px-2 lg:relative lg:px-0">
         <div class="mx-auto">
             <div class="relative z-10  flex justify-center">
@@ -26,10 +26,10 @@
             <div class="relative z-10 flex justify-center">
                 <div class="relative">
                     <p class="inline bg-gradient-to-r from-indigo-200 via-sky-400 to-indigo-200 bg-clip-text font-display text-5xl tracking-tight text-transparent">Blazor Diffusion</p>
-                    <p class="mt-3 text-2xl tracking-tight text-slate-400">
+                    <p class="mt-3 text-2xl tracking-tight text-slate-400 text-center">
                         Stable Diffusion Image Search
                     </p>
-                    <div class="mt-8 flex gap-4 justify-center">
+                    <div class="mt-4 sm:mt-8 flex gap-2 sm:gap-4 justify-center">
                         @if (Page == AppPage.Search)
                         {
                             <PrimaryButton @onclick="navToSearch" class="!rounded-full py-2 px-4" Style="ButtonStyle.Sky">Search</PrimaryButton>
@@ -68,6 +68,7 @@
 {
     [Parameter, EditorRequired] public RenderFragment? ChildContent { get; set; }
     [Parameter, EditorRequired] public AppPage Page { get; set; }
+    [Parameter] public string? @class { get; set; }
 
     void navToSearch() => NavigationManager.NavigateTo("/");
     void navToCreate() => NavigationManager.NavigateTo("/create");

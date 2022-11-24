@@ -90,10 +90,7 @@ public partial class Create : AppAuthComponentBase, IDisposable
             ?.Items.First(x => !string.IsNullOrEmpty(x));
     }
 
-    void selectCategory(string category)
-    {
-        selectedCategory = category;
-    }
+    void selectCategory(string category) => selectedCategory = category;
 
     protected override async Task OnInitializedAsync()
     {
@@ -110,7 +107,7 @@ public partial class Create : AppAuthComponentBase, IDisposable
         SetTitle("Generate Image");
     }
 
-    Creative? creative;
+    Creative? Creative;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -125,23 +122,23 @@ public partial class Create : AppAuthComponentBase, IDisposable
 
         if (Id != null)
         {
-            creative = await UserState.GetCreativeAsync(Id);
-            log("\nCREATIVE {0}: {1}", creative?.Id, creative?.UserPrompt);
-            if (creative != null)
+            Creative = await UserState.GetCreativeAsync(Id);
+            log("\nCREATIVE {0}: {1}", Creative?.Id, Creative?.UserPrompt);
+            if (Creative != null)
             {
-                request.UserPrompt = creative.UserPrompt;
-                imageSize = creative.Height > creative.Width
+                request.UserPrompt = Creative.UserPrompt;
+                imageSize = Creative.Height > Creative.Width
                     ? ImageSize.Portrait
-                    : creative.Width > creative.Height
+                    : Creative.Width > Creative.Height
                         ? ImageSize.Landscape
                         : ImageSize.Square;
 
-                var artistIds = creative.Artists?.OrderBy(x => x.Id).Select(x => x.ArtistId).ToList() ?? new();
+                var artistIds = Creative.Artists?.OrderBy(x => x.Id).Select(x => x.ArtistId).ToList() ?? new();
                 artists = ArtistOptions?.Count > 0 && artistIds.Count > 0
                     ? artistIds.Select(x => ArtistOptions.FirstOrDefault(m => m.Id == x)).Where(x => x != null).Cast<ArtistInfo>().ToList()
                     : new();
 
-                var modifierIds = creative.Modifiers?.OrderBy(x => x.Id).Select(x => x.ModifierId).ToList() ?? new();
+                var modifierIds = Creative.Modifiers?.OrderBy(x => x.Id).Select(x => x.ModifierId).ToList() ?? new();
                 modifiers = ModifierOptions?.Count > 0 && modifierIds.Count > 0
                     ? modifierIds.Select(x => ModifierOptions.FirstOrDefault(m => m.Id == x)).Where(x => x != null).Cast<ModifierInfo>().ToList()
                     : new();
@@ -169,11 +166,11 @@ public partial class Create : AppAuthComponentBase, IDisposable
         if (User != null)
         {
             var userId = User.GetUserId().ToInt();
-            var apiHistory = await ApiAsync(new QueryCreatives
+            var apiHistory = await base.ApiAsync<QueryResponse<Creative>>(new QueryCreatives
             {
                 OwnerId = userId,
                 Take = 28,
-                OrderByDesc = nameof(Creative.Id),
+                OrderByDesc = nameof(ServiceModel.Creative.Id),
             });
             if (apiHistory.Succeeded)
             {
@@ -206,29 +203,29 @@ public partial class Create : AppAuthComponentBase, IDisposable
         api.ClearErrors();
         api.IsLoading = true;
         api = await ApiAsync(request);
-        creative = api.Response?.Result;
+        Creative = api.Response?.Result;
 
         await loadHistory();
     }
 
     async Task pinArtifact(Artifact artifact)
     {
-        var hold = creative!.PrimaryArtifactId;
-        creative.PrimaryArtifactId = artifact.Id;
+        var hold = Creative!.PrimaryArtifactId;
+        Creative.PrimaryArtifactId = artifact.Id;
         StateHasChanged();
 
         var api = await ApiAsync(new UpdateCreative { Id = artifact.CreativeId, PrimaryArtifactId = artifact.Id });
         if (!api.Succeeded)
         {
-            creative.PrimaryArtifactId = hold;
+            Creative.PrimaryArtifactId = hold;
         }
         StateHasChanged();
     }
 
     async Task unpinArtifact(Artifact artifact)
     {
-        var hold = creative!.PrimaryArtifactId;
-        creative.PrimaryArtifactId = null;
+        var hold = Creative!.PrimaryArtifactId;
+        Creative.PrimaryArtifactId = null;
         StateHasChanged();
 
         var api = await ApiAsync(new UpdateCreative { 
@@ -238,32 +235,32 @@ public partial class Create : AppAuthComponentBase, IDisposable
         });
         if (!api.Succeeded)
         {
-            creative.PrimaryArtifactId = hold;
+            Creative.PrimaryArtifactId = hold;
         }
         StateHasChanged();
     }
 
     async Task softDelete()
     {
-        if (creative == null) return;
+        if (Creative == null) return;
         var api = await ApiAsync(new DeleteCreative
         {
-            Id = creative.Id,
+            Id = Creative.Id,
         });
         if (api.Succeeded)
         {
-            this.creative = null;
+            this.Creative = null;
             navTo();
         }
     }
 
     async Task hardDelete()
     {
-        if (creative == null) return;
-        var api = await UserState.HardDeleteCreativeAsync(creative);
+        if (Creative == null) return;
+        var api = await UserState.HardDeleteCreativeAsync(Creative);
         if (api.Succeeded)
         {
-            this.creative = null;
+            this.Creative = null;
             navTo();
         }
     }
@@ -343,9 +340,9 @@ public partial class Create : AppAuthComponentBase, IDisposable
 
                 case KeyCodes.ArrowLeft:
                 case KeyCodes.ArrowRight:
-                    if (creative != null)
+                    if (Creative != null)
                     {
-                        var artifacts = creative.GetArtifacts();
+                        var artifacts = Creative.GetArtifacts();
                         if (View == null)
                         {
                             if (key == KeyCodes.ArrowRight)

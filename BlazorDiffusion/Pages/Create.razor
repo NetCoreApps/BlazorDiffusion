@@ -3,11 +3,11 @@
 @inherits AppAuthComponentBase
 
 <Home Page="AppPage.Create">
-    <form class="mt-4 mx-auto shadow overflow-hidden sm:rounded-md w-[450px] sm:w-[600px]" @onsubmit="noop" @onsubmit:preventDefault>
+    <form class="mt-4 mx-auto shadow overflow-hidden sm:rounded-md w-[420px] sm:w-[600px]" @onsubmit="noop" @onsubmit:preventDefault>
     <CascadingValue Value=@api.Error>
         <ErrorSummary Except=@VisibleFields />
 
-        <div class="px-4 space-y-6 sm:p-6">
+        <div class="px-4 space-y-6 p-2 sm:p-6">
             <div class="flex justify-center">
                 <div @onclick="_ => selectImageSize(ImageSize.Square)" class=@CssUtils.ClassNames("mr-4 flex flex-col items-center hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer", imageSize == ImageSize.Square ? "text-gray-900 dark:text-gray-100" : "text-gray-400")>
                     <svg class="w-12 h-12" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" viewBox="0 0 48 48"><path fill="currentColor" fill-rule="evenodd" d="M14 14v20h20V14H14Zm-1-2a1 1 0 0 0-1 1v22a1 1 0 0 0 1 1h22a1 1 0 0 0 1-1V13a1 1 0 0 0-1-1H13Z" clip-rule="evenodd" /></svg>
@@ -26,7 +26,7 @@
 
         @if (DataCache != null)
         {
-            <div class="mx-auto w-[440px]">
+            <div class="mx-auto w-[420px]">
                 <Autocomplete Id="ArtistIds" Options="ArtistOptions" Multiple=true @bind-Values="artists" placeholder="Select Artist Style" @onclick="CloseDialogsAsync"
                     Match="(x, value) => X.Map(value.Trim(), v => 
                             x.Name.Contains(v, StringComparison.OrdinalIgnoreCase) ||
@@ -57,7 +57,7 @@
                 </div>
             }
 
-            <div class="mt-8 mx-auto w-[440px]">
+            <div class="mt-8 mx-auto w-[420px]">
                 <Autocomplete Id="ModifierIds" Options="ModifierOptions" Multiple=true @bind-Values="modifiers" placeholder="Select Modifiers" @onclick="CloseDialogsAsync"
                     Match="(x, value) => X.Map(value.IndexOf('-') >= 0 ? value.Trim().Replace('-',' ') : value.Trim(), v => 
                                          x.Name.Contains(v, StringComparison.OrdinalIgnoreCase) ||
@@ -91,7 +91,8 @@
             <div class="mt-8">
                 <div class="sm:hidden">
                     <label for="groups" class="sr-only">Select a tab</label>
-                    <select id="groups" name="tabs" class="block w-full dark:bg-black rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" onchange="addModifier">
+                    <select id="groups" name="tabs" class="block w-full dark:bg-black rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                            @onchange="e => selectGroup(e.Value!.ToString())">
                     @foreach (var group in AppData.CategoryGroups)
                     {
                         <option @key=@group.Name>@group.Name</option>
@@ -168,14 +169,14 @@
                 <Loading class="text-gray-300 font-normal" ImageClass="w-7 h-7 mt-1.5" Message="generating images..." />
             </div>
         }
-        else if (creative != null)
+        else if (Creative != null)
         {
             <div class="flex flex-wrap flex justify-evenly">
-            @foreach (var artifact in creative.GetArtifacts())
+            @foreach (var artifact in Creative.GetArtifacts())
             {
-                var isPrimary = artifact.Id == creative.PrimaryArtifactId;
-                <NavLink href=@($"/create?id={creative.Id}&view={artifact.Id}") class="overflow-hidden">
-                    <div class="relative p-2 flex flex-col cursor-pointer w-60 sm:w-80"
+                var isPrimary = artifact.Id == Creative.PrimaryArtifactId;
+                <NavLink href=@($"/create?id={Creative.Id}&view={artifact.Id}") class="overflow-hidden">
+                    <div class="relative p-2 flex flex-col cursor-pointer w-40 sm:w-80"
                         @oncontextmenu="e => showArtifactMenu(e, artifact)" @oncontextmenu:preventDefault>
                         <ArtifactImage Artifact="artifact" class=@ClassNames("rounded-xl border-2", 
                             isPrimary ? "border-yellow-500" : artifact.GetBorderColor(View, UserState)) />
@@ -317,34 +318,36 @@
     </div>
 }
 
-@if (View != null && creative != null)
+@if (View != null && Creative != null)
 {
-    var artifact = creative.Artifacts?.FirstOrDefault(x => x.Id == View);
+    var artifact = Creative.Artifacts?.FirstOrDefault(x => x.Id == View);
     if (artifact != null)
     {
-        <SlideOver @ref="SlideOver" Done=@(() => NavigationManager.NavigateTo($"/create?id={creative.Id}"))
+        <SlideOver @ref="SlideOver" Done=@(() => NavigationManager.NavigateTo($"/create?id={Creative.Id}"))
                    ShowTitlebar="false" ShowFooter="false">
 
             <div class=@CssDefaults.SlideOver.TitlebarClass>
-                <div class="flex items-start justify-between space-x-3">
+                <div class="flex items-start justify-between space-x-1 sm:space-x-3">
                     <div class="space-y-1">
-                        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-200">@creative.UserPrompt</h2>
+                        <h2 class="sm:text-lg font-medium text-gray-900 dark:text-gray-200">@Creative.UserPrompt</h2>
                         <div class="mt-1">
-                            <p class="text-sm text-gray-500">
-                                @{ var i = 0; }
-                                @foreach (var modifier in creative.ModifierNames)
+                            <p class="text-xs sm:text-sm text-gray-500">
+                                @{
+                                    var i = 0;
+                                }
+                                @foreach (var modifier in Creative.ModifierNames)
                                 {
                                     @(i++ > 0 ? ", " : "")
-                                    <NavLink class="text-gray-400 hover:text-gray-200" href=@($"/?modifier={modifier}")>@modifier</NavLink>
+                                    <NavLink @key=modifier class="text-gray-400 hover:text-gray-200" href=@($"/?modifier={modifier}")>@modifier</NavLink>
                                 }
-                                @if (creative.ArtistNames.Count > 0)
+                                @if (Creative.ArtistNames.Count > 0)
                                 {
                                     i = 0;
                                     <span class="px-2 text-gray-300">by</span>
-                                    @foreach (var artist in creative.ArtistNames)
+                                    @foreach (var artist in Creative.ArtistNames)
                                     {
                                         @(i++ > 0 ? ", " : "")
-                                        <NavLink class="text-gray-400 hover:text-gray-200" href=@($"/?artist={artist.Replace(' ',',')}")>@artist</NavLink>
+                                        <NavLink @key=artist class="text-gray-400 hover:text-gray-200" href=@($"/?artist={artist.Replace(' ',',')}")>@artist</NavLink>
                                     }
                                 }
                             </p>
@@ -375,7 +378,7 @@
 
                                 <div class="p-4 flex justify-between flex-none">
                                     <div class="cursor-pointer" @onclick:stopPropagation @onclick:preventDefault>
-                                    @if (View == creative.PrimaryArtifactId)
+                                    @if (View == Creative.PrimaryArtifactId)
                                     {
                                         <svg @onclick="_ => unpinArtifact(artifact)" @onclick:stopPropagation @onclick:preventDefault
                                                 class="ml-2 w-6 h-6 text-cyan-600 hover:text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
@@ -438,17 +441,18 @@
             </div>
             
             <div class="flex flex-wrap justify-center">
-            @foreach (var artifact in creative.GetArtifacts())
+            @foreach (var artifact in Creative.GetArtifacts())
             {
-                var isPrimary = artifact.Id == creative.PrimaryArtifactId;
+                var isPrimary = artifact.Id == Creative.PrimaryArtifactId;
 
-                <NavLink @key=@artifact.Id href=@($"/create?id={creative.Id}&view={artifact.Id}") class="relative overflow-hidden">
-                    <div class="relative flex justify-center mr-4 mb-4">
-                        <ArtifactImage Artifact="artifact" MinSize="128"
-                            class=@ClassNames("rounded-xl border-2", isPrimary ? "border-yellow-500" : artifact.GetBorderColor(View, UserState)) />
+                <NavLink @key=@artifact.Id href=@($"/create?id={Creative.Id}&view={artifact.Id}") class="relative overflow-hidden">
+                    <div class="relative flex justify-center mr-1 mb-1 sm:mr-4 sm:mb-4">
+                        <ArtifactImage Artifact="artifact" MinSize="128" 
+                            class=@ClassNames("rounded sm:rounded-xl border-2 max-w-[108px] sm:max-w-none object-cover", 
+                                isPrimary ? "border-yellow-500" : artifact.GetBorderColor(View, UserState)) />
 
-                        <div class="absolute top-0 left-0 w-full h-full group select-none overflow-hidden rounded-xl">
-                            <div class="w-full h-full absolute inset-0 z-10 block text-zinc-100 drop-shadow pointer-events-none line-clamp px-2 pb-2 text-sm px-2 opacity-0 group-hover:opacity-40 transition duration-300 ease-in-out bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-700 via-gray-900 to-black"></div>
+                        <div class="absolute top-0 left-0 w-full h-full group select-none overflow-hidden rounded sm:rounded-xl">
+                            <div class="w-full h-full absolute inset-0 z-10 block text-zinc-100 drop-shadow pointer-events-none line-clamp sm:px-2 sm:pb-2 text-sm opacity-0 group-hover:opacity-40 transition duration-300 ease-in-out bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-700 via-gray-900 to-black"></div>
                         </div>
 
                     </div>
