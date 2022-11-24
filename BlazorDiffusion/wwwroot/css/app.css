@@ -4034,6 +4034,10 @@ input[data-autocompleted] {
     margin-top: -2rem;
   }
 
+  .sm\:-mt-6 {
+    margin-top: -1.5rem;
+  }
+
   .sm\:block {
     display: block;
   }
