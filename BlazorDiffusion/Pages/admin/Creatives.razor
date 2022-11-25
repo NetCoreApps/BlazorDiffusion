@@ -12,7 +12,6 @@
 
 <Tabs TabOptions="TabOptions" TabChanged="TabChanged" />
 
-
 <AutoQueryGrid Model="Creative" Apis="Apis.AutoQuery<QueryCreatives, UpdateCreative, HardDeleteCreative>()"
                @ref="autoQueryGrid"
                RowSelected="RowSelected"
@@ -32,7 +31,6 @@
                 </div>
             </div>
         }
-
     </EditForm>
     <Columns>
         <Column Title="User" Field="(Creative x) => x.OwnerId"/>
@@ -82,8 +80,8 @@
     [Parameter, SupplyParameterFromQuery]
     public string? Edit { get; set; }
 
-    public Creative reviewItem = null;
-    AutoQueryGrid<Creative> autoQueryGrid;
+    public Creative? reviewItem = null;
+    AutoQueryGrid<Creative> autoQueryGrid = default!;
 
     public string? Tab { get; set; }
     public Dictionary<string, string> TabOptions = new()
