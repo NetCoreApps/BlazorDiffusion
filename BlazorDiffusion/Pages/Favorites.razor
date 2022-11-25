@@ -64,10 +64,10 @@
         <div class="flex-grow mt-2">
             @if (SelectedAlbum != null)
             {
-                <ArtifactGallery Results=@GalleryResults ResolveBorderColor="GetBorderColor" Change="OnGalleryChange">
+                <ArtifactGallery Results=@GalleryResults ResolveBorderColor="GetBorderColor" Change="OnGalleryChange" ColumnsSliderClass="-ml-16">
                     <LeftHeader>
-                        <div class="w-full sm:w-1/3 sm:pl-2 sm:-mr-20 flex justify-center sm:justify-start items-center whitespace-nowrap">
-                            <AlbumTitle Album=@SelectedAlbum />
+                        <div class="w-full sm:w-1/3 sm:pl-2 flex justify-center sm:justify-start items-center whitespace-nowrap">
+                            <AlbumTitle class="-ml-16 sm:ml-0" Album=@SelectedAlbum />
                         </div>
                     </LeftHeader>
                     <TopRightIcon>
@@ -108,10 +108,10 @@
             }
             else
             {
-                <ArtifactGallery Results=@GalleryResults ResolveBorderColor="GetBorderColor" Change="OnGalleryChange">
+                <ArtifactGallery Results=@GalleryResults ResolveBorderColor="GetBorderColor" Change="OnGalleryChange" ColumnsSliderClass="-ml-16">
                     <LeftHeader>
-                        <div class="w-full sm:w-1/3 sm:pl-2 sm:-mr-20 flex justify-center sm:justify-start items-center whitespace-nowrap">
-                            <div class="text-xl">Likes</div>
+                        <div class="w-full sm:w-1/3 sm:pl-2 flex justify-center sm:justify-start items-center whitespace-nowrap">
+                            <div class="text-xl -ml-16 sm:ml-0">Likes</div>
                         </div>
                     </LeftHeader>
                     <RightHeader>

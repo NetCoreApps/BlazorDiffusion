@@ -1320,6 +1320,26 @@ input[data-autocompleted] {
   margin-right: 0.75rem;
 }
 
+.-mr-20 {
+  margin-right: -5rem;
+}
+
+.-ml-20 {
+  margin-left: -5rem;
+}
+
+.-ml-8 {
+  margin-left: -2rem;
+}
+
+.-ml-12 {
+  margin-left: -3rem;
+}
+
+.-ml-16 {
+  margin-left: -4rem;
+}
+
 .block {
   display: block;
 }
@@ -2522,6 +2542,18 @@ input[data-autocompleted] {
 
 .pt-1\.5 {
   padding-top: 0.375rem;
+}
+
+.pl-8 {
+  padding-left: 2rem;
+}
+
+.pl-12 {
+  padding-left: 3rem;
+}
+
+.pl-16 {
+  padding-left: 4rem;
 }
 
 .text-left {
@@ -3996,6 +4028,22 @@ input[data-autocompleted] {
     margin-bottom: 0.25rem;
   }
 
+  .sm\:-ml-20 {
+    margin-left: -5rem;
+  }
+
+  .sm\:-ml-8 {
+    margin-left: -2rem;
+  }
+
+  .sm\:-ml-0 {
+    margin-left: -0px;
+  }
+
+  .sm\:ml-0 {
+    margin-left: 0px;
+  }
+
   .sm\:block {
     display: block;
   }
@@ -4194,6 +4242,11 @@ input[data-autocompleted] {
   .sm\:py-16 {
     padding-top: 4rem;
     padding-bottom: 4rem;
+  }
+
+  .sm\:py-2 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
   }
 
   .sm\:pl-6 {

@@ -2,7 +2,7 @@
 
 @if (Album != null)
 {
-    <div class="flex">
+    <div class=@ClassNames("flex", @class)>
         <div class="text-xl">@Album.Name</div>
         <div class="pl-4">
             @if (UserState.HasLiked(Album))
@@ -27,6 +27,7 @@
 
 @code {
     [Parameter, EditorRequired] public AlbumResult? Album { get; set; }
+    [Parameter] public string? @class { get; set; }
 
     async Task LikeAlbumAsync()
     {
