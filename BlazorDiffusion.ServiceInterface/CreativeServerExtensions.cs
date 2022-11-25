@@ -50,10 +50,12 @@ public static class CreativeServerExtensions
     public static string ConstructPrompt(this string userPrompt, List<Modifier> modifiers, List<Artist> artists)
     {
         var finalPrompt = userPrompt;
-        finalPrompt += $", {modifiers.Select(x => x.Name).Join(",").TrimEnd(',')}";
-        var artistsSuffix = artists.Select(x => $"by {x.FirstName} {x.LastName}").Join(",").TrimEnd(',');
+        if (modifiers.Count > 0)
+            finalPrompt += ", " + modifiers.Select(x => x.Name).Join(", ");
+
+        var artistsSuffix = artists.Select(x => x.GetArtistName()).Join(", ");
         if (artists.Count > 0)
-            finalPrompt += $", {artistsSuffix}";
+            finalPrompt += $", by {artistsSuffix}";
         return finalPrompt;
     }
 
