@@ -62,11 +62,11 @@
                     <div class="space-y-6 pt-6 pb-5">
 
                         <fieldset class="grid grid-cols-12 gap-6">
-                            <div class="col-span-12 xl:col-span-6 flex items-center">
-                                <CheckboxInput @bind-Value="Artifact.Nsfw" Label="NSFW" />
-                            </div>
                             <div class="col-span-12 xl:col-span-6">
                                 <SelectInput @bind-Value="Quality" Entries="options" />
+                            </div>
+                            <div class="col-span-12 xl:col-span-6 flex items-center">
+                                <CheckboxInput @bind-Value="Artifact.Nsfw" Label="NSFW" />
                             </div>
                             <div class="col-span-12">
                                 <img src="https://cdn.diffusion.works@(Artifact.FilePath)" alt="" class="object-cover">
