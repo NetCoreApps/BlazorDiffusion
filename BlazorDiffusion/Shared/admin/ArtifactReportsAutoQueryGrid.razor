@@ -5,36 +5,32 @@
                @ref="autoQueryGrid"
                RowSelected="RowSelected">
     <EditForm>
-        @if (reviewItem != null)
-        {
-            <div class="relative z-10" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+    @if (reviewItem != null)
+    {
+        <div class="relative z-10" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+            <div class="">
                 <div class="">
-                    <div class="">
-                        <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
-                            <ArtifactEdit Artifact="reviewItem.Artifact" OnClose="Close"
-                                          OnSave="Save"
-                                          EditPanelCss=@editPanelClass>
-                                <div class="flex flex-1 flex-col justify-between">
-                                    <div class="divide-y divide-gray-200 px-4 sm:px-6">
-                                        <div class="space-y-6 pt-6 pb-5">
-                                            <h2>Artifact Report Info (@reviewItem.Type)</h2>
-                                            <div>
-                                                <TextInput @bind-Value="reviewItem.AppUserId" disabled />
-                                            </div>
-                                            <div>
-                                                <TextInput @bind-Value="reviewItem.Description" disabled />
-                                            </div>
+                    <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
+                        <ArtifactEdit Artifact="reviewItem.Artifact" OnClose="Close" OnSave="Save" EditPanelClass=@editPanelClass>
+                            <div class="flex flex-1 flex-col justify-between">
+                                <div class="divide-y divide-gray-200 px-4 sm:px-6">
+                                    <div class="space-y-6 pt-6 pb-5">
+                                        <h2>Artifact Report Info (@reviewItem.Type)</h2>
+                                        <div>
+                                            <TextInput @bind-Value="reviewItem.AppUserId" disabled />
+                                        </div>
+                                        <div>
+                                            <TextInput @bind-Value="reviewItem.Description" disabled />
                                         </div>
                                     </div>
                                 </div>
-
-                            </ArtifactEdit>
-                        </div>
+                            </div>
+                        </ArtifactEdit>
                     </div>
                 </div>
             </div>
-        }
-
+        </div>
+    }
     </EditForm>
     <Columns>
         <Column Title="Artifact" Field="(ArtifactReport x) => x.ArtifactId">
@@ -55,30 +51,24 @@
 </AutoQueryGrid>
 
 @code {
-    AutoQueryGrid<ArtifactReport> autoQueryGrid;
-    public ArtifactReport reviewItem = null;
+    AutoQueryGrid<ArtifactReport>? autoQueryGrid;
+    public ArtifactReport? reviewItem = null;
 
     string editPanelClass = "show";
 
-    string Truncate(string prompt)
-    {
-        return prompt.Length < 100 ? prompt :
-            prompt[..100] + "...";
-    }
-
-    async Task NavigateToArtifact(int artifactId)
+    void NavigateToArtifact(int artifactId)
     {
         NavigationManager.NavigateTo($"/admin/artifacts?id={artifactId}&tab=All");
     }
 
-    async Task RowSelected(ArtifactReport item)
+    void RowSelected(ArtifactReport item)
     {
         reviewItem = item;
         editPanelClass = "show";
         StateHasChanged();
     }
 
-    async Task Close()
+    void Close()
     {
         editPanelClass = "hidden";
         reviewItem = null;
@@ -88,11 +78,10 @@
     {
         var request = new DeleteArtifactReport
         {
-            ArtifactId = reviewItem.ArtifactId
+            ArtifactId = reviewItem!.ArtifactId
         };
-        var emptyResponse = await ApiAsync(request);
-
-        await autoQueryGrid.RefreshAsync();
+        var api = await ApiAsync(request);
+        await autoQueryGrid!.RefreshAsync();
     }
 
 }

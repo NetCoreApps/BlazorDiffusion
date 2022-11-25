@@ -10,12 +10,10 @@
     </Breadcrumb>
 </Breadcrumbs>
 
-<Tabs TabOptions="TabOptions" TabChanged="TabChanged" />
+<Tabs TabOptions="TabOptions" TabChanged="TabChangedAsync" />
 
-<AutoQueryGrid Model="Creative" Apis="Apis.AutoQuery<QueryCreatives, UpdateCreative, HardDeleteCreative>()"
-               @ref="autoQueryGrid"
-               RowSelected="RowSelected"
-               ConfigureQuery="ConfigureQuery">
+<AutoQueryGrid @ref=@grid Model="Creative" Apis="Apis.AutoQuery<QueryCreatives, UpdateCreative, HardDeleteCreative>()"
+               RowSelected="RowSelected" ConfigureQuery="ConfigureQuery">
     <EditForm>
         @if (reviewItem != null)
         {
@@ -23,9 +21,8 @@
                 <div class="">
                     <div class="">
                         <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
-                            <CreativeEdit Creative="reviewItem" OnClose="Close" 
-                                OnDelete="Delete" OnSave="Save"
-                                EditPanelCss=@editPanelClass></CreativeEdit>
+                            <CreativeEdit Creative="reviewItem" OnClose="Close" OnDelete="DeleteAsync" OnSave="SaveAsync"
+                                          EditPanelClass=@EditPanelClass />
                         </div>
                     </div>
                 </div>
@@ -33,14 +30,14 @@
         }
     </EditForm>
     <Columns>
-        <Column Title="User" Field="(Creative x) => x.OwnerId"/>
-        <Column Title="Id" Field="(Creative x) => x.Id"/>
+        <Column Title="User" Field="(Creative x) => x.OwnerId" />
+        <Column Title="Id" Field="(Creative x) => x.Id" />
         <Column Field="(Creative x) => x.Modifiers">
             <Template>
                 @if (context.Modifiers?.Count > 0)
                 {
                     <TextLink class="flex" href=@($"/admin/modifiers?Ids={string.Join(",", context.Modifiers.Select(x => x.ModifierId))}")>
-                        <Icon class="w-6 h-6 mr-1" Image=@typeof(Modifier).GetIcon()/>
+                        <Icon class="w-6 h-6 mr-1" Image=@typeof(Modifier).GetIcon() />
                         @TextUtils.Pluralize("Modifier", context.Modifiers)
                     </TextLink>
                 }
@@ -51,7 +48,7 @@
                 @if (context.Artists?.Count > 0)
                 {
                     <TextLink class="flex" href=@($"/admin/artists?Ids={string.Join(",", context.Artists.Select(x => x.ArtistId))}")>
-                        <Icon class="w-6 h-6 mr-1" Image=@typeof(Artist).GetIcon()/>
+                        <Icon class="w-6 h-6 mr-1" Image=@typeof(Artist).GetIcon() />
                         @TextUtils.Pluralize("Artist", context.Artists)
                     </TextLink>
                 }
@@ -62,15 +59,15 @@
                 @if (context.Artifacts?.Count > 0)
                 {
                     <TextLink class="flex" href=@($"/admin/artifacts?CreativeId={context.Id}")>
-                        <Icon class="w-6 h-6 mr-1" Image=@typeof(Artifact).GetIcon()/>
+                        <Icon class="w-6 h-6 mr-1" Image=@typeof(Artifact).GetIcon() />
                         @TextUtils.Pluralize("Artifact", context.Artifacts)
                     </TextLink>
                 }
             </Template>
         </Column>
-        <Column Field="(Creative x) => x.Key"/>
-        <Column Field="(Creative x) => x.CreatedDate" Format="s"/>
-        <Column Field="(Creative x) => x.UserPrompt"/>
+        <Column Field="(Creative x) => x.Key" />
+        <Column Field="(Creative x) => x.CreatedDate" Format="s" />
+        <Column Field="(Creative x) => x.UserPrompt" />
     </Columns>
 </AutoQueryGrid>
 
@@ -81,20 +78,21 @@
     public string? Edit { get; set; }
 
     public Creative? reviewItem = null;
-    AutoQueryGrid<Creative> autoQueryGrid = default!;
+    AutoQueryGrid<Creative>? grid;
 
     public string? Tab { get; set; }
+    
     public Dictionary<string, string> TabOptions = new()
     {
         {"All","All"},
         {"MissingPrimaryArtifact","Missing Primary Artifact"}
     };
 
-    string editPanelClass = "show";
+    string EditPanelClass { get; set; } = "show";
 
     void ConfigureQuery(QueryBase query)
     {
-        switch(Tab)
+        switch (Tab)
         {
             case "MissingPrimaryArtifact":
                 query.AddQueryParam("PrimaryArtifactId", "");
@@ -104,32 +102,26 @@
         }
     }
 
-    async Task TabChanged(string tab)
+    async Task TabChangedAsync(string tab)
     {
         Tab = tab;
-        if(autoQueryGrid != null)
-            await autoQueryGrid.RefreshAsync();
+        if (grid != null)
+            await grid.RefreshAsync();
     }
 
-    async Task RowSelected(Creative item)
+    void RowSelected(Creative item)
     {
         reviewItem = item;
-        editPanelClass = "show";
+        EditPanelClass = "show";
     }
 
-    async Task Close()
+    void Close()
     {
-        editPanelClass = "hidden";
+        EditPanelClass = "hidden";
         reviewItem = null;
     }
 
-    async Task Save()
-    {
-        await autoQueryGrid.RefreshAsync();
-    }
+    async Task SaveAsync() => await grid!.RefreshAsync();
 
-    async Task Delete()
-    {
-        await autoQueryGrid.RefreshAsync();
-    }
+    async Task DeleteAsync() => await grid!.RefreshAsync();
 }

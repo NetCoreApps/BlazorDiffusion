@@ -1,5 +1,5 @@
 ﻿<AutoQueryGrid Model="Artifact" Apis="Apis.AutoQuery<QueryArtifacts,UpdateArtifact>()"
-               @ref="autoQueryGrid"
+               @ref=@autoQueryGrid
                RowSelected="RowSelected">
     <EditForm>
         @if (reviewItem != null)
@@ -8,35 +8,34 @@
                 <div class="">
                     <div class="">
                         <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
-                            <ArtifactEdit Artifact="reviewItem" OnClose="Close" 
+                            <ArtifactEdit Artifact="reviewItem" OnClose="Close"
                                 OnDelete="Delete" OnSave="Save"
-                                EditPanelCss=@editPanelClass></ArtifactEdit>
+                                EditPanelClass=@editPanelClass />
                         </div>
                     </div>
                 </div>
             </div>
         }
-
     </EditForm>
     <Columns>
         <Column Title="Creative" Field="(Artifact x) => x.CreativeId">
             <Template>
-                 <TextLink class="flex" href=@($"/admin/creatives?Id={context.CreativeId}")>
-                        <Icon class="w-6 h-6 mr-1" Image=@typeof(Creative).GetIcon()/>
-                        @context.CreativeId
-                    </TextLink>
+                <TextLink class="flex" href=@($"/admin/creatives?Id={context.CreativeId}")>
+                    <Icon class="w-6 h-6 mr-1" Image=@typeof(Creative).GetIcon() />
+                    @context.CreativeId
+                </TextLink>
             </Template>
         </Column>
-        <Column Title="Id" Field="(Artifact x) => x.Id"/>
+        <Column Title="Id" Field="(Artifact x) => x.Id" />
         <Column Field="(Artifact x) => x.FilePath">
             <Template>
-                <img class="h-20 w-20 object-cover" src="https://cdn.diffusion.works@(context.FilePath)" alt=@context.FileName />
+                <img class="h-20 w-20 object-cover" src="https://cdn.diffusion.works@(context.FilePath)" alt=@context.FileName>
             </Template>
         </Column>
-        <Column Field="(Artifact x) => x.CreatedDate" Format="s"/>
+        <Column Field="(Artifact x) => x.CreatedDate" Format="s" />
         <Column Field="(Artifact x) => x.Prompt">
             <Template>
-                @Truncate(context.Prompt)
+                @context.Prompt.SubstringWithEllipsis(0,100)
             </Template>
         </Column>
         <Column Field="(Artifact x) => x.Width" Title="Dimensions">
@@ -48,16 +47,10 @@
 </AutoQueryGrid>
 
 @code {
-     AutoQueryGrid<Artifact> autoQueryGrid;
-    public Artifact reviewItem = null;
+    AutoQueryGrid<Artifact>? autoQueryGrid;
+    public Artifact? reviewItem;
 
     string editPanelClass = "show";
-
-    string Truncate(string prompt)
-    {
-        return prompt.Length < 100 ? prompt :
-            prompt[..100] + "...";
-    }
 
     string ImageSizeDescription(Artifact artifact)
     {
@@ -68,14 +61,14 @@
         return "Portrait";
     }
 
-    async Task RowSelected(Artifact item)
+    void RowSelected(Artifact item)
     {
         reviewItem = item;
         editPanelClass = "show";
         StateHasChanged();
     }
 
-    async Task Close()
+    void Close()
     {
         editPanelClass = "hidden";
         reviewItem = null;
@@ -83,11 +76,11 @@
 
     async Task Save()
     {
-        await autoQueryGrid.RefreshAsync();
+        await autoQueryGrid!.RefreshAsync();
     }
 
     async Task Delete()
     {
-        await autoQueryGrid.RefreshAsync();
+        await autoQueryGrid!.RefreshAsync();
     }
 }

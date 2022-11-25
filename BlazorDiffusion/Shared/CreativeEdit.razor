@@ -1,7 +1,7 @@
 ﻿@inherits AuthBlazorComponentBase
 @inject NavigationManager NavigationManager
 
-<div class="@CssDefaults.Form.PanelClass @CssDefaults.Form.SlideOverTransition @EditPanelCss">
+<div class="@CssDefaults.Form.PanelClass @CssDefaults.Form.SlideOverTransition @EditPanelClass">
     <form class=@CssDefaults.Form.FormClass @onsubmit="Save" @onsubmit:preventDefault>
         <!-- Header -->
         <div class="h-0 flex-1 overflow-y-auto">
@@ -82,7 +82,7 @@
     public EventCallback OnDelete { get; set; }
 
     [Parameter]
-    public string EditPanelCss { get; set; }
+    public string EditPanelClass { get; set; }
 
     ApiResult<Creative> apiResult = null;
     ApiResult<EmptyResponse> deleteResult = null;

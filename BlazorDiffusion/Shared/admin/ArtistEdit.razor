@@ -2,10 +2,10 @@
 
 @inject NavigationManager NavigationManager;
 
-<div class="@CssDefaults.Form.PanelClass @CssDefaults.Form.SlideOverTransition @EditPanelCss">
+<div class="@CssDefaults.Form.PanelClass @CssDefaults.Form.SlideOverTransition @EditPanelClass">
     <form class=@CssDefaults.Form.FormClass @onsubmit="Save" @onsubmit:preventDefault>
         <!-- Prevent implicit submission of the form -->
-        <button type="submit" disabled style="display: none" aria-hidden="true"></button>
+        <button type="submit" disabled class="hidden" aria-hidden="true"></button>
         <!-- Header -->
         <div class="h-0 flex-1 overflow-y-auto">
             <div class=@CssDefaults.Form.TitlebarClass>
@@ -36,18 +36,18 @@
                                 <div class="space-y-6 pt-6 pb-5">
 
                                     <fieldset class="grid grid-cols-12 gap-6">
-                                            <div class="col-span-12 xl:col-span-6" style="width:100%">
-                                                <TextInput @bind-Value="Artist.FirstName"></TextInput>
-                                            </div>
-                                            <div class="col-span-12 xl:col-span-6" style="width:100%">
-                                                <TextInput @bind-Value="Artist.LastName"></TextInput>
-                                            </div>
-                                            <div class="col-span-12 xl:col-span-6" style="width:100%">
-                                                <TextInput type="number" @bind-Value="Artist.YearDied"></TextInput>
-                                            </div>
-                                            <div class="col-span-12 xl:col-span-6" style="width:100%">
-                                                <TagInput @bind-Value="Artist.Type" />
-                                            </div>
+                                        <div class="col-span-12 xl:col-span-6" style="width:100%">
+                                            <TextInput @bind-Value="request.FirstName"></TextInput>
+                                        </div>
+                                        <div class="col-span-12 xl:col-span-6" style="width:100%">
+                                            <TextInput @bind-Value="request.LastName"></TextInput>
+                                        </div>
+                                        <div class="col-span-12 xl:col-span-6" style="width:100%">
+                                            <TextInput type="number" @bind-Value="request.YearDied"></TextInput>
+                                        </div>
+                                        <div class="col-span-12 xl:col-span-6" style="width:100%">
+                                            <TagInput @bind-Value="request.Type" />
+                                        </div>
                                     </fieldset>
                                 </div>
                             </div>
@@ -66,14 +66,13 @@
                 <PrimaryButton type="submit" class="ml-4 bg-indigo-300">Save</PrimaryButton>
             </div>
         </div>
-        <ErrorSummary ExplicitStatus=@(apiResult?.Error) />
+        <ErrorSummary ExplicitStatus=@(api?.Error) />
     </form>
 </div>
 
 @code {
-
-    [Parameter]
-    public Artist Artist { get; set; }
+    [Parameter, EditorRequired]
+    public Artist Artist { get; set; } = default!;
 
     [Parameter]
     public EventCallback OnClose { get; set; }
@@ -85,7 +84,7 @@
     public EventCallback OnDelete { get; set; }
 
     [Parameter]
-    public string EditPanelCss { get; set; }
+    public string? EditPanelClass { get; set; }
 
     [Parameter]
     public List<InputInfo>? FormLayout { get; set; }
@@ -101,48 +100,41 @@
 
     Dictionary<string, object> ModelDictionary = new();
 
-    ApiResult<Artist>? apiResult = null;
-    ApiResult<EmptyResponse>? deleteResult = null;
+    ApiResult<Artist>? api = null;
+    ApiResult<EmptyResponse>? apiDelete = null;
     UpdateArtist request = new();
 
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
-        if (Artist != null)
-            ModelDictionary = Artist.ToModelDictionary();
+        request = Artist.ConvertTo<UpdateArtist>();
         FormLayout ??= MetadataType.CreateFormLayout(ApiType, AppMetadata);
     }
 
     async Task Save()
     {
-        var request = Artist.ConvertTo<UpdateArtist>();
-
-        apiResult = await ApiAsync(request);
-
-        if (apiResult.Succeeded)
+        api = await ApiAsync(request);
+        if (api.Succeeded)
         {
             await OnSave.InvokeAsync();
             await Close();
         }
-
     }
 
     async Task Delete()
     {
-        var request = new DeleteArtist
-        {
+        var request = new DeleteArtist {
             Id = Artist.Id
         };
 
-        deleteResult = await ApiAsync(request);
+        apiDelete = await ApiAsync(request);
 
-        if (deleteResult.Succeeded)
+        if (apiDelete.Succeeded)
         {
             await OnDelete.InvokeAsync();
             await Close();
         }
     }
-
 
     async Task Close()
     {

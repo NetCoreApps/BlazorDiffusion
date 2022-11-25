@@ -23,74 +23,74 @@
         break;
     case "AlbumContents":
         <AutoQueryGrid @ref="addToAlbumGrid" Model="Album" Apis="Apis.AutoQuery<QueryAlbums>()"
-                       RowSelected="AddAlbumRowSelected">
+               RowSelected="AddAlbumRowSelected">
         </AutoQueryGrid>
         break;
 }
 
 <ModalDialog Id="addModal" Show=@showAddDiaglog Close="CloseModal">
     <ErrorSummary Status="api?.Error" />
-    @if(addArtifactsToggle)
+    @if (addArtifactsToggle)
     {
-          <AutoQueryGrid Model="Artifact"
+        <AutoQueryGrid Model="Artifact"
                    @ref="allArtifactsGrid"
-        Apis="Apis.AutoQuery<QueryArtifacts>()" 
-            ShowCopyApiUrl="false"
-            ShowDownloadCsv="false"
-            ShowPreferences="false"
-            RowSelected="SelectAddRow">
-        <ToolbarButtons>
-            <div class="flex items-center justify-between">
-                <span class="px-2">Remove</span>
-                <Toggle @bind-Value="addArtifactsToggle"></Toggle>
-                <span class="px-2">Add</span>
-            </div>
-        </ToolbarButtons>
-        <Columns>
-            <Column Field="(Artifact x) => x.FilePath">
-                <Template>
-                    <img src="https://cdn.diffusion.works@(context.FilePath)" 
-                    class="m-auto h-48 @(IsInAlbum(context) == true ? "rounded-xl border-2 border-fuchsia-700" : "rounded-xl border-2 border-transparent")"
-                    alt=@context.Prompt />
-                </Template>
-            </Column>
-        </Columns>
-    </AutoQueryGrid>
+                   Apis="Apis.AutoQuery<QueryArtifacts>()"
+                   ShowCopyApiUrl="false"
+                   ShowDownloadCsv="false"
+                   ShowPreferences="false"
+                   RowSelected="SelectAddRow">
+            <ToolbarButtons>
+                <div class="flex items-center justify-between">
+                    <span class="px-2">Remove</span>
+                    <Toggle @bind-Value="addArtifactsToggle"></Toggle>
+                    <span class="px-2">Add</span>
+                </div>
+            </ToolbarButtons>
+            <Columns>
+                <Column Field="(Artifact x) => x.FilePath">
+                    <Template>
+                        <img src="https://cdn.diffusion.works@(context.FilePath)"
+                         class="m-auto h-48 @(IsInAlbum(context) == true ? "rounded-xl border-2 border-fuchsia-700" : "rounded-xl border-2 border-transparent")"
+                         alt=@context.Prompt />
+                    </Template>
+                </Column>
+            </Columns>
+        </AutoQueryGrid>
     }
     else
     {
-    <AutoQueryGrid Model="AlbumArtifact"
-        @ref="albumArtifactsGrid"
-        Apis="Apis.AutoQuery<QueryAlbumArtifacts>()"
-            ConfigureQuery="ConfigureQuery"
-            RowSelected="SelectRemoveFromAlbum"
-            ShowCopyApiUrl="false"
-            ShowDownloadCsv="false"
-            ShowPreferences="false">
-        <ToolbarButtons>
-            <div class="flex items-center justify-between">
-                <span class="px-2">Remove</span>
-                <Toggle @bind-Value="addArtifactsToggle"></Toggle>
-                <span class="px-2">Add</span>
-            </div>
-        </ToolbarButtons>
-        <Columns>
-            <Column Field="(AlbumArtifact x) => x.Artifact">
-                <Template>
-                    <img src="https://cdn.diffusion.works@(context.Artifact?.FilePath)" 
-                    class="m-auto h-48 @(IsInAlbum(context.Artifact) == true ? "rounded-xl border-2 border-transparent" : "rounded-xl border-2 border-fuchsia-700")" 
-                    alt=@context.Artifact?.Prompt />
-                </Template>
-            </Column>
-        </Columns>
-    </AutoQueryGrid>
+        <AutoQueryGrid Model="AlbumArtifact"
+                   @ref="albumArtifactsGrid"
+                   Apis="Apis.AutoQuery<QueryAlbumArtifacts>()"
+                   ConfigureQuery="ConfigureQuery"
+                   RowSelected="SelectRemoveFromAlbum"
+                   ShowCopyApiUrl="false"
+                   ShowDownloadCsv="false"
+                   ShowPreferences="false">
+            <ToolbarButtons>
+                <div class="flex items-center justify-between">
+                    <span class="px-2">Remove</span>
+                    <Toggle @bind-Value="addArtifactsToggle"></Toggle>
+                    <span class="px-2">Add</span>
+                </div>
+            </ToolbarButtons>
+            <Columns>
+                <Column Field="(AlbumArtifact x) => x.Artifact">
+                    <Template>
+                        <img src="https://cdn.diffusion.works@(context.Artifact?.FilePath)"
+                         class="m-auto h-48 @(IsInAlbum(context.Artifact!) == true ? "rounded-xl border-2 border-transparent" : "rounded-xl border-2 border-fuchsia-700")"
+                         alt=@context.Artifact?.Prompt />
+                    </Template>
+                </Column>
+            </Columns>
+        </AutoQueryGrid>
     }
-<div class="mt-4 px-4 py-3 bg-gray-50 dark:bg-gray-900 text-right sm:px-6">
-    <div class="flex justify-end items-center">
-        <SecondaryButton class="mr-2" @onclick="CloseModal">Cancel</SecondaryButton>
-        <PrimaryButton @onclick="SaveChanges">Save</PrimaryButton>
+    <div class="mt-4 px-4 py-3 bg-gray-50 dark:bg-gray-900 text-right sm:px-6">
+        <div class="flex justify-end items-center">
+            <SecondaryButton class="mr-2" @onclick="CloseModal">Cancel</SecondaryButton>
+            <PrimaryButton @onclick="SaveChanges">Save</PrimaryButton>
+        </div>
     </div>
-</div>
 </ModalDialog>
 
 
@@ -107,19 +107,19 @@
     string editPanelRemove = "show";
     bool showAddDiaglog = false;
     bool addArtifactsToggle = false;
-    AutoQueryGrid<Album> addToAlbumGrid;
-    AutoQueryGrid<Album> removeFromAlbumGrid;
+    AutoQueryGrid<Album>? addToAlbumGrid;
+    AutoQueryGrid<Album>? removeFromAlbumGrid;
 
-    AutoQueryGrid<Artifact> allArtifactsGrid;
-    AutoQueryGrid<AlbumArtifact> albumArtifactsGrid;
+    AutoQueryGrid<Artifact>? allArtifactsGrid;
+    AutoQueryGrid<AlbumArtifact>? albumArtifactsGrid;
     Album? managedAlbum;
 
     List<Artifact> addToAlbum = new();
     List<Artifact> removeFromAlbum = new();
 
-    ApiResult<Album> api;
+    ApiResult<Album>? api;
 
-    async Task CloseModal()
+    void CloseModal()
     {
         showAddDiaglog = false;
         var url = NavigationManager.Uri.SetQueryParam("skip", null).SetQueryParam("edit", null);
@@ -129,10 +129,9 @@
 
     async Task SaveChanges()
     {
-        var request = new UpdateAlbum
-            {
-                Id = managedAlbum.Id
-            };
+        var request = new UpdateAlbum {
+            Id = managedAlbum!.Id
+        };
         request.AddArtifactIds = addToAlbum.Select(x => x.Id).ToList();
         request.RemoveArtifactIds = removeFromAlbum.Select(x => x.Id).ToList();
         api = await ApiAsync(request);
@@ -140,31 +139,30 @@
         if (api.Succeeded)
         {
             managedAlbum = null;
-            await CloseModal();
+            CloseModal();
         }
-
     }
 
     async Task ToggleManageAlbumGrids(MouseEventArgs args)
     {
         addArtifactsToggle = !addArtifactsToggle;
-        if(albumArtifactsGrid != null)
+        if (albumArtifactsGrid != null)
             await albumArtifactsGrid.RefreshAsync();
     }
 
     void ConfigureQuery(QueryBase query)
     {
-        if(managedAlbum == null)
+        if (managedAlbum == null)
             return;
         query.AddQueryParam("ArtifactIds", managedAlbum.Artifacts.Select(x => x.ArtifactId).Join(","));
     }
 
     bool IsInAlbum(Artifact artifact)
     {
-        if(managedAlbum == null)
+        if (managedAlbum == null)
             return false;
-        return (managedAlbum.Artifacts.Any(x => x.ArtifactId == artifact.Id) && 
-                removeFromAlbum.All(x => x.Id != artifact.Id)) || 
+        return (managedAlbum.Artifacts.Any(x => x.ArtifactId == artifact.Id) &&
+                removeFromAlbum.All(x => x.Id != artifact.Id)) ||
             addToAlbum.Any(x => x.Id == artifact.Id);
     }
 
@@ -172,9 +170,9 @@
     {
         showAddDiaglog = true;
         managedAlbum = album;
-        if(albumArtifactsGrid != null)
+        if (albumArtifactsGrid != null)
             await albumArtifactsGrid.RefreshAsync();
-        if(allArtifactsGrid != null)
+        if (allArtifactsGrid != null)
             await allArtifactsGrid.RefreshAsync();
     }
 

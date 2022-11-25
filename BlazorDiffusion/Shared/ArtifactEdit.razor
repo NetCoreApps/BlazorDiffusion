@@ -1,7 +1,7 @@
 ﻿@inherits AuthBlazorComponentBase
 @inject NavigationManager NavigationManager
 
-<div class="@CssDefaults.Form.PanelClass @CssDefaults.Form.SlideOverTransition @EditPanelCss">
+<div class="@CssDefaults.Form.PanelClass @CssDefaults.Form.SlideOverTransition @EditPanelClass">
     <form class=@CssDefaults.Form.FormClass @onsubmit="Save" @onsubmit:preventDefault>
         <!-- Header -->
         <div class="h-0 flex-1 overflow-y-auto">
@@ -50,11 +50,11 @@
                     </div>
                 </div>
             </div>
-            @if(ChildContent != null)
+            @if (ChildContent != null)
             {
                 <div>
                     @ChildContent
-            </div>
+                </div>
             }
             
             <div class="flex flex-1 flex-col justify-between">
@@ -84,14 +84,13 @@
                 <PrimaryButton type="submit" class="ml-4 bg-indigo-300">Save</PrimaryButton>
             </div>
         </div>
-        <ErrorSummary ExplicitStatus=@(apiResult?.Error) />
+        <ErrorSummary ExplicitStatus=@(api?.Error) />
     </form>
 </div>
 
 @code {
-
-    [Parameter]
-    public Artifact Artifact { get; set; }
+    [Parameter, EditorRequired]
+    public Artifact Artifact { get; set; } = default!;
 
     [Parameter]
     public EventCallback OnClose { get; set; }
@@ -103,12 +102,12 @@
     public EventCallback OnDelete { get; set; }
 
     [Parameter]
-    public string EditPanelCss { get; set; }
+    public string? EditPanelClass { get; set; }
 
-    ApiResult<Artifact> apiResult = null;
+    ApiResult<Artifact>? api;
 
     [Parameter]
-    public RenderFragment ChildContent { get; set; }
+    public RenderFragment? ChildContent { get; set; }
 
     string Quality = "0";
 
@@ -120,26 +119,23 @@
         new("-3", "Low Quality"),
     };
 
-    protected override async Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
         Quality = Artifact.Quality.ToString();
-        await base.OnParametersSetAsync();
+        base.OnParametersSet();
     }
-
 
     async Task Save()
     {
         var request = new UpdateArtifact
         {
-            Id = Artifact.Id
+            Id = Artifact.Id,
+            Nsfw = Artifact.Nsfw,
+            Quality = int.Parse(Quality),
         };
-        if (Artifact.Nsfw != null)
-            request.Nsfw = Artifact.Nsfw;
-        request.Quality = int.Parse(Quality);
 
-        apiResult = await ApiAsync(request);
-
-        if (apiResult.Succeeded)
+        api = await ApiAsync(request);
+        if (api.Succeeded)
         {
             await OnSave.InvokeAsync();
             await Close();
@@ -149,7 +145,6 @@
     async Task Close()
     {
         await OnClose.InvokeAsync();
-
         NavigationManager.NavigateTo(NavigationManager.Uri.SetQueryParam("edit", null));
     }
 

@@ -10,22 +10,18 @@
     </Breadcrumb>
 </Breadcrumbs>
 
-<AutoQueryGrid Model="Artist"
+<AutoQueryGrid @ref=@grid Model="Artist"
                RowSelected="RowSelect"
                Apis="Apis.AutoQuery<QueryArtists, CreateArtist, UpdateArtist, DeleteArtist>()">
     <EditForm>
-        @if (SelectedArtist != null)
-        {
-            <div class="relative z-10" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
-                <div class="">
-                    <div class="">
-                        <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
-                            <ArtistEdit Artist="SelectedArtist" EditPanelCss="EditPanelCss" OnClose="Close"></ArtistEdit>
-                        </div>
-                    </div>
-                </div>
+    @if (SelectedArtist != null)
+    {
+        <div class="relative z-10" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+            <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
+                <ArtistEdit Artist="SelectedArtist" EditPanelClass="EditPanelClass" OnClose="Close" OnSave="SaveAsync" />
             </div>
-        }
+        </div>
+    }
     </EditForm>
     <Columns>
         <Column Field="(Artist x) => x.FirstName"></Column>
@@ -45,18 +41,20 @@
 
 @code {
     public Artist? SelectedArtist { get; set; }
+    AutoQueryGrid<Artist>? grid;
 
-    public string EditPanelCss { get; set; } = "show";
+    public string EditPanelClass { get; set; } = "show";
 
-    async Task Close()
+    void Close()
     {
-        EditPanelCss = "hidden";
+        EditPanelClass = "hidden";
         SelectedArtist = null;
     }
 
-    async Task RowSelect(Artist artist)
+    async Task SaveAsync() => await grid!.RefreshAsync();
+
+    void RowSelect(Artist artist)
     {
         SelectedArtist = artist;
     }
-
 }
