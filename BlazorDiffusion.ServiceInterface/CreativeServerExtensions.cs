@@ -52,10 +52,8 @@ public static class CreativeServerExtensions
         var finalPrompt = userPrompt;
         if (modifiers.Count > 0)
             finalPrompt += ", " + modifiers.Select(x => x.Name).Join(", ");
-
-        var artistsSuffix = artists.Select(x => x.GetArtistName()).Join(", ");
         if (artists.Count > 0)
-            finalPrompt += $", by {artistsSuffix}";
+            finalPrompt += $", by {artists.Select(x => x.GetArtistName()).Join(", ")}";
         return finalPrompt;
     }
 
