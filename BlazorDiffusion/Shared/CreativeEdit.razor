@@ -1,20 +1,20 @@
 ﻿@inherits AuthBlazorComponentBase
 @inject NavigationManager NavigationManager
 
-<div class="@CssDefaults.Form.PanelClass @CssDefaults.Form.SlideOverTransition @EditPanelClass">
-    <form class=@CssDefaults.Form.FormClass @onsubmit="Save" @onsubmit:preventDefault>
+<div class="@CssDefaults.Form.GetPanelClass() @CssDefaults.SlideOver.TransitionClass @EditPanelClass">
+    <form class=@CssDefaults.Form.GetFormClass() @onsubmit="Save" @onsubmit:preventDefault>
         <!-- Header -->
         <div class="h-0 flex-1 overflow-y-auto">
-            <div class=@CssDefaults.Form.TitlebarClass>
+            <div class=@CssDefaults.SlideOver.TitlebarClass>
                 <div class="flex items-start justify-between space-x-3">
                     <div class="space-y-1">
-                        <h2 class=@CssDefaults.Form.HeadingClass id="slide-over-title">@Creative?.UserPrompt</h2>
+                        <h2 class=@CssDefaults.SlideOver.HeadingClass id="slide-over-title">@Creative?.UserPrompt</h2>
                         <div class="mt-1">
                             <p class="text-sm text-gray-500">@Creative?.ModifierNames.Join(", ")&nbsp;</p>
                         </div>
                     </div>
                     <div class="flex h-7 items-center">
-                        <button type="button" class=@CssDefaults.Form.CloseButtonClass @onclick="Close">
+                        <button type="button" class=@CssDefaults.SlideOver.CloseButtonClass @onclick="Close">
                             <span class="sr-only">Close panel</span>
                             <!-- Heroicon name: outline/x-mark -->
                             <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
