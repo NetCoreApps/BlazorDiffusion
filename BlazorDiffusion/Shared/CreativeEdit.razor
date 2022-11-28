@@ -69,8 +69,8 @@
 </div>
 
 @code {
-    [Parameter]
-    public Creative Creative { get; set; }
+    [Parameter, EditorRequired]
+    public Creative Creative { get; set; } = default!;
 
     [Parameter]
     public EventCallback OnClose { get; set; }
@@ -82,10 +82,10 @@
     public EventCallback OnDelete { get; set; }
 
     [Parameter]
-    public string EditPanelClass { get; set; }
+    public string? EditPanelClass { get; set; }
 
-    ApiResult<Creative> apiResult = null;
-    ApiResult<EmptyResponse> deleteResult = null;
+    ApiResult<Creative>? apiResult = null;
+    ApiResult<EmptyResponse>? deleteResult = null;
     public Artifact? selectedPrimary = null;
 
     protected override async Task OnParametersSetAsync()
@@ -97,7 +97,7 @@
         await base.OnParametersSetAsync();
     }
 
-    async Task UnpinArtifact(EventArgs e)
+    void UnpinArtifact(EventArgs e)
     {
         if(selectedPrimary != null)
         {
@@ -107,10 +107,9 @@
 
     async Task Save()
     {
-        var request = new UpdateCreative
-            {
-                Id = Creative.Id
-            };
+        var request = new UpdateCreative {
+            Id = Creative.Id
+        };
         if (selectedPrimary != null)
             request.PrimaryArtifactId = selectedPrimary.Id;
         else
@@ -122,15 +121,13 @@
             await OnSave.InvokeAsync();
             await Close();
         }
-            
     }
 
     async Task DeleteCreative()
     {
-        var request = new HardDeleteCreative
-            {
-                Id = Creative.Id
-            };
+        var request = new HardDeleteCreative {
+            Id = Creative.Id
+        };
 
         deleteResult = await ApiAsync(request);
 

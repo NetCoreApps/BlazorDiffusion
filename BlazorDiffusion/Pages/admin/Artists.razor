@@ -10,19 +10,7 @@
     </Breadcrumb>
 </Breadcrumbs>
 
-<AutoQueryGrid @ref=@grid Model="Artist"
-               RowSelected="RowSelect"
-               Apis="Apis.AutoQuery<QueryArtists, CreateArtist, UpdateArtist, DeleteArtist>()">
-    <EditForm>
-    @if (SelectedArtist != null)
-    {
-        <div class="relative z-10" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
-            <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
-                <ArtistEdit Artist="SelectedArtist" EditPanelClass="EditPanelClass" OnClose="Close" OnSave="SaveAsync" />
-            </div>
-        </div>
-    }
-    </EditForm>
+<AutoQueryGrid Model="Artist" Apis="Apis.AutoQuery<QueryArtists, CreateArtist, UpdateArtist, DeleteArtist>()">
     <Columns>
         <Column Field="(Artist x) => x.FirstName"></Column>
         <Column Field="(Artist x) => x.LastName"></Column>
@@ -38,23 +26,3 @@
         <Column Field="(Artist x) => x.CreatedBy"></Column>
     </Columns>
 </AutoQueryGrid>
-
-@code {
-    public Artist? SelectedArtist { get; set; }
-    AutoQueryGrid<Artist>? grid;
-
-    public string EditPanelClass { get; set; } = "show";
-
-    void Close()
-    {
-        EditPanelClass = "hidden";
-        SelectedArtist = null;
-    }
-
-    async Task SaveAsync() => await grid!.RefreshAsync();
-
-    void RowSelect(Artist artist)
-    {
-        SelectedArtist = artist;
-    }
-}
