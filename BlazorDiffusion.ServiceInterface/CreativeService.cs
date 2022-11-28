@@ -256,7 +256,7 @@ public class CreativeService : Service
         var to = new ImageGeneration
         {
             Prompt = apiPrompt,
-            Engine = DefaultEngine,
+            Engine = request.EngineId ?? DefaultEngine,
             Height = height,
             Width = width,
             Images = noOfImages,

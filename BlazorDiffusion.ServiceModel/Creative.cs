@@ -82,6 +82,7 @@ public class CreateCreative : ICreateDb<Creative>, IReturn<CreateCreativeRespons
     
     public List<int> ArtistIds { get; set; }
     public List<int> ModifierIds { get; set; }
+    public string? EngineId { get; set; }
 }
 
 public class CreateCreativeResponse
