@@ -19,7 +19,7 @@ public class DreamStudioClient : IStableDiffusionClient
     public string EngineId { get; set; }
     public string? PublicPrefix { get; set; }
     public IVirtualFiles VirtualFiles { get; set; }
-    
+
     public DreamStudioClient()
     {
         var credentials = CallCredentials.FromInterceptor((context, metadata) =>
@@ -28,6 +28,7 @@ public class DreamStudioClient : IStableDiffusionClient
             {
                 metadata.Add("Authorization", $"Bearer {ApiKey}");
             }
+
             return Task.CompletedTask;
         });
         channel = GrpcChannel.ForAddress("https://grpc.stability.ai", new GrpcChannelOptions
@@ -36,13 +37,14 @@ public class DreamStudioClient : IStableDiffusionClient
         });
         client = new GenerationService.GenerationServiceClient(channel);
     }
+
     public async Task<ImageGenerationResponse> GenerateImageAsync(ImageGeneration request)
     {
-
         var generateRequest = new Request
         {
-            EngineId = string.IsNullOrEmpty(EngineId) ? DefaultEngineId : EngineId,
+            EngineId = DefaultEngineId,
             RequestId = Guid.NewGuid().ToString("D"),
+            RequestedType = ArtifactType.ArtifactImage,
             Image = new ImageParameters
             {
                 Height = Convert.ToUInt32(request.Height),
@@ -50,21 +52,30 @@ public class DreamStudioClient : IStableDiffusionClient
                 Seed = { Convert.ToUInt32(request.Seed) },
                 Steps = Convert.ToUInt32(request.Steps),
                 Samples = Convert.ToUInt32(request.Images),
-                Transform = new TransformType
+                // Transform = new TransformType
+                // {
+                //     Diffusion = DiffusionSampler.SamplerKLms
+                // },
+                Parameters =
                 {
-                    Diffusion = DiffusionSampler.SamplerKLms
+                    new StepParameter
+                    {
+                        Guidance = new GuidanceParameters
+                        {
+                            GuidancePreset = GuidancePreset.Simple
+                        },
+                        Sampler = new SamplerParameters
+                        {
+                            CfgScale = 7.0f
+                        }
+                    }
                 }
             },
             Prompt =
             {
                 new Prompt()
                 {
-                    Text = request.Prompt,
-                    Parameters = new PromptParameters
-                    {
-                        Init = false,
-                        Weight = 0.0f
-                    }
+                    Text = request.Prompt
                 },
             },
         };
@@ -99,6 +110,7 @@ public class DreamStudioClient : IStableDiffusionClient
                 });
             }
         }
+
         return new ImageGenerationResponse
         {
             RequestId = generateRequest.RequestId,
@@ -115,13 +127,13 @@ public class DreamStudioClient : IStableDiffusionClient
     {
         var vfsPathSuffix = creative.Key;
         var outputDir = Path.Join(OutputPathPrefix, vfsPathSuffix);
-        await VirtualFiles.WriteFileAsync(Path.Join(outputDir,"metadata.json"), creative.ToJson().IndentJson());
+        await VirtualFiles.WriteFileAsync(Path.Join(outputDir, "metadata.json"), creative.ToJson().IndentJson());
     }
 
     public Task DeleteFolderAsync(Creative creative)
     {
         var vfsPathSuffix = creative.Key;
-        var directory = VirtualFiles.GetDirectory(Path.Join(OutputPathPrefix,vfsPathSuffix));
+        var directory = VirtualFiles.GetDirectory(Path.Join(OutputPathPrefix, vfsPathSuffix));
         var allFiles = directory.GetAllFiles();
         VirtualFiles.DeleteFiles(allFiles);
         return Task.CompletedTask;

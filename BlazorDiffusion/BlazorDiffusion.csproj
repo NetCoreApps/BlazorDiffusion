@@ -51,7 +51,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Protobuf Include="proto\generation.proto" GrpcServices="Client" />
+        <Protobuf Include="proto\dashboard.proto" GrpcServices="None" />
+        <Protobuf Include="proto\engines.proto" GrpcServices="None" />
+        <Protobuf Include="proto\generation.proto" GrpcServices="Client" ProtoRoot="proto\" />
+        <Protobuf Include="proto\project.proto" GrpcServices="None" />
+        <Protobuf Include="proto\tensors.proto" GrpcServices="None" />
     </ItemGroup>
 
     <Target Name="CreateAppDataFolderBuild" AfterTargets="AfterBuild">
