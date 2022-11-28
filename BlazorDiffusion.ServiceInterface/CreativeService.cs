@@ -256,7 +256,7 @@ public class CreativeService : Service
         var to = new ImageGeneration
         {
             Prompt = apiPrompt,
-            Engine = string.IsNullOrEmpty(request.EngineId) ?  DefaultEngine : request.EngineId,
+            Engine = DefaultEngine,
             Height = height,
             Width = width,
             Images = noOfImages,
