@@ -1,36 +1,27 @@
 ﻿@inherits AuthBlazorComponentBase
 @inject NavigationManager NavigationManager
 
-<AutoQueryGrid Model="ArtifactReport" Apis="Apis.AutoQuery<QueryArtifactReports, UpdateArtifactReport>()"
-               @ref="autoQueryGrid"
-               RowSelected="RowSelected">
+<AutoQueryGrid @ref="grid" Model="ArtifactReport" Apis="Apis.AutoQuery<QueryArtifactReports,UpdateArtifactReport>()">
     <EditForm>
-    @if (reviewItem != null)
-    {
         <div class="relative z-10" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
-            <div class="">
-                <div class="">
-                    <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
-                        <ArtifactEdit Artifact="reviewItem.Artifact" OnClose="Close" OnSave="Save" EditPanelClass=@editPanelClass>
-                            <div class="flex flex-1 flex-col justify-between">
-                                <div class="divide-y divide-gray-200 px-4 sm:px-6">
-                                    <div class="space-y-6 pt-6 pb-5">
-                                        <h2>Artifact Report Info (@reviewItem.Type)</h2>
-                                        <div>
-                                            <TextInput @bind-Value="reviewItem.AppUserId" disabled />
-                                        </div>
-                                        <div>
-                                            <TextInput @bind-Value="reviewItem.Description" disabled />
-                                        </div>
-                                    </div>
+            <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
+                <ArtifactEdit Artifact="context.Artifact" OnClose="grid!.OnEditDone" OnSave="_ => SaveAsync(context)">
+                    <div class="flex flex-1 flex-col justify-between">
+                        <div class="divide-y divide-gray-200 px-4 sm:px-6">
+                            <div class="space-y-6 pt-6 pb-5">
+                                <h2>Artifact Report Info (@context.Type)</h2>
+                                <div>
+                                    <TextInput @bind-Value="context.AppUserId" disabled />
+                                </div>
+                                <div>
+                                    <TextInput @bind-Value="context.Description" disabled />
                                 </div>
                             </div>
-                        </ArtifactEdit>
+                        </div>
                     </div>
-                </div>
+                </ArtifactEdit>
             </div>
         </div>
-    }
     </EditForm>
     <Columns>
         <Column Title="Artifact" Field="(ArtifactReport x) => x.ArtifactId">
@@ -51,37 +42,20 @@
 </AutoQueryGrid>
 
 @code {
-    AutoQueryGrid<ArtifactReport>? autoQueryGrid;
-    public ArtifactReport? reviewItem = null;
-
-    string editPanelClass = "show";
+    AutoQueryGrid<ArtifactReport>? grid;
 
     void NavigateToArtifact(int artifactId)
     {
         NavigationManager.NavigateTo($"/admin/artifacts?id={artifactId}&tab=All");
     }
 
-    void RowSelected(ArtifactReport item)
-    {
-        reviewItem = item;
-        editPanelClass = "show";
-        StateHasChanged();
-    }
-
-    void Close()
-    {
-        editPanelClass = "hidden";
-        reviewItem = null;
-    }
-
-    async Task Save()
+    async Task SaveAsync(ArtifactReport reviewItem)
     {
         var request = new DeleteArtifactReport
         {
-            ArtifactId = reviewItem!.ArtifactId
+            ArtifactId = reviewItem.ArtifactId
         };
         var api = await ApiAsync(request);
-        await autoQueryGrid!.RefreshAsync();
+        await grid!.RefreshAsync();
     }
-
 }

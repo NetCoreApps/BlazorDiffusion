@@ -12,22 +12,14 @@
 
 <Tabs TabOptions="TabOptions" TabChanged="TabChangedAsync" />
 
-<AutoQueryGrid @ref=@grid Model="Creative" Apis="Apis.AutoQuery<QueryCreatives, UpdateCreative, HardDeleteCreative>()"
-               RowSelected="RowSelected" ConfigureQuery="ConfigureQuery">
+<AutoQueryGrid @ref=@grid Model="Creative" Apis="Apis.AutoQuery<QueryCreatives,UpdateCreative,HardDeleteCreative>()"
+               ConfigureQuery="ConfigureQuery">
     <EditForm>
-        @if (reviewItem != null)
-        {
-            <div class="relative z-10" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
-                <div class="">
-                    <div class="">
-                        <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
-                            <CreativeEdit Creative="reviewItem" OnClose="Close" OnDelete="DeleteAsync" OnSave="SaveAsync"
-                                          EditPanelClass=@EditPanelClass />
-                        </div>
-                    </div>
-                </div>
+        <div class="relative z-10" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+            <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
+                <CreativeEdit Creative="context" OnClose="grid!.OnEditDone" />
             </div>
-        }
+        </div>
     </EditForm>
     <Columns>
         <Column Title="User" Field="(Creative x) => x.OwnerId" />
@@ -71,24 +63,16 @@
     </Columns>
 </AutoQueryGrid>
 
-
 @code {
-
-    [Parameter, SupplyParameterFromQuery]
-    public string? Edit { get; set; }
-
-    public Creative? reviewItem = null;
     AutoQueryGrid<Creative>? grid;
 
     public string? Tab { get; set; }
     
     public Dictionary<string, string> TabOptions = new()
     {
-        {"All","All"},
-        {"MissingPrimaryArtifact","Missing Primary Artifact"}
+        ["All"] = "All",
+        ["MissingPrimaryArtifact"] = "Missing Primary Artifact",
     };
-
-    string EditPanelClass { get; set; } = "show";
 
     void ConfigureQuery(QueryBase query)
     {
@@ -108,20 +92,4 @@
         if (grid != null)
             await grid.RefreshAsync();
     }
-
-    void RowSelected(Creative item)
-    {
-        reviewItem = item;
-        EditPanelClass = "show";
-    }
-
-    void Close()
-    {
-        EditPanelClass = "hidden";
-        reviewItem = null;
-    }
-
-    async Task SaveAsync() => await grid!.RefreshAsync();
-
-    async Task DeleteAsync() => await grid!.RefreshAsync();
 }

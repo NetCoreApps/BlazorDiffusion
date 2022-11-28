@@ -1,21 +1,10 @@
-﻿<AutoQueryGrid Model="Artifact" Apis="Apis.AutoQuery<QueryArtifacts,UpdateArtifact>()"
-               @ref=@autoQueryGrid
-               RowSelected="RowSelected">
+﻿<AutoQueryGrid @ref=@grid Model="Artifact" Apis="Apis.AutoQuery<QueryArtifacts,UpdateArtifact>()">
     <EditForm>
-        @if (reviewItem != null)
-        {
-            <div class="relative z-10" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
-                <div class="">
-                    <div class="">
-                        <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
-                            <ArtifactEdit Artifact="reviewItem" OnClose="Close"
-                                OnDelete="Delete" OnSave="Save"
-                                EditPanelClass=@editPanelClass />
-                        </div>
-                    </div>
-                </div>
+        <div class="relative z-10" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+            <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
+                <ArtifactEdit Artifact="context" OnClose="grid!.OnEditDone" />
             </div>
-        }
+        </div>
     </EditForm>
     <Columns>
         <Column Title="Creative" Field="(Artifact x) => x.CreativeId">
@@ -47,10 +36,7 @@
 </AutoQueryGrid>
 
 @code {
-    AutoQueryGrid<Artifact>? autoQueryGrid;
-    public Artifact? reviewItem;
-
-    string editPanelClass = "show";
+    AutoQueryGrid<Artifact>? grid;
 
     string ImageSizeDescription(Artifact artifact)
     {
@@ -59,28 +45,5 @@
         if (artifact.Width > artifact.Height)
             return "Landscape";
         return "Portrait";
-    }
-
-    void RowSelected(Artifact item)
-    {
-        reviewItem = item;
-        editPanelClass = "show";
-        StateHasChanged();
-    }
-
-    void Close()
-    {
-        editPanelClass = "hidden";
-        reviewItem = null;
-    }
-
-    async Task Save()
-    {
-        await autoQueryGrid!.RefreshAsync();
-    }
-
-    async Task Delete()
-    {
-        await autoQueryGrid!.RefreshAsync();
     }
 }

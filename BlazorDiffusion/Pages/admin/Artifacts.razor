@@ -12,16 +12,15 @@
 
 @if (Tab == "Reported")
 {
-    <ArtifactReportsAutoQueryGrid></ArtifactReportsAutoQueryGrid>
+    <ArtifactReportsAutoQueryGrid />
 }
 else if (Tab == "Stats")
 {
     <AutoQueryGrid Model="ArtifactStat" Apis="Apis.AutoQuery<QueryArtifactStats>()" />
 }
-else
+else //All
 {
-    <!--All Artifacts-->
-    <ArtifactAutoQueryGrid></ArtifactAutoQueryGrid>
+    <ArtifactAutoQueryGrid />
 }
 
 @code {
