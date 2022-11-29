@@ -85,6 +85,8 @@ public class AppHost : AppHostBase, IHostingStartup
             PublicPrefix = appConfig.AssetsBasePath,
             VirtualFiles = appFs
         });
+
+        ScriptContext.Args[nameof(AppData)] = AppData.Instance;
     }
 
     public void Configure(IWebHostBuilder builder) => builder

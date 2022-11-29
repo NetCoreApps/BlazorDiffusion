@@ -170,6 +170,7 @@ public class CreateModifier : ICreateDb<Modifier>, IReturn<Modifier>
     [ValidateNotEmpty, Required]
     public string Name { get; set; }
     [ValidateNotEmpty, Required]
+    [Input(Type="select", EvalAllowableValues = "AppData.Categories")]
     public string Category { get; set; }
     public string? Description { get; set; }
 }
@@ -180,6 +181,7 @@ public class UpdateModifier : IPatchDb<Modifier>, IReturn<Modifier>
 {
     public int Id { get; set; }
     public string? Name { get; set; }
+    [Input(Type = "select", EvalAllowableValues = "AppData.Categories")]
     public string? Category { get; set; }
     public string? Description { get; set; }
 }
