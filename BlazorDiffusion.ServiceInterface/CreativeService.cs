@@ -263,6 +263,9 @@ public class CreativeService : Service
             Steps = noOfSteps,
             Seed = request.Seed
         };
+
+        if (Log.IsDebugEnabled) Log.DebugFormat("ImageGeneration {0}", to.Dump());
+
         return to;
     }
 

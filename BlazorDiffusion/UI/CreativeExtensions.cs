@@ -15,7 +15,7 @@ public static class CreativeExtensions
 
     public static string GetBackgroundImage(this Artifact artifact) => SolidImageDataUri(artifact.Background);
     public static string GetBackgroundStyle(this Artifact artifact) => artifact.Background != null ? "background-color:" + artifact.Background : "";
-    public static string GetDownloadUrl(this Artifact artifact) => $"/download/artifact/{artifact.RefId}";
+    public static string GetDownloadUrl(this Artifact artifact) => BlazorConfig.Instance.ApiBaseUrl.CombineWith($"/download/artifact/{artifact.RefId}");
     public static string GetPublicUrl(this Artifact artifact) => BlazorConfig.Instance.AssetsBasePath + artifact.FilePath;
     public static string GetFallbackUrl(this Artifact artifact) => BlazorConfig.Instance.FallbackAssetsBasePath + artifact.FilePath;
 
