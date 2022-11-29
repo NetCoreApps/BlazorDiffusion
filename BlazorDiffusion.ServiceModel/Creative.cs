@@ -48,7 +48,9 @@ public class Creative : AuditBase
     public bool Curated { get; set; }
     public int? Rating { get; set; }
     public bool Private { get; set; }
+    [Default(0)]
     public int Score { get; set; }
+    [Default(0)]
     public int Rank { get; set; }
     public string RefId { get; set; }
     public string RequestId { get; set; }
@@ -152,7 +154,9 @@ public class Artist : AuditBase
     public string LastName { get; set; }
     public int? YearDied { get; set; }
     public List<string>? Type { get; set; }
+    [Default(0)]
     public int Score { get; set; }
+    [Default(0)]
     public int Rank { get; set; }
 }
 
@@ -196,7 +200,9 @@ public class Modifier : AuditBase
     public string Name { get; set; }
     public string Category { get; set; }
     public string? Description { get; set; }
+    [Default(0)]
     public int Score { get; set; }
+    [Default(0)]
     public int Rank { get; set; }
 }
 

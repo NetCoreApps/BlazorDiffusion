@@ -61,7 +61,9 @@ public class Migration1001 : MigrationBase
         public bool Curated { get; set; }
         public int? Rating { get; set; }
         public bool Private { get; set; }
+        [Default(0)]
         public int Score { get; set; }
+        [Default(0)]
         public int Rank { get; set; }
         public string RefId { get; set; }
         public string RequestId { get; set; }
@@ -151,7 +153,9 @@ public class Migration1001 : MigrationBase
         public int DownloadsCount { get; set; }
         public int SearchCount { get; set; }
         public int TemporalScore { get; set; } // bonus score given to recent creations
+        [Default(0)]
         public int Score { get; set; }
+        [Default(0)]
         public int Rank { get; set; }
         public string RefId { get; set; }
     }
@@ -165,7 +169,9 @@ public class Migration1001 : MigrationBase
         public string LastName { get; set; }
         public int? YearDied { get; set; }
         public List<string>? Type { get; set; }
+        [Default(0)]
         public int Score { get; set; }
+        [Default(0)]
         public int Rank { get; set; }
     }
 
@@ -177,7 +183,9 @@ public class Migration1001 : MigrationBase
         public string Name { get; set; }
         public string Category { get; set; }
         public string? Description { get; set; }
+        [Default(0)]
         public int Score { get; set; }
+        [Default(0)]
         public int Rank { get; set; }
     }
 
