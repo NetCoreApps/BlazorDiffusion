@@ -1,6 +1,4 @@
-﻿using Grpc.Core;
-
-namespace BlazorDiffusion.UI;
+﻿namespace BlazorDiffusion.UI;
 
 public static class AppCss
 {
