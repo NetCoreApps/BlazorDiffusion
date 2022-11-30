@@ -241,12 +241,16 @@ public class UserState
 
     public async Task<List<AlbumResult>> GetLikedAlbumsAsync(int? take = null)
     {
-        var missingIds = new List<int>();
         var requestedLikeIds = take != null
             ? LikedAlbumIds.Take(take.Value).ToList()
             : LikedAlbumIds;
+        return await GetAlbumsByIdsAsync(requestedLikeIds);
+    }
 
-        foreach (var id in requestedLikeIds)
+    public async Task<List<AlbumResult>> GetAlbumsByIdsAsync(IEnumerable<int> albumIds)
+    {
+        var missingIds = new List<int>();
+        foreach (var id in albumIds)
         {
             if (GetCachedAlbum(id) == null)
                 missingIds.Add(id);
@@ -257,7 +261,13 @@ public class UserState
             if (api.Response?.Results != null) LoadAlbums(api.Response.Results);
         }
 
-        var to = LikedAlbumIds.Select(id => GetCachedAlbum(id)).Where(x => x != null).Cast<AlbumResult>().ToList();
+        var to = albumIds.Select(id => GetCachedAlbum(id))
+            .Where(x => x != null)
+            .Cast<AlbumResult>().ToList();
+        
+        var albumCoverArtifactIds = to.Select(GetAlbumCoverArtifactId);
+        await LoadArtifactsAsync(albumCoverArtifactIds);
+        
         return to;
     }
 

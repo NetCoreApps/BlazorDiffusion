@@ -1,0 +1,62 @@
+﻿@page "/albums"
+@using Ljbc1994.Blazor.IntersectionObserver.Components
+@inherits AppAuthComponentBase
+
+<Home Page="AppPage.Search" class="">
+
+    <div class="my-4 flex justify-center">
+        <div class="w-full sm:w-1/3 flex justify-center items-center align-middle whitespace-nowrap">
+            <div class=@ClassNames("z-20 mb-4 overflow-hidden rounded sm:rounded-md text-center")>
+                <label for="steps-range" class="block text-sm font-medium text-gray-600 dark:text-gray-400">@UserState.AppPrefs.ArtifactGalleryColumns columns</label>
+                <input id="steps-range" @bind="UserState.AppPrefs.ArtifactGalleryColumns" @bind:event="oninput" @onchange="SaveAppPrefsAsync" 
+                    type="range" min="1" max="12" step="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+            </div>
+        </div>
+    </div>
+
+    <div class=@ClassNames("grid", AppCss.GetGridClass(UserState.AppPrefs.ArtifactGalleryColumns))>
+        @foreach (var album in results)
+        {
+            var artifact = UserState.GetAlbumCoverArtifact(album);
+            @if (artifact != null)
+            {
+                <div @key=@album.Id>
+                    <NavLink href=@($"/?album={album.AlbumRef}&source={AppSource.Albums}")
+                        class=@ClassNames("overflow-hidden flex justify-center")>
+                        <div class="relative sm:p-2 flex flex-col cursor-pointer items-center" style=@($"width:512px;height:512px")>
+                            <ArtifactImage Artifact="artifact" LazyLoad="true"
+                                   class=@ClassNames("flex rounded sm:rounded-xl w-full h-full") ImageClass="object-cover" />
+
+                            <div class="absolute top-0 left-0 w-full h-full group select-none overflow-hidden sm:m-1 rounded sm:rounded-xl">
+                                <div class="w-full h-full absolute inset-0 z-10 block text-zinc-100 drop-shadow pointer-events-none line-clamp sm:px-2 sm:pb-2 text-sm opacity-0 group-hover:opacity-40 transition duration-300 ease-in-out bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-700 via-gray-900 to-black"></div>
+                                <div class="absolute w-full h-full flex z-10 text-zinc-100 justify-between drop-shadow opacity-0 group-hover:opacity-100 transition-opacity sm:mb-1 text-sm">
+                                    <div class="relative w-full h-full overflow-hidden flex flex-col justify-between overflow-hidden">
+                                        <div></div>
+                                        <div>
+                                            <div class="hidden sm:flex bg-white/40 bg-black/40 sm:pt-2 sm:pl-4 sm:pb-4 sm:pr-4 w-full">
+                                                <div class="w-full">
+                                                    <h2 class="truncate text-base font-medium text-gray-900 dark:text-gray-200 text-center">@album.Name</h2>
+                                                    <div class="mt-1">
+                                                        <p class="truncate text-xs text-gray-500"></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </NavLink>
+                </div>
+            }
+        }
+    </div>
+
+    <div @ref="BottomElement" class="flex justify-center">
+        @if (api.IsLoading)
+        {
+            <Loading class="text-gray-300 font-normal" ImageClass="w-7 h-7 mt-1.5" Message="loading..." />
+        }
+    </div>
+
+</Home>

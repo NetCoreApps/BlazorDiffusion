@@ -34,6 +34,7 @@ public class AppData
 
 public class AppSource
 {
+    public const string Albums = "albums";
     public const string Top = "top";
     public const string User = "user";
     public const string InAlbum = "in";

@@ -56,6 +56,20 @@ public class DataService : Service
         };
     }
 
+    public async Task<object> Any(GetAlbumIds request)
+    {
+        var topAlbumIds = await Db.ColumnAsync<int>(Db.From<Album>()
+            .Where(x => x.DeletedDate == null)
+            .OrderByDescending(x => new { x.Score, x.Id })
+            .Take(1000)
+            .Select(x => x.Id));
+
+        return new GetAlbumIdsResponse
+        {
+            Results = topAlbumIds
+        };
+    }
+
     public async Task<object> Any(UserData request)
     {
         var session = await SessionAsAsync<CustomUserSession>();
