@@ -68,7 +68,6 @@
 
     <ItemGroup>
       <Content Remove="App_Files\artifacts\**\*" />
-      <Content Include="wwwroot\.well-known\microsoft-identity-association.json" />
     </ItemGroup>
 
     <ItemGroup>

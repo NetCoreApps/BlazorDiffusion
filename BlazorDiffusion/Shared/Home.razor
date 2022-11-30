@@ -68,7 +68,6 @@
 {
     [Parameter, EditorRequired] public RenderFragment? ChildContent { get; set; }
     [Parameter, EditorRequired] public AppPage Page { get; set; }
-    [Parameter] public string? @class { get; set; }
 
     void navToSearch() => NavigationManager.NavigateTo("/");
     void navToCreate() => NavigationManager.NavigateTo("/create");

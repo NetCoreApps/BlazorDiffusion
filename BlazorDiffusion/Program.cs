@@ -50,9 +50,6 @@ app.UseServiceStack(new AppHost());
 
 BlazorConfig.Set(new()
 {
-    // This changes Blazor Components + ApiAsync APIs to use InProcessGateway instead of JsonApiClient
-    UseInProcessClient = true,
-
     Services = app.Services,
     JSParseObject = JS.ParseObject,
     EnableLogging = app.Environment.IsDevelopment(),
