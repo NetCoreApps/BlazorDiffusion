@@ -323,7 +323,7 @@
     var artifact = Creative.Artifacts?.FirstOrDefault(x => x.Id == View);
     if (artifact != null)
     {
-        <SlideOver @ref="SlideOver" Done=@(() => NavigationManager.NavigateTo($"/create?id={Creative.Id}"))
+        <SlideOver @ref="SlideOver" SlideOverClass="relative z-20" Done=@(() => NavigationManager.NavigateTo($"/create?id={Creative.Id}"))
                    ShowTitlebar="false" ShowFooter="false">
 
             <div class=@CssDefaults.SlideOver.TitlebarClass>

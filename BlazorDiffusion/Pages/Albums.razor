@@ -23,7 +23,7 @@
                 <div @key=@album.Id>
                     <NavLink href=@($"/?album={album.AlbumRef}&source={AppSource.Albums}")
                         class=@ClassNames("overflow-hidden flex justify-center")>
-                        <div class="relative sm:p-2 flex flex-col cursor-pointer items-center" style=@($"width:512px;height:512px")>
+                        <div class="relative sm:p-2 flex flex-col cursor-pointer items-center w-32 h-32 sm:w-64 sm:h-64 xl:w-96 xl:h-96 2xl:w-[512px] 2xl:h-[512px]">
                             <ArtifactImage Artifact="artifact" LazyLoad="true"
                                    class=@ClassNames("flex rounded sm:rounded-xl w-full h-full") ImageClass="object-cover" />
 
