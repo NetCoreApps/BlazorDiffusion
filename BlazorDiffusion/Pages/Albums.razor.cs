@@ -8,13 +8,15 @@ namespace BlazorDiffusion.Pages;
 
 public partial class Albums : AppAuthComponentBase
 {
-    ApiResult<GetAlbumIdsResponse> api = new();
+    [Parameter, SupplyParameterFromQuery] public bool? LazyLoad { get; set; }
 
+    [Inject] IIntersectionObserverService ObserverService { get; set; } = default!;
+    [Inject] ILogger<Favorites> Log { get; set; } = default!;
+
+    ApiResult<GetAlbumIdsResponse> api = new();
     List<AlbumResult> results = new();
     public ElementReference BottomElement { get; set; }
     IntersectionObserver? bottomObserver;
-    [Inject] IIntersectionObserverService ObserverService { get; set; } = default!;
-    [Inject] ILogger<Favorites> Log { get; set; } = default!;
 
     bool hasMore;
 

@@ -42,8 +42,8 @@ public class ConfigureUi : IHostingStartup
                 PrerenderDir = "/prerender",
                 Renderer = c.Resolve<IComponentRenderer>(),
                 Pages = {
-                    new(typeof(Pages.Index),  "/index.html", new() { [nameof(Pages.Index.LazyLoad)] = "false" }),
-                    //new(typeof(Pages.Create), "/create.html"), // needs to be signed in
+                    new(typeof(Pages.Index),  "/index.html",  new() { [nameof(Pages.Index.LazyLoad)] = "false" }),
+                    new(typeof(Pages.Albums), "/albums.html", new() { [nameof(Pages.Index.LazyLoad)] = "false" }),
                 }
             });
         });
