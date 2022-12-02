@@ -2568,9 +2568,9 @@ input[data-autocompleted] {
   line-height: 1.25rem;
 }
 
-.text-xs {
-  font-size: 0.75rem;
-  line-height: 1rem;
+.text-lg {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
 }
 
 .\!text-lg {
@@ -2578,9 +2578,9 @@ input[data-autocompleted] {
   line-height: 1.75rem !important;
 }
 
-.text-lg {
-  font-size: 1.125rem;
-  line-height: 1.75rem;
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
 }
 
 .text-xl {
@@ -4034,8 +4034,8 @@ input[data-autocompleted] {
     display: none;
   }
 
-  .sm\:h-96 {
-    height: 24rem;
+  .sm\:h-64 {
+    height: 16rem;
   }
 
   .sm\:h-24 {
@@ -4050,16 +4050,12 @@ input[data-autocompleted] {
     height: 100vh;
   }
 
-  .sm\:h-64 {
-    height: 16rem;
-  }
-
   .sm\:w-1\/3 {
     width: 33.333333%;
   }
 
-  .sm\:w-96 {
-    width: 24rem;
+  .sm\:w-64 {
+    width: 16rem;
   }
 
   .sm\:w-\[600px\] {
@@ -4078,12 +4074,12 @@ input[data-autocompleted] {
     width: 1.5rem;
   }
 
-  .sm\:w-full {
-    width: 100%;
+  .sm\:w-96 {
+    width: 24rem;
   }
 
-  .sm\:w-64 {
-    width: 16rem;
+  .sm\:w-full {
+    width: 100%;
   }
 
   .sm\:max-w-xs {
@@ -4486,16 +4482,8 @@ input[data-autocompleted] {
     display: table-cell;
   }
 
-  .xl\:h-\[512px\] {
-    height: 512px;
-  }
-
   .xl\:h-96 {
     height: 24rem;
-  }
-
-  .xl\:w-\[512px\] {
-    width: 512px;
   }
 
   .xl\:w-96 {
