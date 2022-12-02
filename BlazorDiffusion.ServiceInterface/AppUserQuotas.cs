@@ -21,18 +21,18 @@ public class AppUserQuotas
 
     public Dictionary<string, int> DailyRoleQuotas { get; } = new()
     {
-        [AppRoles.Creator] = 80,
+        [AppRoles.Creator] = 160,
     };
 
-    public const int DefaultDailyQuota = 40; //40
+    public const int DefaultDailyQuota = 80; //80
 
     /// <summary>
     /// Future:
-    /// Square    = 1 credit    (512 x 512)
-    /// Portrait  = 3 credits   (512 x 896)
-    /// Landscale = 3 credits   (896 x 512)
-    /// Large     = 7 credits   (896 x 896)
-    /// 2x Large  = 10 credits (1024 x 1024)
+    /// Square    = 1 credit    (512 x 512)  0.4
+    /// Portrait  = 3 credits   (512 x 896)  1.1
+    /// Landscale = 3 credits   (896 x 512)  1.1
+    /// Large     = 7 credits   (896 x 896)  2.3
+    /// 2x Large  = 10 credits (1024 x 1024) 3.2
     /// 
     /// Steps: 
     ///   50   = * 1
