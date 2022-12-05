@@ -36,6 +36,7 @@ public class RecordPrimaryArtifact
     public int? ToArtifactId { get; set; }
 }
 
+[ExcludeMetadata]
 public class SyncTasks : IReturn<SyncTasksResponse>
 {
     public bool? Periodic { get; set; }

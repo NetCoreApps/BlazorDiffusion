@@ -79,6 +79,7 @@ public class BackgroundMqServices : Service
         {
             // Update temporal scores + save all creatives with Artifacts that have changed
             var sw = Stopwatch.StartNew();
+            var now = DateTime.UtcNow;
             var msgs = new List<string>();
             void log(string message, params object[] args)
             {
@@ -133,6 +134,8 @@ public class BackgroundMqServices : Service
                             LikesCount = album.LikesCount,
                             SearchCount = album.SearchCount,
                             Score = album.Score,
+                            ModifiedBy = Users.System.Id.ToString(),
+                            ModifiedDate = now,
                         }, x => x.Id == album.Id);
                         Updated.AlbumScore(album.Id);
                     }
@@ -167,10 +170,11 @@ public class BackgroundMqServices : Service
                 Scores.LoadAnalytics(dbAnalytics);
 
                 var count = 0;
-                var allCreatives = await Db.LoadSelectAsync(Db.From<Creative>());
+                var allCreatives = await Db.SelectAsync(Db.From<Creative>());
                 foreach (var creative in allCreatives)
                 {
-                    foreach (var artifact in creative.Artifacts.OrEmpty())
+                    var creativeArtifacts = await Db.SelectAsync(Db.From<Artifact>().Where(x => x.CreativeId == creative.Id));
+                    foreach (var artifact in creativeArtifacts)
                     {
                         var needsUpdating = Scores.PopulateArtifactScores(artifact) || Scores.PopulateTemporalScore(artifact);
                         if (needsUpdating)
@@ -183,7 +187,9 @@ public class BackgroundMqServices : Service
                                 DownloadsCount = artifact.DownloadsCount,
                                 SearchCount = artifact.SearchCount,
                                 Score = artifact.Score,
-                            }, x => x.Id == artifact.Id);
+                                ModifiedBy = Users.System.Id.ToString(),
+                                ModifiedDate = now,
+                        }, x => x.Id == artifact.Id);
                             Updated.ArtifactIds.Add(artifact.Id);
                         }
                     }
@@ -204,6 +210,8 @@ public class BackgroundMqServices : Service
                             LikesCount = album.LikesCount,
                             SearchCount = album.SearchCount,
                             Score = album.Score,
+                            ModifiedBy = Users.System.Id.ToString(),
+                            ModifiedDate = now,
                         }, x => x.Id == album.Id);
                     }
                 }
