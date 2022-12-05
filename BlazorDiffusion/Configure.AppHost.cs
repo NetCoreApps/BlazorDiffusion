@@ -69,9 +69,9 @@ public class AppHost : AppHostBase, IHostingStartup
         Plugins.Add(new FilesUploadFeature(
             new UploadLocation("artifacts", appFs,
                 readAccessRole: RoleNames.AllowAnon,
-                maxFileBytes: AppData.MaxArtiactSize),
+                maxFileBytes: AppData.MaxArtifactSize),
             new UploadLocation("avatars", appFs, allowExtensions: FileExt.WebImages, 
-                // need to use file name to create unique URL that invalidates CDN cache
+                // Use unique URL to invalidate CDN caches
                 resolvePath: ctx => X.Map((CustomUserSession)ctx.Session, x => $"/avatars/{x.RefIdStr[..2]}/{x.RefIdStr}/{ctx.FileName}")!,
                 maxFileBytes: AppData.MaxAvatarSize,
                 transformFile:ImageUtils.TransformAvatarAsync)
