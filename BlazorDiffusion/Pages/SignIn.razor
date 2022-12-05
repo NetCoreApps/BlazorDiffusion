@@ -9,7 +9,7 @@
     return;
 }
 
-<h1 class="mb-4 text-2xl font-semibold text-gray-900 dark:text-gray-100">
+<h1 class="my-4 text-2xl font-semibold text-gray-900 dark:text-gray-100">
     Sign In
 </h1>
 
@@ -80,28 +80,6 @@
     </div>
 </CascadingValue>
 </form>
-
-<div class="flex mt-8">
-    <h3 class="hidden xs:block mr-4 leading-8 text-gray-500 dark:text-gray-400">Quick Links</h3>
-    <span class="relative z-0 inline-flex shadow-sm rounded-md">
-        <button @onclick='_ => SetUser("admin@email.com", "p@55wOrd")'
-            class="relative inline-flex items-center px-4 py-2 rounded-l-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
-            admin@email.com</button>
-        <button @onclick='_ => SetUser("system@email.com", "p@55wOrd")'
-            class="-ml-px relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900  focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
-            system@email.com</button>
-        <button @onclick='_ => SetUser("demis@servicestack.com", "p@55wOrd")'
-            class="-ml-px relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900  focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
-            demis@servicestack.com</button>
-        <button @onclick='_ => SetUser("darren@servicestack.com", "p@55wOrd")'
-            class="-ml-px relative inline-flex items-center px-4 py-2 rounded-r-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900  focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
-            darren@servicestack.com</button>
-        <button @onclick='_ => SetUser("test@user.com", "p@55wOrd")'
-            class="-ml-px relative inline-flex items-center px-4 py-2 rounded-r-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900  focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
-            test@user.com</button>
-    </span>
-</div>
-
 </div>
 
 @code {
@@ -114,12 +92,6 @@
     ApiResult<AuthenticateResponse> api = new();
 
     Authenticate request = new();
-
-    void SetUser(string email, string password)
-    {
-        request.UserName = email;
-        request.Password = password;
-    }
 
     async Task submit()
     {
