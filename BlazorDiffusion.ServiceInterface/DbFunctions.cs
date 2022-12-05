@@ -11,12 +11,10 @@ public static class DbFunctions
     public static void RegisterImgCompare(this IDbConnection db)
     {
         var sqliteConn = (SqliteConnection)db.ToDbConnection();
-        sqliteConn.CreateFunction(
-            "imgcompare",
-            (Int64? hash1, Int64? hash2)
-                => hash1 == null || hash2 == null
-                    ? 0
-                    : CompareHash.Similarity((ulong)hash1, (ulong)hash2));
+        sqliteConn.CreateFunction("imgcompare", (Int64? hash1, Int64? hash2)
+            => hash1 == null || hash2 == null
+                ? 0
+                : CompareHash.Similarity((ulong)hash1, (ulong)hash2));
     }
     public static void RegisterBgCompare(this IDbConnection db)
     {

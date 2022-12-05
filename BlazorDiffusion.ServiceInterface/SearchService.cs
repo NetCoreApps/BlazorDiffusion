@@ -11,7 +11,6 @@ public class SearchService : Service
 {
     public IAutoQueryDb AutoQuery { get; set; }
 
-    // TODO Home page search
     public async Task<object> Any(SearchArtifacts query)
     {
         var search = query.Query ?? "";
