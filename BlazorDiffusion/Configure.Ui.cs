@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.TagHelpers;
-using Microsoft.AspNetCore.Razor.TagHelpers;
-using System.Text.Encodings.Web;
-using BlazorDiffusion.ServiceInterface;
+﻿using BlazorDiffusion.ServiceInterface;
 using Microsoft.AspNetCore.Components;
 using ServiceStack.IO;
 using BlazorDiffusion.ServiceModel;
@@ -18,8 +14,7 @@ public class ConfigureUi : IHostingStartup
 {
     public void Configure(IWebHostBuilder builder) => builder
         .ConfigureServices(services => {
-            services.AddSingleton<IComponentRenderer>(c => new ComponentRenderer(
-                typeof(Pages.Index).Assembly.GetTypes().Where(x => typeof(ComponentBase).IsAssignableFrom(x))));
+            services.AddSingleton<IComponentRenderer>(c => new ComponentRenderer());
         }).ConfigureAppHost(afterConfigure:appHost => {
 
             //TODO replace with appHost.IsRunAsAppTask()
@@ -101,74 +96,5 @@ public class Prerenderer : IPrerenderer
                 LogManager.GetLogger(GetType()).Error(e, "Error trying to render {0}: {1}", page.Component.FullName, e.Message);
             }
         }
-    }
-}
-
-public class ComponentRenderer : IComponentRenderer
-{
-    public List<Type> Types { get; }
-
-    public ComponentRenderer(IEnumerable<Type> types)
-    {
-        Types = types.ToList();
-    }
-
-    public Task<string> RenderComponentAsync(string typeName, HttpContext httpContext, Dictionary<string, object>? args = null)
-    {
-        var type = typeName.IndexOf('.') < 0 
-            ? Types.FirstOrDefault(x => x.Name == typeName)
-            : Types.FirstOrDefault(x => x.FullName == typeName);
-        if (type == null)
-            throw HttpError.NotFound("Component Not Found");
-        
-        return RenderComponentAsync(type, httpContext, args);
-    }
-
-    public Task<string> RenderComponentAsync<T>(HttpContext httpContext, Dictionary<string, object>? args = null) =>
-        RenderComponentAsync(typeof(T), httpContext, args);
-
-    public async Task<string> RenderComponentAsync(Type componentType, HttpContext httpContext, Dictionary<string, object>? args = null)
-    {
-        var componentArgs = new Dictionary<string, object>();
-        if (args != null)
-        {
-            var accessors = TypeProperties.Get(componentType);
-            foreach (var entry in args)
-            {
-                var prop = accessors.GetPublicProperty(entry.Key);
-                if (prop == null)
-                    continue;
-
-                var value = entry.Value.ConvertTo(prop.PropertyType);
-                componentArgs[prop.Name] = value;
-            }
-        }
-
-        var componentTagHelper = new ComponentTagHelper
-        {
-            ComponentType = componentType,
-            RenderMode = RenderMode.Static,
-            Parameters = componentArgs,
-            ViewContext = new ViewContext { HttpContext = httpContext },
-        };
-
-        var objArgs = new Dictionary<object, object>();
-        var tagHelperContext = new TagHelperContext(
-            new TagHelperAttributeList(),
-            objArgs,
-            "uniqueid");
-
-        var tagHelperOutput = new TagHelperOutput(
-            "tagName",
-            new TagHelperAttributeList(),
-            (useCachedResult, encoder) => Task.FromResult<TagHelperContent>(new DefaultTagHelperContent()));
-
-        await componentTagHelper.ProcessAsync(tagHelperContext, tagHelperOutput);
-
-        using var stringWriter = new StringWriter();
-
-        tagHelperOutput.Content.WriteTo(stringWriter, HtmlEncoder.Default);
-
-        return stringWriter.ToString();
     }
 }

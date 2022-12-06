@@ -1,25 +1,23 @@
-﻿using BlazorDiffusion.ServiceModel;
-using ServiceStack;
-using ServiceStack.Auth;
-using ServiceStack.Host.NetCore;
-using ServiceStack.Logging;
-using ServiceStack.OrmLite;
-using ServiceStack.OrmLite.Legacy;
-using ServiceStack.Text;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ServiceStack;
+using ServiceStack.Logging;
+using ServiceStack.OrmLite;
+using ServiceStack.OrmLite.Legacy;
+using BlazorDiffusion.ServiceModel;
 
 namespace BlazorDiffusion.ServiceInterface;
 
 public class BackgroundMqServices : Service
 {
-    public IStableDiffusionClient StableDiffusionClient { get; set; }
     public static ILog Log = LogManager.GetLogger(typeof(BackgroundMqServices));
-    public AppConfig AppConfig { get; set; }
+    public IPrerenderer Prerenderer { get; set; } = default!;
+    public IStableDiffusionClient StableDiffusionClient { get; set; } = default!;
+    public AppConfig AppConfig { get; set; } = default!;
 
     public async Task Any(DiskTasks request)
     {
@@ -340,22 +338,6 @@ public class BackgroundMqServices : Service
 
         await PulseSyncTasks();
     }
-
-    public IComponentRenderer ComponentRenderer { get; set; }
-
-    public async Task<object> Any(RenderComponent request)
-    {
-        var httpContext = (!request.TestContext
-            ? (Request as NetCoreRequest)?.HttpContext
-            : null) ?? HttpContextFactory.CreateHttpContext(Request.GetBaseUrl());
-
-        var args = Request.GetRequestParams().ToObjectDictionary();
-
-        var html = await ComponentRenderer.RenderComponentAsync(request.Type, httpContext, args);
-        return html;
-    }
-
-    public IPrerenderer Prerenderer { get; set; }
 
     public async Task<object> Any(Prerender request)
     {

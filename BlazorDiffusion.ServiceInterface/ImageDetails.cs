@@ -196,6 +196,7 @@ public static class ImageUtils
     {
         var originalMs = await ctx.File.InputStream.CopyToNewMemoryStreamAsync();
 
+        // Offload persistance of original image to background task
         using var mqClient = HostContext.AppHost.GetMessageProducer(ctx.Request);
         mqClient.Publish(new DiskTasks {
             SaveFile = new() {
