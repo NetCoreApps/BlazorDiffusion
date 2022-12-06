@@ -62,6 +62,8 @@ public class AppHost : AppHostBase, IHostingStartup
         container.Register(appConfig);
 
         var hasR2 = !string.IsNullOrEmpty(r2AccessId);
+        if(!hasR2)
+            Log.Warn($"Starting without R2 access.");
 
         var s3Client = new AmazonS3Client(appConfig.R2AccessId, appConfig.R2AccessKey, new AmazonS3Config {
             ServiceURL = $"https://{appConfig.R2Account}.r2.cloudflarestorage.com"
