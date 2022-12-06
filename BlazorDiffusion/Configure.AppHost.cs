@@ -58,14 +58,17 @@ public class AppHost : AppHostBase, IHostingStartup
             SyncTasksInterval = TimeSpan.FromMinutes(10),
             // DisableWrites = HostingEnvironment.IsDevelopment(),
         });
-        Log.Warn($"R2: Account:{appConfig.R2Account}, Id:{appConfig.R2AccessId}, Key:{appConfig.R2AccessKey}, Bucket:{appConfig.ArtifactBucket}");
+        
         container.Register(appConfig);
+
+        var hasR2 = !string.IsNullOrEmpty(r2AccessId);
 
         var s3Client = new AmazonS3Client(appConfig.R2AccessId, appConfig.R2AccessKey, new AmazonS3Config {
             ServiceURL = $"https://{appConfig.R2Account}.r2.cloudflarestorage.com"
         });
         container.Register(s3Client);
-        var appFs = VirtualFiles = new R2VirtualFiles(s3Client, appConfig.ArtifactBucket);
+        var localFs = new FileSystemVirtualFiles(ContentRootDirectory.RealPath.CombineWith("App_Files").AssertDir());
+        var appFs = VirtualFiles = hasR2 ? new R2VirtualFiles(s3Client, appConfig.ArtifactBucket) : localFs;
         Plugins.Add(new FilesUploadFeature(
             new UploadLocation("artifacts", appFs,
                 readAccessRole: RoleNames.AllowAnon,

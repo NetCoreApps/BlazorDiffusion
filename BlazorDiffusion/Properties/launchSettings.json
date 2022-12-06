@@ -18,6 +18,15 @@
           "ASPNETCORE_ENVIRONMENT": "Development"
         }
       },
+      "LocalPrep": {
+        "commandName": "Project",
+        "commandLineArgs": "--AppTasks=migrate.localprep",
+        "dotnetRunMessages": true,
+        "launchBrowser": false,
+        "environmentVariables": {
+          "ASPNETCORE_ENVIRONMENT": "Development"
+        }
+      },
       "IIS Express": {
         "commandName": "IISExpress",
         "launchBrowser": true,
