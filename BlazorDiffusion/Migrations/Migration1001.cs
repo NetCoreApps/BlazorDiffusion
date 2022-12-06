@@ -566,20 +566,23 @@ public class Migration1001 : MigrationBase
 
             foreach (var x in albumArtifactRefs.Where(x => x.AlbumRefId == albumnRef.RefId))
             {
-                var albumArtifact = new AlbumArtifact
+                if (artifactRefIdsMap.ContainsKey(x.ArtifactRefId))
                 {
-                    AlbumId = album.Id,
-                    ArtifactId = artifactRefIdsMap[x.ArtifactRefId],
-                    Description = x.Description,
-                    CreatedDate = album.CreatedDate,
-                };
-                albumArtifact.Id = (int)Db.Insert(albumArtifact, selectIdentity: true);
+                    var albumArtifact = new AlbumArtifact
+                    {
+                        AlbumId = album.Id,
+                        ArtifactId = artifactRefIdsMap[x.ArtifactRefId],
+                        Description = x.Description,
+                        CreatedDate = album.CreatedDate,
+                    };
+                    albumArtifact.Id = (int)Db.Insert(albumArtifact, selectIdentity: true);
 
-                if (albumnRef.PrimaryArtifactRef == x.ArtifactRefId)
-                {
-                    album.PrimaryArtifactId = albumArtifact.ArtifactId;
-                    Db.UpdateOnly(() => new Album { PrimaryArtifactId = album.PrimaryArtifactId },
-                        where: x => x.Id == album.Id);
+                    if (albumnRef.PrimaryArtifactRef == x.ArtifactRefId)
+                    {
+                        album.PrimaryArtifactId = albumArtifact.ArtifactId;
+                        Db.UpdateOnly(() => new Album { PrimaryArtifactId = album.PrimaryArtifactId },
+                            where: x => x.Id == album.Id);
+                    }
                 }
             }
 
