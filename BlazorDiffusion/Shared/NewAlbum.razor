@@ -1,6 +1,6 @@
 ﻿@inherits AppAuthComponentBase
 
-<ModalForm>
+<ModalForm class=@ClassNames("z-30", Class)>
     <form @onsubmit="submit" @onsubmit:preventDefault>
         <CascadingValue Value=@api.Error>
             <div class="shadow overflow-hidden sm:rounded-md bg-white dark:bg-black">
