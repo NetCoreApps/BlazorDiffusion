@@ -71,6 +71,8 @@ public static class Scores
     public static ConcurrentDictionary<int, int> AlbumSearchCountMap = new();
     public static ConcurrentDictionary<int, int> AlbumLikesCountMap = new();
 
+    public static Dictionary<string,int> AlbumRefIdMap = new();
+
     static bool LogDuplicates = true;
 
     public static void Clear()
@@ -125,6 +127,8 @@ public static class Scores
             Count = Sql.Count("*"),
         })));
 
+        AlbumRefIdMap = db.Dictionary<string, int>(db.From<Album>().Select(x => new { x.RefId, x.Id }));
+
         Log.DebugFormat($"Scores.Load() took {0}ms", sw.ElapsedMilliseconds);
     }
 
@@ -145,11 +149,20 @@ public static class Scores
                 Count = Sql.Count("*"),
             })));
 
-        AlbumSearchCountMap = new(db.Dictionary<int, int>(db.From<SearchStat>().Where(s => s.AlbumId != null && s.Source != "top")
+        var albumRefIdCountMap = db.Dictionary<string, int>(db.From<SearchStat>().Where(s => s.Album != null && s.Source != "top")
             .GroupBy(x => x.Album).Select(s => new {
-                s.AlbumId,
+                s.Album,
                 Count = Sql.Count("*"),
-            })));
+            }));
+        
+        var albumSearchCountMap = new Dictionary<int, int>();
+        foreach (var entry in albumRefIdCountMap)
+        {
+            if (!AlbumRefIdMap.TryGetValue(entry.Key, out var albumId))
+                continue;
+            albumSearchCountMap[albumId] = entry.Value;
+        }
+        AlbumSearchCountMap = new(albumSearchCountMap);
 
         Log.DebugFormat($"Scores.LoadAnalytics() took {0}ms", sw.ElapsedMilliseconds);
     }
@@ -183,7 +196,7 @@ public static class Scores
     {
         var likesCount = AlbumLikesCountMap.TryGetValue(album.Id, out var likes) ? likes : 0;
         var searchCount = AlbumSearchCountMap.TryGetValue(album.Id, out var searches) ? searches : 0;
-        var score = Calculate(album: album);
+        var score = CalculateAlbum(likesCount: likesCount, searchCount: searchCount);
 
         if (likesCount != album.LikesCount ||
             searchCount != album.SearchCount ||
@@ -265,10 +278,11 @@ public static class Scores
             + (noOfDownloads * Weights.Download)
             + (noOfSearches * Weights.Search);
     }
-    public static int Calculate(Album album)
+    public static int Calculate(Album album) => CalculateAlbum(likesCount: album.LikesCount, searchCount: album.SearchCount);
+    public static int CalculateAlbum(int likesCount, int searchCount)
     {
-        return (album.LikesCount * Weights.Like)
-            + (album.SearchCount * Weights.Search);
+        return (likesCount * Weights.Like)
+            + (searchCount * Weights.Search);
     }
 
     public static async Task ChangePrimaryArtifactAsync(IDbConnection db, int creativeId, int? fromArtifactId, int? toArtifactId)
