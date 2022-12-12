@@ -144,6 +144,9 @@ jobs:
           DEPLOY_CDN: ${{ secrets.DEPLOY_CDN }}
           DREAMAI_APIKEY: ${{ secrets.DREAMAI_APIKEY }}
           SERVICESTACK_LICENSE: ${{ secrets.SERVICESTACK_LICENSE }}
+          # Uncomment to use GitHub Action Secrets
+          R2_ACCESS_KEY_ID: #${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: #${{ secrets.R2_SECRET_ACCESS_KEY }}
           AZURE_APP_ID: ${{ secrets.AZURE_APP_ID }}
           AZURE_APP_SECRET: ${{ secrets.AZURE_APP_SECRET }}
           GOOGLE_CONSUMER_KEY: ${{ secrets.GOOGLE_CONSUMER_KEY }}
