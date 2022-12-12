@@ -144,8 +144,6 @@ jobs:
           DEPLOY_CDN: ${{ secrets.DEPLOY_CDN }}
           DREAMAI_APIKEY: ${{ secrets.DREAMAI_APIKEY }}
           SERVICESTACK_LICENSE: ${{ secrets.SERVICESTACK_LICENSE }}
-          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
           AZURE_APP_ID: ${{ secrets.AZURE_APP_ID }}
           AZURE_APP_SECRET: ${{ secrets.AZURE_APP_SECRET }}
           GOOGLE_CONSUMER_KEY: ${{ secrets.GOOGLE_CONSUMER_KEY }}
@@ -167,16 +165,6 @@ jobs:
           source: ".deploy/${{ github.event.repository.name }}-docker-compose.yml"
           target: "~/"
 
-      - name: Clean db.sqlite during development
-        uses: appleboy/ssh-action@v0.1.4
-        with:
-          host: ${{ secrets.DEPLOY_API }}
-          username: ${{ secrets.DEPLOY_USERNAME }}
-          key: ${{ secrets.DEPLOY_KEY }}
-          port: 22
-          script: |
-            rm /var/lib/docker/volumes/deploy_BlazorDiffusion-mydb/_data/db.sqlite
-      
       # Populate litestream.yml with variables from build process, including TAG_NAME.
       - name: litestream.yml file prep
         uses: danielr1996/envsubst-action@1.1.0
@@ -198,23 +186,23 @@ jobs:
           source: ".deploy/litestream.yml"
           target: "/var/lib/docker/volumes/deploy_BlazorDiffusion-assets/_data"
 
-#      - name: Restore db using litestream if needed
-#        uses: appleboy/ssh-action@v0.1.4
-#        env:
-#          APPTOKEN: ${{ secrets.GITHUB_TOKEN }}
-#          USERNAME: ${{ secrets.DEPLOY_USERNAME }}
-#        with:
-#          host: ${{ secrets.DEPLOY_API }}
-#          username: ${{ secrets.DEPLOY_USERNAME }}
-#          key: ${{ secrets.DEPLOY_KEY }}
-#          port: 22
-#          envs: APPTOKEN,USERNAME
-#          script: |
-#            echo $APPTOKEN | docker login ghcr.io -u $USERNAME --password-stdin
-#            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml pull
-#            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-restore --exit-code-from ${{ github.event.repository.name }}-restore     
-#            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-restore-analytics --exit-code-from ${{ github.event.repository.name }}-restore-analytics
-#      
+      - name: Restore db using litestream if needed
+        uses: appleboy/ssh-action@v0.1.4
+        env:
+          APPTOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USERNAME: ${{ secrets.DEPLOY_USERNAME }}
+        with:
+          host: ${{ secrets.DEPLOY_API }}
+          username: ${{ secrets.DEPLOY_USERNAME }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          port: 22
+          envs: APPTOKEN,USERNAME
+          script: |
+            echo $APPTOKEN | docker login ghcr.io -u $USERNAME --password-stdin
+            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml pull
+            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-restore --exit-code-from ${{ github.event.repository.name }}-restore     
+            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-restore-analytics --exit-code-from ${{ github.event.repository.name }}-restore-analytics
+
       - name: Copy BlazorDiffusion Seed Data to Remote Server
         timeout-minutes: 30
         uses: appleboy/scp-action@v0.1.1

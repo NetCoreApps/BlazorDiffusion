@@ -5,14 +5,14 @@ dbs:
   - path: /data/db.sqlite
     replicas:
       - type: s3
-        bucket: diffusion-backup
+        bucket: diffusion-server-backup
         path: db.sqlite
         region: auto
         endpoint: https://b95f38ca3a6ac31ea582cd624e6eb385.r2.cloudflarestorage.com
   - path: /data/analytics.sqlite
     replicas:
       - type: s3
-        bucket: diffusion-backup
+        bucket: diffusion-server-backup
         path: analytics.sqlite
         region: auto
         endpoint: https://b95f38ca3a6ac31ea582cd624e6eb385.r2.cloudflarestorage.com

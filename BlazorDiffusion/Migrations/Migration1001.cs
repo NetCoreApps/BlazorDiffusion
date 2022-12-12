@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Diagnostics;
+using System.IO.Compression;
 using System.Runtime.Serialization;
 using BlazorDiffusion.Pages.admin;
 using BlazorDiffusion.ServiceInterface;
@@ -453,7 +454,10 @@ public class Migration1001 : MigrationBase
             appFiles.Create();
         var seedFromDirectory = new DirectoryInfo("./App_Files/artifacts");
         if (!seedFromDirectory.Exists)
+        {
             seedFromDirectory.Create();
+            FetchDemoAssets();
+        }
         var filesToLoad = seedFromDirectory.GetMatchingFiles("*metadata.json").OrderBy(x => x);
         var creativeEntries = new List<Creative>();
         foreach (var file in filesToLoad)
@@ -606,6 +610,27 @@ public class Migration1001 : MigrationBase
         {
             throw new Exception($"{nameof(Migration1001)} had {errors.Count} errors:\n"
                                 + string.Join("\n", errors.Map(x => $"   {x}")));
+        }
+    }
+    
+    public static void FetchDemoAssets()
+    {
+        using var zipStream = "https://github.com/NetCoreApps/BlazorDiffusionAssets/archive/refs/heads/master.zip"
+            .GetStreamFromUrl();
+        var zipArchive = new ZipArchive(zipStream);
+        var appFiles = new DirectoryInfo("./App_Files");
+        foreach (var entry in zipArchive.Entries)
+        {
+            using var stream = entry.Open();
+            var relPath = entry.FullName.SplitOnFirst("/")[1];
+            var path = Path.Combine(appFiles.FullName, relPath);
+            if (entry.Length == 0)
+            {
+                if(!Directory.Exists(path))
+                    Directory.CreateDirectory(path); 
+                continue;
+            }
+            File.WriteAllBytes(Path.Combine(appFiles.FullName,relPath), entry.Open().ReadFully());
         }
     }
 

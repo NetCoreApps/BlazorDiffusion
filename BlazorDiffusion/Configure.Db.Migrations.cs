@@ -16,8 +16,6 @@ public class ConfigureDbMigrations : IHostingStartup
             var migrator = new Migrator(appHost.Resolve<IDbConnectionFactory>(), typeof(Migration1000).Assembly);
             AppTasks.Register("migrate", _ => migrator.Run());
             AppTasks.Register("migrate.revert", args => migrator.Revert(args[0]));
-
-            AppTasks.Register("migrate.localprep", args => migrator.FetchDemoAssets());
             AppTasks.Run();
 
             using var db = migrator.DbFactory.OpenDbConnection();
