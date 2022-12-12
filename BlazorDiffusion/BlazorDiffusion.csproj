@@ -15,8 +15,8 @@
         <PackageReference Include="Grpc.Core" Version="2.46.5" />
         <PackageReference Include="Grpc.Net.Client" Version="2.49.0" />
         <PackageReference Include="Grpc.Tools" Version="2.49.1">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Markdig" Version="0.30.3" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.0" />
@@ -29,15 +29,15 @@
         <ProjectReference Include="..\BlazorDiffusion.ServiceModel\BlazorDiffusion.ServiceModel.csproj" />
     </ItemGroup>
 
-    <!--ItemGroup>
+    <ItemGroup>
         <PackageReference Include="ServiceStack" Version="6.*" />
         <PackageReference Include="ServiceStack.Aws" Version="6.*" />
         <PackageReference Include="ServiceStack.Blazor" Version="6.*" />
         <PackageReference Include="ServiceStack.OrmLite.Sqlite.Data" Version="6.*" />
         <PackageReference Include="ServiceStack.Server" Version="6.*" />
-    </ItemGroup-->
+    </ItemGroup>
     <!-- Rename BlazorDiffusion.sln.Source and Uncomment Project References to reference source projects -->
-    <ItemGroup>
+    <!--<ItemGroup>
         <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack.Aws\src\ServiceStack.Aws\ServiceStack.Aws.csproj" />
         <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack.Blazor\src\ServiceStack.Blazor\ServiceStack.Blazor.csproj" />
         <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack.OrmLite\src\ServiceStack.OrmLite.Sqlite.Data\ServiceStack.OrmLite.Sqlite.Data.csproj" />
@@ -48,7 +48,7 @@
         <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack\src\ServiceStack.Interfaces\ServiceStack.Interfaces.csproj" />
         <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack\src\ServiceStack.Server\ServiceStack.Server.csproj" />
         <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack\src\ServiceStack\ServiceStack.csproj" />
-    </ItemGroup>
+    </ItemGroup>-->
 
     <ItemGroup>
         <Protobuf Include="proto\dashboard.proto" GrpcServices="None" />
@@ -59,31 +59,31 @@
     </ItemGroup>
 
     <Target Name="CreateAppDataFolderBuild" AfterTargets="AfterBuild">
-      <MakeDir Directories="$(BuildDir)App_Data" Condition="!Exists('$(BuildDir)App_Data')" />
+        <MakeDir Directories="$(BuildDir)App_Data" Condition="!Exists('$(BuildDir)App_Data')" />
     </Target>
-     
+
     <Target Name="CreateAppDataFolder" AfterTargets="AfterPublish">
         <MakeDir Directories="$(PublishDir)App_Data" Condition="!Exists('$(PublishDir)App_Data')" />
     </Target>
 
     <ItemGroup>
-      <Content Remove="App_Files\artifacts\**\*" />
+        <Content Remove="App_Files\artifacts\**\*" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="App_Data\" />
+        <Folder Include="App_Data\" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="App_Data\seed\artists.csv">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="App_Data\seed\modifiers.txt">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="App_Data\seed\artifact-likes.csv">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
+        <None Update="App_Data\seed\artists.csv">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="App_Data\seed\modifiers.txt">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="App_Data\seed\artifact-likes.csv">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <PropertyGroup>

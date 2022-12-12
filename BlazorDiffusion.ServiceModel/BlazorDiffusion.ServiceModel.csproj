@@ -5,11 +5,11 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-    <!--ItemGroup>
-        <PackageReference Include="ServiceStack.Interfaces" Version="6.*" />
-    </ItemGroup-->
     <ItemGroup>
-        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack\src\ServiceStack.Interfaces\ServiceStack.Interfaces.csproj" />
+        <PackageReference Include="ServiceStack.Interfaces" Version="6.*" />
     </ItemGroup>
+    <!--<ItemGroup>
+        <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack\src\ServiceStack.Interfaces\ServiceStack.Interfaces.csproj" />
+    </ItemGroup>-->
 
 </Project>

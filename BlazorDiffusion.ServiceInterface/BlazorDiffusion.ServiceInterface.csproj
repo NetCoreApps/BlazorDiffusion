@@ -11,12 +11,12 @@
         <PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.5" />
     </ItemGroup>
 
-    <!--ItemGroup>
+    <ItemGroup>
         <PackageReference Include="ServiceStack" Version="6.*" />
         <PackageReference Include="ServiceStack.Server" Version="6.*" />
         <PackageReference Include="ServiceStack.Aws" Version="6.*" />
-    </ItemGroup-->
-    <ItemGroup>
+    </ItemGroup>
+    <!--<ItemGroup>
         <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack.Aws\src\ServiceStack.Aws\ServiceStack.Aws.csproj" />
         <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack.OrmLite\src\ServiceStack.OrmLite\ServiceStack.OrmLite.csproj" />
         <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack.Text\src\ServiceStack.Text\ServiceStack.Text.csproj" />
@@ -25,7 +25,7 @@
         <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack\src\ServiceStack.Interfaces\ServiceStack.Interfaces.csproj" />
         <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack\src\ServiceStack.Server\ServiceStack.Server.csproj" />
         <ProjectReference Include="..\..\..\ServiceStack\ServiceStack\ServiceStack\src\ServiceStack\ServiceStack.csproj" />
-    </ItemGroup>
+    </ItemGroup>-->
 
     <ItemGroup>
         <ProjectReference Include="..\BlazorDiffusion.ServiceModel\BlazorDiffusion.ServiceModel.csproj" />
