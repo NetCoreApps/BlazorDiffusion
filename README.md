@@ -37,7 +37,7 @@ $ dotnet run
 
 ### Prerequisites
 
-Install [.NET 6.0](https://dotnet.microsoft.com/en-us/download)
+Install [.NET 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
 
 Generating Stable Diffusion requires a [Dream AI API Key](https://beta.dreamstudio.ai/membership?tab=apiKeys) populated in the `DREAMAI_APIKEY` or configured in 
 the `DreamStudioClient` in [Configure.AppHost.cs](https://github.com/NetCoreApps/BlazorDiffusion/blob/main/BlazorDiffusion/Configure.AppHost.cs).
