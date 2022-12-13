@@ -123,7 +123,7 @@ Blazor Diffusion leverages our [support for Litestream](https://docs.servicestac
 
 To make it easy for Blazor Tailwind projects to take advantage of our first-class [Litestream support](https://docs.servicestack.net/ormlite/litestream), we've created a new video combining these ultimate developer experience & value combo solutions that walks through how to deploy a new Blazor Tailwind SQLite + Litestream App to any Linux server with SSH access, Docker and Docker Compose:
 
-[![](https://i3.ytimg.com/vi/fY50dWszpw4/maxresdefault.jpg)](https://www.youtube.com/watch?v=tt0ytzVVjEY)
+[![](https://i3.ytimg.com/vi/fY50dWszpw4/maxresdefault.jpg)](https://www.youtube.com/watch?v=fY50dWszpw4)
 
 ### Useful Blazor Litestream Video Links
 
