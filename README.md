@@ -26,12 +26,18 @@ To try out the Admin pages on the Live Demo Sign in with user `admin@email.com` 
     </a>
 </div>
 
+### Install
+
 For a closer look, clone this repo to run a local modifiable copy, after unzipping go to [/BlazorDiffusion](https://github.com/NetCoreApps/BlazorDiffusion/tree/main/BlazorDiffusion) and run:
 
 ```bash
 $ npm run migrate
 $ dotnet run
 ```
+
+### Prerequisites
+
+Install [.NET 6.0](https://dotnet.microsoft.com/en-us/download)
 
 Generating Stable Diffusion requires a [Dream AI API Key](https://beta.dreamstudio.ai/membership?tab=apiKeys) populated in the `DREAMAI_APIKEY` or configured in 
 the `DreamStudioClient` in [Configure.AppHost.cs](https://github.com/NetCoreApps/BlazorDiffusion/blob/main/BlazorDiffusion/Configure.AppHost.cs).
