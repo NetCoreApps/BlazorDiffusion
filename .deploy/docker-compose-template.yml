@@ -30,6 +30,7 @@ services:
       FACEBOOK_APP_SECRET: ${FACEBOOK_APP_SECRET}
     volumes:
       - ${APP_NAME}-mydb:/app/App_Data
+      - ${APP_NAME}-assets:/app/App_Files 
 
   ${APP_NAME}-litestream:
     image: litestream/litestream
