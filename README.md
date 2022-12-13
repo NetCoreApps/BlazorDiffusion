@@ -47,8 +47,8 @@ The following components make use of `<EditForm>` AutoQueryGrid extensibility to
  - [ArtifactReportsAutoQueryGrid.razor](https://github.com/NetCoreApps/BlazorDiffusion/blob/main/BlazorDiffusion/Shared/admin/ArtifactReportsAutoQueryGrid.razor)
 
 ```csharp
-<AutoQueryGrid @ref=@grid Model="Creative" Apis="Apis.AutoQuery<QueryCreatives,UpdateCreative,HardDeleteCreative>()"
-               ConfigureQuery="ConfigureQuery">
+<AutoQueryGrid @ref=@grid Model="Creative" ConfigureQuery="ConfigureQuery"
+               Apis="Apis.AutoQuery<QueryCreatives,UpdateCreative,HardDeleteCreative>()">
     <EditForm>
         <div class="relative z-10" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
             <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
@@ -123,7 +123,7 @@ Blazor Diffusion leverages our [support for Litestream](https://docs.servicestac
 
 To make it easy for Blazor Tailwind projects to take advantage of our first-class [Litestream support](https://docs.servicestack.net/ormlite/litestream), we've created a new video combining these ultimate developer experience & value combo solutions that walks through how to deploy a new Blazor Tailwind SQLite + Litestream App to any Linux server with SSH access, Docker and Docker Compose:
 
-<iframe class="video-hd" src="https://www.youtube.com/embed/fY50dWszpw4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+[![](https://i3.ytimg.com/vi/fY50dWszpw4/maxresdefault.jpg)](https://www.youtube.com/watch?v=tt0ytzVVjEY)
 
 ### Useful Blazor Litestream Video Links
 
