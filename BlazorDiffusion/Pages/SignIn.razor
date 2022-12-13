@@ -87,7 +87,7 @@
     [Parameter] public string? ReturnUrl { get; set; }
     [Parameter, SupplyParameterFromQuery] public string? f { get; set; }
 
-    string AbsoluteReturnUrl => AppConfig.Instance.BaseUrl.CombineWith(NavigationManager.GetReturnUrl());
+    string AbsoluteReturnUrl => NavigationManager.BaseUri.CombineWith(NavigationManager.GetReturnUrl());
     string[] VisibleFields => new[]{ nameof(Authenticate.UserName), nameof(Authenticate.Password) };
 
     ApiResult<AuthenticateResponse> api = new();

@@ -22,7 +22,6 @@ public enum Department
 
 public class AppUserAuthEvents : AuthEvents
 {
-
     public override async Task OnAuthenticatedAsync(IRequest httpReq, IAuthSession session, IServiceBase authService,
         IAuthTokens tokens, Dictionary<string, string> authInfo, CancellationToken token = default)
     {
@@ -43,7 +42,8 @@ public class ConfigureAuthRepository : IHostingStartup
 {
     public void Configure(IWebHostBuilder builder) => builder
         .ConfigureServices(services => services.AddSingleton<IAuthRepository>(c =>
-            new OrmLiteAuthRepository<AppUser, UserAuthDetails>(c.Resolve<IDbConnectionFactory>()) {
+            new OrmLiteAuthRepository<AppUser, UserAuthDetails>(c.Resolve<IDbConnectionFactory>())
+            {
                 UseDistinctRoleTables = true
             }))
         .ConfigureAppHost(appHost => {
@@ -51,8 +51,9 @@ public class ConfigureAuthRepository : IHostingStartup
             authRepo.InitSchema();
 
             // Removing unused UserName in Admin Users UI 
-            appHost.Plugins.Add(new ServiceStack.Admin.AdminUsersFeature {
-                
+            appHost.Plugins.Add(new ServiceStack.Admin.AdminUsersFeature
+            {
+
                 // Show custom fields in Search Results
                 QueryUserAuthProperties = new() {
                     nameof(AppUser.Id),
@@ -89,10 +90,10 @@ public class ConfigureAuthRepository : IHostingStartup
                 }
             });
 
+            appHost.GetContainer().Register<IAuthEvents>(c => new AppUserAuthEvents());
         },
         afterPluginsLoaded: appHost => {
             //var anonUser = Svg.ToDataUri(Svg.Fill(Icons.AnonUser, "#0891B2"));
             ((AuthMetadataProvider)appHost.Resolve<IAuthMetadataProvider>()).NoProfileImgUrl = Icons.AnonUserUri;
-            appHost.AssertPlugin<AuthFeature>().AuthEvents.Add(new AppUserAuthEvents());
         });
 }
