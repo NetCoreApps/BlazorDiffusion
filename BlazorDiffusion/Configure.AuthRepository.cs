@@ -85,7 +85,7 @@ public class ConfigureAuthRepository : IHostingStartup
                         //c.Required = true;
                     }),
                     Input.For<AppUser>(x => x.ProfileUrl, c => c.Type = Input.Types.Url),
-                    Input.For<AppUser>(x => x.Avatar, c => c.Type = Input.Types.Url),
+                    Input.For<AppUser>(x => x.Avatar),
                     Input.For<AppUser>(x => x.IsArchived), Input.For<AppUser>(x => x.ArchivedDate),
                 }
             });
