@@ -20,8 +20,8 @@ public static class DbExtensions
             AlbumIds = await db.ColumnAsync<int>(db.From<AlbumLike>().Where(x => x.AppUserId == userId).Select(x => x.AlbumId).OrderByDescending(x => x.Id)),
         };
 
-        var albums = (await db.LoadSelectAsync<Album>(x => x.OwnerId == userId && x.DeletedDate == null))
-            .OrderByDescending(x => x.Artifacts.Max(x => x.Id)).ToList();
+        var userAlbums = await db.LoadSelectAsync<Album>(x => x.OwnerId == userId && x.DeletedDate == null);
+        var albums = userAlbums.OrderByDescending(x => x.Artifacts.Max(x => x.Id)).ToList();
         var albumResults = albums.Map(x => x.ToAlbumResult());
 
         var userInfo = await db.SingleAsync<(string refId, string handle, string avatar, string profileUrl)>(db.From<AppUser>()
