@@ -30,6 +30,7 @@ public class AppUserAuthEvents : AuthEvents
         using (authRepo as IDisposable)
         {
             var userAuth = (AppUser)await authRepo.GetUserAuthAsync(session.UserAuthId, token);
+            userAuth.RefIdStr ??= Guid.NewGuid().ToString();
             userAuth.ProfileUrl = session.ProfileUrl = session.GetProfileUrl(Icons.AnonUserUri);
             userAuth.LastLoginIp = httpReq.UserHostAddress;
             userAuth.LastLoginDate = DateTime.UtcNow;
