@@ -11,6 +11,8 @@ using ServiceStack.Configuration;
 using ServiceStack.IO;
 using ServiceStack.Web;
 using ServiceStack.Data;
+using ServiceStack.Auth;
+using ServiceStack.Text;
 
 [assembly: HostingStartup(typeof(BlazorDiffusion.AppHost))]
 
@@ -53,8 +55,8 @@ public class AppHost : AppHostBase, IHostingStartup
             R2AccessKey = r2AccessKey,
             ArtifactBucket = "diffusion",
             CdnBucket = "diffusion-client",
-            AssetsBasePath = "https://cdn.diffusion.works",
-            FallbackAssetsBasePath = "https://pub-97bba6b94a944260b10a6e7d4bf98053.r2.dev",
+            AssetsBasePath = r2AccessId != null ? "https://cdn.diffusion.works" : "/uploads",
+            FallbackAssetsBasePath = r2AccessId != null ? "https://pub-97bba6b94a944260b10a6e7d4bf98053.r2.dev" : "/uploads",
             SyncTasksInterval = TimeSpan.FromMinutes(10),
             // DisableWrites = HostingEnvironment.IsDevelopment(),
         });

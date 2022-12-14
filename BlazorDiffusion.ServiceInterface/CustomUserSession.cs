@@ -1,8 +1,4 @@
 ﻿using ServiceStack;
-using SixLabors.ImageSharp;
-using System.Collections.Generic;
-using System;
-using ServiceStack.Configuration;
 using BlazorDiffusion.ServiceModel;
 
 namespace BlazorDiffusion.ServiceInterface;
@@ -12,7 +8,6 @@ public class CustomUserSession : AuthUserSession
 {
     public string Handle { get; set; }
     public string Avatar { get; set; }
-    public string RefIdStr { get; set; }
 
     public int GetUserId() => UserAuthId.ToInt();
 }

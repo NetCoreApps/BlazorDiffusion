@@ -89,7 +89,7 @@ public partial class Create : AppAuthComponentBase, IDisposable
 
         if (DataCache == null)
         {
-            DataCache = await Client!.SendAsync(new SearchData());
+            DataCache = await SendAsync(new SearchData());
         }
         if (selectedGroup == null)
             selectGroup(AppData.CategoryGroups[0].Name);
