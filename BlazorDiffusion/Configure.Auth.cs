@@ -44,7 +44,7 @@ public class ConfigureAuth : IHostingStartup
             appHost.Plugins.Add(new AuthFeature(() => new CustomUserSession(),
                 new IAuthProvider[] {
                     new JwtAuthProvider(appSettings) {
-                        AuthKeyBase64 = appSettings.GetString("AuthKeyBase64") ?? "cARl12kvS/Ra4moVBIaVsrWwTpXYuZ0mZf/gNLUhDW5=",
+                        AuthKeyBase64 = appSettings.GetString("AUTH_KEY") ?? "cARl12kvS/Ra4moVBIaVsrWwTpXYuZ0mZf/gNLUhDW5=",
                         CreatePayloadFilter = (payload,session) => {
                             payload["ref"] = ((CustomUserSession)session).RefIdStr;
                         },
