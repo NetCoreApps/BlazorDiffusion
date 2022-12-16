@@ -1,0 +1,131 @@
+﻿@page "/album"
+@inherits AppAuthComponentBase
+
+<HeadContent>
+    <meta name="description" content="A Description">
+</HeadContent>
+
+<ArtifactGallery Results=@GalleryResults LazyLoad="false" Change="OnGalleryChange" ColumnsSliderClass="-ml-16 sm:ml-0 mt-8">
+    <LeftHeader>
+        <div class="w-full sm:w-1/3 sm:pl-2 sm:-mr-20 flex justify-center sm:justify-start items-center whitespace-nowrap">
+            @if (SelectedAlbum != null)
+            {
+                <AlbumTitle Album=@SelectedAlbum />
+            }
+            else
+            {
+                <div class="text-xl sm:mb-1">&nbsp;</div>
+            }
+        </div>
+    </LeftHeader>
+</ArtifactGallery>
+
+@code {
+    [Inject] NavigationManager NavigationManager { get; set; }
+
+    [Parameter, SupplyParameterFromQuery] public string? RefId { get; set; }
+    [Parameter, SupplyParameterFromQuery] public int? Id { get; set; }
+    [Parameter, SupplyParameterFromQuery] public int? View { get; set; }
+
+    SearchArtifacts request = new();
+    List<Artifact> results = new();
+    HashSet<int> resultIds = new();
+    bool hasMore;
+
+    ApiResult<QueryResponse<ArtifactResult>> api = new();
+    public AlbumResult? SelectedAlbum;
+    GalleryResults GalleryResults = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        request.Album = RefId;
+        request.Skip = 0;
+        request.Take = UserState.InitialTake;
+        await updateAsync();
+    }
+
+    async Task updateAsync()
+    {
+        await loadResults();
+        await GalleryResults.LoadAsync(UserState, Id, View);
+        StateHasChanged();
+
+        SelectedAlbum = await UserState.GetAlbumByRefAsync(RefId);
+
+        if (SelectedAlbum != null)
+        {
+            SetTitle(SelectedAlbum.Name);
+        }
+    }
+
+    void setResults(IEnumerable<Artifact> results)
+    {
+        this.results = results.ToList();
+        GalleryResults = X.Apply(GalleryResults.Clone(), x => x.Artifacts = UserState.GetArtifactsForGrid(this.results));
+        StateHasChanged();
+    }
+
+    async Task loadResults()
+    {
+        request.Skip = 0;
+        request.Take = UserState.InitialTake;
+        api = await ApiAsync(request);
+        clearResults();
+        if (api.Succeeded)
+        {
+            if (api.Response?.Results != null)
+            {
+                addResults(api.Response.Results);
+            }
+        }
+
+    }
+    
+    void clearResults()
+    {
+        results.Clear();
+        resultIds.Clear();
+    }
+
+    void addResults(List<ArtifactResult> artifacts, bool reset = false)
+    {
+        if (reset)
+            clearResults();
+
+        hasMore = artifacts.Count >= request.Take;
+        foreach (var artifact in artifacts)
+        {
+            if (resultIds.Contains(artifact.Id))
+                continue;
+
+            resultIds.Add(artifact.Id);
+            results.Add(artifact);
+        }
+        setResults(results);
+    }
+
+    // When navigate + ArtifactMenu Adds/Removes to Albums
+    async Task OnGalleryChange(GalleryChangeEventArgs args)
+    {
+        log("Index OnGalleryChange{0}", args);
+        //await handleParametersChanged();
+
+        //preemptive to hopefully reduce re-renders with invalid args
+        await GalleryResults.LoadAsync(UserState, args.SelectedId, args.ViewingId);
+        GalleryResults.Artifacts = UserState.GetArtifactsForGrid(results);
+        await loadResults();
+
+        if (args.SelectedId == null && args.ViewingId == null)
+        {
+            NavigationManager.NavigateTo(NavigationManager.Uri.SetQueryParam("id", args.SelectedId?.ToString()));
+        }
+        else
+        {
+            NavigationManager.NavigateTo(NavigationManager.Uri
+                .SetQueryParam("id", args.SelectedId?.ToString())
+                .SetQueryParam("view", args.ViewingId?.ToString()));
+        }
+    }
+
+}

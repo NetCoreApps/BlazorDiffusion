@@ -1,6 +1,7 @@
 # Ignore pre-rendered markdown docs, let CI generate it
 **/wwwroot/docs/
 **/wwwroot/prerender/
+**/wwwroot/albums/
 BlazorDiffusion/App_Files/
 BlazorDiffusion/App_Data/*.sqlite
 
