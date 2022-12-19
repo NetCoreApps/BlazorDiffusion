@@ -91,11 +91,7 @@
             await JS.InvokeVoidAsync("JS.registerKeyNav", dotnetRef);
             await JS.InvokeVoidAsync("JS.addClass", "html", "dark");
             await UserState.LoadAppPrefsAsync();
-
-            if (JS is not IJSInProcessRuntime)
-            {
-                AppPrefs.ClientWidth = await JS.InvokeAsync<int>("JS.elInvoke", "body", "clientWidth");
-            }
+            AppPrefs.ClientWidth = await JS.InvokeAsync<int>("JS.elInvoke", "body", "clientWidth");
         }
     }
 
