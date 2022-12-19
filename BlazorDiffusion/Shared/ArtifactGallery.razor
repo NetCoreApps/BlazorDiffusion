@@ -140,6 +140,7 @@
 @if (Creative != null && Selected != null)
 {
     <SlideOver SlideOverClass="relative z-20" Done=@(_ => navTo()) ShowTitlebar="false" ShowFooter="false">
+    <div class="pb-8">
     @*Guard against NRE when navigating away whilst SlideOver is open*@
     @if (Creative != null && Selected != null)
     {
@@ -314,6 +315,7 @@
     }
 
     }
+    </div>
     </SlideOver>
 }
 
