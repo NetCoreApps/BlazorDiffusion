@@ -1309,6 +1309,10 @@ input[data-autocompleted] {
   margin-top: -0.75rem;
 }
 
+.ml-5 {
+  margin-left: 1.25rem;
+}
+
 .ml-0\.5 {
   margin-left: 0.125rem;
 }
@@ -2225,6 +2229,15 @@ input[data-autocompleted] {
 .bg-cyan-600 {
   --tw-bg-opacity: 1;
   background-color: rgb(8 145 178 / var(--tw-bg-opacity));
+}
+
+.bg-transparent {
+  background-color: transparent;
+}
+
+.bg-black {
+  --tw-bg-opacity: 1;
+  background-color: rgb(0 0 0 / var(--tw-bg-opacity));
 }
 
 .bg-opacity-75 {
