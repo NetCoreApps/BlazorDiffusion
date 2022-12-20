@@ -19,6 +19,8 @@ public static class AppCss
         ["12"] = "grid-cols-12",
     };
 
+    public static string GetGridClass(int columns) => GetGridClass(columns.ToString());
+
     public static string GetGridClass(string columns)
     {
         return GridClasses.TryGetValue(columns, out var cls) 

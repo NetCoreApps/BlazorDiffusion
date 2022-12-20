@@ -1,0 +1,95 @@
+﻿@inherits AppAuthComponentBase
+
+<div class=@ClassNames("grid", AppCss.GetGridClass(GridColumns))>
+@foreach (var artifact in Artifacts.OrEmpty())
+{
+    <div @key=@artifact.Id class=@ClassNames(
+        artifact.Width > artifact.Height ? "col-span-2" : artifact.Height > artifact.Width ? "row-span-2" : "")>
+
+        <a href=@($"/?similar={artifact.RefId}")
+            class="z-20 block cursor-pointer absolute mt-5 ml-5">
+            <svg class="w-4 h-4 sm:w-6 sm:h-6 text-cyan-600 hover:text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+                    <title>explore similar</title>
+                    <path d="m11.25 11.25l3 3" /><circle cx="7.5" cy="7.5" r="4.75" />
+                </g>
+            </svg>
+        </a>
+
+        <a href=@($"/?id={artifact.Id}")
+            class=@ClassNames("overflow-hidden flex justify-center")>
+            <div class="relative sm:p-2 flex flex-col cursor-pointer items-center" style=@($"max-width:{artifact.Width}px")>
+
+                <ArtifactImage Artifact="artifact" LazyLoad="false"
+                    class=@ClassNames("rounded sm:rounded-xl border sm:border-2", artifact.Background != null ? "border-black" : "border-transparent") />
+
+                <div class="absolute top-0 left-0 w-full h-full group select-none overflow-hidden sm:m-1 rounded sm:rounded-xl">
+                    <div class="w-full h-full absolute inset-0 z-10 block text-zinc-100 drop-shadow pointer-events-none line-clamp sm:px-2 sm:pb-2 text-sm opacity-0 group-hover:opacity-40 transition duration-300 ease-in-out bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-700 via-gray-900 to-black"></div>
+
+
+                        <div class="absolute w-full h-full flex z-10 text-zinc-100 justify-between drop-shadow opacity-0 group-hover:opacity-100 transition-opacity sm:mb-1 text-sm">
+                            <div class="relative w-full h-full overflow-hidden flex flex-col justify-between overflow-hidden">
+                                <div class="p-0.5 sm:p-4 flex justify-between flex-none">
+                                    @if (TopRightIcon != null)
+                                    {
+                                        @TopRightIcon(artifact)
+                                    }
+                                    else
+                                    {
+                                        <div></div>
+                                    }
+                                    <div class="sm:px-1 cursor-pointer"></div>
+                                </div>
+                                <div></div>
+                                <div>
+                                    <div class="sm:pb-2 sm:px-4"></div>
+
+                                    @if (artifact is ArtifactResult result)
+                                    {
+                                        <div class="hidden sm:flex bg-white/40 bg-black/40 sm:pt-2 sm:pl-4 sm:pb-4 sm:pr-4 w-full">
+                                            <div class="w-full">
+                                                <h2 class="truncate text-base font-medium text-gray-900 dark:text-gray-200">@result.UserPrompt</h2>
+                                                <div class="mt-1">
+                                                    @if (result.ModifierNames?.Count > 0)
+                                                    {
+                                                        <p class="truncate text-xs text-gray-500">
+                                                            @string.Join(", ", result.ModifierNames.OrEmpty())
+                                                        </p>
+                                                    }
+                                                    @if (result.ArtistNames?.Count > 0)
+                                                    {
+                                                        <p class="truncate text-xs text-gray-500">
+                                                            @($" by {string.Join(", ", result.ArtistNames)}")
+                                                        </p>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="sm:mt-4"></div>
+                                    }
+                                </div>
+
+                            </div>
+                        </div>
+
+
+                </div>
+
+            </div>
+        </a>
+
+    </div>
+}
+</div>
+
+@code {
+    [Inject] public NavigationManager NavigationManager { get; set; }
+    [Parameter] public GalleryResults Results { get; set; } = new();
+    [Parameter] public RenderFragment<Artifact>? TopRightIcon { get; set; }
+    [Parameter] public int GridColumns { get; set; } = 5;
+
+    public List<Artifact> Artifacts => Results.Artifacts;
+}
