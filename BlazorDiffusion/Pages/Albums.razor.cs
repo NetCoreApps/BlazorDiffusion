@@ -39,7 +39,6 @@ public partial class Albums : AppAuthComponentBase
 
     async Task fetchResults(int count)
     {
-        log("Albums Likes fetchResults(): {0} < {1}", results.Count, api.Response?.Results.Count ?? 0);
         var nextResults = await UserState.GetAlbumsByIdsAsync(api.Response!.Results.Take(count));
         hasMore = nextResults.Count >= count;
         setResults(nextResults);

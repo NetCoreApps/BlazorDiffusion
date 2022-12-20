@@ -1,14 +1,12 @@
-﻿using BlazorDiffusion.ServiceInterface;
-using Microsoft.AspNetCore.Components;
+﻿using System.Diagnostics;
 using ServiceStack.IO;
-using BlazorDiffusion.ServiceModel;
-using Amazon.S3;
 using ServiceStack.Logging;
-using System.Diagnostics;
 using ServiceStack.Data;
 using ServiceStack.OrmLite;
 using ServiceStack.Script;
-using static ServiceStack.Diagnostics.Events;
+using Amazon.S3;
+using BlazorDiffusion.ServiceInterface;
+using BlazorDiffusion.ServiceModel;
 
 [assembly: HostingStartup(typeof(BlazorDiffusion.ConfigureUi))]
 
@@ -53,6 +51,12 @@ public class ConfigureUi : IHostingStartup
             if (indexFile == null)
                 throw new FileNotFoundException("Could not resolve _index.html");
             var template = indexFile.ReadAllText();
+
+            prerenderer.Pages.Add(new(typeof(Pages.AlbumsStatic), "/albums.html",
+                transformer: html => template
+                    .Replace("<!--title-->", "Albums")
+                    .Replace("<!--head-->", "")
+                    .Replace("<!--body-->", html)));
 
             foreach (var album in albums)
             {

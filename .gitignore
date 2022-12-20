@@ -2,6 +2,7 @@
 **/wwwroot/docs/
 **/wwwroot/prerender/
 **/wwwroot/albums/
+albums.html
 BlazorDiffusion/App_Files/
 BlazorDiffusion/App_Data/*.sqlite
 
