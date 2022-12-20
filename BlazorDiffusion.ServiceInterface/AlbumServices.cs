@@ -65,7 +65,7 @@ public class AlbumServices : Service
         var updateAlbum = request.Name != null || request.Description != null || request.Slug != null || request.Tags?.Count > 0;
         if (updateAlbum)
         {
-            album.WithAudit(session.UserAuthId);
+            album.PopulateWithNonDefaultValues(request).WithAudit(session.UserAuthId);
             await Db.UpdateNonDefaultsAsync(album, x => x.Id == album.Id);
         }
 
