@@ -35,6 +35,7 @@ public static class CreativeServerExtensions
             Id = album.Id,
             AlbumRef = album.RefId,
             Name = album.Name,
+            Slug= album.Slug,
             OwnerRef = album.OwnerRef,
             PrimaryArtifactId = album.PrimaryArtifactId,
             // Show latest artifacts added first

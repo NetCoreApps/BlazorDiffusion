@@ -13,7 +13,7 @@
                 }
             }
             <div class=@ClassNames("overflow-hidden", Class) style=@Artifact.GetBackgroundStyle()>
-                <img @ref="context.Ref.Current" alt=@Artifact.FileName width=@width height=@height class=@ImageClass
+                <img @ref="context.Ref.Current" alt=@Artifact.Prompt width=@width height=@height class=@ImageClass
                  src=@(useSrc ?? (!context.IsIntersecting && !UserState.HasIntersected.Contains(Artifact.Id) ? Artifact.GetBackgroundImage() : Artifact.GetPublicUrl()))
                  @onerror=@(() => useSrc = Artifact.GetImageErrorUrl(useSrc))>
             </div>
@@ -22,7 +22,7 @@
     else
     {
         <div class=@ClassNames("overflow-hidden", Class) style=@Artifact.GetBackgroundStyle()>
-            <img alt=@Artifact.FileName width=@width height=@height class=@ImageClass
+            <img alt=@Artifact.Prompt width=@width height=@height class=@ImageClass
                  src=@(useSrc ?? Artifact.GetPublicUrl())
                  @onerror=@(() => useSrc = Artifact.GetImageErrorUrl(useSrc))>
         </div>

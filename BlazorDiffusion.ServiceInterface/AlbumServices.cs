@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using BlazorDiffusion.ServiceModel;
 using ServiceStack;
 using ServiceStack.OrmLite;
+using ServiceStack.Script;
 
 namespace BlazorDiffusion.ServiceInterface;
 
@@ -15,13 +16,21 @@ public class AlbumServices : Service
 
     public async Task<object> Any(CreateAlbum request)
     {
+        if (string.IsNullOrEmpty(request.Name))
+            throw new ArgumentNullException(nameof(request.Name));
+
+        var slug = DefaultScripts.Instance.generateSlug(request.Name);
+
+        if (await Db.ExistsAsync<Album>(x => x.Slug == slug))
+            throw HttpError.Conflict("Album already exists");
+
         var session = await SessionAsAsync<CustomUserSession>();
 
         var album = request.ConvertTo<Album>();
-        album.Name ??= "New Album";
         album.OwnerId = session.GetUserId();
         album.OwnerRef = session.RefIdStr;
         album.RefId = Guid.NewGuid().ToString("D");
+        album.Slug = slug;
         album.WithAudit(session.UserAuthId);
 
         using var trans = Db.OpenTransaction();
@@ -65,6 +74,10 @@ public class AlbumServices : Service
         var updateAlbum = request.Name != null || request.Description != null || request.Slug != null || request.Tags?.Count > 0;
         if (updateAlbum)
         {
+            if (album.Name != null)
+            {
+                album.Slug = DefaultScripts.Instance.generateSlug(album.Name);
+            }
             album.PopulateWithNonDefaultValues(request).WithAudit(session.UserAuthId);
             await Db.UpdateNonDefaultsAsync(album, x => x.Id == album.Id);
         }

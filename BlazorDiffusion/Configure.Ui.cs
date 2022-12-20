@@ -49,11 +49,20 @@ public class ConfigureUi : IHostingStartup
                 .Select(x => x.ToAlbumResult())
                 .ToList();
 
-            var template = appHost.GetVirtualFileSource<FileSystemVirtualFiles>().GetFile("_index.html").ReadAllText();
+            var indexFile = appHost.GetVirtualFileSource<FileSystemVirtualFiles>().GetFile("_index.html");
+            if (indexFile == null)
+                throw new FileNotFoundException("Could not resolve _index.html");
+            var template = indexFile.ReadAllText();
 
             foreach (var album in albums)
             {
-                var path = $"/albums/{DefaultScripts.Instance.generateSlug(album.Name)}.html";
+                if (album.Slug == null)
+                {
+                    album.Slug = DefaultScripts.Instance.generateSlug(album.Name);
+                    db.UpdateOnly(() => new Album { Slug = album.Slug }, where:x => x.Id == album.Id);
+                }
+
+                var path = $"/albums/{album.Slug}.html";
                 var artifactId = album.ArtifactIds?.FirstOrDefault();
                 var artifact = artifactId != null ? db.SingleById<Artifact>(artifactId) : null;
                 var albumMeta = $@"

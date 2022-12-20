@@ -68,13 +68,16 @@ public class AnonDataResponse
     public ResponseStatus ResponseStatus { get; set; }
 }
 
-public class GetAlbumIds : IReturn<GetAlbumIdsResponse>
-{
-}
-
+public class GetAlbumIds : IReturn<GetAlbumIdsResponse> { }
 public class GetAlbumIdsResponse
 {
     public List<int> Results { get; set; }
+}
+
+public class GetAlbumRefs : IReturn<GetAlbumRefsResponse> { }
+public class GetAlbumRefsResponse
+{
+    public List<AlbumRef> Results { get; set; }
 }
 
 [ValidateIsAuthenticated]

@@ -35,6 +35,7 @@ public class AlbumResult
 {
     public int Id { get; set; }
     public string Name { get; set; }
+    public string Slug { get; set; }
     public string AlbumRef { get; set; }
     public string OwnerRef { get; set; }
     public int? PrimaryArtifactId { get; set; }
@@ -106,7 +107,6 @@ public class CreateAlbum : ICreateDb<Album>, IReturn<Album>
     [ValidateNotEmpty]
     public string Name { get; set; }
     public string Description { get; set; }
-    public string? Slug { get; set; }
     public List<string>? Tags { get; set; }
     public int? PrimaryArtifactId { get; set; }
     public List<int>? ArtifactIds { get; set; }
