@@ -54,6 +54,7 @@ BlazorConfig.Set(new()
     JSParseObject = JS.ParseObject,
     EnableLogging = app.Environment.IsDevelopment(),
     EnableVerboseLogging = app.Environment.IsDevelopment(),
+    ApiBaseUrl = AppConfig.Instance.ApiBaseUrl,
     AssetsBasePath = AppConfig.Instance.AssetsBasePath,
     FallbackAssetsBasePath = AppConfig.Instance.FallbackAssetsBasePath,
     DefaultProfileUrl = Icons.AnonUserUri,
