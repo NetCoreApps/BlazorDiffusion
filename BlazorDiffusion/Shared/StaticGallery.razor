@@ -6,7 +6,7 @@
     <div @key=@artifact.Id class=@ClassNames("relative",
         artifact.Width > artifact.Height ? "col-span-2" : artifact.Height > artifact.Width ? "row-span-2" : "")>
 
-        <div class="z-20 w-full absolute flex justify-center"
+        <div class="z-20 w-full absolute flex justify-center">
             <div class="w-full flex justify-between mt-1 px-1 sm:mt-5 sm:px-5" style=@($"max-width:{artifact.Width}px")>
                 <a href=@($"/?similar={artifact.RefId}") class="" title="Explore Similar">
                     <svg class="w-4 h-4 sm:w-5 sm:h-5 text-cyan-600 hover:text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
