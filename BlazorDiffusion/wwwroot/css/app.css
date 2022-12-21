@@ -1165,6 +1165,10 @@ input[data-autocompleted] {
   margin-top: 0.375rem;
 }
 
+.mt-8 {
+  margin-top: 2rem;
+}
+
 .mt-4 {
   margin-top: 1rem;
 }
@@ -1175,10 +1179,6 @@ input[data-autocompleted] {
 
 .ml-2 {
   margin-left: 0.5rem;
-}
-
-.mt-8 {
-  margin-top: 2rem;
 }
 
 .-mb-px {
@@ -1307,10 +1307,6 @@ input[data-autocompleted] {
 
 .-mt-3 {
   margin-top: -0.75rem;
-}
-
-.ml-5 {
-  margin-left: 1.25rem;
 }
 
 .ml-0\.5 {
@@ -2408,6 +2404,11 @@ input[data-autocompleted] {
   padding-bottom: 2rem;
 }
 
+.px-5 {
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
 .pt-2 {
   padding-top: 0.5rem;
 }
@@ -2580,6 +2581,11 @@ input[data-autocompleted] {
   line-height: 1.75rem;
 }
 
+.text-2xl {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
 .\!text-lg {
   font-size: 1.125rem !important;
   line-height: 1.75rem !important;
@@ -2593,11 +2599,6 @@ input[data-autocompleted] {
 .text-xl {
   font-size: 1.25rem;
   line-height: 1.75rem;
-}
-
-.text-2xl {
-  font-size: 1.5rem;
-  line-height: 2rem;
 }
 
 .text-3xl {
@@ -3214,6 +3215,11 @@ input[data-autocompleted] {
   background-color: rgb(254 252 232 / var(--tw-bg-opacity));
 }
 
+.hover\:text-gray-300:hover {
+  --tw-text-opacity: 1;
+  color: rgb(209 213 219 / var(--tw-text-opacity));
+}
+
 .hover\:text-gray-700:hover {
   --tw-text-opacity: 1;
   color: rgb(55 65 81 / var(--tw-text-opacity));
@@ -3282,11 +3288,6 @@ input[data-autocompleted] {
 .hover\:text-gray-400:hover {
   --tw-text-opacity: 1;
   color: rgb(156 163 175 / var(--tw-text-opacity));
-}
-
-.hover\:text-gray-300:hover {
-  --tw-text-opacity: 1;
-  color: rgb(209 213 219 / var(--tw-text-opacity));
 }
 
 .hover\:text-red-500:hover {
@@ -4063,6 +4064,10 @@ input[data-autocompleted] {
     height: 1.5rem;
   }
 
+  .sm\:h-5 {
+    height: 1.25rem;
+  }
+
   .sm\:h-screen {
     height: 100vh;
   }
@@ -4099,6 +4104,10 @@ input[data-autocompleted] {
     width: 100%;
   }
 
+  .sm\:w-5 {
+    width: 1.25rem;
+  }
+
   .sm\:max-w-xs {
     max-width: 20rem;
   }
@@ -4117,10 +4126,6 @@ input[data-autocompleted] {
 
   .sm\:grid-cols-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .sm\:grid-cols-5 {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
   .sm\:flex-row-reverse {
@@ -4364,10 +4369,6 @@ input[data-autocompleted] {
     max-width: 36rem;
   }
 
-  .md\:grid-cols-6 {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
-
   .md\:grid-cols-5 {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
@@ -4460,14 +4461,6 @@ input[data-autocompleted] {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
-  .lg\:grid-cols-7 {
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-  }
-
-  .lg\:grid-cols-8 {
-    grid-template-columns: repeat(8, minmax(0, 1fr));
-  }
-
   .lg\:grid-cols-6 {
     grid-template-columns: repeat(6, minmax(0, 1fr));
   }
@@ -4549,10 +4542,6 @@ input[data-autocompleted] {
     max-width: 1024px;
   }
 
-  .xl\:grid-cols-9 {
-    grid-template-columns: repeat(9, minmax(0, 1fr));
-  }
-
   .xl\:grid-cols-7 {
     grid-template-columns: repeat(7, minmax(0, 1fr));
   }
@@ -4569,11 +4558,6 @@ input[data-autocompleted] {
   .xl\:text-xl {
     font-size: 1.25rem;
     line-height: 1.75rem;
-  }
-
-  .xl\:text-base {
-    font-size: 1rem;
-    line-height: 1.5rem;
   }
 }
 
@@ -4592,10 +4576,6 @@ input[data-autocompleted] {
 
   .\32xl\:max-w-screen-xl {
     max-width: 1280px;
-  }
-
-  .\32xl\:grid-cols-10 {
-    grid-template-columns: repeat(10, minmax(0, 1fr));
   }
 
   .\32xl\:grid-cols-8 {

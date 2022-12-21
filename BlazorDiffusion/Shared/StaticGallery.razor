@@ -3,18 +3,24 @@
 <div class=@ClassNames("grid", AppCss.GetGridClass(GridColumns))>
 @foreach (var artifact in Artifacts.OrEmpty())
 {
-    <div @key=@artifact.Id class=@ClassNames(
+    <div @key=@artifact.Id class=@ClassNames("relative",
         artifact.Width > artifact.Height ? "col-span-2" : artifact.Height > artifact.Width ? "row-span-2" : "")>
 
-        <a href=@($"/?similar={artifact.RefId}")
-            class="z-20 block cursor-pointer absolute mt-5 ml-5">
-            <svg class="w-4 h-4 sm:w-6 sm:h-6 text-cyan-600 hover:text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
-                    <title>explore similar</title>
-                    <path d="m11.25 11.25l3 3" /><circle cx="7.5" cy="7.5" r="4.75" />
-                </g>
-            </svg>
-        </a>
+        <div class="z-20 w-full absolute mt-5 px-5 flex justify-between">
+            <a href=@($"/?similar={artifact.RefId}") class="" title="Explore Similar">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-cyan-600 hover:text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+                    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+                        <title>explore similar</title>
+                        <path d="m11.25 11.25l3 3" /><circle cx="7.5" cy="7.5" r="4.75" />
+                    </g>
+                </svg>
+            </a>
+            <a href=@(artifact.GetDownloadUrl()) class="" target="_blank" title="Download">
+                <svg class="w-4 h-4 sm:w-6 sm:h-6 text-cyan-600 hover:text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 20h12M12 4v12m0 0l3.5-3.5M12 16l-3.5-3.5" />
+                </svg>
+            </a>
+        </div>
 
         <a href=@($"/?id={artifact.Id}")
             class=@ClassNames("overflow-hidden flex justify-center")>
