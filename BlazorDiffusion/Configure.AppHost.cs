@@ -33,10 +33,15 @@ public class AppHost : AppHostBase, IHostingStartup
 
         //Plugins.Add(new ProfilingFeature());
         var cdnUrl = Environment.GetEnvironmentVariable("DEPLOY_CDN");
-        var baseUrl = !string.IsNullOrEmpty(cdnUrl)
-            ? cdnUrl
-            : LocalBaseUrl;
+        cdnUrl = !string.IsNullOrEmpty(cdnUrl)
+            ? $"https://{cdnUrl}"
+            : null;
+
+        var baseUrl = cdnUrl ?? LocalBaseUrl;
         var apiUrl = Environment.GetEnvironmentVariable("DEPLOY_API");
+        apiUrl = !string.IsNullOrEmpty(apiUrl)
+            ? $"https://{apiUrl}"
+            : null;
 
         Plugins.Add(new CorsFeature(allowedHeaders: "Content-Type,Authorization",
             allowOriginWhitelist: new[]{
@@ -53,8 +58,8 @@ public class AppHost : AppHostBase, IHostingStartup
         
         var appConfig = AppConfig.Set(new AppConfig {
             BaseUrl = baseUrl,
-            ApiBaseUrl = !string.IsNullOrEmpty(apiUrl) ? $"https://{apiUrl}" : baseUrl,
-            WwwBaseUrl = !string.IsNullOrEmpty(cdnUrl) ? $"https://api.blazordiffusion.com" : baseUrl,
+            ApiBaseUrl = apiUrl ?? baseUrl,
+            WwwBaseUrl = cdnUrl != null ? $"https://api.blazordiffusion.com" : baseUrl,
             R2Account = "b95f38ca3a6ac31ea582cd624e6eb385",
             R2AccessId = r2AccessId,
             R2AccessKey = r2AccessKey,
