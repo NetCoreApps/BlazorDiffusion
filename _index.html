@@ -93,16 +93,7 @@
     <script src="_framework/blazor.server.js"></script>
     <script src="/js/servicestack-blazor.js"></script>
     <script>JS.init({ colorScheme: 'dark' })</script>
-
-    <script>
-        const origScrollTo = window.scrollTo;
-        window.scrollTo = (x, y) => {
-            const shouldSkip = true; // TODO: Insert your own logic here
-            if (x === 0 && y === 0 && shouldSkip)
-                return;
-            return origScrollTo.apply(this, arguments);
-        };
-    </script>
+    <script src="/js/custom.js"></script>
 
 </body>
 </html>
