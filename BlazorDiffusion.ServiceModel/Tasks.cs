@@ -90,6 +90,14 @@ public class PrerenderResponse
     public ResponseStatus ResponseStatus { get; set; }
 }
 
+[Route("/image/{Id}")]
+[Route("/image/{Id}/{Slug}")]
+public class RenderImageHtml : IReturn<string>
+{
+    public int Id { get; set; }
+    public string? Slug { get; set; }
+}
+
 [ExcludeMetadata]
 [ValidateHasRole(AppRoles.Moderator)]
 public class DevTasks : IGet, IReturn<StringResponse>

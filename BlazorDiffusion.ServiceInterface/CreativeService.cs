@@ -337,6 +337,24 @@ public class CreativeService : Service
         await analyticsDb.DeleteAsync<ArtifactStat>(x => artifactIds.Contains(x.ArtifactId));
         await analyticsDb.DeleteAsync<SearchStat>(x => x.ArtifactId != null && artifactIds.Contains(x.ArtifactId.Value));
     }
+
+    public async Task<object> Any(GetCreative request)
+    {
+        var creativeId = request.Id
+            ?? await Db.ScalarAsync<int?>(Db.From<Artifact>().Where(x => x.Id == request.ArtifactId).Select(x => x.CreativeId));
+
+        var creative = creativeId != null
+            ? await Db.LoadSingleByIdAsync<Creative>(creativeId)
+            : null;
+
+        if (creative == null)
+            throw HttpError.NotFound("Creative does not exist");
+
+        return new GetCreativeResponse
+        {
+            Result = creative
+        };
+    }
 }
 
 public static class CreateServiceUtils

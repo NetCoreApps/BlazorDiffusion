@@ -61,9 +61,20 @@ public class Creative : AuditBase
 public class QueryCreatives : QueryDb<Creative>
 {
     public int? Id { get; set; }
-    public int? CreativeId { get; set; }
     public string? CreatedBy { get; set; }
     public int? OwnerId { get; set; }
+}
+
+public class GetCreative : IGet, IReturn<GetCreativeResponse>
+{
+    public int? Id { get; set; }
+    public int? ArtifactId { get; set; }
+}
+
+public class GetCreativeResponse
+{
+    public Creative Result { get; set; }
+    public ResponseStatus ResponseStatus { get; set; }
 }
 
 [AutoApply(Behavior.AuditCreate)]

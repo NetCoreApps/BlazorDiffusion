@@ -9,6 +9,8 @@ using ServiceStack.Logging;
 using ServiceStack.OrmLite;
 using ServiceStack.OrmLite.Legacy;
 using BlazorDiffusion.ServiceModel;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using ServiceStack.Host.NetCore;
 
 namespace BlazorDiffusion.ServiceInterface;
 
@@ -16,6 +18,8 @@ public class BackgroundMqServices : Service
 {
     public static ILog Log = LogManager.GetLogger(typeof(BackgroundMqServices));
     public IPrerenderer Prerenderer { get; set; } = default!;
+    public IComponentRenderer Renderer { get; set; } = default!;
+    public HtmlTemplate HtmlTemplate { get; set; } = default!;
     public IStableDiffusionClient StableDiffusionClient { get; set; } = default!;
     public AppConfig AppConfig { get; set; } = default!;
 
@@ -344,6 +348,36 @@ public class BackgroundMqServices : Service
         if (!AppConfig.DisableWrites)
             await Prerenderer.RenderPages();
         return new PrerenderResponse();
+    }
+
+    public async Task<object> Any(RenderImageHtml request)
+    {
+        var artifact = await Db.SingleByIdAsync<Artifact>(request.Id);
+        if (artifact == null)
+            throw HttpError.NotFound("Image does not exist");
+
+        if (Request.HasValidCache(artifact.ModifiedDate))
+            return HttpResult.NotModified();
+
+        string title = artifact.Prompt.LeftPart(',');
+        var meta = HtmlTemplate.CreateMeta(
+            url: Request.AbsoluteUri,
+            title: title,
+            image: AppConfig.Instance.AssetsBasePath + artifact.FilePath);
+
+        var componentType = HtmlTemplate.GetComponentType("BlazorDiffusion.Pages.ssg.Image")
+            ?? throw HttpError.NotFound("Component not found");
+        var httpCtx = ((NetCoreRequest)Request).HttpContext;
+        var body = await Renderer.RenderComponentAsync(componentType, httpCtx, request.ToObjectDictionary());
+
+        var html = HtmlTemplate.Render(title: title, head: meta, body: body);
+
+        return new HttpResult(html)
+        {
+            ContentType = MimeTypes.Html,
+            LastModified = artifact.ModifiedDate,
+            MaxAge = TimeSpan.FromDays(1),
+        };
     }
 
     public object Any(DevTasks request)

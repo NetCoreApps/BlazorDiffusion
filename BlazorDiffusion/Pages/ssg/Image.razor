@@ -1,0 +1,162 @@
+@page "/ssg/creative"
+@page "/image/{Id:int}/{Slug?}"
+@inherits AppComponentBase
+
+@if (Creative != null)
+{
+    <div>
+        <h1 class="my-4 text-2xl text-center">@Creative.UserPrompt</h1>
+        <div class="mt-2">
+            <p class="text-center text-xs sm:text-sm text-gray-500">
+            @{
+                var i = 0;
+            }
+            @foreach (var modifier in Creative.ModifierNames)
+            {
+                @(i++ > 0 ? ", " : "")
+                <a @key=modifier class="text-gray-400 hover:text-gray-200" href=@($"/?modifier={modifier}")>@modifier</a>
+            }
+            </p>
+            <p class="mt-2 text-center text-xs sm:text-sm text-gray-500">
+            @if (Creative.ArtistNames.Count > 0)
+            {
+                i = 0;
+                <span class="px-2 text-gray-300">by</span>
+                @foreach (var artist in Creative.ArtistNames)
+                {
+                    @(i++ > 0 ? ", " : "")
+                    <a @key=artist class="text-gray-400 hover:text-gray-200" href=@($"/?artist={artist.Replace(' ',',')}")>@artist</a>
+                }
+            }
+            </p>
+        </div>
+    </div>
+
+    <div class="p-2 mt-4 flex flex-col items-center">
+        <div class="relative p-2">
+            <a href=@($"/?Id={Id}")>
+                <ArtifactImage Artifact="artifact" class="rounded-lg" />
+            </a>
+        </div>
+
+        <div class="flex">
+            <span class="my-2 mx-4 text-sm text-gray-600 dark:text-gray-400">@artifact.Height x @artifact.Width</span>
+            <span class="my-2 mx-4 text-sm text-gray-600 dark:text-gray-400">@TextUtils.FormatBytes(artifact.ContentLength)</span>
+        </div>
+        <div class="flex flex-wrap">
+            <a class="mb-4 flex text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" href=@artifact.GetDownloadUrl() target="_blank">
+                <svg class="w-5 h-5 mr-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 20h12M12 4v12m0 0l3.5-3.5M12 16l-3.5-3.5" /></svg>
+                download
+            </a>
+            <a href=@($"/create?id={Id}")
+                class="ml-8 mb-4 flex text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
+                <svg class="w-5 h-5 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+                    <path fill="currentColor" d="M13.74 10.25h8.046v2.626l7.556-4.363l-7.556-4.363v2.598H9.826c1.543.864 2.79 2.174 3.915 3.5zm8.046 10.404c-.618-.195-1.407-.703-2.29-1.587c-1.79-1.756-3.713-4.675-5.732-7.227c-2.05-2.486-4.16-4.972-7.45-5.09h-3.5v3.5h3.5c.655-.028 1.682.485 2.878 1.682c1.788 1.753 3.712 4.674 5.73 7.226c1.922 2.33 3.908 4.64 6.864 5.016v2.702l7.556-4.362l-7.556-4.362v2.502z" />
+                </svg>
+                new from this
+            </a>
+        </div>
+    </div>
+
+    <div class="flex flex-wrap justify-center">
+    @foreach (var artifact in Creative.GetArtifacts())
+    {
+        <a @key=@artifact.Id href=@($"/image/{artifact.Id}/{UseSlug}") class="relative overflow-hidden">
+            <div class="relative flex justify-center mr-1 mb-1 sm:mr-4 sm:mb-4">
+                <ArtifactImage Artifact="artifact" MinSize="128"
+                        class=@ClassNames("rounded sm:rounded-xl border-2 max-w-[108px] sm:max-w-none object-cover",
+                        artifact.Id == Id ? "border-yellow-500" : artifact.Background != null ? "border-black" : "border-transparent") />
+
+                <div class="absolute top-0 left-0 w-full h-full group select-none overflow-hidden rounded sm:rounded-xl">
+                    <div class="w-full h-full absolute inset-0 z-10 block text-zinc-100 drop-shadow pointer-events-none line-clamp sm:px-2 sm:pb-2 text-sm opacity-0 group-hover:opacity-40 transition duration-300 ease-in-out bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-700 via-gray-900 to-black"></div>
+                </div>
+
+            </div>
+        </a>
+    }
+    </div>
+
+    <div class="mt-2 flex justify-center">
+        <a href=@($"/?user={Creative.OwnerRef}")
+       class="ml-8 mb-4 flex text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
+            <svg class="w-5 h-5 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M9.5 4a6.5 6.5 0 0 1 4.932 10.734l5.644 5.644l-.707.707l-5.645-5.645A6.5 6.5 0 1 1 9.5 4Zm0 1a5.5 5.5 0 1 0 0 11a5.5 5.5 0 0 0 0-11Z" /></svg>
+            by creator
+        </a>
+    </div>
+
+    @if (GetArtifactAlbums().Count() > 0)
+    {
+        <div class="ml-4 mb-8 text-sm text-gray-600 dark:text-gray-400">
+            <div class="flex whitespace-nowrap w-24">
+                <svg class="w-5 h-5 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M9.5 4a6.5 6.5 0 0 1 4.932 10.734l5.644 5.644l-.707.707l-5.645-5.645A6.5 6.5 0 1 1 9.5 4Zm0 1a5.5 5.5 0 1 0 0 11a5.5 5.5 0 0 0 0-11Z" /></svg>
+                top albums
+            </div>
+            <div class="flex flex-wrap">
+                @foreach (var album in GetArtifactAlbums())
+                {
+                    var albumCover = GetAlbumCoverArtifact(album);
+                    @if (albumCover != null)
+                    {
+                        <a @key=album.AlbumRef href=@($"/albums/{album.Slug}.html") class="flex flex-col group mr-2">
+                            <div class=@ClassNames("mt-2 hover:opacity-80 cursor-pointer h-32 w-32 overflow-hidden rounded sm:rounded-lg border sm:border-2 border-transparent")>
+                                <ArtifactImage Artifact=@albumCover class="flex w-full h-full" ImageClass="object-cover" />
+                            </div>
+                            <div class="text-sm text-center overflow-hidden group-hover:text-gray-200">
+                                @album.Name
+                            </div>
+                        </a>
+                    }
+                }
+            </div>
+        </div>
+    }
+}
+else if (api.Error != null)
+{
+    <h1 class="my-4 text-2xl text-center">@api.ErrorMessage</h1>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    [Parameter] public string? Slug { get; set; }
+    Creative? Creative;
+    Artifact? artifact;
+    string? useSrc;
+    AlbumResult[] CreativeAlbums = Array.Empty<AlbumResult>();
+    List<Artifact> CreativeAlbumArtifacts = new();
+    ApiResult<GetCreativeResponse> api = new();
+    string? slug;
+    string UseSlug => slug ??= Creative.UserPrompt.GenerateSlug();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        SetTitle("Generate Image");
+
+        var request = new GetCreative { ArtifactId = Id };
+        api = await ApiAsync(request);
+        if (api.Succeeded)
+        {
+            Creative = api.Response!.Result;
+            artifact = Creative.Artifacts?.FirstOrDefault(x => x.Id == Id)
+                ?? Creative.Artifacts?.FirstOrDefault();
+
+            var apiAlbums = await ApiAsync(new GetCreativesInAlbums { CreativeId = Creative.Id });
+            if (apiAlbums.Succeeded)
+            {
+                CreativeAlbums = (apiAlbums.Response!.Results ?? new()).ToArray();
+
+                var artifactIds = CreativeAlbums.Select(x => x.GetAlbumCoverArtifactId()).ToList();
+                var apiAlbumArtifacts = await ApiAsync(new QueryArtifacts { Ids = artifactIds });
+                if (apiAlbumArtifacts.Succeeded)
+                {
+                    CreativeAlbumArtifacts = apiAlbumArtifacts.Response?.Results ?? new();
+                }
+            }
+        }
+    }
+
+    IEnumerable<AlbumResult> GetArtifactAlbums() => CreativeAlbums.Where(x => x.ArtifactIds.Contains(Id));
+
+    Artifact? GetAlbumCoverArtifact(AlbumResult album) => CreativeAlbumArtifacts.FirstOrDefault(x => x.Id == album.GetAlbumCoverArtifactId());
+}

@@ -5,6 +5,7 @@ using ServiceStack;
 using BlazorDiffusion.ServiceModel;
 using ServiceStack.Pcl;
 using ServiceStack.Blazor;
+using ServiceStack.Script;
 
 namespace BlazorDiffusion.UI;
 
@@ -18,6 +19,7 @@ public static class CreativeExtensions
     public static string GetDownloadUrl(this Artifact artifact) => BlazorConfig.Instance.ApiBaseUrl.CombineWith($"/download/artifact/{artifact.RefId}");
     public static string GetPublicUrl(this Artifact artifact) => BlazorConfig.Instance.AssetsBasePath + artifact.FilePath;
     public static string GetFallbackUrl(this Artifact artifact) => BlazorConfig.Instance.FallbackAssetsBasePath + artifact.FilePath;
+    public static string GetSlug(this Artifact artifact) => artifact.Prompt.LeftPart(',').GenerateSlug();
 
     public static string GetImageErrorUrl(this Artifact artifact, string? lastImageSrc)
     {
@@ -112,6 +114,13 @@ public static class CreativeExtensions
         {
             album.Artifacts.RemoveAll(x => x.ArtifactId == artifact.Id);
         }
+    }
+
+    public static int GetAlbumCoverArtifactId(this AlbumResult album)
+    {
+        return album.PrimaryArtifactId != null && album.ArtifactIds.Contains(album.PrimaryArtifactId.Value)
+            ? album.PrimaryArtifactId.Value
+            : album.ArtifactIds.First();
     }
 
     public static int GetRowSpan(this Artifact artifact) => artifact.Height > artifact.Width ? 2 : 1;

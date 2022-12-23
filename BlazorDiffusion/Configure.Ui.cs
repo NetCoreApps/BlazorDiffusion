@@ -7,6 +7,10 @@ using ServiceStack.Script;
 using Amazon.S3;
 using BlazorDiffusion.ServiceInterface;
 using BlazorDiffusion.ServiceModel;
+using BlazorDiffusion.UI;
+using BlazorDiffusion.Shared;
+using System.Text;
+using System.IO;
 
 [assembly: HostingStartup(typeof(BlazorDiffusion.ConfigureUi))]
 
@@ -50,42 +54,33 @@ public class ConfigureUi : IHostingStartup
             var indexFile = appHost.GetVirtualFileSource<FileSystemVirtualFiles>().GetFile("_index.html");
             if (indexFile == null)
                 throw new FileNotFoundException("Could not resolve _index.html");
-            var template = indexFile.ReadAllText();
+            
+            var htmlTemplate = HtmlTemplate.Create(indexFile.ReadAllText());
+            htmlTemplate.RegisterComponent<BlazorDiffusion.Pages.ssg.Image>();
 
-            prerenderer.Pages.Add(new(typeof(Pages.AlbumsStatic), "/albums.html",
-                transformer: html => template
-                    .Replace("<!--title-->", "Albums")
-                    .Replace("<!--head-->", "")
-                    .Replace("<!--body-->", html)));
+            container.Register(htmlTemplate);
+
+            prerenderer.Pages.Add(new(typeof(Pages.ssg.Albums), "/albums.html",
+                transformer: html => htmlTemplate.Render(title: "Albums", body:html)));
 
             foreach (var album in albums)
             {
                 if (album.Slug == null)
                 {
-                    album.Slug = DefaultScripts.Instance.generateSlug(album.Name);
+                    album.Slug = album.Name.GenerateSlug();
                     db.UpdateOnly(() => new Album { Slug = album.Slug }, where:x => x.Id == album.Id);
                 }
 
                 var path = $"/albums/{album.Slug}.html";
                 var artifactId = album.ArtifactIds?.FirstOrDefault();
                 var artifact = artifactId != null ? db.SingleById<Artifact>(artifactId) : null;
-                var albumMeta = $@"
-                    <meta name=""twitter:card"" content=""summary"" />
-                    <meta name=""twitter:site"" content=""blazordiffusion.com"" />
-                    <meta name=""twitter:creator"" content=""@blazordiffusion"" />
-                    <meta property=""og:url"" content=""https://blazordiffusion.com{path}"" />
-                    <meta property=""og:title"" content=""{album.Name}"" />
-                    <meta property=""og:description"" content="""" />
-                    <meta property=""og:image"" content=""{appConfig.AssetsBasePath.CombineWith(artifact?.FilePath)}"" />
-                ";
+                var albumMeta = HtmlTemplate.CreateMeta(url:path, title:album.Name, 
+                    image: appConfig.AssetsBasePath.CombineWith(artifact?.FilePath)); 
 
-                prerenderer.Pages.Add(new(typeof(Pages.albums.Index), path, new() { 
-                        [nameof(Pages.albums.Index.RefId)] = album.AlbumRef,
+                prerenderer.Pages.Add(new(typeof(Pages.ssg.Album), path, new() { 
+                        [nameof(Pages.ssg.Album.RefId)] = album.AlbumRef,
                     }, 
-                    transformer:html => template
-                        .Replace("<!--title-->", album.Name)
-                        .Replace("<!--head-->", albumMeta)
-                        .Replace("<!--body-->", html)));
+                    transformer:html => htmlTemplate.Render(title: album.Name, head:albumMeta, body:html)));
             }
 
             container.Register<IPrerenderer>(c => prerenderer);

@@ -19,7 +19,7 @@ public class AlbumServices : Service
         if (string.IsNullOrEmpty(request.Name))
             throw new ArgumentNullException(nameof(request.Name));
 
-        var slug = DefaultScripts.Instance.generateSlug(request.Name);
+        var slug = request.Name.GenerateSlug();
 
         if (await Db.ExistsAsync<Album>(x => x.Slug == slug))
             throw HttpError.Conflict("Album already exists");
@@ -76,7 +76,7 @@ public class AlbumServices : Service
         {
             if (album.Name != null)
             {
-                album.Slug = DefaultScripts.Instance.generateSlug(album.Name);
+                album.Slug = album.Name.GenerateSlug();
             }
             album.PopulateWithNonDefaultValues(request).WithAudit(session.UserAuthId);
             await Db.UpdateNonDefaultsAsync(album, x => x.Id == album.Id);
@@ -145,6 +145,7 @@ public class AlbumServices : Service
                 album.Id,
                 album.Name,
                 album.RefId,
+                album.Slug,
                 album.OwnerRef,
                 album.PrimaryArtifactId,
                 album.Score,
@@ -161,6 +162,7 @@ public class AlbumServices : Service
                 : albumMap[albumRef.Id] = new AlbumResult { 
                     Id = albumRef.Id,
                     Name = albumRef.Name,
+                    Slug = albumRef.Slug,
                     AlbumRef = albumRef.RefId,
                     PrimaryArtifactId = albumRef.PrimaryArtifactId,
                     OwnerRef = albumRef.OwnerRef,

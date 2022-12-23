@@ -24,7 +24,7 @@
             </div>
         </div>
 
-        <a href=@($"/?id={artifact.Id}")
+        <a href=@($"/image/{artifact.Id}/{artifact.GetSlug()}")
             class=@ClassNames("overflow-hidden flex justify-center")>
             <div class="relative sm:p-2 flex flex-col cursor-pointer items-center" style=@($"max-width:{artifact.Width}px")>
 

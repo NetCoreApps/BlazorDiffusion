@@ -48,6 +48,7 @@ public class AlbumArtifactResult
     public int Id { get; set; }
     public string Name { get; set; }
     public string RefId { get; set; }
+    public string Slug { get; set; }
     public string OwnerRef { get; set; }
     public int? PrimaryArtifactId { get; set; }
     public int Score { get; set; }

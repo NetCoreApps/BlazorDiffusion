@@ -163,8 +163,8 @@ public class UserState
 
     public async Task LoadAlbumCoverArtifactsAsync()
     {
-        var albumArtifactIds = UserAlbums.Select(GetAlbumCoverArtifactId).ToList();
-        albumArtifactIds.AddDistinctRange(TopAlbums.Select(GetAlbumCoverArtifactId));
+        var albumArtifactIds = UserAlbums.Select(x => x.GetAlbumCoverArtifactId()).ToList();
+        albumArtifactIds.AddDistinctRange(TopAlbums.Select(x => x.GetAlbumCoverArtifactId()));
         await LoadArtifactsAsync(albumArtifactIds);
     }
 
@@ -173,15 +173,9 @@ public class UserState
         LikedAlbums = await GetLikedAlbumsAsync();
     }
 
-    public int GetAlbumCoverArtifactId(AlbumResult album)
-    {
-        return album.PrimaryArtifactId != null && album.ArtifactIds.Contains(album.PrimaryArtifactId.Value)
-            ? album.PrimaryArtifactId.Value
-            : album.ArtifactIds.First();
-    }
     public Artifact? GetAlbumCoverArtifact(AlbumResult album)
     {
-        var id = GetAlbumCoverArtifactId(album);
+        var id = album.GetAlbumCoverArtifactId();
         return GetCachedArtifact(id);
     }
 
@@ -266,7 +260,7 @@ public class UserState
             .Where(x => x != null)
             .Cast<AlbumResult>().ToList();
         
-        var albumCoverArtifactIds = to.Select(GetAlbumCoverArtifactId);
+        var albumCoverArtifactIds = to.Select(x => x.GetAlbumCoverArtifactId());
         await LoadArtifactsAsync(albumCoverArtifactIds);
         
         return to;
