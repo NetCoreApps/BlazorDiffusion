@@ -13,6 +13,7 @@ public class AppConfig
 
     public string BaseUrl { get; set; }
     public string ApiBaseUrl { get; set; }
+    public string WwwBaseUrl { get; set; }
     public string R2AccessId { get; set; }
     public string R2AccessKey { get; set; }
     public string ArtifactBucket { get; set; }

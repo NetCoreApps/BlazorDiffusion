@@ -11,7 +11,7 @@
 @foreach (var album in OtherAlbums)
 {
     <div class="text-center">
-        <a href=@($"/albums/{album.Slug}.html") class=@ClassNames("text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl",
+        <a href=@(AppConfig.Instance.WwwBaseUrl.CombineWith($"/albums/{album.Slug}.html")) class=@ClassNames("text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl",
            album.RefId != SelectedAlbum?.AlbumRef ? "text-gray-500 hover:text-gray-300" : "text-gray-300")>
             @album.Name
         </a>

@@ -43,15 +43,18 @@ public class AppHost : AppHostBase, IHostingStartup
             "http://localhost:5000",
              baseUrl,
             "https://blazordiffusion.com",
+            "https://www.blazordiffusion.com",
             "https://pub-e17dff5b2d09437a97efdbb7f6ee3701.r2.dev", // CDN diffusion-client public bucket
         }, allowCredentials: true));
 
+        // set in launchSettings.json
         var r2AccessId = Environment.GetEnvironmentVariable("R2_ACCESS_KEY_ID")!;
         var r2AccessKey = Environment.GetEnvironmentVariable("R2_SECRET_ACCESS_KEY")!;
         
         var appConfig = AppConfig.Set(new AppConfig {
             BaseUrl = baseUrl,
             ApiBaseUrl = !string.IsNullOrEmpty(apiUrl) ? $"https://{apiUrl}" : baseUrl,
+            WwwBaseUrl = !string.IsNullOrEmpty(cdnUrl) ? $"https://api.blazordiffusion.com" : baseUrl,
             R2Account = "b95f38ca3a6ac31ea582cd624e6eb385",
             R2AccessId = r2AccessId,
             R2AccessKey = r2AccessKey,
@@ -66,7 +69,7 @@ public class AppHost : AppHostBase, IHostingStartup
         container.Register(appConfig);
 
         var hasR2 = !string.IsNullOrEmpty(r2AccessId);
-        if(!hasR2)
+        if (!hasR2)
             Log.Warn($"Starting without R2 access.");
 
         var s3Client = new AmazonS3Client(appConfig.R2AccessId, appConfig.R2AccessKey, new AmazonS3Config {
