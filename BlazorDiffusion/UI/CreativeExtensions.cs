@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using ServiceStack;
-using BlazorDiffusion.ServiceModel;
 using ServiceStack.Pcl;
 using ServiceStack.Blazor;
-using ServiceStack.Script;
+using BlazorDiffusion.ServiceModel;
 
 namespace BlazorDiffusion.UI;
 
