@@ -52,14 +52,13 @@ public class HtmlTemplate
             ? url
             : "https://blazordiffusion.com".CombineWith(url);
 
-        return $@"
-        <meta name=""twitter:card"" content=""summary"" />
-        <meta name=""twitter:site"" content=""blazordiffusion.com"" />
-        <meta name=""twitter:creator"" content=""@blazordiffusion"" />
-        <meta property=""og:url"" content=""{useUrl}"" />
-        <meta property=""og:title"" content=""{title}"" />
-        <meta property=""og:description"" content=""{description}"" />
-        <meta property=""og:image"" content=""{image}"" />";
+        return $@"<meta name=""twitter:card"" content=""summary"" />
+    <meta name=""twitter:site"" content=""blazordiffusion.com"" />
+    <meta name=""twitter:creator"" content=""@blazordiffusion"" />
+    <meta property=""og:url"" content=""{useUrl}"" />
+    <meta property=""og:title"" content=""{title}"" />
+    <meta property=""og:description"" content=""{description}"" />
+    <meta property=""og:image"" content=""{image}"" />";
     }
 
     public string Render(string title = "", string head = "", string body = "")
