@@ -440,5 +440,6 @@ public class ImageGenerationResult
 
 public interface IPrerenderer
 {
+    IVirtualFiles VirtualFiles { get; }
     Task RenderPages(HttpContext? httpContext = null);
 }

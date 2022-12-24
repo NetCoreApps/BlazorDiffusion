@@ -98,6 +98,13 @@ public class RenderImageHtml : IReturn<string>
     public string? Slug { get; set; }
 }
 
+public class TestImageHtml : IReturnVoid {}
+
+public class PrerenderImages : IReturn<PrerenderResponse>
+{
+    public int[] Batches { get; set; }
+}
+
 [ExcludeMetadata]
 [ValidateHasRole(AppRoles.Moderator)]
 public class DevTasks : IGet, IReturn<StringResponse>

@@ -11,6 +11,7 @@ using ServiceStack.OrmLite.Legacy;
 using BlazorDiffusion.ServiceModel;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using ServiceStack.Host.NetCore;
+using ServiceStack.IO;
 
 namespace BlazorDiffusion.ServiceInterface;
 
@@ -359,6 +360,18 @@ public class BackgroundMqServices : Service
         if (Request.HasValidCache(artifact.ModifiedDate))
             return HttpResult.NotModified();
 
+        var html = await RenderImageHtmlAsync(artifact);
+
+        return new HttpResult(html)
+        {
+            ContentType = MimeTypes.Html,
+            LastModified = artifact.ModifiedDate,
+            MaxAge = TimeSpan.FromDays(1),
+        };
+    }
+
+    public async Task<string> RenderImageHtmlAsync(Artifact artifact)
+    {
         string title = artifact.Prompt.LeftPart(',');
         var meta = HtmlTemplate.CreateMeta(
             url: Request.AbsoluteUri,
@@ -368,16 +381,68 @@ public class BackgroundMqServices : Service
         var componentType = HtmlTemplate.GetComponentType("BlazorDiffusion.Pages.ssg.Image")
             ?? throw HttpError.NotFound("Component not found");
         var httpCtx = ((NetCoreRequest)Request).HttpContext;
-        var body = await Renderer.RenderComponentAsync(componentType, httpCtx, request.ToObjectDictionary());
+        var args = new Dictionary<string, object>
+        {
+            [nameof(RenderImageHtml.Id)] = artifact.Id,
+            [nameof(RenderImageHtml.Slug)] = artifact.GetSlug(),
+        };
+        var body = await Renderer.RenderComponentAsync(componentType, httpCtx, args);
 
         var html = HtmlTemplate.Render(title: title, head: meta, body: body);
+        return html;
+    }
 
-        return new HttpResult(html)
+    public async Task<object> Any(TestImageHtml request)
+    {
+        var maxId = await Db.ScalarAsync<int>(Db.From<Artifact>().Select(x => Sql.Max(x.Id)));
+        var idBatches = Math.Floor(maxId / 1000d);
+        return $"{maxId}: {idBatches}";
+    }
+
+    public async Task<object> Any(PrerenderImages request)
+    {
+        var ret = new PrerenderResponse { Results = new() };
+
+        foreach (var batch in request.Batches.Safe())
         {
-            ContentType = MimeTypes.Html,
-            LastModified = artifact.ModifiedDate,
-            MaxAge = TimeSpan.FromDays(1),
-        };
+            var maxId = await Db.ScalarAsync<int>(Db.From<Artifact>().Select(x => Sql.Max(x.Id)));
+            var maxBatches = Math.Floor(maxId / 1000d);
+            if (batch < 0 || batch > maxBatches)
+                throw new ArgumentOutOfRangeException(nameof(request.Batches), $"Valid range: 0 to {maxBatches}");
+
+            var vfs = Prerenderer.VirtualFiles;
+            var files = vfs.GetDirectory($"/artifacts/{batch}")?.GetAllMatchingFiles("*.html") ?? Array.Empty<IVirtualFile>();
+            var existingIds = files.Select(x => int.TryParse(x.Name.LeftPart('_'), out var id) ? id : (int?)null)
+                .Where(x => x != null)
+                .Select(x => x!.Value)
+                .ToList();
+
+            if (existingIds.Count == 0) 
+                existingIds.Add(-1);
+
+            var from = batch * 1000;
+            var to = from + 1000;
+            var artifacts = Db.Select(Db.From<Artifact>()
+                .Where(x => x.Id >= from && x.Id < to)
+                .And(x => !existingIds.Contains(x.Id))
+                .OrderBy(x => x.Id)
+                .Take(10))
+                .ToList();
+
+            Log.DebugFormat("Writing {0} artifact image html", artifacts.Count);
+
+            foreach (var artifact in artifacts)
+            {
+                var html = await RenderImageHtmlAsync(artifact);
+                var file = artifact.GetImageFileName();
+                var path = artifact.GetImageFilePath();
+                Log.DebugFormat("Writing {0} bytes to {1}...", html.Length, path);
+                await vfs.WriteFileAsync(path, html);
+                ret.Results.Add(file);
+            }
+        }
+
+        return ret;
     }
 
     public object Any(DevTasks request)
