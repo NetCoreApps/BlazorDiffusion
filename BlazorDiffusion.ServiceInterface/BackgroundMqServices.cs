@@ -426,7 +426,7 @@ public class BackgroundMqServices : Service
                 .Where(x => x.Id >= from && x.Id < to)
                 .And(x => !existingIds.Contains(x.Id))
                 .OrderBy(x => x.Id)
-                .Take(10))
+                .Take(1000))
                 .ToList();
 
             Log.DebugFormat("Writing {0} artifact image html", artifacts.Count);
