@@ -5,14 +5,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ServiceStack;
+using ServiceStack.IO;
 using ServiceStack.Logging;
 using ServiceStack.OrmLite;
-using ServiceStack.OrmLite.Legacy;
-using BlazorDiffusion.ServiceModel;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using ServiceStack.Host.NetCore;
-using ServiceStack.IO;
-using Amazon.DynamoDBv2.Model;
+using BlazorDiffusion.ServiceModel;
 
 namespace BlazorDiffusion.ServiceInterface;
 
@@ -453,7 +450,9 @@ public class BackgroundMqServices : Service
 
         var componentType = HtmlTemplate.GetComponentType("BlazorDiffusion.Pages.ssg.Image")
             ?? throw HttpError.NotFound("Component not found");
-        var httpCtx = ((NetCoreRequest)Request).HttpContext;
+        var httpCtx = (Request as NetCoreRequest)?.HttpContext 
+            ?? HttpContextFactory.CreateHttpContext(AppConfig.BaseUrl);
+
         var args = new Dictionary<string, object>
         {
             [nameof(RenderImageHtml.Id)] = artifact.Id,
