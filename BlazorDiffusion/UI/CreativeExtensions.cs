@@ -19,6 +19,10 @@ public static class CreativeExtensions
     public static string GetPublicUrl(this Artifact artifact) => BlazorConfig.Instance.AssetsBasePath + artifact.FilePath;
     public static string GetFallbackUrl(this Artifact artifact) => BlazorConfig.Instance.FallbackAssetsBasePath + artifact.FilePath;
     public static string GetSlug(this Artifact artifact) => artifact.Prompt.LeftPart(',').GenerateSlug();
+    public static string GetImageFileName(this Artifact artifact) =>
+    $"{artifact.Id.ToString().PadLeft(4, '0')}_{artifact.GetSlug()}.html";
+    public static string GetImageFilePath(this Artifact artifact) =>
+        $"/artifacts/{Math.Floor(artifact.Id / 1000d)}/{artifact.GetImageFileName()}";
 
     public static string GetImageErrorUrl(this Artifact artifact, string? lastImageSrc)
     {
