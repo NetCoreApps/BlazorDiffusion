@@ -12,6 +12,7 @@ using BlazorDiffusion.ServiceModel;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using ServiceStack.Host.NetCore;
 using ServiceStack.IO;
+using Amazon.DynamoDBv2.Model;
 
 namespace BlazorDiffusion.ServiceInterface;
 
@@ -246,6 +247,9 @@ public class BackgroundMqServices : Service
                     await StableDiffusionClient.SaveCreativeAsync(creative);
                 }
                 log("SyncTasks SaveCreatives took {0}ms", swWrites.ElapsedMilliseconds);
+
+                var artifacts = await Db.SelectByIdsAsync<Artifact>(artifactIds);
+                await WriteArtifactHtmlPagesAsync(Prerenderer.VirtualFiles, artifacts);
             }
 
             log("SyncTasks {0} Total took {1}ms", type, sw.ElapsedMilliseconds);
@@ -272,6 +276,7 @@ public class BackgroundMqServices : Service
             });
             await Db.InsertAllAsync(ftsArtifacts);
             await Any(new DiskTasks { SaveCreative = request.NewCreative });
+            await WriteArtifactHtmlPagesAsync(Prerenderer.VirtualFiles, request.NewCreative.Artifacts);
         }
 
         if (request.RecordArtifactLikeId != null)
@@ -360,7 +365,7 @@ public class BackgroundMqServices : Service
         if (Request.HasValidCache(artifact.ModifiedDate))
             return HttpResult.NotModified();
 
-        var html = await RenderImageHtmlAsync(artifact);
+        var html = await RenderArtifactHtmlPageAsync(artifact);
 
         return new HttpResult(html)
         {
@@ -368,28 +373,6 @@ public class BackgroundMqServices : Service
             LastModified = artifact.ModifiedDate,
             MaxAge = TimeSpan.FromDays(1),
         };
-    }
-
-    public async Task<string> RenderImageHtmlAsync(Artifact artifact)
-    {
-        string title = artifact.Prompt.LeftPart(',');
-        var meta = HtmlTemplate.CreateMeta(
-            url: Request.AbsoluteUri,
-            title: title,
-            image: AppConfig.Instance.AssetsBasePath + artifact.FilePath);
-
-        var componentType = HtmlTemplate.GetComponentType("BlazorDiffusion.Pages.ssg.Image")
-            ?? throw HttpError.NotFound("Component not found");
-        var httpCtx = ((NetCoreRequest)Request).HttpContext;
-        var args = new Dictionary<string, object>
-        {
-            [nameof(RenderImageHtml.Id)] = artifact.Id,
-            [nameof(RenderImageHtml.Slug)] = artifact.GetSlug(),
-        };
-        var body = await Renderer.RenderComponentAsync(componentType, httpCtx, args);
-
-        var html = HtmlTemplate.Render(title: title, head: meta, body: body);
-        return html;
     }
 
     public async Task<object> Any(TestImageHtml request)
@@ -429,20 +412,52 @@ public class BackgroundMqServices : Service
                 .Take(1000))
                 .ToList();
 
-            Log.DebugFormat("Writing {0} artifact image html", artifacts.Count);
-
-            foreach (var artifact in artifacts)
-            {
-                var html = await RenderImageHtmlAsync(artifact);
-                var file = artifact.GetImageFileName();
-                var path = artifact.GetImageFilePath();
-                Log.DebugFormat("Writing {0} bytes to {1}...", html.Length, path);
-                await vfs.WriteFileAsync(path, html);
-                ret.Results.Add(file);
-            }
+            var results = await WriteArtifactHtmlPagesAsync(vfs, artifacts);
+            ret.Results.AddRange(results);
         }
 
         return ret;
+    }
+
+    public async Task<List<string>> WriteArtifactHtmlPagesAsync(IVirtualFiles vfs, List<Artifact> artifacts)
+    {
+        Log.DebugFormat("Writing {0} artifact image html", artifacts.Count);
+        
+        var results = new List<string>();
+
+        foreach (var artifact in artifacts)
+        {
+            var html = await RenderArtifactHtmlPageAsync(artifact);
+            var file = artifact.GetImageFileName();
+            var path = artifact.GetImageFilePath();
+            Log.DebugFormat("Writing {0} bytes to {1}...", html.Length, path);
+            await vfs.WriteFileAsync(path, html);
+            results.Add(file);
+        }
+
+        return results;
+    }
+
+    public async Task<string> RenderArtifactHtmlPageAsync(Artifact artifact)
+    {
+        string title = artifact.Prompt.LeftPart(',');
+        var meta = HtmlTemplate.CreateMeta(
+            url: Request.AbsoluteUri,
+            title: title,
+            image: AppConfig.Instance.AssetsBasePath.CombineWith(artifact.FilePath));
+
+        var componentType = HtmlTemplate.GetComponentType("BlazorDiffusion.Pages.ssg.Image")
+            ?? throw HttpError.NotFound("Component not found");
+        var httpCtx = ((NetCoreRequest)Request).HttpContext;
+        var args = new Dictionary<string, object>
+        {
+            [nameof(RenderImageHtml.Id)] = artifact.Id,
+            [nameof(RenderImageHtml.Slug)] = artifact.GetSlug(),
+        };
+        var body = await Renderer.RenderComponentAsync(componentType, httpCtx, args);
+
+        var html = HtmlTemplate.Render(title: title, head: meta, body: body);
+        return html;
     }
 
     public object Any(DevTasks request)
