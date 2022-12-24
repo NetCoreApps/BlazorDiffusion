@@ -95,6 +95,7 @@ public class AlbumServices : Service
                 await Db.UpdateOnlyAsync(() => new Album { PrimaryArtifactId = null }, where: x => x.Id == album.Id);
             }
             album.Artifacts.RemoveAll(x => request.RemoveArtifactIds.Contains(x.ArtifactId)); // required so they get added below
+            request.RemoveArtifactIds.ForEach(Updated.ArtifactIds.Add); //rerender artifact .html
         }
         if (request.AddArtifactIds?.Count > 0)
         {
@@ -107,6 +108,7 @@ public class AlbumServices : Service
                     ModifiedDate = album.ModifiedDate,
                 });
             await Db.InsertAllAsync(albumArtifacts);
+            request.AddArtifactIds.ForEach(Updated.ArtifactIds.Add); //rerender artifact .html
         }
         if (request.PrimaryArtifactId != null)
         {
