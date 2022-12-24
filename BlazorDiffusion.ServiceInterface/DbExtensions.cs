@@ -38,8 +38,8 @@ public static class DbExtensions
         };
     }
     public static string GetSlug(this Artifact artifact) => artifact.Prompt.LeftPart(',').GenerateSlug();
-    public static string GetImageFileName(this Artifact artifact) =>
+    public static string GetHtmlFileName(this Artifact artifact) =>
         $"{artifact.Id.ToString().PadLeft(4, '0')}_{artifact.GetSlug()}.html";
-    public static string GetImageFilePath(this Artifact artifact) =>
-        $"/artifacts/{Math.Floor(artifact.Id / 1000d)}/{artifact.GetImageFileName()}";
+    public static string GetHtmlFilePath(this Artifact artifact) =>
+        $"/artifacts/{Math.Floor(artifact.Id / 1000d)}/{artifact.GetHtmlFileName()}";
 }

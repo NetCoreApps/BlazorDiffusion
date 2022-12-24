@@ -315,8 +315,8 @@ public class CreativeService : Service
         if (creative == null)
             throw HttpError.NotFound($"Creative {request.Id} does not exist");
 
-        var artifactIds = await Db.ColumnDistinctAsync<int>(
-            Db.From<Artifact>().Where(x => x.CreativeId == request.Id).Select(x => x.Id));
+        var artifacts = await Db.SelectAsync<Artifact>(x => x.CreativeId == request.Id);
+        var artifactIds = artifacts.Select(x => x.Id).ToSet();
 
         using var transaction = Db.OpenTransaction();
 
@@ -336,6 +336,11 @@ public class CreativeService : Service
         using var analyticsDb = OpenDbConnection(Databases.Analytics);
         await analyticsDb.DeleteAsync<ArtifactStat>(x => artifactIds.Contains(x.ArtifactId));
         await analyticsDb.DeleteAsync<SearchStat>(x => x.ArtifactId != null && artifactIds.Contains(x.ArtifactId.Value));
+
+        PublishMessage(new DiskTasks
+        {
+            CdnDeleteFiles = artifacts.Select(x => x.GetHtmlFilePath()).ToList()
+        });
     }
 
     public async Task<object> Any(GetCreative request)

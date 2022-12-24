@@ -45,6 +45,11 @@ public class BackgroundMqServices : Service
         {
             await VirtualFiles.WriteFileAsync(request.SaveFile.FilePath, request.SaveFile.Stream);
         }
+
+        if (request.CdnDeleteFiles != null)
+        {
+            Prerenderer.VirtualFiles.DeleteFiles(request.CdnDeleteFiles);
+        }
     }
 
     public async Task<object> Get(ViewCreativeMetadata request)
@@ -428,8 +433,8 @@ public class BackgroundMqServices : Service
         foreach (var artifact in artifacts)
         {
             var html = await RenderArtifactHtmlPageAsync(artifact);
-            var file = artifact.GetImageFileName();
-            var path = artifact.GetImageFilePath();
+            var file = artifact.GetHtmlFileName();
+            var path = artifact.GetHtmlFilePath();
             Log.DebugFormat("Writing {0} bytes to {1}...", html.Length, path);
             await vfs.WriteFileAsync(path, html);
             results.Add(file);

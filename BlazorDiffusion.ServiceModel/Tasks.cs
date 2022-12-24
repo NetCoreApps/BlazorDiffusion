@@ -55,6 +55,7 @@ public class DiskTasks : IReturnVoid
     public int? SaveCreativeId { get; set; }
     public Creative? SaveCreative { get; set; }
     public SaveFile? SaveFile { get; set; }
+    public List<string>? CdnDeleteFiles { get; set; }
 }
 
 public class SaveFile
