@@ -61,7 +61,7 @@
     <div class="flex flex-wrap justify-center">
     @foreach (var artifact in Creative.GetArtifacts())
     {
-        <a @key=@artifact.Id href=@artifact.GetImageFilePath() class="relative overflow-hidden">
+        <a @key=@artifact.Id href=@artifact.GetHtmlFilePath() class="relative overflow-hidden">
             <div class="relative flex justify-center mr-1 mb-1 sm:mr-4 sm:mb-4">
                 <ArtifactImage Artifact="artifact" MinSize="128"
                         class=@ClassNames("rounded sm:rounded-xl border-2 max-w-[108px] sm:max-w-none object-cover",
