@@ -24,8 +24,6 @@ public class BackgroundMqServices : Service
 
     public async Task Any(DiskTasks request)
     {
-        if (Interlocked.Read(ref InSyncTasks) > 0)
-            return;
         if (AppConfig.DisableWrites)
             return;
 

@@ -127,6 +127,18 @@ public class HardDeleteCreative : IDeleteDb<Creative>, IReturnVoid
     public int Id { get; set; }
 }
 
+[ValidateHasRole(AppRoles.Moderator)]
+public class DeleteArtifactHtml
+{
+    public int[] Ids { get; set; }
+}
+
+[ValidateHasRole(AppRoles.Moderator)]
+public class DeleteCdnFiles
+{
+    public List<string> Files { get; set; }
+}
+
 public class QueryArtists : QueryDb<Artist> {}
 
 [ValidateHasRole(AppRoles.Moderator)]

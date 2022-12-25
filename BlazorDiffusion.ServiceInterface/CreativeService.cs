@@ -343,6 +343,31 @@ public class CreativeService : Service
         });
     }
 
+    public object Any(DeleteArtifactHtml request)
+    {
+        var artifacts = Db.SelectByIds<Artifact>(request.Ids);
+        if (artifacts.Count > 0)
+        {
+            var msg = new DiskTasks
+            {
+                CdnDeleteFiles = artifacts.Select(x => x.GetHtmlFilePath()).ToList()
+            };
+            PublishMessage(msg);
+            return msg;
+        }
+        return "No Artifacts found";
+    }
+
+    public object Any(DeleteCdnFiles request)
+    {
+        var msg = new DiskTasks
+        {
+            CdnDeleteFiles = request.Files
+        };
+        PublishMessage(msg);
+        return msg;
+    }
+
     public async Task<object> Any(GetCreative request)
     {
         var creativeId = request.Id
