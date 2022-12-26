@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using BlazorDiffusion.ServiceModel;
@@ -358,7 +359,7 @@ public class CreativeService : Service
         return "No Artifacts found";
     }
 
-    public object Any(DeleteCdnFiles request)
+    public object Any(DeleteCdnFilesMq request)
     {
         var msg = new DiskTasks
         {
@@ -366,6 +367,20 @@ public class CreativeService : Service
         };
         PublishMessage(msg);
         return msg;
+    }
+
+    public IPrerenderer Prerenderer { get; set; } = default!;
+    public void Any(DeleteCdnFile request)
+    {
+        Prerenderer.VirtualFiles.DeleteFile(request.File);
+    }
+
+    public object Any(GetCdnFile request)
+    {
+        var file = Prerenderer.VirtualFiles.GetFile(request.File);
+        if (file == null)
+            throw new FileNotFoundException(request.File);
+        return new HttpResult(file);
     }
 
     public async Task<object> Any(GetCreative request)

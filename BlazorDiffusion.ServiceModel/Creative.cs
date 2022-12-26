@@ -134,9 +134,20 @@ public class DeleteArtifactHtml
 }
 
 [ValidateHasRole(AppRoles.Moderator)]
-public class DeleteCdnFiles
+public class DeleteCdnFilesMq
 {
     public List<string> Files { get; set; }
+}
+
+[ValidateHasRole(AppRoles.Moderator)]
+public class GetCdnFile
+{
+    public string File { get; set; }
+}
+[ValidateHasRole(AppRoles.Moderator)]
+public class DeleteCdnFile : IReturnVoid
+{
+    public string File { get; set; }
 }
 
 public class QueryArtists : QueryDb<Artist> {}
