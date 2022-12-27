@@ -3,6 +3,8 @@
 <div @key=@Artifact.Id class=@ClassNames("relative",
      Artifact.Width > Artifact.Height ? "col-span-2" : Artifact.Height > Artifact.Width ? "row-span-2" : "")>
 
+    @if (!HideIcons)
+    {
     <div class="z-20 w-full absolute flex justify-center">
         <div class="w-full flex justify-between mt-1 px-1 sm:mt-5 sm:px-5" style=@($"max-width:{Artifact.Width}px")>
             <a href=@($"/?similar={Artifact.RefId}") class="" title="Explore Similar">
@@ -20,6 +22,7 @@
             </a>
         </div>
     </div>
+    }
 
     <a href=@Artifact.GetHtmlFilePath()
        class=@ClassNames("overflow-hidden flex justify-center")>
@@ -81,4 +84,5 @@
 
 @code {
     [Parameter, EditorRequired] public Artifact Artifact { get; set; } = default!;
+    [Parameter] public bool HideIcons { get; set; }
 }
