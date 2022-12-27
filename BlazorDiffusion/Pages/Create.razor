@@ -432,10 +432,17 @@
                     <span class="my-2 mx-4 text-sm text-gray-600 dark:text-gray-400">@artifact.Height x @artifact.Width</span>
                     <span class="my-2 mx-4 text-sm text-gray-600 dark:text-gray-400">@TextUtils.FormatBytes(artifact.ContentLength)</span>
                 </div>
-                <div>
+                <div class="flex flex-wrap">
                     <a class="mb-4 flex text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" href=@artifact.GetDownloadUrl() target="_blank">
                         <svg class="w-5 h-5 mr-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 20h12M12 4v12m0 0l3.5-3.5M12 16l-3.5-3.5"/></svg>
                         download
+                    </a>
+                    <a href=@(artifact.GetHtmlFilePath()) target="_blank"
+                        class="ml-8 mb-4 flex text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
+                        <svg class="w-5 h-5 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M8.586 17H3v-2h18v2h-5.586l3.243 3.243l-1.414 1.414L13 17.414V20h-2v-2.586l-4.243 4.243l-1.414-1.414L8.586 17zM5 3h14a1 1 0 0 1 1 1v10H4V4a1 1 0 0 1 1-1zm1 2v7h12V5H6z" />
+                        </svg>
+                        art view
                     </a>
                 </div>
             </div>
