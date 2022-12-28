@@ -27,19 +27,15 @@
                 <div class="flex flex-wrap items-center">
                     <div class="flex flex-grow flex-shrink flex-nowrap justify-end items-center">
                         <a href="/" class="flex items-center flex-shrink-0 px-4 text-2xl whitespace-nowrap overflow-x-hidden flex items-center">
-                            <img class="h-8 w-8"
+                            <img class="h-8 w-8 my-3"
                                  src="/img/blazor.svg"
-                                 alt="My App">
+                                 alt="Blazor Diffusion Logo">
                             <div class="ml-2 text-black dark:text-white">Diffusion</div>
                         </a>
                         <nav class="relative flex flex-grow">
                             <ul class="flex flex-wrap items-center justify-end w-full m-0">
                                 <li class="relative flex flex-wrap just-fu-start m-0">
-                                    <a href="/signin" class="m-2">
-                                        <button class="rounded-md border py-2 px-4 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-400 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-black">
-                                            Sign In
-                                        </button>
-                                    </a>
+                                    <div id="signin"></div>
                                 </li>
                             </ul>
                         </nav>
@@ -101,7 +97,19 @@
     <script src="_framework/blazor.server.js"></script>
     <script src="/js/servicestack-blazor.js"></script>
     <script>JS.init({ colorScheme: 'dark' })</script>
+    <script>
+    let exports = { __esModule: true }, module = { exports: exports }
+    function require(name) { return exports[name] || window[name] }
+    </script>
+    <script src="https://api.blazordiffusion.com/types/js"></script>
+    <script src="https://api.blazordiffusion.com/js/servicestack-client.js"></script>
     <script src="/js/custom.js"></script>
+
+    <script type="module">
+        import { createApp } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+        import Comments from '/js/comments.js'
+        createApp(Comments).mount('#comments')
+    </script>
 
 </body>
 </html>
