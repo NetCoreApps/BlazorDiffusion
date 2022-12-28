@@ -1137,6 +1137,11 @@ input[data-autocompleted] {
   margin-right: -1rem;
 }
 
+.my-1 {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
 .-mt-4 {
   margin-top: -1rem;
 }
@@ -1249,6 +1254,10 @@ input[data-autocompleted] {
   margin-bottom: 0.5rem;
 }
 
+.ml-24 {
+  margin-left: 6rem;
+}
+
 .mb-3 {
   margin-bottom: 0.75rem;
 }
@@ -1323,14 +1332,6 @@ input[data-autocompleted] {
 
 .mr-3 {
   margin-right: 0.75rem;
-}
-
-.ml-28 {
-  margin-left: 7rem;
-}
-
-.ml-24 {
-  margin-left: 6rem;
 }
 
 .block {

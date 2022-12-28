@@ -92,10 +92,11 @@ public class PrerenderResponse
 }
 
 [Route("/image/{Id}")]
-[Route("/image/{Id}/{Slug}")]
-public class RenderImageHtml : IReturn<string>
+[Route("/artifacts/{Group}/{Slug}")]
+public class RenderArtifactHtml : IReturn<string>
 {
-    public int Id { get; set; }
+    public int? Group { get; set; }
+    public int? Id { get; set; }
     public string? Slug { get; set; }
 }
 

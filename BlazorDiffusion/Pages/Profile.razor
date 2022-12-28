@@ -4,7 +4,7 @@
 @inject ServiceStackStateProvider AuthProvider
 
 <div class="flex justify-center w-full">
-<div class="rounded-lg w-screen-md bg-white dark:bg-black overflow-hidden shadow dark:border dark:border-gray-800 mb-3">
+<div class="mt-16 rounded-lg w-screen-md bg-white dark:bg-black overflow-hidden shadow dark:border dark:border-gray-800 mb-3">
     <h2 class="sr-only" id="profile-overview-title">Profile Overview</h2>
     <div class="bg-white dark:bg-black p-6">
         <div class="flex items-center justify-between">
@@ -47,9 +47,6 @@
                 <SecondaryButton @onclick="logout">
                     Sign Out
                 </SecondaryButton>
-                <PrimaryButton class="mt-4" @onclick="logout">
-                    Edit Profile
-                </PrimaryButton>
             </div>
         </div>
     </div>
