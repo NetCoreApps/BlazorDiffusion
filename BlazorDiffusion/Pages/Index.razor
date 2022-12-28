@@ -144,4 +144,10 @@
         }
     </div>
 
+    @if (SelectedAlbum != null)
+    {
+        <a href=@($"/albums/{SelectedAlbum.Slug}.html") class="mt-16 ml-24 text-sm text-gray-500 hover:text-gray-300">html only version</a>
+    }
+
+
 </Home>
