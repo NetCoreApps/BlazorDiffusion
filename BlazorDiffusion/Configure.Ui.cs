@@ -41,7 +41,7 @@ public class ConfigureUi : IHostingStartup
                 VirtualFiles = virtualFiles,
                 Renderer = container.Resolve<IComponentRenderer>(),
                 Pages = {
-                    new(typeof(Pages.Index),  "/prerender/index.html",  new() { 
+                    new(typeof(Pages.Index),  "/prerender/index.html",  new() {
                         [nameof(Pages.Index.LazyLoad)] = "false",
                         [nameof(Pages.Index.Ssg)] = "true",
                     }),
