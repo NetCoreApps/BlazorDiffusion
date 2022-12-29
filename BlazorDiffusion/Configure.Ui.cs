@@ -11,6 +11,7 @@ using BlazorDiffusion.UI;
 using BlazorDiffusion.Shared;
 using System.Text;
 using System.IO;
+using System.Data;
 
 [assembly: HostingStartup(typeof(BlazorDiffusion.ConfigureUi))]
 
@@ -34,10 +35,19 @@ public class ConfigureUi : IHostingStartup
                 ? new FileSystemVirtualFiles(Path.GetFullPath(Path.Combine(appHost.GetWebRootPath(), appHost.AppSettings.GetString("BlazorWebRoot"))))
                 : new R2VirtualFiles(s3Client, appConfig.CdnBucket);
 
+            var indexFile = appHost.GetVirtualFileSource<FileSystemVirtualFiles>().GetFile("_index.html");
+            if (indexFile == null)
+                throw new FileNotFoundException("Could not resolve _index.html");
+
+            var htmlTemplate = HtmlTemplate.Create(indexFile.ReadAllText());
+            htmlTemplate.RegisterComponent<BlazorDiffusion.Pages.ssg.Image>();
+
             container.AddSingleton<IComponentRenderer>(c => new ComponentRenderer());
             var prerenderer = new Prerenderer
             {
                 BaseUrl = appConfig.BaseUrl,
+                AppConfig = appConfig,
+                HtmlTemplate = htmlTemplate,
                 VirtualFiles = virtualFiles,
                 Renderer = container.Resolve<IComponentRenderer>(),
                 Pages = {
@@ -56,13 +66,6 @@ public class ConfigureUi : IHostingStartup
                 .Select(x => x.ToAlbumResult())
                 .ToList();
 
-            var indexFile = appHost.GetVirtualFileSource<FileSystemVirtualFiles>().GetFile("_index.html");
-            if (indexFile == null)
-                throw new FileNotFoundException("Could not resolve _index.html");
-            
-            var htmlTemplate = HtmlTemplate.Create(indexFile.ReadAllText());
-            htmlTemplate.RegisterComponent<BlazorDiffusion.Pages.ssg.Image>();
-
             container.Register(htmlTemplate);
 
             prerenderer.Pages.Add(new(typeof(Pages.ssg.Albums), "/albums.html",
@@ -70,51 +73,42 @@ public class ConfigureUi : IHostingStartup
 
             foreach (var album in albums)
             {
-                if (album.Slug == null)
-                {
-                    album.Slug = album.Name.GenerateSlug();
-                    db.UpdateOnly(() => new Album { Slug = album.Slug }, where:x => x.Id == album.Id);
-                }
-
-                var path = $"/albums/{album.Slug}.html";
-                var artifactId = album.ArtifactIds?.FirstOrDefault();
-                var artifact = artifactId != null ? db.SingleById<Artifact>(artifactId) : null;
-                var albumMeta = HtmlTemplate.CreateMeta(url:path, title:album.Name, 
-                    image: appConfig.AssetsBasePath.CombineWith(artifact?.FilePath)); 
-
-                prerenderer.Pages.Add(new(typeof(Pages.ssg.Album), path, new() { 
-                        [nameof(Pages.ssg.Album.RefId)] = album.AlbumRef,
-                    }, 
-                    transformer:html => htmlTemplate.Render(title: album.Name, head:albumMeta, body:html)));
+                prerenderer.AddAlbum(db, album);
             }
 
             container.Register<IPrerenderer>(c => prerenderer);
         });
 }
 
-public class PrerenderPage
-{
-    public Type Component { get; set; }
-    public Dictionary<string, object> ComponentArgs { get; set; }
-    public string WritePath { get; set; }
-    public Func<string, string>? Transformer { get; set; }
-
-    public PrerenderPage(Type component, string writePath, Dictionary<string, object>? componentArgs = null, Func<string, string>? transformer = null)
-    {
-        Component = component;
-        ComponentArgs = componentArgs ?? new();
-        WritePath = writePath;
-        Transformer = transformer;
-    }
-}
-
 public class Prerenderer : IPrerenderer
 {
     public string BaseUrl { get; set; }
+    public AppConfig AppConfig { get; set; }
+    public HtmlTemplate HtmlTemplate { get; set; }
     public IVirtualFiles VirtualFiles { get; init; }
     public IComponentRenderer Renderer { get; init; }
     public List<PrerenderPage> Pages { get; } = new();
 
+    public void AddAlbum(IDbConnection db, AlbumResult album)
+    {
+        if (album.Slug == null)
+        {
+            album.Slug = album.Name.GenerateSlug();
+            db.UpdateOnly(() => new Album { Slug = album.Slug }, where: x => x.Id == album.Id);
+        }
+
+        var path = $"/albums/{album.Slug}.html";
+        var artifactId = album.ArtifactIds?.FirstOrDefault();
+        var artifact = artifactId != null ? db.SingleById<Artifact>(artifactId) : null;
+        var albumMeta = HtmlTemplate.CreateMeta(url: path, title: album.Name,
+            image: AppConfig.AssetsBasePath.CombineWith(artifact?.FilePath));
+
+        Pages.Add(new(typeof(Pages.ssg.Album), path, new()
+        {
+            [nameof(BlazorDiffusion.Pages.ssg.Album.RefId)] = album.AlbumRef,
+        },
+            transformer: html => HtmlTemplate.Render(title: album.Name, head: albumMeta, body: html)));
+    }
 
     public async Task RenderPages(HttpContext? httpContext = null)
     {

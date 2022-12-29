@@ -428,6 +428,7 @@ public static class CreateServiceUtils
         await client.SaveMetadataAsync(creative);
         return creative;
     }
+
 }
 
 public interface IStableDiffusionClient
@@ -487,4 +488,21 @@ public interface IPrerenderer
 {
     IVirtualFiles VirtualFiles { get; }
     Task RenderPages(HttpContext? httpContext = null);
+    void AddAlbum(IDbConnection db, AlbumResult album);
+}
+
+public class PrerenderPage
+{
+    public Type Component { get; set; }
+    public Dictionary<string, object> ComponentArgs { get; set; }
+    public string WritePath { get; set; }
+    public Func<string, string>? Transformer { get; set; }
+
+    public PrerenderPage(Type component, string writePath, Dictionary<string, object>? componentArgs = null, Func<string, string>? transformer = null)
+    {
+        Component = component;
+        ComponentArgs = componentArgs ?? new();
+        WritePath = writePath;
+        Transformer = transformer;
+    }
 }

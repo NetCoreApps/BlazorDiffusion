@@ -13,6 +13,7 @@ public class AlbumServices : Service
 {
     public IAutoQueryDb AutoQuery { get; set; }
     public ICrudEvents CrudEvents { get; set; }
+    public IPrerenderer Prerenderer { get; set; }
 
     public async Task<object> Any(CreateAlbum request)
     {
@@ -48,12 +49,15 @@ public class AlbumServices : Service
                 ModifiedDate = album.ModifiedDate,
             });
             await Db.InsertAllAsync(albumArtifacts);
+            album.Artifacts = albumArtifacts;
         }
 
         var crudContext = CrudContext.Create<Album>(Request, Db, request, AutoCrudOperation.Create);
         await CrudEvents.RecordAsync(crudContext);
 
         trans.Commit();
+
+        Prerenderer.AddAlbum(Db, album.ToAlbumResult());
 
         return album;
     }
