@@ -7,7 +7,6 @@ namespace BlazorDiffusion.ServiceModel;
 
 
 [Icon(Svg = Icons.Artifact)]
-[AutoApply(Behavior.AuditCreate)]
 public class Artifact : AuditBase
 {
     [AutoIncrement]

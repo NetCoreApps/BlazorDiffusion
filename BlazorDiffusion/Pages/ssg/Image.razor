@@ -116,7 +116,7 @@ else if (api.Error != null)
 {
     <h1 class="my-4 text-2xl text-center">@api.ErrorMessage</h1>
 }
-    <div id="comments"></div>
+<div id="comments" data-component="artifact-comments" data-props="{ artifactId: @Id }"></div>
 
 @code {
     [Parameter] public int Id { get; set; }

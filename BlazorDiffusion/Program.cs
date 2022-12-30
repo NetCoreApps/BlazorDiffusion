@@ -22,6 +22,7 @@ var baseUrl = // builder.Configuration["oauth.RedirectUrl"] ?? // trying out Use
 
 builder.Services.AddLocalStorage();
 builder.Services.AddBlazorServerApiClient(baseUrl);
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(AppHost.LocalBaseUrl) });
 
 builder.Services.AddScoped<KeyboardNavigation>();
 builder.Services.AddScoped<UserState>();

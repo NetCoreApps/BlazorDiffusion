@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><!--title--></title>
-    <base href="~/" />
+    <base href="/" />
     <link rel="stylesheet" href="/css/app.css" />
     <link href="/css/typography.css" rel="stylesheet">
     <link href="/css/markdown.css" rel="stylesheet">
@@ -35,7 +35,7 @@
                         <nav class="relative flex flex-grow">
                             <ul class="flex flex-wrap items-center justify-end w-full m-0">
                                 <li class="relative flex flex-wrap just-fu-start m-0">
-                                    <div id="signin"></div>
+                                    <div id="signin" data-component="signin"></div>
                                 </li>
                             </ul>
                         </nav>
@@ -94,21 +94,14 @@
     </div>
     <div id="end"></div>
 
-    <script src="_framework/blazor.server.js"></script>
+    <script src="/_framework/blazor.server.js"></script>
     <script src="/js/servicestack-blazor.js"></script>
     <script>JS.init({ colorScheme: 'dark' })</script>
-    <script>
-    let exports = { __esModule: true }, module = { exports: exports }
-    function require(name) { return exports[name] || window[name] }
-    </script>
-    <script src="https://api.blazordiffusion.com/types/js"></script>
-    <script src="https://api.blazordiffusion.com/js/servicestack-client.js"></script>
     <script src="/js/custom.js"></script>
 
     <script type="module">
-        import { createApp } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
-        import Comments from '/js/comments.js'
-        createApp(Comments).mount('#comments')
+        import { init } from '/js/static.js'
+        init()
     </script>
 
 </body>
