@@ -8,6 +8,7 @@ window.scrollTo = (x, y) => {
     return origScrollTo.apply(this, arguments)
 }
 function map(o, f) { return o == null ? null : f(o) }
+function prerenderedPage() { return '' }
 
 var cls = (function () {
     var button = 'inline-flex justify-center rounded-md border border-transparent py-2 px-4 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 '
