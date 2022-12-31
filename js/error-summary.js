@@ -1,4 +1,5 @@
-﻿import { classNames, errorResponseExcept } from 'https://unpkg.com/@servicestack/client/dist/servicestack-client.mjs'
+﻿import { computed, useAttrs, inject } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+import { classNames, errorResponseExcept } from 'https://unpkg.com/@servicestack/client/dist/servicestack-client.mjs'
 
 export default {
     template: `
@@ -15,20 +16,17 @@ export default {
         </div>
     </div>
     `,
-    computed: {
-        errorSummary() {
-            return this.status
-                ? errorResponseExcept.call({ responseStatus: this.status }, this.except)
-                : null
-        },
-    },
-    methods: {
-        classNames,
-    },
-    props: ['status','except'],
-    data() {
+    props: ['status', 'except'],
+    setup(props) {
+        let ctx = inject('ApiState', undefined)
+        const errorSummary = computed(() => props.status || map(ctx, x => x.error.value)
+            ? errorResponseExcept.call({ responseStatus: props.status || map(ctx, x => x.error.value) }, props.except)
+            : null)
+
         return {
             cls,
+            classNames,
+            errorSummary,
         }
-    },
+    }
 }

@@ -15,7 +15,10 @@ var cls = (function () {
         buttons: {
             primary: button + 'dark:ring-offset-black focus:ring-2 focus:ring-offset-2 text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800',
             secondary: button + 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-400 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-black',
-        }
+        },
+        form: {
+            legend: "text-base font-medium text-gray-900 dark:text-gray-100 text-center mb-4"
+        },
     }
 })();
 
