@@ -104,6 +104,7 @@ public class TestImageHtml : IReturnVoid {}
 
 public class PrerenderImages : IReturn<PrerenderResponse>
 {
+    public bool Force { get; set; }
     public int[] Batches { get; set; }
 }
 
