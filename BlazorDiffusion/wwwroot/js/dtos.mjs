@@ -1,5 +1,5 @@
 /* Options:
-Date: 2022-12-30 18:29:43
+Date: 2023-01-01 03:54:13
 Version: 6.51
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5001
@@ -151,46 +151,13 @@ export class ArtifactStat extends StatBase {
     source;
     version;
 }
-export class QueryBase {
-    constructor(init) { Object.assign(this, init); }
-    skip;
-    take;
-    orderBy;
-    orderByDesc;
-    include;
-    fields;
-    meta;
-}
-export class QueryDb_2 extends QueryBase {
-    constructor(init) { super(init); Object.assign(this, init); }
-}
-export class CommentResult {
+export class ArtifactCommentVote {
     constructor(init) { Object.assign(this, init); }
     id;
-    artifactId;
-    replyId;
-    content;
-    likesCount;
-    flagReason;
-    notes;
+    artifactCommentId;
     appUserId;
-    displayName;
-    handle;
-    profileUrl;
-    avatar;
-}
-export class ArtifactComment extends AuditBase {
-    constructor(init) { super(init); Object.assign(this, init); }
-    id;
-    artifactId;
-    replyId;
-    content;
-    voteUpCount;
-    voteDownCount;
-    flagReason;
-    notes;
-    refId;
-    appUserId;
+    vote;
+    createdDate;
 }
 export class Artist extends AuditBase {
     constructor(init) { super(init); Object.assign(this, init); }
@@ -311,6 +278,19 @@ export class AppUser {
     createdDate;
     modifiedDate;
 }
+export class QueryBase {
+    constructor(init) { Object.assign(this, init); }
+    skip;
+    take;
+    orderBy;
+    orderByDesc;
+    include;
+    fields;
+    meta;
+}
+export class QueryDb_2 extends QueryBase {
+    constructor(init) { super(init); Object.assign(this, init); }
+}
 export class ArtifactResult extends Artifact {
     constructor(init) { super(init); Object.assign(this, init); }
     userPrompt;
@@ -325,6 +305,55 @@ export class QueryData extends QueryBase {
 }
 export class QueryDb_1 extends QueryBase {
     constructor(init) { super(init); Object.assign(this, init); }
+}
+export class CommentResult {
+    constructor(init) { Object.assign(this, init); }
+    id;
+    artifactId;
+    replyId;
+    content;
+    upVotes;
+    downVotes;
+    votes;
+    flagReason;
+    notes;
+    appUserId;
+    displayName;
+    handle;
+    profileUrl;
+    avatar;
+    createdDate;
+    modifiedDate;
+}
+export class ArtifactComment extends AuditBase {
+    constructor(init) { super(init); Object.assign(this, init); }
+    id;
+    artifactId;
+    replyId;
+    content;
+    upVotes;
+    downVotes;
+    votes;
+    flagReason;
+    notes;
+    refId;
+    appUserId;
+}
+export var PostReport;
+(function (PostReport) {
+    PostReport["Offensive"] = "Offensive";
+    PostReport["Spam"] = "Spam";
+    PostReport["Nudity"] = "Nudity";
+    PostReport["Illegal"] = "Illegal";
+})(PostReport || (PostReport = {}));
+export class ArtifactCommentReport {
+    constructor(init) { Object.assign(this, init); }
+    id;
+    artifactCommentId;
+    appUserId;
+    postReport;
+    description;
+    createdDate;
 }
 export class AlbumResult {
     constructor(init) { Object.assign(this, init); }
@@ -397,13 +426,12 @@ export class IdResponse {
     id;
     responseStatus;
 }
-export class QueryResponse {
+export class GetArtifactUserDataResponse {
     constructor(init) { Object.assign(this, init); }
-    offset;
-    total;
-    results;
-    meta;
-    responseStatus;
+    artifactId;
+    liked;
+    upVoted;
+    downVoted;
 }
 export class CheckQuotaResponse {
     constructor(init) { Object.assign(this, init); }
@@ -471,6 +499,14 @@ export class UserProfile {
 export class GetUserProfileResponse {
     constructor(init) { Object.assign(this, init); }
     result;
+    responseStatus;
+}
+export class QueryResponse {
+    constructor(init) { Object.assign(this, init); }
+    offset;
+    total;
+    results;
+    meta;
     responseStatus;
 }
 export class PrerenderResponse {
@@ -628,21 +664,27 @@ export class AnalyticsTasks {
     getMethod() { return 'POST'; };
     createResponse () { };
 }
-export class QueryArtifactComments extends QueryDb_2 {
-    constructor(init) { super(init); Object.assign(this, init); }
-    artifactId;
-    getTypeName() { return 'QueryArtifactComments'; };
-    getMethod() { return 'GET'; };
-    createResponse() { return new QueryResponse(); };
-}
-export class CreateArtifactComment {
+export class GetArtifactUserData {
     constructor(init) { Object.assign(this, init); }
     artifactId;
-    replyId;
-    content;
-    getTypeName() { return 'CreateArtifactComment'; };
+    getTypeName() { return 'GetArtifactUserData'; };
+    getMethod() { return 'GET'; };
+    createResponse() { return new GetArtifactUserDataResponse(); };
+}
+export class CreateArtifactCommentVote {
+    constructor(init) { Object.assign(this, init); }
+    artifactCommentId;
+    vote;
+    getTypeName() { return 'CreateArtifactCommentVote'; };
     getMethod() { return 'POST'; };
-    createResponse() { return new ArtifactComment(); };
+    createResponse() { };
+}
+export class DeleteArtifactCommentVote {
+    constructor(init) { Object.assign(this, init); }
+    artifactCommentId;
+    getTypeName() { return 'DeleteArtifactCommentVote'; };
+    getMethod() { return 'DELETE'; };
+    createResponse() { };
 }
 export class CheckQuota {
     constructor(init) { Object.assign(this, init); }
@@ -1006,6 +1048,20 @@ export class QueryArtifactReports extends QueryDb_1 {
     getMethod() { return 'GET'; };
     createResponse() { return new QueryResponse(); };
 }
+export class QueryArtifactComments extends QueryDb_2 {
+    constructor(init) { super(init); Object.assign(this, init); }
+    artifactId;
+    getTypeName() { return 'QueryArtifactComments'; };
+    getMethod() { return 'GET'; };
+    createResponse() { return new QueryResponse(); };
+}
+export class QueryArtifactCommentVotes extends QueryDb_1 {
+    constructor(init) { super(init); Object.assign(this, init); }
+    artifactId;
+    getTypeName() { return 'QueryArtifactCommentVotes'; };
+    getMethod() { return 'GET'; };
+    createResponse() { return new QueryResponse(); };
+}
 export class QueryCreatives extends QueryDb_1 {
     constructor(init) { super(init); Object.assign(this, init); }
     id;
@@ -1091,11 +1147,19 @@ export class UpdateArtifactReport {
     getMethod() { return 'PATCH'; };
     createResponse() { return new ArtifactReport(); };
 }
+export class CreateArtifactComment {
+    constructor(init) { Object.assign(this, init); }
+    artifactId;
+    replyId;
+    content;
+    getTypeName() { return 'CreateArtifactComment'; };
+    getMethod() { return 'POST'; };
+    createResponse() { return new ArtifactComment(); };
+}
 export class UpdateArtifactComment {
     constructor(init) { Object.assign(this, init); }
     id;
     content;
-    flagReason;
     getTypeName() { return 'UpdateArtifactComment'; };
     getMethod() { return 'PATCH'; };
     createResponse() { return new ArtifactComment(); };
@@ -1104,6 +1168,22 @@ export class DeleteArtifactComment {
     constructor(init) { Object.assign(this, init); }
     id;
     getTypeName() { return 'DeleteArtifactComment'; };
+    getMethod() { return 'DELETE'; };
+    createResponse() { };
+}
+export class CreateArtifactCommentReport {
+    constructor(init) { Object.assign(this, init); }
+    artifactCommentId;
+    postReport;
+    description;
+    getTypeName() { return 'CreateArtifactCommentReport'; };
+    getMethod() { return 'POST'; };
+    createResponse() { };
+}
+export class DeleteArtifactCommentReport {
+    constructor(init) { Object.assign(this, init); }
+    id;
+    getTypeName() { return 'DeleteArtifactCommentReport'; };
     getMethod() { return 'DELETE'; };
     createResponse() { };
 }
