@@ -51,11 +51,15 @@ public class SsgServies : Service
                 throw new ArgumentOutOfRangeException(nameof(request.Batches), $"Valid range: 0 to {maxBatches}");
 
             var vfs = Prerenderer.VirtualFiles;
-            var files = vfs.GetDirectory($"/artifacts/{batch}")?.GetAllMatchingFiles("*.html") ?? Array.Empty<IVirtualFile>();
-            var existingIds = files.Select(x => int.TryParse(x.Name.LeftPart('_'), out var id) ? id : (int?)null)
-                .Where(x => x != null)
-                .Select(x => x!.Value)
-                .ToList();
+            var existingIds = new List<int> { -1 };
+            if (!request.Force)
+            {
+                var files = vfs.GetDirectory($"/artifacts/{batch}")?.GetAllMatchingFiles("*.html") ?? Array.Empty<IVirtualFile>();
+                existingIds = files.Select(x => int.TryParse(x.Name.LeftPart('_'), out var id) ? id : (int?)null)
+                    .Where(x => x != null)
+                    .Select(x => x!.Value)
+                    .ToList();
+            }
 
             if (existingIds.Count == 0)
                 existingIds.Add(-1);
