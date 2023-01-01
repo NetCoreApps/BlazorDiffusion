@@ -1,7 +1,7 @@
 ﻿@page "/ssg/album"
 @inherits AppComponentBase
 
-<h1 class="my-4 text-2xl text-center">@SelectedAlbum?.Name</h1>
+<h1 class="my-4 text-2xl text-center" data-album="@SelectedAlbum?.Id">@SelectedAlbum?.Name</h1>
 
 <StaticGallery Results=@GalleryResults GridColumns="GridColumns"></StaticGallery>
 

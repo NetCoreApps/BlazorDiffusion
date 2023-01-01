@@ -3,27 +3,6 @@
 <div @key=@Artifact.Id class=@ClassNames("relative",
      Artifact.Width > Artifact.Height ? "col-span-2" : Artifact.Height > Artifact.Width ? "row-span-2" : "")>
 
-    @if (!HideIcons)
-    {
-    <div class="z-20 w-full absolute flex justify-center">
-        <div class="w-full flex justify-between mt-1 px-1 sm:mt-5 sm:px-5" style=@($"max-width:{Artifact.Width}px")>
-            <a href=@($"/?similar={Artifact.RefId}") class="" title="Explore Similar">
-                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-cyan-600 hover:text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-                    <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
-                        <title>explore similar</title>
-                        <path d="m11.25 11.25l3 3" /><circle cx="7.5" cy="7.5" r="4.75" />
-                    </g>
-                </svg>
-            </a>
-            <a href=@(Artifact.GetDownloadUrl()) class="" target="_blank" title="Download">
-                <svg class="w-4 h-4 sm:w-6 sm:h-6 text-cyan-600 hover:text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 20h12M12 4v12m0 0l3.5-3.5M12 16l-3.5-3.5" />
-                </svg>
-            </a>
-        </div>
-    </div>
-    }
-
     <a href=@Artifact.GetHtmlFilePath()
        class=@ClassNames("overflow-hidden flex justify-center")>
         <div class="relative sm:p-2 flex flex-col cursor-pointer items-center" style=@($"max-width:{Artifact.Width}px")>
@@ -36,14 +15,8 @@
 
                 <div class="absolute w-full h-full flex z-10 text-zinc-100 justify-between drop-shadow opacity-0 group-hover:opacity-100 transition-opacity sm:mb-1 text-sm">
                     <div class="relative w-full h-full overflow-hidden flex flex-col justify-between overflow-hidden">
-                        <div class="p-0.5 sm:p-4 flex justify-between flex-none">
-                            <div></div>
-                            <div class="sm:px-1 cursor-pointer"></div>
-                        </div>
-                        <div></div>
+                        <div data-component="artifact-icons" data-props="{ artifactId: @Artifact.Id, artifactRefId:'@Artifact.RefId' }"></div>
                         <div>
-                            <div class="sm:pb-2 sm:px-4"></div>
-
                             @if (Artifact is ArtifactResult result)
                             {
                                 <div class="hidden sm:flex bg-white/40 bg-black/40 sm:pt-2 sm:pl-4 sm:pb-4 sm:pr-4 w-full">
@@ -84,5 +57,4 @@
 
 @code {
     [Parameter, EditorRequired] public Artifact Artifact { get; set; } = default!;
-    [Parameter] public bool HideIcons { get; set; }
 }

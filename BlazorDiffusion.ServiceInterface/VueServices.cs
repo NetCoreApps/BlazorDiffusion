@@ -1,17 +1,17 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BlazorDiffusion.ServiceModel;
+using System.Collections;
+using System.Collections.Generic;
 using ServiceStack;
 using ServiceStack.OrmLite;
 using ServiceStack.OrmLite.Legacy;
+using BlazorDiffusion.ServiceModel;
 
 namespace BlazorDiffusion.ServiceInterface;
 
-public class CommentsServices : Service
+public class VueServices : Service
 {
     public IAutoQueryDb AutoQuery { get; set; } = default!;
     public ICrudEvents CrudEvents { get; set; }
@@ -41,6 +41,21 @@ public class CommentsServices : Service
             DownVoted = votes.Where(x => x.Vote < 0).Map(x => x.ArtifactCommentId),
         };
         return ret;
+    }
+
+    public async Task<object> Get(GetAlbumUserData request)
+    {
+        var session = await SessionAsAsync<CustomUserSession>();
+        var userId = session.GetUserId();
+        var likedIds = await Db.ColumnAsync<int>(Db.From<AlbumArtifact>()
+            .Join<ArtifactLike>((a,l) => a.ArtifactId == l.ArtifactId && l.AppUserId == userId)
+            .Where<AlbumArtifact>(x => x.AlbumId == request.AlbumId)
+            .Select(x => x.ArtifactId));
+        return new GetAlbumUserDataResponse
+        {
+            AlbumId = request.AlbumId,
+            LikedArtifacts = likedIds,
+        };
     }
 
     async Task refreshVotes(int artifactCommentId)

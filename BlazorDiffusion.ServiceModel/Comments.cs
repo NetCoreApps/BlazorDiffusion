@@ -96,6 +96,19 @@ public class GetArtifactUserDataResponse
     public List<int> DownVoted { get; set; }
 }
 
+[ValidateIsAuthenticated]
+[AutoApply(Behavior.AuditQuery)]
+
+public class GetAlbumUserData : IGet, IReturn<GetAlbumUserDataResponse>
+{
+    public int AlbumId { get; set; }
+}
+public class GetAlbumUserDataResponse
+{
+    public int AlbumId { get; set; }
+    public List<int> LikedArtifacts { get; set; }
+}
+
 
 [AutoApply(Behavior.AuditQuery)]
 public class QueryArtifactComments : QueryDb<ArtifactComment, CommentResult>,
