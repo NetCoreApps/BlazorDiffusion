@@ -89,7 +89,7 @@ public static class CreativeExtensions
             return creative.Artifacts ?? new();
 
         var to = new List<Artifact>(creative.Artifacts.Count) { primary };
-        to.AddRange(creative.Artifacts.Where(x => x.Id != creative.PrimaryArtifactId).OrderByDescending(x => x.Score));
+        to.AddRange(creative.Artifacts.Where(x => x.Id != creative.PrimaryArtifactId).OrderByDescending(x => x.Score).ThenBy(x => x.Id));
         return to;
     }
 

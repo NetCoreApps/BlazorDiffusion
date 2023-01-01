@@ -98,6 +98,7 @@ public class RenderArtifactHtml : IReturn<string>
     public int? Group { get; set; }
     public int? Id { get; set; }
     public string? Slug { get; set; }
+    public bool? Save { get; set; }
 }
 
 public class TestImageHtml : IReturnVoid {}

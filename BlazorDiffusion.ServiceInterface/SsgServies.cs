@@ -8,6 +8,7 @@ using ServiceStack.Logging;
 using ServiceStack.OrmLite;
 using ServiceStack.Host.NetCore;
 using BlazorDiffusion.ServiceModel;
+using System.IO;
 
 namespace BlazorDiffusion.ServiceInterface;
 
@@ -145,6 +146,11 @@ public class SsgServies : Service
             return HttpResult.NotModified();
 
         var html = await RenderArtifactHtmlPageAsync(artifact);
+
+        if (request.Save == true)
+        {
+            await Prerenderer.VirtualFiles.WriteFileAsync(artifact.GetHtmlFilePath(), html);
+        }
 
         return new HttpResult(html)
         {
