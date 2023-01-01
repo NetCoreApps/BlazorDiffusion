@@ -4,6 +4,8 @@
 **/wwwroot/albums/
 **/wwwroot/artifacts/
 albums.html
+top.html
+latest.html
 BlazorDiffusion/App_Files/
 BlazorDiffusion/App_Data/*.sqlite
 
