@@ -205,7 +205,7 @@ const Comment = {
 export default {
     components: { Comment, NewReport },
     template: `
-    <div class="mt-24 mx-auto flex flex-col w-full max-w-3xl">
+    <div :class="['mt-24 mx-auto flex flex-col w-full max-w-3xl transition-opacity', AppData.init ? 'opacity-100' : 'opacity-0']">
         <div v-if="auth" class="flex justify-center w-full">
             <input-comment :artifact-id="artifactId" @updated="refresh" />
         </div>
@@ -269,6 +269,7 @@ export default {
         watch(() => AppData.Auth, refresh)
 
         return {
+            AppData,
             cls,
             classNames,
             signInUrl,

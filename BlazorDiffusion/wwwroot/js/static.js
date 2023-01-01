@@ -110,10 +110,9 @@ export function useClient() {
     return ctx
 }
 
-
 function createComponents(c) {
     c.signin = {
-        template: `
+        template: `<div :class="['transition-opacity', AppData.init ? 'opacity-100' : 'opacity-0']">
         <a v-if="auth" href="/profile?t=1" class="block mx-3 relative">
             <button type="button" class="max-w-xs rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 lg:p-2 lg:rounded-md lg:hover:bg-gray-50 dark:lg:hover:bg-gray-900 dark:ring-offset-black" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
                 <svg class="h-8 w-8 rounded-full text-cyan-600 hover:text-cyan-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a5 5 0 1 0 5 5a5 5 0 0 0-5-5zm0 8a3 3 0 1 1 3-3a3 3 0 0 1-3 3zm9 11v-1a7 7 0 0 0-7-7h-4a7 7 0 0 0-7 7v1h2v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1z"></path></svg>
@@ -125,7 +124,8 @@ function createComponents(c) {
             <button class="rounded-md border py-2 px-4 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-400 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-black">
                 Sign In
             </button>
-        </a>`,
+        </a>
+        </div>`,
         computed: {
             auth() {
                 return map(AppData, x => x.Auth)
