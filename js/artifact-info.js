@@ -4,7 +4,7 @@ import { CreateArtifactLike, DeleteArtifactLike } from './dtos.mjs'
 
 export default {
     template: `
-    <div class="absolute left-8">
+    <div :class="['absolute left-8 transition-opacity', AppData.init ? 'opacity-100' : 'opacity-0']">
         <svg v-if="hasLiked" @click="unlikeArtifact" class="w-20 h-20 sm:w-12 sm:h-12 cursor-pointer text-red-600 hover:text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <title>undo like</title>
             <path fill="currentColor" d="M2 8.4A5.4 5.4 0 0 1 7.5 3A5.991 5.991 0 0 1 12 5a5.991 5.991 0 0 1 4.5-2A5.4 5.4 0 0 1 22 8.4c0 5.356-6.379 9.4-10 12.6C8.387 17.773 2 13.76 2 8.4Z" />
@@ -42,6 +42,7 @@ export default {
         }
 
         return {
+            AppData,
             hasLiked,
             unlikeArtifact,
             likeArtifact,
