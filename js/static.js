@@ -1,8 +1,9 @@
 ﻿import { createApp, reactive, ref, unref, isRef, provide } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
-import { JsonServiceClient, $$ } from 'https://unpkg.com/@servicestack/client/dist/servicestack-client.mjs'
-import { Authenticate, ResponseError, ResponseStatus } from './dtos.mjs'
+import { JsonServiceClient, $$, $1 } from 'https://unpkg.com/@servicestack/client/dist/servicestack-client.mjs'
+import { Authenticate, GetAlbumUserData, ResponseError, ResponseStatus } from './dtos.mjs'
 import ArtifactComments from '/js/artifact-comments.js'
 import ArtifactInfo from '/js/artifact-info.js'
+import ArtifactIcons from '/js/artifact-icons.js'
 import ErrorSummary from '/js/error-summary.js'
 import InputComment from '/js/input-comment.js'
 import { SelectInput, TextareaInput } from '/js/form.js'
@@ -11,13 +12,15 @@ export function init() {
     Components = createComponents({
         'artifact-comments': ArtifactComments,
         'artifact-info': ArtifactInfo,
+        'artifact-icons': ArtifactIcons,
         'error-summary': ErrorSummary,
         'input-comment': InputComment,
         'select-input': SelectInput,
         'textarea-input': TextareaInput,
     })
     AppData = reactive(AppData)
-    AppData.UserData = { liked:false, upVoted: [], downVoted: [] }
+    AppData.UserArtifact = { liked: false, upVoted: [], downVoted: [] }
+    AppData.UserAlbum = { likedArtifacts: [] }
     client = new JsonServiceClient(ApiBaseUrl)
     Apps = []
     $$('[data-component]').forEach(el => {
@@ -39,11 +42,20 @@ export function init() {
         app.mount(el)
         Apps.push(app)
     })
+    const albumId = map($1('[data-album]'), x => x.getAttribute('data-album'))
 
     client.api(new Authenticate())
         .then(api => {
             AppData.Auth = api.succeeded ? api.response : null
             AppData.init = true
+            if (albumId) {
+                client.api(new GetAlbumUserData({ albumId }))
+                    .then(r => {
+                        if (r.succeeded) {
+                            AppData.UserAlbum = r.response
+                        }
+                    })
+            }
         })
 }
 

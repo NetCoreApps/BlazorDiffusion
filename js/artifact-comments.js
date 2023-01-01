@@ -234,7 +234,7 @@ export default {
         let { artifactId } = props
         let { api, loading, error } = useClient()
         let comments = ref([])
-        let userData = computed(() => AppData.UserData)
+        let userData = computed(() => AppData.UserArtifact)
         let auth = computed(() => AppData.Auth)
         let show = ref('')
         let showTarget = ref(null)
@@ -247,7 +247,7 @@ export default {
         function refreshUserData() {
             if (auth.value) {
                 api(new GetArtifactUserData({ artifactId }))
-                    .then(r => AppData.UserData = r.response)
+                    .then(r => AppData.UserArtifact = r.response)
             }
         }
 

@@ -1,5 +1,5 @@
 /* Options:
-Date: 2023-01-01 03:54:13
+Date: 2023-01-01 23:21:53
 Version: 6.51
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://localhost:5001
@@ -151,14 +151,6 @@ export class ArtifactStat extends StatBase {
     source;
     version;
 }
-export class ArtifactCommentVote {
-    constructor(init) { Object.assign(this, init); }
-    id;
-    artifactCommentId;
-    appUserId;
-    vote;
-    createdDate;
-}
 export class Artist extends AuditBase {
     constructor(init) { super(init); Object.assign(this, init); }
     id;
@@ -303,6 +295,14 @@ export class ArtifactResult extends Artifact {
 export class QueryData extends QueryBase {
     constructor(init) { super(init); Object.assign(this, init); }
 }
+export class ArtifactCommentVote {
+    constructor(init) { Object.assign(this, init); }
+    id;
+    artifactCommentId;
+    appUserId;
+    vote;
+    createdDate;
+}
 export class QueryDb_1 extends QueryBase {
     constructor(init) { super(init); Object.assign(this, init); }
 }
@@ -426,13 +426,6 @@ export class IdResponse {
     id;
     responseStatus;
 }
-export class GetArtifactUserDataResponse {
-    constructor(init) { Object.assign(this, init); }
-    artifactId;
-    liked;
-    upVoted;
-    downVoted;
-}
 export class CheckQuotaResponse {
     constructor(init) { Object.assign(this, init); }
     timeRemaining;
@@ -519,6 +512,18 @@ export class Todo {
     id;
     text;
     isFinished;
+}
+export class GetArtifactUserDataResponse {
+    constructor(init) { Object.assign(this, init); }
+    artifactId;
+    liked;
+    upVoted;
+    downVoted;
+}
+export class GetAlbumUserDataResponse {
+    constructor(init) { Object.assign(this, init); }
+    albumId;
+    likedArtifacts;
 }
 export class AuthenticateResponse {
     constructor(init) { Object.assign(this, init); }
@@ -663,28 +668,6 @@ export class AnalyticsTasks {
     getTypeName() { return 'AnalyticsTasks'; };
     getMethod() { return 'POST'; };
     createResponse () { };
-}
-export class GetArtifactUserData {
-    constructor(init) { Object.assign(this, init); }
-    artifactId;
-    getTypeName() { return 'GetArtifactUserData'; };
-    getMethod() { return 'GET'; };
-    createResponse() { return new GetArtifactUserDataResponse(); };
-}
-export class CreateArtifactCommentVote {
-    constructor(init) { Object.assign(this, init); }
-    artifactCommentId;
-    vote;
-    getTypeName() { return 'CreateArtifactCommentVote'; };
-    getMethod() { return 'POST'; };
-    createResponse() { };
-}
-export class DeleteArtifactCommentVote {
-    constructor(init) { Object.assign(this, init); }
-    artifactCommentId;
-    getTypeName() { return 'DeleteArtifactCommentVote'; };
-    getMethod() { return 'DELETE'; };
-    createResponse() { };
 }
 export class CheckQuota {
     constructor(init) { Object.assign(this, init); }
@@ -876,6 +859,7 @@ export class TestImageHtml {
 }
 export class PrerenderImages {
     constructor(init) { Object.assign(this, init); }
+    force;
     batches;
     getTypeName() { return 'PrerenderImages'; };
     getMethod() { return 'POST'; };
@@ -886,6 +870,7 @@ export class RenderArtifactHtml {
     group;
     id;
     slug;
+    save;
     getTypeName() { return 'RenderArtifactHtml'; };
     getMethod() { return 'POST'; };
     createResponse() { return ''; };
@@ -926,6 +911,35 @@ export class DeleteTodos {
     constructor(init) { Object.assign(this, init); }
     ids;
     getTypeName() { return 'DeleteTodos'; };
+    getMethod() { return 'DELETE'; };
+    createResponse() { };
+}
+export class GetArtifactUserData {
+    constructor(init) { Object.assign(this, init); }
+    artifactId;
+    getTypeName() { return 'GetArtifactUserData'; };
+    getMethod() { return 'GET'; };
+    createResponse() { return new GetArtifactUserDataResponse(); };
+}
+export class GetAlbumUserData {
+    constructor(init) { Object.assign(this, init); }
+    albumId;
+    getTypeName() { return 'GetAlbumUserData'; };
+    getMethod() { return 'GET'; };
+    createResponse() { return new GetAlbumUserDataResponse(); };
+}
+export class CreateArtifactCommentVote {
+    constructor(init) { Object.assign(this, init); }
+    artifactCommentId;
+    vote;
+    getTypeName() { return 'CreateArtifactCommentVote'; };
+    getMethod() { return 'POST'; };
+    createResponse() { };
+}
+export class DeleteArtifactCommentVote {
+    constructor(init) { Object.assign(this, init); }
+    artifactCommentId;
+    getTypeName() { return 'DeleteArtifactCommentVote'; };
     getMethod() { return 'DELETE'; };
     createResponse() { };
 }
