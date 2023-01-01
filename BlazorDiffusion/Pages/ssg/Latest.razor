@@ -1,48 +1,28 @@
-﻿@page "/ssg/album"
+﻿@page "/ssg/latest"
 @inherits AppComponentBase
 
-<h1 class="my-4 text-2xl text-center" data-album="@SelectedAlbum?.Id">@SelectedAlbum?.Name</h1>
+<h1 class="my-4 text-2xl text-center">Latest Images</h1>
 
 <StaticGallery Results=@GalleryResults GridColumns="GridColumns"></StaticGallery>
-
-<h3 class="mt-16 mb-8 text-xl">Other Albums</h3>
-
-<div class="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8">
-@foreach (var album in OtherAlbums)
-{
-    <div class="text-center">
-        <a href=@($"/albums/{album.Slug}.html") class=@ClassNames("text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl",
-           album.RefId != SelectedAlbum?.AlbumRef ? "text-gray-500 hover:text-gray-300" : "text-gray-300")>
-            @album.Name
-        </a>
-    </div>
-}
-</div>
 
 @code {
     public const int GridColumns = 4;
 
-    [Parameter, SupplyParameterFromQuery] public string? RefId { get; set; }
-
     SearchArtifacts request = new();
     List<Artifact> results = new();
     HashSet<int> resultIds = new();
-    List<AlbumRef> OtherAlbums = new();
     bool hasMore;
 
     ApiResult<QueryResponse<ArtifactResult>> api = new();
-    public AlbumResult? SelectedAlbum;
     GalleryResults GalleryResults = new();
-
 
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
-        if (RefId == null) return;
 
-        request.Album = RefId;
         request.Skip = 0;
         request.Take = UserState.StaticTake;
+        request.Show = "latest";
         api = await ApiAsync(request);
         clearResults();
 
@@ -52,22 +32,6 @@
             {
                 addResults(api.Response.Results);
             }
-        }
-
-        var apiAlbum = await ApiAsync(new GetAlbumResults { RefIds = new() { RefId } });
-        if (apiAlbum.Succeeded)
-        {
-            SelectedAlbum = apiAlbum.Response?.Results.FirstOrDefault();
-            if (SelectedAlbum != null)
-            {
-                SetTitle(SelectedAlbum.Name);
-            }
-        }
-
-        var apiAlbums = await ApiAsync(new GetAlbumRefs());
-        if (apiAlbums.Succeeded)
-        {
-            OtherAlbums = apiAlbums.Response!.Results;
         }
     }
 

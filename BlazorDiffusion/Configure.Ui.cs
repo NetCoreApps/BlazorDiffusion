@@ -68,8 +68,14 @@ public class ConfigureUi : IHostingStartup
 
             container.Register(htmlTemplate);
 
+            prerenderer.Pages.Add(new(typeof(Pages.ssg.Top), "/top.html",
+                transformer: html => htmlTemplate.Render(title: "Top Images", body: html)));
+            
+            prerenderer.Pages.Add(new(typeof(Pages.ssg.Latest), "/latest.html",
+                transformer: html => htmlTemplate.Render(title: "Latest Images", body: html)));
+
             prerenderer.Pages.Add(new(typeof(Pages.ssg.Albums), "/albums.html",
-                transformer: html => htmlTemplate.Render(title: "Albums", body:html)));
+                transformer: html => htmlTemplate.Render(title: "Albums", body: html)));
 
             foreach (var album in albums)
             {

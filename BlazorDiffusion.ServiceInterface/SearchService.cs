@@ -166,7 +166,19 @@ public class SearchService : Service
                 q.Where<Artifact, Creative>((a, c) => c.PrimaryArtifactId == a.Id); // only pinned
             }
 
-            q.ThenByDescending(x => x.Score + x.TemporalScore).ThenByDescending(x => x.Id);
+            if (query.Show == "top")
+            {
+                q.ThenByDescending(x => x.Score).ThenByDescending(x => x.Id);
+            }
+            else if (query.Show == "latest")
+            {
+                q.ThenByDescending(x => x.Id);
+            }
+            else
+            {
+                q.ThenByDescending(x => x.Score + x.TemporalScore).ThenByDescending(x => x.Id);
+            }
+
             // Need distinct else Blazor @key throws when returning dupes
             q.SelectDistinct<Artifact, Creative>((a, c) => new { a, c.UserPrompt, c.ArtistNames, c.ModifierNames, c.PrimaryArtifactId, c.OwnerRef });
         }
