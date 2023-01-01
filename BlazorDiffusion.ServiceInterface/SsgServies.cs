@@ -106,7 +106,7 @@ public class SsgServies : Service
     {
         string title = artifact.Prompt.LeftPart(',');
         var meta = HtmlTemplate.CreateMeta(
-            url: Request.AbsoluteUri,
+            url: AppConfig.BaseUrl.CombineWith(artifact.GetHtmlFilePath()),
             title: title,
             image: AppConfig.AssetsBasePath.CombineWith(artifact.FilePath));
 
