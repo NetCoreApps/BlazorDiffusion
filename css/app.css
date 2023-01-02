@@ -1126,6 +1126,11 @@ input[data-autocompleted] {
   margin-bottom: 0.75rem;
 }
 
+.mx-2 {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
 .mx-1 {
   margin-left: 0.25rem;
   margin-right: 0.25rem;
@@ -1305,6 +1310,10 @@ input[data-autocompleted] {
   margin-bottom: -14rem;
 }
 
+.mt-24 {
+  margin-top: 6rem;
+}
+
 .-mt-1 {
   margin-top: -0.25rem;
 }
@@ -1321,10 +1330,6 @@ input[data-autocompleted] {
   margin-left: -5rem;
 }
 
-.mt-24 {
-  margin-top: 6rem;
-}
-
 .ml-0\.5 {
   margin-left: 0.125rem;
 }
@@ -1339,10 +1344,6 @@ input[data-autocompleted] {
 
 .mr-3 {
   margin-right: 0.75rem;
-}
-
-.mr-8 {
-  margin-right: 2rem;
 }
 
 .block {
@@ -2533,16 +2534,8 @@ input[data-autocompleted] {
   padding-right: 2rem;
 }
 
-.pt-16 {
-  padding-top: 4rem;
-}
-
 .pl-5 {
   padding-left: 1.25rem;
-}
-
-.pt-24 {
-  padding-top: 6rem;
 }
 
 .pl-10 {
@@ -2551,6 +2544,10 @@ input[data-autocompleted] {
 
 .pt-8 {
   padding-top: 2rem;
+}
+
+.pt-24 {
+  padding-top: 6rem;
 }
 
 .pr-10 {
@@ -4020,14 +4017,14 @@ input[data-autocompleted] {
     margin: 0.25rem;
   }
 
-  .sm\:my-8 {
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-  }
-
   .sm\:mx-4 {
     margin-left: 1rem;
     margin-right: 1rem;
+  }
+
+  .sm\:my-8 {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
   }
 
   .sm\:-mx-6 {
@@ -4097,6 +4094,10 @@ input[data-autocompleted] {
 
   .sm\:-mr-20 {
     margin-right: -5rem;
+  }
+
+  .sm\:mr-8 {
+    margin-right: 2rem;
   }
 
   .sm\:mt-5 {
@@ -4322,6 +4323,11 @@ input[data-autocompleted] {
     padding-right: 1rem;
   }
 
+  .sm\:py-8 {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
   .sm\:py-16 {
     padding-top: 4rem;
     padding-bottom: 4rem;
@@ -4415,6 +4421,11 @@ input[data-autocompleted] {
   .sm\:text-4xl {
     font-size: 2.25rem;
     line-height: 2.5rem;
+  }
+
+  .sm\:text-base {
+    font-size: 1rem;
+    line-height: 1.5rem;
   }
 
   .sm\:duration-700 {
