@@ -11,6 +11,7 @@ public class UserState
     public const int InitialTake = 50;
     public const int NextPage = 100;
     public const int StaticTake = 1000;
+    public const int StaticPagedTake = 200;
 
     public void RemovePrerenderedHtml()
     {

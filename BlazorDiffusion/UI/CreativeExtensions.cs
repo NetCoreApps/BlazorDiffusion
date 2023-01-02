@@ -23,6 +23,11 @@ public static class CreativeExtensions
     $"{artifact.Id.ToString().PadLeft(4, '0')}_{artifact.GetSlug()}.html";
     public static string GetHtmlFilePath(this Artifact artifact) =>
         $"/artifacts/{Math.Floor(artifact.Id / 1000d)}/{artifact.GetHtmlFileName()}";
+    public static string GetHtmlFilePath(this AlbumResult album, int pageNo)
+    {
+        var suffix = pageNo == 1 ? "" : "_" + pageNo;
+        return $"/albums/{album.Slug}{suffix}.html";
+    }
 
     public static string GetImageErrorUrl(this Artifact artifact, string? lastImageSrc)
     {

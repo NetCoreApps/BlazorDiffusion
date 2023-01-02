@@ -1326,6 +1326,14 @@ input[data-autocompleted] {
   margin-top: -0.75rem;
 }
 
+.-mt-px {
+  margin-top: -1px;
+}
+
+.mr-3 {
+  margin-right: 0.75rem;
+}
+
 .-ml-20 {
   margin-left: -5rem;
 }
@@ -1340,10 +1348,6 @@ input[data-autocompleted] {
 
 .-mt-8 {
   margin-top: -2rem;
-}
-
-.mr-3 {
-  margin-right: 0.75rem;
 }
 
 .block {
@@ -1552,6 +1556,10 @@ input[data-autocompleted] {
 
 .w-9 {
   width: 2.25rem;
+}
+
+.w-0 {
+  width: 0px;
 }
 
 .w-20 {
@@ -2042,6 +2050,10 @@ input[data-autocompleted] {
   border-top-width: 1px;
 }
 
+.border-t-2 {
+  border-top-width: 2px;
+}
+
 .border-l-4 {
   border-left-width: 4px;
 }
@@ -2116,6 +2128,11 @@ input[data-autocompleted] {
 .border-fuchsia-700 {
   --tw-border-opacity: 1;
   border-color: rgb(162 28 175 / var(--tw-border-opacity));
+}
+
+.border-indigo-400 {
+  --tw-border-opacity: 1;
+  border-color: rgb(129 140 248 / var(--tw-border-opacity));
 }
 
 .border-gray-800 {
@@ -2546,6 +2563,10 @@ input[data-autocompleted] {
   padding-top: 2rem;
 }
 
+.pl-1 {
+  padding-left: 0.25rem;
+}
+
 .pt-24 {
   padding-top: 6rem;
 }
@@ -2568,10 +2589,6 @@ input[data-autocompleted] {
 
 .pt-0 {
   padding-top: 0px;
-}
-
-.pl-1 {
-  padding-left: 0.25rem;
 }
 
 .pr-6 {
@@ -2831,6 +2848,11 @@ input[data-autocompleted] {
 .text-green-400 {
   --tw-text-opacity: 1;
   color: rgb(74 222 128 / var(--tw-text-opacity));
+}
+
+.text-indigo-300 {
+  --tw-text-opacity: 1;
+  color: rgb(165 180 252 / var(--tw-text-opacity));
 }
 
 .text-white {
@@ -3192,6 +3214,11 @@ input[data-autocompleted] {
 .hover\:border-gray-300:hover {
   --tw-border-opacity: 1;
   border-color: rgb(209 213 219 / var(--tw-border-opacity));
+}
+
+.hover\:border-gray-600:hover {
+  --tw-border-opacity: 1;
+  border-color: rgb(75 85 99 / var(--tw-border-opacity));
 }
 
 .hover\:border-gray-400:hover {
@@ -4333,6 +4360,11 @@ input[data-autocompleted] {
     padding-bottom: 4rem;
   }
 
+  .sm\:px-0 {
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+
   .sm\:px-5 {
     padding-left: 1.25rem;
     padding-right: 1.25rem;
@@ -4437,6 +4469,10 @@ input[data-autocompleted] {
   .md\:inset-y-0 {
     top: 0px;
     bottom: 0px;
+  }
+
+  .md\:-mt-px {
+    margin-top: -1px;
   }
 
   .md\:inline {

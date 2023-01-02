@@ -103,17 +103,24 @@ public class Prerenderer : IPrerenderer
             db.UpdateOnly(() => new Album { Slug = album.Slug }, where: x => x.Id == album.Id);
         }
 
-        var path = $"/albums/{album.Slug}.html";
-        var artifactId = album.ArtifactIds?.FirstOrDefault();
-        var artifact = artifactId != null ? db.SingleById<Artifact>(artifactId) : null;
-        var albumMeta = HtmlTemplate.CreateMeta(url: path, title: album.Name,
-            image: AppConfig.AssetsBasePath.CombineWith(artifact?.FilePath));
-
-        Pages.Add(new(typeof(Pages.ssg.Album), path, new()
+        var total = album.ArtifactIds?.Count ?? 0;
+        var pages = (int)Math.Ceiling(total / (double)UserState.StaticPagedTake);
+        for (var i=0; i<pages; i++)
         {
-            [nameof(BlazorDiffusion.Pages.ssg.Album.RefId)] = album.AlbumRef,
-        },
-            transformer: html => HtmlTemplate.Render(title: album.Name, head: albumMeta, body: html)));
+            var pageNo = i + 1;
+            var path = DbExtensions.GetHtmlFilePath(album, pageNo);
+            var artifactId = album.ArtifactIds?.Skip(i * UserState.StaticPagedTake).FirstOrDefault();
+            var artifact = artifactId != null ? db.SingleById<Artifact>(artifactId) : null;
+            var albumMeta = HtmlTemplate.CreateMeta(url: path, title: album.Name + (pageNo > 1 ? $" Page {pageNo}" : ""),
+                image: AppConfig.AssetsBasePath.CombineWith(artifact?.FilePath));
+
+            Pages.Add(new(typeof(Pages.ssg.Album), path, new()
+            {
+                [nameof(BlazorDiffusion.Pages.ssg.Album.RefId)] = album.AlbumRef,
+                [nameof(BlazorDiffusion.Pages.ssg.Album.Page)] = pageNo,
+            },
+                transformer: html => HtmlTemplate.Render(title: album.Name, head: albumMeta, body: html)));
+        }
     }
 
     public async Task RenderPages(HttpContext? httpContext = null)
