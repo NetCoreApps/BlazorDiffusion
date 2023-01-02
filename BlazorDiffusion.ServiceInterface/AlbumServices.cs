@@ -34,8 +34,6 @@ public class AlbumServices : Service
         album.Slug = slug;
         album.WithAudit(session.UserAuthId);
 
-        using var trans = Db.OpenTransaction();
-
         // TODO CrudEvents.RecordAsync
         album.Id = (int)await Db.InsertAsync(album, selectIdentity: true);
 
@@ -54,8 +52,6 @@ public class AlbumServices : Service
 
         var crudContext = CrudContext.Create<Album>(Request, Db, request, AutoCrudOperation.Create);
         await CrudEvents.RecordAsync(crudContext);
-
-        trans.Commit();
 
         Prerenderer.AddAlbum(Db, album.ToAlbumResult());
 
