@@ -83,7 +83,6 @@ public class CommentResult
 
 [ValidateIsAuthenticated]
 [AutoApply(Behavior.AuditQuery)]
-
 public class GetArtifactUserData : IGet, IReturn<GetArtifactUserDataResponse>
 {
     public int ArtifactId { get; set; }
@@ -110,7 +109,29 @@ public class GetAlbumUserDataResponse
 }
 
 
+[ValidateIsAdmin]
+public class AdminQueryArtifactComments : QueryDb<ArtifactComment> { }
+[ValidateIsAdmin]
+[AutoApply(Behavior.AuditModify)]
+public class AdminUpdateArtifactComment : IPatchDb<ArtifactComment>, IReturn<ArtifactComment>
+{
+    public int Id { get; set; }
+    public int? ReplyId { get; set; }
+    [ValidateLength(1, 280)]
+    public string? Content { get; set; }
+    public string? Notes { get; set; }
+    [Input(Type="select", EvalAllowableValues = "AppData.FlagReasons")]
+    public string? FlagReason { get; set; }
+}
+[ValidateIsAdmin]
+[AutoApply(Behavior.AuditSoftDelete)]
+public class AdminDeleteArtifactComment : IDeleteDb<ArtifactComment>, IReturnVoid
+{
+    public int Id { get; set; }
+}
+
 [AutoApply(Behavior.AuditQuery)]
+[AutoFilter(QueryTerm.Ensure, nameof(ArtifactComment.FlagReason), Template = SqlTemplate.IsNull)]
 public class QueryArtifactComments : QueryDb<ArtifactComment, CommentResult>,
     IJoin<ArtifactComment,AppUser>
 {

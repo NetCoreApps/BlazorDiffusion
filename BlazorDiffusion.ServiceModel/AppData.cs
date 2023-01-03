@@ -30,6 +30,8 @@ public class AppData
 
     string[]? categories;
     public string[] Categories => categories ??= CategoryGroups.SelectMany(x => x.Items).OrderBy(x => x).ToArray();
+
+    public string[] FlagReasons => Enum.GetNames(typeof(PostReport));
 }
 
 public class AppSource

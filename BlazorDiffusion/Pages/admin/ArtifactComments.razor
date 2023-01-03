@@ -1,0 +1,12 @@
+﻿@page "/admin/artifact/comments"
+@attribute [Authorize(Roles = "Admin")]
+
+@inject NavigationManager NavigationManager
+
+<Breadcrumbs class="mb-8" HomeHref="/admin">
+    <Breadcrumb>
+        Artifact Comments
+    </Breadcrumb>
+</Breadcrumbs>
+
+<AutoQueryGrid Model="ArtifactComment" Apis="Apis.AutoQuery<QueryArtifactComments,CreateArtifactComment,AdminUpdateArtifactComment,AdminDeleteArtifactComment>()" />

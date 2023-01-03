@@ -18,6 +18,10 @@ else if (Tab == "Stats")
 {
     <AutoQueryGrid Model="ArtifactStat" Apis="Apis.AutoQuery<QueryArtifactStats>()" />
 }
+else if (Tab == "Comments")
+{
+    <AutoQueryGrid Model="ArtifactComment" Apis="Apis.AutoQuery<AdminQueryArtifactComments,CreateArtifactComment,AdminUpdateArtifactComment,DeleteArtifactComment>()" />
+}
 else //All
 {
     <ArtifactAutoQueryGrid />
@@ -29,6 +33,7 @@ else //All
     {
         {"All","All"},
         {"Reported","Reported Artifacts"},
-        {"Stats","Stats"}
+        {"Stats","Stats"},
+        {"Comments","Comments"},
     };
 }
