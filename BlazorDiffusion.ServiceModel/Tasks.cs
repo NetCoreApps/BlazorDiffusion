@@ -103,10 +103,18 @@ public class RenderArtifactHtml : IReturn<string>
 
 public class TestImageHtml : IReturnVoid {}
 
+[ExcludeMetadata]
+[ValidateHasRole(AppRoles.Moderator)]
 public class PrerenderImages : IReturn<PrerenderResponse>
 {
     public bool Force { get; set; }
     public int[] Batches { get; set; }
+}
+
+[ExcludeMetadata]
+[ValidateHasRole(AppRoles.Moderator)]
+public class PrerenderSitemap : IReturn<PrerenderResponse>
+{
 }
 
 [ExcludeMetadata]

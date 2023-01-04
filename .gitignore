@@ -3,6 +3,7 @@
 **/wwwroot/prerender/
 **/wwwroot/albums/
 **/wwwroot/artifacts/
+*.xml
 albums.html
 top.html
 latest.html

@@ -83,7 +83,87 @@ public class ConfigureUi : IHostingStartup
             }
 
             container.Register<IPrerenderer>(c => prerenderer);
+
+            appHost.Plugins.Add(CreateSiteMap(db, baseUrl: appConfig.BaseUrl));
         });
+
+    SitemapFeature CreateSiteMap(IDbConnection db, string baseUrl)
+    {
+        var albums = db.LoadSelect<Album>();
+
+        var to = new SitemapFeature() {
+            SitemapIndex =
+            {
+                new Sitemap
+                {
+                    Location = baseUrl.CombineWith("/sitemaps/sitemap-albums.xml"),
+                    AtPath = "/sitemaps/sitemap-albums.xml",
+                    LastModified = albums.Max(x => x.ModifiedDate),
+                    UrlSet = albums.Map(x => new SitemapUrl {
+                        Location = baseUrl.CombineWith(DbExtensions.GetHtmlFilePath(x.ToAlbumResult(), 1)),
+                        LastModified = x.Artifacts.Max(x => x.ModifiedDate),
+                        ChangeFrequency = SitemapFrequency.Daily,
+                    })
+                }
+            }
+        };
+
+        foreach (var album in albums)
+        {
+            var result = album.ToAlbumResult();
+            var total = result.ArtifactIds?.Count ?? 0;
+            var pages = (int)Math.Ceiling(total / (double)UserState.StaticPagedTake);
+            var albumArtifacts = db.Select(db.From<Artifact>()
+                .Join<AlbumArtifact>((a, l) => a.Id == l.ArtifactId && l.AlbumId == album.Id)
+                .OrderByDescending<AlbumArtifact>(x => x.Id));
+            for (var i = 0; i < pages; i++)
+            {
+                var pageNo = i + 1;
+                var suffix = pages == 1 ? "" : "_" + pageNo;
+                var path = $"/sitemaps/albums/sitemap-{album.Slug}{suffix}.xml";
+                var pageArtifacts = albumArtifacts.Skip(i * UserState.StaticPagedTake).Take(UserState.StaticPagedTake);
+                to.SitemapIndex.Add(new Sitemap
+                {
+                    Location = baseUrl.CombineWith(path),
+                    AtPath = path,
+                    LastModified = pageArtifacts.Max(x => x.ModifiedDate),
+                    UrlSet = pageArtifacts.Map(x => new SitemapUrl()
+                    {
+                        Location = baseUrl.CombineWith(DbExtensions.GetHtmlFilePath(x)),
+                        LastModified = x.ModifiedDate,
+                        ChangeFrequency = SitemapFrequency.Monthly,
+                    })
+                });
+            }
+        }
+
+        var pageSize = 10000;
+        var index = 0;
+        while (true)
+        {
+            var pageNo = index + 1;
+            var suffix = "_" + pageNo;
+            var artifacts = db.Select(db.From<Artifact>().OrderBy(x => x.Id).Skip(index++ * pageSize).Take(pageSize));
+            var path = $"/sitemaps/artifacts/sitemap{suffix}.xml";
+            to.SitemapIndex.Add(new Sitemap
+            {
+                Location = baseUrl.CombineWith(path),
+                AtPath = path,
+                LastModified = artifacts.Max(x => x.ModifiedDate),
+                UrlSet = artifacts.Map(x => new SitemapUrl()
+                {
+                    Location = baseUrl.CombineWith(DbExtensions.GetHtmlFilePath(x)),
+                    LastModified = x.ModifiedDate,
+                    ChangeFrequency = SitemapFrequency.Monthly,
+                })
+            });
+
+            if (artifacts.Count < pageSize)
+                break;
+        }
+        return to;
+    }
+
 }
 
 public class Prerenderer : IPrerenderer

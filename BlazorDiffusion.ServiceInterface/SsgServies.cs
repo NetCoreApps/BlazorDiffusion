@@ -9,6 +9,7 @@ using ServiceStack.OrmLite;
 using ServiceStack.Host.NetCore;
 using BlazorDiffusion.ServiceModel;
 using System.IO;
+using ServiceStack.Host;
 
 namespace BlazorDiffusion.ServiceInterface;
 
@@ -79,6 +80,28 @@ public class SsgServies : Service
         }
 
         return ret;
+    }
+    
+    public async Task<object> Any(PrerenderSitemap request)
+    {
+        var vfs = Prerenderer.VirtualFiles;
+        var req = new BasicRequest();
+        var feature = GetPlugin<SitemapFeature>();
+        var indexHandler = new SitemapFeature.SitemapIndexHandler(feature);
+        await indexHandler.ProcessRequestAsync(req, req.Response, nameof(PrerenderSitemap));
+        var contents = await req.Response.OutputStream.ReadToEndAsync();
+        await vfs.WriteFileAsync("/sitemap.xml", contents);
+
+        foreach (var sitemap in feature.SitemapIndex)
+        {
+            var handler = new SitemapFeature.SitemapUrlSetHandler(feature, sitemap.UrlSet);
+            req = new BasicRequest();
+            await handler.ProcessRequestAsync(req, req.Response, nameof(PrerenderSitemap));
+            contents = await req.Response.OutputStream.ReadToEndAsync();
+            await vfs.WriteFileAsync(sitemap.AtPath, contents);
+        }
+
+        return new PrerenderResponse();
     }
 
     public Task<List<string>> WriteArtifactHtmlPagesAsync(List<Artifact> artifacts) =>
