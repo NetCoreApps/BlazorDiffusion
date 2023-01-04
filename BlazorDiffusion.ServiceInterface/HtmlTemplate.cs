@@ -52,7 +52,8 @@ public class HtmlTemplate
             ? url
             : "https://blazordiffusion.com".CombineWith(url);
 
-        return $@"<meta name=""twitter:card"" content=""summary"" />
+        return $@"<link rel=""canonical"" href=""{useUrl}"" />
+    <meta name=""twitter:card"" content=""summary"" />
     <meta name=""twitter:site"" content=""blazordiffusion.com"" />
     <meta name=""twitter:creator"" content=""@blazordiffusion"" />
     <meta property=""og:url"" content=""{useUrl}"" />
