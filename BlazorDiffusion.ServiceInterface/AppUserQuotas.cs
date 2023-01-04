@@ -21,10 +21,10 @@ public class AppUserQuotas
 
     public Dictionary<string, int> DailyRoleQuotas { get; } = new()
     {
-        [AppRoles.Creator] = 160,
+        [AppRoles.Creator] = 320,
     };
 
-    public const int DefaultDailyQuota = 80; //80
+    public const int DefaultDailyQuota = 160; //80
 
     /// <summary>
     /// Future:
