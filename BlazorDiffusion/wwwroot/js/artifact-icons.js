@@ -3,7 +3,7 @@ import { useClient } from './static.js'
 import { CreateArtifactLike, DeleteArtifactLike } from './dtos.mjs'
 
 export default {
-    template: `
+    template: /*html*/`
 <div :class="['flex justify-between p-4 transition-opacity', AppData.init ? 'opacity-100' : 'opacity-0']">
     <div>
         <svg v-if="hasLiked" @click.prevent="unlikeArtifact" class="w-4 h-4 sm:w-6 sm:h-6 text-red-600 hover:text-red-400 cursor-pointer" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">

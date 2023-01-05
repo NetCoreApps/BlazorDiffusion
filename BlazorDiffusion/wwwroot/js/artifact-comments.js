@@ -13,7 +13,7 @@ import { useClient } from './static.js'
 const signInUrl = `/signin?return=${encodeURIComponent(location.pathname)}`
 
 const ModalForm = {
-    template: `<div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    template: /*html*/`<div class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
         <div class="fixed inset-0 z-10 overflow-y-auto">
             <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
@@ -27,7 +27,7 @@ const ModalForm = {
 
 const NewReport = {
     components: { ModalForm },
-    template: `<ModalForm class="z-30">
+    template: /*html*/`<ModalForm class="z-30">
     <form @submit.prevent="submit">
         <div class="shadow overflow-hidden sm:rounded-md bg-white dark:bg-black">
             <div class="relative px-4 py-5 sm:p-6">
@@ -84,7 +84,7 @@ const NewReport = {
 }
 
 const Comment = {
-    template: `<div class="py-1 border-b border-gray-800">
+    template: /*html*/`<div class="py-1 border-b border-gray-800">
         <div class="relative group py-4 px-2 hover:bg-gray-900 rounded-lg">
             <div class="hidden group-hover:block absolute top-2 right-2">
                 <svg @click="showMenu=!showMenu" class="w-7 h-7 bg-gray-800 rounded cursor-pointer hover:bg-black" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><circle cx="64" cy="128" r="12" fill="currentColor"/><circle cx="192" cy="128" r="12" fill="currentColor"/><circle cx="128" cy="128" r="12" fill="currentColor"/></svg>
@@ -204,7 +204,7 @@ const Comment = {
 
 export default {
     components: { Comment, NewReport },
-    template: `
+    template: /*html*/`
     <div :class="['mt-24 mx-auto flex flex-col w-full max-w-3xl transition-opacity', AppData.init ? 'opacity-100' : 'opacity-0']">
         <div v-if="auth" class="flex justify-center w-full">
             <input-comment :artifact-id="artifactId" @updated="refresh" />

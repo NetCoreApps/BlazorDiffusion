@@ -3,7 +3,7 @@ import { useClient } from './static.js'
 import { CreateArtifactLike, DeleteArtifactLike } from './dtos.mjs'
 
 export default {
-    template: `
+    template: /*html*/`
     <div :class="['absolute left-8 transition-opacity', AppData.init ? 'opacity-100' : 'opacity-0']">
         <svg v-if="hasLiked" @click="unlikeArtifact" class="w-20 h-20 sm:w-12 sm:h-12 cursor-pointer text-red-600 hover:text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <title>undo like</title>

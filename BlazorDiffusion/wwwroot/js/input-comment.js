@@ -3,7 +3,7 @@ import { CreateArtifactComment } from './dtos.mjs'
 import { useClient } from './static.js'
 
 export default {
-    template: `
+    template: /*html*/`
         <div class="w-full">
             <div class="flex flex-col w-full border border-gray-700 rounded bg-gray-900 overflow-hidden">
                 <textarea v-model="content" class="w-full h-24 m-0 border-none outline-none dark:bg-transparent" placeholder="Write a comment"></textarea>
