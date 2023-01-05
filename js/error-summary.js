@@ -2,7 +2,7 @@
 import { classNames, errorResponseExcept } from 'https://unpkg.com/@servicestack/client/dist/servicestack-client.mjs'
 
 export default {
-    template: `
+    template: /*html*/`
     <div v-if="errorSummary" :class="classNames('bg-red-50 dark:bg-red-200 border-l-4 border-red-400 p-4 rounded-b overflow-hidden', $props.class)" role="alert">
         <div class="flex">
             <div class="flex-shrink-0">
