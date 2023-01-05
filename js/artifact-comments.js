@@ -38,7 +38,7 @@ const NewReport = {
 
                     <div class="grid grid-cols-6 gap-6">
                         <div class="col-span-6">
-                            <select-input id="type" label="Reason" v-model="type" :options="options" />
+                            <select-input id="type" label="Reason" v-model="postReport" :options="options" />
                         </div>
                         <div class="col-span-6">
                             <textarea-input id="description" v-model="description" placeholder="Please describe the issue for our moderation team to review" />
@@ -59,24 +59,22 @@ const NewReport = {
     emits:['done'],
     setup(props, { emit }) {
         const options = `Offensive,Spam,Nudity,Illegal,Other`.split(',')
-        const visibleFields = ['Type', 'Description']
+        const visibleFields = ['PostReport', 'Description']
+        const postReport = ref('')
         const description = ref('')
-        const type = ref('')
         let { apiVoid, error, loading } = useClient()
 
         function submit() {
             const { artifactCommentId } = props
-            apiVoid(new CreateArtifactCommentReport({ artifactCommentId, type, description }))
-                .then(r => {
-                    emit('done')
-                })
+            apiVoid(new CreateArtifactCommentReport({ artifactCommentId, postReport:options[postReport.value], description }))
+                .then(r => emit('done'))
         }
 
         return {
             cls,
             options,
             visibleFields,
-            type,
+            postReport,
             description,
             submit,
         }
@@ -85,7 +83,7 @@ const NewReport = {
 
 const Comment = {
     template: /*html*/`<div class="py-1 border-b border-gray-800">
-        <div class="relative group py-4 px-2 hover:bg-gray-900 rounded-lg">
+        <div class="relative group py-2 px-2 hover:bg-gray-900 rounded-lg">
             <div class="hidden group-hover:block absolute top-2 right-2">
                 <svg @click="showMenu=!showMenu" class="w-7 h-7 bg-gray-800 rounded cursor-pointer hover:bg-black" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><circle cx="64" cy="128" r="12" fill="currentColor"/><circle cx="192" cy="128" r="12" fill="currentColor"/><circle cx="128" cy="128" r="12" fill="currentColor"/></svg>
                 <div v-if="showMenu" class="absolute -ml-20">
@@ -109,25 +107,52 @@ const Comment = {
                     {{comment.handle || comment.displayName}} <span class="px-1">&#8226;</span> {{ timeAgo }}
                 </div>
             </div>
-            <div class="text-lg py-2">
+            <div class="py-2 text-gray-50">
                 {{comment.content}}
             </div>
-            <div class="text-sm text-gray-300 flex items-center">
-                <svg v-if="hasUpVoted" class="w-4 h-4 cursor-pointer" @click="upVote" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M231.4 123.1a8 8 0 0 1-7.4 4.9h-40v80a16 16 0 0 1-16 16H88a16 16 0 0 1-16-16v-80H32a8 8 0 0 1-7.4-4.9a8.4 8.4 0 0 1 1.7-8.8l96-96a8.1 8.1 0 0 1 11.4 0l96 96a8.4 8.4 0 0 1 1.7 8.8Z"/></svg>
-                <svg v-else class="w-4 h-4 cursor-pointer" @click="upVote" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m12 3l9 7h-4.99L16 21H8V10H3l9-7Z"/></svg>
-                <span class="px-2 select-none">{{ comment.votes }}</span>
-                <svg v-if="hasDownVoted" class="w-4 h-4 cursor-pointer" @click="downVote" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="m229.7 141.7l-96 96a8.1 8.1 0 0 1-11.4 0l-96-96a8.4 8.4 0 0 1-1.7-8.8A8 8 0 0 1 32 128h40V48a16 16 0 0 1 16-16h80a16 16 0 0 1 16 16v80h40a8 8 0 0 1 7.4 4.9a8.4 8.4 0 0 1-1.7 8.8Z"/></svg>
-                <svg v-else class="w-4 h-4 cursor-pointer" @click="downVote" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m12 21l9-7h-4.99L16 3H8v11H3l9 7Z"/></svg>
+            <div class="text-sm text-gray-300 flex justify-between h-6">
+                <div class="flex items-center">
+                    <svg v-if="hasUpVoted" class="w-4 h-4 cursor-pointer" @click="upVote" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M231.4 123.1a8 8 0 0 1-7.4 4.9h-40v80a16 16 0 0 1-16 16H88a16 16 0 0 1-16-16v-80H32a8 8 0 0 1-7.4-4.9a8.4 8.4 0 0 1 1.7-8.8l96-96a8.1 8.1 0 0 1 11.4 0l96 96a8.4 8.4 0 0 1 1.7 8.8Z"/></svg>
+                    <svg v-else class="w-4 h-4 cursor-pointer" @click="upVote" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m12 3l9 7h-4.99L16 21H8V10H3l9-7Z"/></svg>
+                    <span class="px-2 select-none">{{ comment.votes }}</span>
+                    <svg v-if="hasDownVoted" class="w-4 h-4 cursor-pointer" @click="downVote" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="m229.7 141.7l-96 96a8.1 8.1 0 0 1-11.4 0l-96-96a8.4 8.4 0 0 1-1.7-8.8A8 8 0 0 1 32 128h40V48a16 16 0 0 1 16-16h80a16 16 0 0 1 16 16v80h40a8 8 0 0 1 7.4 4.9a8.4 8.4 0 0 1-1.7 8.8Z"/></svg>
+                    <svg v-else class="w-4 h-4 cursor-pointer" @click="downVote" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m12 21l9-7h-4.99L16 3H8v11H3l9 7Z"/></svg>
+                </div>
+                <div>
+                    <button type="button" @click="showReply=!showReply" class="hidden group-hover:inline-flex items-center rounded-full rounded-tl-none border border-transparent bg-indigo-600 px-3 py-1 text-xs font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-indigo-500 focus:ring-offset-2 dark:ring-offset-black">
+                        <svg class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1C3.6 1 0 3.5 0 6.5c0 2 2 3.8 4 4.8c0 2.1-2 2.8-2 2.8c2.8 0 4.4-1.3 5.1-2.1H8c4.4 0 8-2.5 8-5.5S12.4 1 8 1z"/></svg>
+                        reply
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div v-if="showReply">
+            <div class="flex p-2">
+                <div class="grow-0 flex flex-col">
+                    <div class="grow-0">
+                        <img :src="comment.avatar ? 'https://cdn.diffusion.works' + comment.avatar : null || comment.profileUrl" class="w-6 h-6 rounded-full mr-2" />
+                    </div>
+                    <div class="grow relative">
+                        <span class="absolute top-1.5 left-2.5 -ml-px h-full w-[1px] bg-gray-800" aria-hidden="true"></span>
+                    </div>
+                </div>
+                <div class="grow pl-1 relative">
+                    <svg @click="showReply=false" class="absolute top-2 right-2 w-5 h-5 text-gray-700 hover:text-gray-500 cursor-pointer" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6Z"/></svg>
+                    <input-comment :artifact-id="comment.artifactId" :reply-id="comment.id" @updated="replyDone" />
+                </div>
             </div>
         </div>
     </div>`,
-    props: ['userData', 'comment'],
+    props: ['userData', 'comment', 'nested'],
     emits: ['voted', 'unvoted', 'showDialog', 'refresh'],
     setup(props, { emit }) {
         const { comment } = props
         const timeAgo = computed(() => Relative.from(comment.createdDate))
         const { api, apiVoid, error, loading } = useClient()
         const showMenu = ref(false)
+        const showReply = ref(false)
+        const replyDone = () => { showReply.value = false; emit('refresh');  }
         let auth = computed(() => AppData.Auth)
         let hasUpVoted = computed(() => props.userData.upVoted.indexOf(comment.id) >= 0)
         let hasDownVoted = computed(() => props.userData.downVoted.indexOf(comment.id) >= 0)
@@ -190,7 +215,9 @@ const Comment = {
 
         return {
             showMenu,
+            showReply,
             showDialog,
+            replyDone,
             comment,
             timeAgo,
             upVote,
@@ -202,8 +229,55 @@ const Comment = {
     }
 }
 
+const Thread = {
+    components: { Comment },
+    template: /*html*/`
+    <div>
+        <div v-for="(comment,index) in comments.filter(x => x.replyId == parentId)">
+            <div :class="['flex', nested ? 'pl-1' : '']">
+                <div v-if="nested" class="grow-0 flex flex-col">
+                    <div class="w-6"></div>
+                    <div class="grow relative">
+                        <div class="">
+                            <span class="absolute top-1 left-4 -ml-px h-full w-[1px] bg-gray-800" aria-hidden="true"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="grow relative">
+                    <Comment :user-data="userData" :comment="comment" :nested="nested"
+                            @voted="refreshUserData" @unvoted="refreshUserData" @show-dialog="showDialog" @refresh="refresh" />
+                    <div class="">
+                        <Thread :comments="comments" :parent-id="comment.id" 
+                                @refresh="refresh" @refresh-user-data="refreshUserData" @show-dialog="showDialog" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    `,
+    props: ['comments','parentId'],
+    emits: ['refresh','refreshUserData','showDialog'],
+    setup(props, { emit }) {
+        let { parentId } = props
+        let userData = computed(() => AppData.UserArtifact)
+        const refreshUserData = () => emit('refreshUserData')
+        const showDialog = (dialog, comment) => emit('showDialog', dialog, comment)
+        const refresh = () => emit('refresh')
+        const nested = computed(() => parentId != null)
+        return {
+            userData,
+            parentId,
+            showDialog,
+            nested,
+            refresh,
+            refreshUserData,
+        }
+    }
+}
+Thread.components['Thread'] = Thread
+
 export default {
-    components: { Comment, NewReport },
+    components: { Thread, Comment, NewReport },
     template: /*html*/`
     <div :class="['mt-24 mx-auto flex flex-col w-full max-w-3xl transition-opacity', AppData.init ? 'opacity-100' : 'opacity-0']">
         <div v-if="auth" class="flex justify-center w-full">
@@ -221,8 +295,8 @@ export default {
         </div>
         <div v-if="comments.length" class="mt-8">
             <h2 class="text-xl border-b border-gray-800 py-2">{{ comments.length }} Comment{{ comments.length > 1 ? 's' : '' }}</h2>
-            <Comment :user-data="userData" v-for="(c,index) in comments" :comment="c" 
-                    @voted="voted" @unvoted="unvoted" @showDialog="showDialog" @refresh="refresh" />
+            <Thread :comments="comments" :parent-id="null"
+                    @refresh="refresh" @refresh-user-data="refreshUserData" @show-dialog="showDialog" />
         </div>
         <error-summary :status='error' />
         <NewReport v-if="show=='Report'" :artifact-comment-id="showTarget.id" @done="show=''" />
@@ -253,15 +327,16 @@ export default {
 
         function refresh() {
             api(new QueryArtifactComments({ artifactId }))
-                .then(r => comments.value = r.response.results)
-
+                .then(r => {
+                    comments.value = r.response.results
+                })
             refreshUserData()
         }
 
-        function voted(comment, value, r) {
+        function voted() {
             refreshUserData()
         }
-        function unvoted(comment, value, r) {
+        function unvoted() {
             refreshUserData()
         }
 
@@ -279,6 +354,7 @@ export default {
             error,
             loading,
             refresh,
+            refreshUserData,
             voted,
             unvoted,
             show,
