@@ -22,7 +22,7 @@ export default {
             </div>
         </div>
     `,
-    props: ['artifactId'],
+    props: ['artifactId','replyId'],
     emits: ['updated'],
     setup(props, { attrs, emit }) {
 
@@ -31,8 +31,8 @@ export default {
         let { api, error, loading } = useClient()
 
         function submit() {
-            const { artifactId } = props
-            api(new CreateArtifactComment({ artifactId, content })).then(r => {
+            const { artifactId, replyId } = props
+            api(new CreateArtifactComment({ artifactId, replyId, content })).then(r => {
                 if (r.succeeded) {
                     content.value = ''
                     emit('updated', r.response)

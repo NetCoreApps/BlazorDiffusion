@@ -58,6 +58,7 @@ public enum PostReport
     Spam,
     Nudity,
     Illegal,
+    Other,
 }
 
 public class CommentResult
@@ -106,28 +107,6 @@ public class GetAlbumUserDataResponse
 {
     public int AlbumId { get; set; }
     public List<int> LikedArtifacts { get; set; }
-}
-
-
-[ValidateIsAdmin]
-public class AdminQueryArtifactComments : QueryDb<ArtifactComment> { }
-[ValidateIsAdmin]
-[AutoApply(Behavior.AuditModify)]
-public class AdminUpdateArtifactComment : IPatchDb<ArtifactComment>, IReturn<ArtifactComment>
-{
-    public int Id { get; set; }
-    public int? ReplyId { get; set; }
-    [ValidateLength(1, 280)]
-    public string? Content { get; set; }
-    public string? Notes { get; set; }
-    [Input(Type="select", EvalAllowableValues = "AppData.FlagReasons")]
-    public string? FlagReason { get; set; }
-}
-[ValidateIsAdmin]
-[AutoApply(Behavior.AuditSoftDelete)]
-public class AdminDeleteArtifactComment : IDeleteDb<ArtifactComment>, IReturnVoid
-{
-    public int Id { get; set; }
 }
 
 [AutoApply(Behavior.AuditQuery)]
@@ -209,3 +188,43 @@ public class DeleteArtifactCommentReport : IDeleteDb<ArtifactCommentReport>, IRe
 {
     public int Id { get; set; }
 }
+
+/*Admin APIs*/
+
+
+[ValidateIsAdmin]
+public class AdminQueryArtifactComments : QueryDb<ArtifactComment> { }
+[ValidateIsAdmin]
+[AutoApply(Behavior.AuditModify)]
+public class AdminUpdateArtifactComment : IPatchDb<ArtifactComment>, IReturn<ArtifactComment>
+{
+    public int Id { get; set; }
+    public int? ReplyId { get; set; }
+    [ValidateLength(1, 280)]
+    public string? Content { get; set; }
+    public string? Notes { get; set; }
+    [Input(Type = "select", EvalAllowableValues = "AppData.FlagReasons")]
+    public string? FlagReason { get; set; }
+}
+[ValidateIsAdmin]
+public class AdminDeleteArtifactComment : IDeleteDb<ArtifactComment>, IReturnVoid
+{
+    public int Id { get; set; }
+}
+
+
+[ValidateIsAdmin]
+public class AdminQueryArtifactCommentReports : QueryDb<ArtifactCommentReport> { }
+[ValidateIsAdmin]
+public class AdminUpdateArtifactCommentReport : IPatchDb<ArtifactCommentReport>, IReturn<ArtifactCommentReport>
+{
+    public int Id { get; set; }
+    public PostReport? PostReport { get; set; }
+    public string? Description { get; set; }
+}
+[ValidateIsAdmin]
+public class AdminDeleteArtifactCommentReport : IDeleteDb<ArtifactCommentReport>, IReturnVoid
+{
+    public int Id { get; set; }
+}
+
