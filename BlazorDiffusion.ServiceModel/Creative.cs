@@ -153,6 +153,7 @@ public class DeleteCdnFile : IReturnVoid
 public class QueryArtists : QueryDb<Artist> {}
 
 [ValidateHasRole(AppRoles.Moderator)]
+[AutoApply(Behavior.AuditCreate)]
 public class CreateArtist : ICreateDb<Artist>, IReturn<Artist>
 {
     public string? FirstName { get; set; }
@@ -164,6 +165,7 @@ public class CreateArtist : ICreateDb<Artist>, IReturn<Artist>
 }
 
 [ValidateHasRole(AppRoles.Moderator)]
+[AutoApply(Behavior.AuditModify)]
 public class UpdateArtist : IPatchDb<Artist>, IReturn<Artist>
 {
     public int Id { get; set; }
@@ -174,6 +176,7 @@ public class UpdateArtist : IPatchDb<Artist>, IReturn<Artist>
     public List<string>? Type { get; set; }
 }
 [ValidateHasRole(AppRoles.Moderator)]
+[AutoApply(Behavior.AuditSoftDelete)]
 public class DeleteArtist : IDeleteDb<Artist>, IReturnVoid 
 {
     public int Id { get; set; }
