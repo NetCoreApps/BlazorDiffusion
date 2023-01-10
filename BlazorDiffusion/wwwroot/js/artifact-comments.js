@@ -333,13 +333,6 @@ export default {
             refreshUserData()
         }
 
-        function voted() {
-            refreshUserData()
-        }
-        function unvoted() {
-            refreshUserData()
-        }
-
         onMounted(() => refresh())
         watch(() => AppData.Auth, refresh)
 
@@ -355,8 +348,6 @@ export default {
             loading,
             refresh,
             refreshUserData,
-            voted,
-            unvoted,
             show,
             showDialog,
             showTarget,
