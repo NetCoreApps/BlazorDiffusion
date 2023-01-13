@@ -21,7 +21,10 @@ export function init() {
     AppData = reactive(AppData)
     AppData.UserArtifact = { liked: false, upVoted: [], downVoted: [] }
     AppData.UserAlbum = { likedArtifacts: [] }
-    client = new JsonServiceClient(ApiBaseUrl)
+    client = new JsonServiceClient(ApiBaseUrl).apply(c => {
+        c.basePath = "/api"
+        c.headers = new Headers() //avoid pre-flight CORS requests
+    })
     Apps = []
     $$('[data-component]').forEach(el => {
         let componentName = el.getAttribute('data-component')
