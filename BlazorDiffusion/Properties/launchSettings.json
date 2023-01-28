@@ -16,8 +16,8 @@
         "applicationUrl": "https://localhost:5001;http://localhost:5000",
         "environmentVariables": {
           "ASPNETCORE_ENVIRONMENT": "Development",
-          "R2_ACCESS_KEY_ID": "",
-          "R2_SECRET_ACCESS_KEY": ""
+          "RENAME_R2_ACCESS_KEY_ID": "",
+          "RENAME_R2_SECRET_ACCESS_KEY": ""
         }
       },
       "IIS Express": {

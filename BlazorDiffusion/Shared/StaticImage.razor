@@ -7,8 +7,7 @@
        class=@ClassNames("overflow-hidden flex justify-center")>
         <div class="relative sm:p-2 flex flex-col cursor-pointer items-center" style=@($"max-width:{Artifact.Width}px")>
 
-            <ArtifactImage Artifact="Artifact" LazyLoad="false"
-                           class=@ClassNames("rounded sm:rounded-xl border sm:border-2", Artifact.Background != null ? "border-black" : "border-transparent") />
+            <ArtifactImage Artifact="Artifact" class=@ClassNames("rounded sm:rounded-xl border sm:border-2", Artifact.Background != null ? "border-black" : "border-transparent") />
 
             <div class="absolute top-0 left-0 w-full h-full group select-none overflow-hidden sm:m-1 rounded sm:rounded-xl">
                 <div class="w-full h-full absolute inset-0 z-10 block text-zinc-100 drop-shadow pointer-events-none line-clamp sm:px-2 sm:pb-2 text-sm opacity-0 group-hover:opacity-40 transition duration-300 ease-in-out bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-700 via-gray-900 to-black"></div>

@@ -1,41 +1,20 @@
-﻿@using Ljbc1994.Blazor.IntersectionObserver.Components
-@inherits UiComponentBase
+﻿@inherits UiComponentBase
 
 @if (Artifact != null)
 {
-    if (LazyLoad)
-    {
-        <IntersectionObserve>
-            @{
-                if (context.IsIntersecting) 
-                {
-                    UserState.HasIntersected.Add(Artifact.Id);
-                }
-            }
-            <div class=@ClassNames("overflow-hidden", Class) style=@Artifact.GetBackgroundStyle()>
-                <img @ref="context.Ref.Current" alt=@Artifact.Prompt width=@width height=@height class=@ImageClass
-                 src=@(useSrc ?? (!context.IsIntersecting && !UserState.HasIntersected.Contains(Artifact.Id) ? Artifact.GetBackgroundImage() : Artifact.GetPublicUrl()))
-                 @onerror=@(() => useSrc = Artifact.GetImageErrorUrl(useSrc))>
-            </div>
-        </IntersectionObserve>
-    }
-    else
-    {
-        <div class=@ClassNames("overflow-hidden", Class) style=@Artifact.GetBackgroundStyle()>
-            <img alt=@Artifact.Prompt width=@width height=@height class=@ImageClass
-                 src=@(useSrc ?? Artifact.GetPublicUrl())
-                 @onerror=@(() => useSrc = Artifact.GetImageErrorUrl(useSrc))>
-        </div>
-    }
+    <div class=@ClassNames("overflow-hidden", Class) style=@Artifact.GetBackgroundStyle()>
+        <img alt=@Artifact.Prompt width=@width height=@height class=@ImageClass
+            src=@(useSrc ?? Artifact.GetPublicUrl()) loading=@loading
+                @onerror=@(() => useSrc = Artifact.GetImageErrorUrl(useSrc))>
+    </div>
 }
 
 @code {
     [Inject] public UserState UserState { get; set; } = default!;
     [Parameter, EditorRequired] public Artifact? Artifact { get; set; } = default!;
     [Parameter] public int? MinSize { get; set; }
-    [Parameter] public bool LazyLoad { get; set; }
+    [Parameter] public string loading { get; set; } = "lazy";
     [Parameter] public string ImageClass { get; set; }
-
 
     int width => MinSize == null ? Artifact!.Width
         : (int)(Artifact!.Width > Artifact.Height

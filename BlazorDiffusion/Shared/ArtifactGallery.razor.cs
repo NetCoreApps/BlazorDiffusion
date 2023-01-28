@@ -65,7 +65,6 @@ public partial class ArtifactGallery : AppAuthComponentBase, IDisposable
     [Parameter] public RenderFragment<Artifact>? TopMenu { get; set; }
     [Parameter] public RenderFragment<Artifact>? BottomMenu { get; set; }
     [Parameter] public Func<Artifact, int?, UserState, string> ResolveBorderColor { get; set; } = ArtifactExtensions.GetBorderColor;
-    [Parameter] public bool? LazyLoad { get; set; }
     [Parameter] public bool? Ssg { get; set; }
     [Parameter] public string? ColumnsSliderClass { get; set; }
     [Parameter] public EventCallback<GalleryChangeEventArgs> Change { get; set; }

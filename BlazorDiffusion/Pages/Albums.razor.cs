@@ -8,8 +8,6 @@ namespace BlazorDiffusion.Pages;
 
 public partial class Albums : AppAuthComponentBase
 {
-    [Parameter, SupplyParameterFromQuery] public bool? LazyLoad { get; set; }
-
     [Inject] IIntersectionObserverService ObserverService { get; set; } = default!;
     [Inject] ILogger<Favorites> Log { get; set; } = default!;
 
