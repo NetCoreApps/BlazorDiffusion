@@ -85,3 +85,42 @@ public class CheckQuotaResponse
     public int DailyQuota { get; set; }
     public string RequestedDetails { get; set; }
 }
+
+[Tag(Tag.User)]
+[ValidateIsAuthenticated]
+public class UserData : IReturn<UserDataResponse> {}
+public class UserDataResponse
+{
+    public UserResult User { get; set; }
+    public List<SignupType> Signups { get; set; }
+    public List<string> Roles { get; set; }
+    public ResponseStatus ResponseStatus { get; set; }
+}
+
+[Tag(Tag.User)]
+public class GetUserInfo : IReturn<GetUserInfoResponse>
+{
+    public string RefId { get; set; }
+}
+public class GetUserInfoResponse
+{
+    public UserResult Result { get; set; }
+    public ResponseStatus ResponseStatus { get; set; }
+}
+
+
+public class Likes
+{
+    public List<int> ArtifactIds { get; set; }
+    public List<int> AlbumIds { get; set; }
+}
+public class UserResult
+{
+    public string RefId { get; set; }
+    public string? Handle { get; set; }
+    public string? Avatar { get; set; }
+    public string? ProfileUrl { get; set; }
+    public Likes Likes { get; set; }
+    public List<AlbumResult> Albums { get; set; }
+}
+
