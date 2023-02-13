@@ -85,12 +85,14 @@ public class AlbumLike
     public DateTime CreatedDate { get; set; }
 }
 
+[Tag(Tag.Albums)]
 public class QueryAlbums : QueryDb<Album>
 {
     public int? Id { get; set; }
     public List<int>? Ids { get; set; }
 }
 
+[Tag(Tag.Albums)]
 public class GetAlbumResults : IReturn<GetAlbumResultsResponse>
 {
     public List<int>? Ids { get; set; }
@@ -102,6 +104,7 @@ public class GetAlbumResultsResponse
     public List<AlbumResult> Results { get; set; }
 }
 
+[Tag(Tag.Albums)]
 [ValidateIsAuthenticated]
 public class CreateAlbum : ICreateDb<Album>, IReturn<Album>
 {
@@ -113,6 +116,7 @@ public class CreateAlbum : ICreateDb<Album>, IReturn<Album>
     public List<int>? ArtifactIds { get; set; }
 }
 
+[Tag(Tag.Albums)]
 [ValidateIsAuthenticated]
 [AutoPopulate(nameof(Album.OwnerId), Eval = "userAuthId")]
 public class UpdateAlbum : IPatchDb<Album>, IReturn<Album>
@@ -128,6 +132,7 @@ public class UpdateAlbum : IPatchDb<Album>, IReturn<Album>
     public List<int>? RemoveArtifactIds { get; set; }
 }
 
+[Tag(Tag.Albums)]
 [ValidateIsAuthenticated]
 [AutoPopulate(nameof(Album.OwnerId), Eval = "userAuthId")]
 public class DeleteAlbum : IDeleteDb<Album>, IReturnVoid
@@ -137,6 +142,7 @@ public class DeleteAlbum : IDeleteDb<Album>, IReturnVoid
 
 
 
+[Tag(Tag.Albums)]
 [ValidateIsAuthenticated]
 [AutoPopulate(nameof(Album.OwnerId), Eval = "userAuthId")]
 public class UpdateAlbumArtifact : IPatchDb<Album>, IReturn<Album>
@@ -152,12 +158,14 @@ public class UpdateAlbumArtifact : IPatchDb<Album>, IReturn<Album>
 }
 
 
+[Tag(Tag.Albums)]
 [AutoFilter(QueryTerm.Ensure, nameof(ArtifactLike.AppUserId), Eval = "userAuthId")]
 [ValidateIsAuthenticated]
 public class QueryAlbumLikes : QueryDb<AlbumLike>
 {
 }
 
+[Tag(Tag.Albums)]
 [ValidateIsAuthenticated]
 public class CreateAlbumLike : ICreateDb<AlbumLike>, IReturn<IdResponse>
 {
@@ -165,6 +173,7 @@ public class CreateAlbumLike : ICreateDb<AlbumLike>, IReturn<IdResponse>
     public int AlbumId { get; set; }
 }
 
+[Tag(Tag.Albums)]
 [AutoPopulate(nameof(ArtifactLike.AppUserId), Eval = "userAuthId")]
 [ValidateIsAuthenticated]
 public class DeleteAlbumLike : IDeleteDb<AlbumLike>, IReturnVoid
@@ -173,10 +182,12 @@ public class DeleteAlbumLike : IDeleteDb<AlbumLike>, IReturnVoid
     public int AlbumId { get; set; }
 }
 
+[Tag(Tag.Albums)]
 [ValidateHasRole(AppRoles.Moderator)]
 public class QueryAlbumArtifacts : QueryDb<AlbumArtifact> { }
 
 
+[Tag(Tag.Albums)]
 [Description("Retrieve Albums containing at least one of creative Artifacts")]
 public class GetCreativesInAlbums : IGet, IReturn<GetCreativesInAlbumsResponse>
 {
@@ -186,3 +197,56 @@ public class GetCreativesInAlbumsResponse
 {
     public List<AlbumResult> Results { get; set; }
 }
+
+[Tag(Tag.Albums)]
+public class GetAlbumIds : IReturn<GetAlbumIdsResponse> { }
+public class GetAlbumIdsResponse
+{
+    public List<int> Results { get; set; }
+}
+
+[Tag(Tag.Albums)]
+public class GetAlbumRefs : IReturn<GetAlbumRefsResponse> { }
+public class GetAlbumRefsResponse
+{
+    public List<AlbumRef> Results { get; set; }
+}
+
+[Tag(Tag.Albums)]
+[ValidateIsAuthenticated]
+public class UserData : IReturn<UserDataResponse> {}
+public class UserDataResponse
+{
+    public UserResult User { get; set; }
+    public List<SignupType> Signups { get; set; }
+    public List<string> Roles { get; set; }
+    public ResponseStatus ResponseStatus { get; set; }
+}
+
+[Tag(Tag.Albums)]
+public class GetUserInfo : IReturn<GetUserInfoResponse>
+{
+    public string RefId { get; set; }
+}
+public class GetUserInfoResponse
+{
+    public UserResult Result { get; set; }
+    public ResponseStatus ResponseStatus { get; set; }
+}
+
+
+public class Likes
+{
+    public List<int> ArtifactIds { get; set; }
+    public List<int> AlbumIds { get; set; }
+}
+public class UserResult
+{
+    public string RefId { get; set; }
+    public string? Handle { get; set; }
+    public string? Avatar { get; set; }
+    public string? ProfileUrl { get; set; }
+    public Likes Likes { get; set; }
+    public List<AlbumResult> Albums { get; set; }
+}
+

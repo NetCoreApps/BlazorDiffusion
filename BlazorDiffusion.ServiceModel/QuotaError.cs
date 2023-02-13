@@ -45,21 +45,3 @@ public class QuotaError
         return to;
     }
 }
-
-[ValidateIsAuthenticated]
-public class CheckQuota : IReturn<CheckQuotaResponse>
-{
-    public int Images { get; set; }
-    public int Width { get; set; }
-    public int Height { get; set; }
-}
-
-public class CheckQuotaResponse
-{
-    public TimeSpan TimeRemaining { get; set; }
-    public int CreditsUsed { get; set; }
-    public int CreditsRequested { get; set; }
-    public int CreditsRemaining { get; set; }
-    public int DailyQuota { get; set; }
-    public string RequestedDetails { get; set; }
-}

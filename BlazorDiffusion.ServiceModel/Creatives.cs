@@ -57,7 +57,7 @@ public class Creative : AuditBase
     public string EngineId { get; set; }
 }
 
-
+[Tag(Tag.Creatives)]
 public class QueryCreatives : QueryDb<Creative>
 {
     public int? Id { get; set; }
@@ -65,18 +65,19 @@ public class QueryCreatives : QueryDb<Creative>
     public int? OwnerId { get; set; }
 }
 
+[Tag(Tag.Creatives)]
 public class GetCreative : IGet, IReturn<GetCreativeResponse>
 {
     public int? Id { get; set; }
     public int? ArtifactId { get; set; }
 }
-
 public class GetCreativeResponse
 {
     public Creative Result { get; set; }
     public ResponseStatus ResponseStatus { get; set; }
 }
 
+[Tag(Tag.Creatives)]
 [AutoApply(Behavior.AuditCreate)]
 [ValidateIsAuthenticated]
 public class CreateCreative : ICreateDb<Creative>, IReturn<CreateCreativeResponse>
@@ -96,13 +97,13 @@ public class CreateCreative : ICreateDb<Creative>, IReturn<CreateCreativeRespons
     public List<int> ArtistIds { get; set; }
     public List<int> ModifierIds { get; set; }
 }
-
 public class CreateCreativeResponse
 {
     public Creative Result { get; set; }
     public ResponseStatus ResponseStatus { get; set; }
 }
 
+[Tag(Tag.Creatives)]
 [AutoApply(Behavior.AuditModify)]
 [ValidateIsAuthenticated]
 public class UpdateCreative : IPatchDb<Creative>, IReturn<Creative>
@@ -113,6 +114,7 @@ public class UpdateCreative : IPatchDb<Creative>, IReturn<Creative>
     public bool? UnpinPrimaryArtifact { get; set; }
 }
 
+[Tag(Tag.Creatives)]
 [AutoApply(Behavior.AuditSoftDelete)]
 [ValidateIsAuthenticated]
 public class DeleteCreative : IDeleteDb<Creative>, IReturnVoid
@@ -120,6 +122,7 @@ public class DeleteCreative : IDeleteDb<Creative>, IReturnVoid
     public int Id { get; set; }
 }
 
+[Tag(Tag.Creatives)]
 [AutoApply(Behavior.AuditDelete)]
 [ValidateHasRole(AppRoles.Moderator)]
 public class HardDeleteCreative : IDeleteDb<Creative>, IReturnVoid
@@ -127,131 +130,15 @@ public class HardDeleteCreative : IDeleteDb<Creative>, IReturnVoid
     public int Id { get; set; }
 }
 
-[ValidateHasRole(AppRoles.Moderator)]
-public class DeleteArtifactHtml
-{
-    public int[] Ids { get; set; }
-}
 
-[ValidateHasRole(AppRoles.Moderator)]
-public class DeleteCdnFilesMq
-{
-    public List<string> Files { get; set; }
-}
-
-[ValidateHasRole(AppRoles.Moderator)]
-public class GetCdnFile
-{
-    public string File { get; set; }
-}
-[ValidateHasRole(AppRoles.Moderator)]
-public class DeleteCdnFile : IReturnVoid
-{
-    public string File { get; set; }
-}
-
-public class QueryArtists : QueryDb<Artist> {}
-
-[ValidateHasRole(AppRoles.Moderator)]
-[AutoApply(Behavior.AuditCreate)]
-public class CreateArtist : ICreateDb<Artist>, IReturn<Artist>
-{
-    public string? FirstName { get; set; }
-    [ValidateNotEmpty, Required]
-    public string LastName { get; set; }
-    public int? YearDied { get; set; }
-    [Input(Type = "tag"), FieldCss(Field = "col-span-12")]
-    public List<string>? Type { get; set; }
-}
-
-[ValidateHasRole(AppRoles.Moderator)]
-[AutoApply(Behavior.AuditModify)]
-public class UpdateArtist : IPatchDb<Artist>, IReturn<Artist>
-{
-    public int Id { get; set; }
-    public string? FirstName { get; set; }
-    public string? LastName { get; set; }
-    public int? YearDied { get; set; }
-    [Input(Type = "tag"), FieldCss(Field = "col-span-12")]
-    public List<string>? Type { get; set; }
-}
-[ValidateHasRole(AppRoles.Moderator)]
-[AutoApply(Behavior.AuditSoftDelete)]
-public class DeleteArtist : IDeleteDb<Artist>, IReturnVoid 
-{
-    public int Id { get; set; }
-}
-
-[Icon(Svg = Icons.Artist)]
-public class Artist : AuditBase
-{
-    [AutoIncrement]
-    public int Id { get; set; }
-    public string? FirstName { get; set; }
-    public string LastName { get; set; }
-    public int? YearDied { get; set; }
-    public List<string>? Type { get; set; }
-    [Default(0)]
-    public int Score { get; set; }
-    [Default(0)]
-    public int Rank { get; set; }
-}
-
-
-public class QueryModifiers : QueryDb<Modifier> { }
-
-[ValidateHasRole(AppRoles.Moderator)]
-[AutoApply(Behavior.AuditCreate)]
-public class CreateModifier : ICreateDb<Modifier>, IReturn<Modifier>
-{
-    [ValidateNotEmpty, Required]
-    public string Name { get; set; }
-    [ValidateNotEmpty, Required]
-    [Input(Type="select", EvalAllowableValues = "AppData.Categories")]
-    public string Category { get; set; }
-    public string? Description { get; set; }
-}
-
-[ValidateHasRole(AppRoles.Moderator)]
-[AutoApply(Behavior.AuditModify)]
-public class UpdateModifier : IPatchDb<Modifier>, IReturn<Modifier>
-{
-    public int Id { get; set; }
-    public string? Name { get; set; }
-    [Input(Type = "select", EvalAllowableValues = "AppData.Categories")]
-    public string? Category { get; set; }
-    public string? Description { get; set; }
-}
-
-[ValidateHasRole(AppRoles.Moderator)]
-[AutoApply(Behavior.AuditSoftDelete)]
-public class DeleteModifier : IDeleteDb<Modifier>, IReturnVoid
-{
-    public int Id { get; set; }
-}
-
-
-[Icon(Svg = Icons.Modifier)]
-public class Modifier : AuditBase
-{
-    [AutoIncrement]
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public string Category { get; set; }
-    public string? Description { get; set; }
-    [Default(0)]
-    public int Score { get; set; }
-    [Default(0)]
-    public int Rank { get; set; }
-}
-
-
+[Tag(Tag.Creatives)]
 public class QueryCreativeArtists : QueryDb<CreativeArtist>
 {
     public int? CreativeId { get; set; }
     public int? ModifierId { get; set; }
 }
 
+[Tag(Tag.Creatives)]
 [ValidateHasRole(AppRoles.Moderator)]
 public class CreateCreativeArtist : ICreateDb<CreativeArtist>, IReturn<CreativeArtist>
 {
@@ -261,12 +148,14 @@ public class CreateCreativeArtist : ICreateDb<CreativeArtist>, IReturn<CreativeA
     public int? ModifierId { get; set; }
 }
 
+[Tag(Tag.Creatives)]
 [ValidateHasRole(AppRoles.Moderator)]
 public class DeleteCreativeArtist : IDeleteDb<CreativeArtist>, IReturnVoid
 {
     public int? Id { get; set; }
     public int[]? Ids { get; set; }
 }
+
 [ValidateHasRole(AppRoles.Moderator)]
 public class CreativeArtist
 {
@@ -282,12 +171,14 @@ public class CreativeArtist
 }
 
 
+[Tag(Tag.Creatives)]
 public class QueryCreativeModifiers : QueryDb<CreativeModifier> 
 {
     public int? CreativeId { get; set; }
     public int? ModifierId { get; set; }
 }
 
+[Tag(Tag.Creatives)]
 [ValidateHasRole(AppRoles.Moderator)]
 public class CreateCreativeModifier : ICreateDb<CreativeModifier>, IReturn<CreativeModifier>
 {
@@ -297,6 +188,7 @@ public class CreateCreativeModifier : ICreateDb<CreativeModifier>, IReturn<Creat
     public int? ModifierId { get; set; }
 }
 
+[Tag(Tag.Creatives)]
 [ValidateHasRole(AppRoles.Moderator)]
 public class DeleteCreativeModifier : IDeleteDb<CreativeModifier>, IReturnVoid
 {
@@ -304,7 +196,6 @@ public class DeleteCreativeModifier : IDeleteDb<CreativeModifier>, IReturnVoid
     public int[]? Ids { get; set; }
 }
 
-[ValidateHasRole(AppRoles.Moderator)]
 public class CreativeModifier
 {
     [AutoIncrement]
@@ -316,4 +207,13 @@ public class CreativeModifier
     
     [Reference]
     public Modifier Modifier { get; set; }
+}
+
+[Tag(Tag.Creatives)]
+[Route("/creative/metadata/{CreativeId}")]
+[ValidateHasRole(AppRoles.Moderator)]
+public class ViewCreativeMetadata : IGet, IReturn<Creative>
+{
+    [ValidateGreaterThan(0)]
+    public int CreativeId { get; set; }
 }

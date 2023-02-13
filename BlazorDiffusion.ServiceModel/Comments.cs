@@ -82,33 +82,7 @@ public class CommentResult
 }
 
 
-[ValidateIsAuthenticated]
-[AutoApply(Behavior.AuditQuery)]
-public class GetArtifactUserData : IGet, IReturn<GetArtifactUserDataResponse>
-{
-    public int ArtifactId { get; set; }
-}
-public class GetArtifactUserDataResponse
-{
-    public int ArtifactId { get; set; }
-    public bool Liked { get; set; }
-    public List<int> UpVoted { get; set; }
-    public List<int> DownVoted { get; set; }
-}
-
-[ValidateIsAuthenticated]
-[AutoApply(Behavior.AuditQuery)]
-
-public class GetAlbumUserData : IGet, IReturn<GetAlbumUserDataResponse>
-{
-    public int AlbumId { get; set; }
-}
-public class GetAlbumUserDataResponse
-{
-    public int AlbumId { get; set; }
-    public List<int> LikedArtifacts { get; set; }
-}
-
+[Tag(Tag.Comments)]
 [AutoApply(Behavior.AuditQuery)]
 [AutoFilter(QueryTerm.Ensure, nameof(ArtifactComment.FlagReason), Template = SqlTemplate.IsNull)]
 public class QueryArtifactComments : QueryDb<ArtifactComment, CommentResult>,
@@ -117,6 +91,7 @@ public class QueryArtifactComments : QueryDb<ArtifactComment, CommentResult>,
     public int ArtifactId { get; set; }
 }
 
+[Tag(Tag.Comments)]
 [ValidateIsAuthenticated]
 [AutoApply(Behavior.AuditCreate)]
 [AutoPopulate(nameof(ArtifactComment.AppUserId), Eval = "userAuthId.toInt()")]
@@ -129,6 +104,7 @@ public class CreateArtifactComment : ICreateDb<ArtifactComment>, IReturn<Artifac
     public string Content { get; set; }
 }
 
+[Tag(Tag.Comments)]
 [ValidateIsAuthenticated]
 [AutoApply(Behavior.AuditModify)]
 [AutoFilter(QueryTerm.Ensure, nameof(ArtifactComment.AppUserId), Eval = "userAuthId.toInt()")]
@@ -138,6 +114,7 @@ public class UpdateArtifactComment : IPatchDb<ArtifactComment>, IReturn<Artifact
     public string? Content { get; set; }
 }
 
+[Tag(Tag.Comments)]
 [ValidateIsAuthenticated]
 [AutoApply(Behavior.AuditSoftDelete)]
 [AutoFilter(QueryTerm.Ensure, nameof(ArtifactComment.AppUserId), Eval = "userAuthId.toInt()")]
@@ -146,7 +123,7 @@ public class DeleteArtifactComment : IDeleteDb<ArtifactComment>, IReturnVoid
     public int Id { get; set; }
 }
 
-
+[Tag(Tag.Comments)]
 [ValidateIsAuthenticated]
 [AutoFilter(QueryTerm.Ensure, nameof(ArtifactComment.AppUserId), Eval = "userAuthId.toInt()")]
 public class QueryArtifactCommentVotes : QueryDb<ArtifactCommentVote>
@@ -154,7 +131,7 @@ public class QueryArtifactCommentVotes : QueryDb<ArtifactCommentVote>
     public int ArtifactId { get; set; }
 }
 
-
+[Tag(Tag.Comments)]
 [ValidateIsAuthenticated]
 [AutoApply(Behavior.AuditCreate)]
 [AutoPopulate(nameof(ArtifactComment.AppUserId), Eval = "userAuthId.toInt()")]
@@ -165,6 +142,7 @@ public class CreateArtifactCommentVote : ICreateDb<ArtifactCommentVote>, IReturn
     public int Vote { get; set; }
 }
 
+[Tag(Tag.Comments)]
 [ValidateIsAuthenticated]
 [AutoFilter(QueryTerm.Ensure, nameof(ArtifactComment.AppUserId), Eval = "userAuthId.toInt()")]
 public class DeleteArtifactCommentVote : IDeleteDb<ArtifactCommentVote>, IReturnVoid
@@ -172,6 +150,7 @@ public class DeleteArtifactCommentVote : IDeleteDb<ArtifactCommentVote>, IReturn
     public int ArtifactCommentId { get; set; }
 }
 
+[Tag(Tag.Comments)]
 [ValidateIsAuthenticated]
 [AutoApply(Behavior.AuditCreate)]
 [AutoPopulate(nameof(ArtifactComment.AppUserId), Eval = "userAuthId.toInt()")]
@@ -182,48 +161,10 @@ public class CreateArtifactCommentReport : ICreateDb<ArtifactCommentReport>, IRe
     public string Description { get; set; }
 }
 
+[Tag(Tag.Comments)]
 [ValidateIsAuthenticated]
 [AutoFilter(QueryTerm.Ensure, nameof(ArtifactComment.AppUserId), Eval = "userAuthId.toInt()")]
 public class DeleteArtifactCommentReport : IDeleteDb<ArtifactCommentReport>, IReturnVoid
-{
-    public int Id { get; set; }
-}
-
-/*Admin APIs*/
-
-
-[ValidateIsAdmin]
-public class AdminQueryArtifactComments : QueryDb<ArtifactComment> { }
-[ValidateIsAdmin]
-[AutoApply(Behavior.AuditModify)]
-public class AdminUpdateArtifactComment : IPatchDb<ArtifactComment>, IReturn<ArtifactComment>
-{
-    public int Id { get; set; }
-    public int? ReplyId { get; set; }
-    [ValidateLength(1, 280)]
-    public string? Content { get; set; }
-    public string? Notes { get; set; }
-    [Input(Type = "select", EvalAllowableValues = "AppData.FlagReasons")]
-    public string? FlagReason { get; set; }
-}
-[ValidateIsAdmin]
-public class AdminDeleteArtifactComment : IDeleteDb<ArtifactComment>, IReturnVoid
-{
-    public int Id { get; set; }
-}
-
-
-[ValidateIsAdmin]
-public class AdminQueryArtifactCommentReports : QueryDb<ArtifactCommentReport> { }
-[ValidateIsAdmin]
-public class AdminUpdateArtifactCommentReport : IPatchDb<ArtifactCommentReport>, IReturn<ArtifactCommentReport>
-{
-    public int Id { get; set; }
-    public PostReport? PostReport { get; set; }
-    public string? Description { get; set; }
-}
-[ValidateIsAdmin]
-public class AdminDeleteArtifactCommentReport : IDeleteDb<ArtifactCommentReport>, IReturnVoid
 {
     public int Id { get; set; }
 }

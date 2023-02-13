@@ -58,29 +58,3 @@ public class AppUser : IUserAuth
     public DateTime CreatedDate { get; set; }
     public DateTime ModifiedDate { get; set; }
 }
-
-[ValidateIsAuthenticated]
-public class GetUserProfile : IReturn<GetUserProfileResponse> {}
-public class GetUserProfileResponse
-{
-    public UserProfile Result { get; set; }
-    public ResponseStatus ResponseStatus { get; set; }
-}
-
-public class UserProfile
-{
-    public string DisplayName { get; set; }
-    public string? Avatar { get; set; }
-    public string? Handle { get; set; }
-}
-
-[ValidateIsAuthenticated]
-public class UpdateUserProfile : IUpdateDb<AppUser>, IReturn<UserProfile>
-{
-    [ValidateNotEmpty]
-    public string DisplayName { get; set; }
-    [Input(Type="File"), UploadTo("avatars")]
-    public string? Avatar { get; set; }
-    [ValidateMaximumLength(20)]
-    public string? Handle { get; set; }
-}

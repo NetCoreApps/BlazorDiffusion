@@ -348,13 +348,6 @@ public class Migration1001 : MigrationBase
         public DateTime CreatedDate { get; set; }
     }
 
-    public class ImageCompareResult
-    {
-        public int Id { get; set; }
-        public long PerceptualHash { get; set; }
-        public double Similarity { get; set; }
-    }
-
     public static string GetArtistName(Artist artist) => string.IsNullOrEmpty(artist.FirstName)
         ? artist.LastName
         : $"{artist.FirstName} {artist.LastName}";

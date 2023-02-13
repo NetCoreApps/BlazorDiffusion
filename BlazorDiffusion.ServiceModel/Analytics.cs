@@ -69,6 +69,7 @@ public class Signup : StatBase
 }
 
 
+[Tag(Tag.Analytics)]
 public class CreateSignup : ICreateDb<Signup>, IReturn<EmptyResponse> // IReturnVoid -> support cast EmptyResponse -> byte[]
 {
     public SignupType Type { get; set; }
@@ -78,16 +79,20 @@ public class CreateSignup : ICreateDb<Signup>, IReturn<EmptyResponse> // IReturn
 }
 
 
+[Tag(Tag.Analytics)]
 [ValidateHasRole(AppRoles.Moderator)]
 public class QueryArtifactStats : QueryDb<ArtifactStat> { }
 
+[Tag(Tag.Analytics)]
 [ValidateHasRole(AppRoles.Moderator)]
 public class QuerySearchStats : QueryDb<SearchStat> { }
 
 
+[Tag(Tag.Analytics)]
 [ValidateHasRole(AppRoles.Moderator)]
 public class QuerySignups : QueryDb<Signup> { }
 
+[Tag(Tag.Analytics)]
 [ValidateHasRole(AppRoles.Moderator)]
 public class UpdateSignup : IPatchDb<Signup>, IReturn<Signup>
 {
@@ -99,6 +104,7 @@ public class UpdateSignup : IPatchDb<Signup>, IReturn<Signup>
     public DateTime? CancelledDate { get; set; }
 }
 
+[Tag(Tag.Analytics)]
 [ValidateHasRole(AppRoles.Moderator)]
 public class DeleteSignup : IDeleteDb<Signup>, IReturnVoid
 {

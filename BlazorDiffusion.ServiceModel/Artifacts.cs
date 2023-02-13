@@ -77,6 +77,7 @@ public class ArtifactFts
     public string RefId { get; set; }
 }
 
+[Tag(Tag.Artifacts)]
 public class SearchArtifacts : QueryDb<Artifact, ArtifactResult>
 {
     public string? Query { get; set; }
@@ -170,12 +171,14 @@ public class SearchArtifacts : QueryDb<Artifact, ArtifactResult>
     }
 }
 
+[Tag(Tag.Artifacts)]
 public class QueryArtifacts : QueryDb<Artifact>
 {
     public int? Id { get; set; }
     public List<int>? Ids { get; set; }
 }
 
+[Tag(Tag.Artifacts)]
 [AutoApply(Behavior.AuditModify)]
 [ValidateHasRole(AppRoles.Moderator)]
 public class UpdateArtifact : IPatchDb<Artifact>, IReturn<Artifact>
@@ -230,12 +233,14 @@ public class AlbumLikeRef
 }
 
 
+[Tag(Tag.Artifacts)]
 [AutoFilter(QueryTerm.Ensure, nameof(ArtifactLike.AppUserId), Eval = "userAuthId")]
 [ValidateIsAuthenticated]
 public class QueryArtifactLikes : QueryDb<ArtifactLike>
 {
 }
 
+[Tag(Tag.Artifacts)]
 [ValidateIsAuthenticated]
 public class CreateArtifactLike : ICreateDb<ArtifactLike>, IReturn<IdResponse>
 {
@@ -243,6 +248,7 @@ public class CreateArtifactLike : ICreateDb<ArtifactLike>, IReturn<IdResponse>
     public int ArtifactId { get; set; }
 }
 
+[Tag(Tag.Artifacts)]
 [ValidateIsAuthenticated]
 public class DeleteArtifactLike : IDeleteDb<ArtifactLike>, IReturnVoid
 {
@@ -280,6 +286,7 @@ public enum ReportType
     Other,
 }
 
+[Tag(Tag.Artifacts)]
 [ValidateIsAuthenticated]
 [ValidateIsAdmin]
 public class QueryArtifactReports : QueryDb<ArtifactReport>
@@ -287,6 +294,7 @@ public class QueryArtifactReports : QueryDb<ArtifactReport>
     public int? ArtifactId { get; set; }
 }
 
+[Tag(Tag.Artifacts)]
 [AutoPopulate(nameof(ArtifactReport.AppUserId), Eval = "userAuthId")]
 [AutoPopulate(nameof(ArtifactReport.CreatedDate), Eval = "utcNow")]
 [ValidateIsAuthenticated]
@@ -298,6 +306,7 @@ public class CreateArtifactReport : ICreateDb<ArtifactReport>, IReturn<ArtifactR
     public string? Description { get; set; }
 }
 
+[Tag(Tag.Artifacts)]
 [AutoPopulate(nameof(ArtifactReport.AppUserId), Eval = "userAuthId")]
 [ValidateIsAdmin]
 public class UpdateArtifactReport : IPatchDb<ArtifactReport>, IReturn<ArtifactReport>
@@ -308,6 +317,7 @@ public class UpdateArtifactReport : IPatchDb<ArtifactReport>, IReturn<ArtifactRe
     public string? Description { get; set; }
 }
 
+[Tag(Tag.Artifacts)]
 [ValidateIsAuthenticated]
 [ValidateIsAdmin]
 public class DeleteArtifactReport : IDeleteDb<ArtifactReport>, IReturnVoid
@@ -316,12 +326,14 @@ public class DeleteArtifactReport : IDeleteDb<ArtifactReport>, IReturnVoid
     public int ArtifactId { get; set; }
 }
 
+[Tag(Tag.Artifacts)]
 [Route("/download/artifact/{RefId}")]
 public class DownloadArtifact : IGet, IReturn<byte[]>
 {
     public string RefId { get; set; }
 }
 
+[Tag(Tag.Artifacts)]
 [ValidateIsAuthenticated]
 [Route("/download/direct/{RefId}")]
 public class DownloadDirect
@@ -330,4 +342,45 @@ public class DownloadDirect
     public string? EncryptionMethod { get; set; }
     public string? AccessId { get; set; }
     public string? AccessKey { get; set; }
+}
+
+[Tag(Tag.Artifacts)]
+public class FindSimilarArtifacts
+{
+    public string ArtifactId { get; set; }
+    public int? Skip { get; set; }
+    public int? Take { get; set; }
+}
+public class FindSimilarArtifactsResponse
+{
+    public List<Artifact> Results { get; set; }
+}
+
+[Tag(Tag.Artifacts)]
+public class SearchData : IReturn<SearchDataResponse> {}
+public class SearchDataResponse
+{
+    public List<ArtistInfo> Artists { get; set; }
+    public List<ModifierInfo> Modifiers { get; set; }
+}
+
+
+public class ArtistInfo
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string? Type { get; set; }
+
+    public override bool Equals(object? obj) => obj is ArtistInfo info && Id == info.Id && Name == info.Name;
+    public override int GetHashCode() => HashCode.Combine(Id, Name);
+}
+public class ModifierInfo
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Category { get; set; }
+
+    public override bool Equals(object? obj) => obj is ModifierInfo info &&
+                                                Id == info.Id && Name == info.Name && Category == info.Category;
+    public override int GetHashCode() => HashCode.Combine(Id, Name, Category);
 }

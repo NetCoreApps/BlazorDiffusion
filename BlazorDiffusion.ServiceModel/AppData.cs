@@ -34,6 +34,12 @@ public class AppData
     public string[] FlagReasons => Enum.GetNames(typeof(PostReport));
 }
 
+public class Group
+{
+    public string Name { get; set; }
+    public string[] Items { get; set; }
+}
+
 public class AppSource
 {
     public const string Albums = "albums";
