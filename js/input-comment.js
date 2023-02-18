@@ -1,4 +1,4 @@
-﻿import { ref, computed } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+﻿import { ref, computed } from "vue"
 import { CreateArtifactComment } from './dtos.mjs'
 import { useClient } from './static.js'
 

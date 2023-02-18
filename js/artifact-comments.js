@@ -1,5 +1,5 @@
-﻿import { onMounted, watch, computed, ref } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
-import { classNames, isDate, toDate, fromXsdDuration, indexOfAny } from 'https://unpkg.com/@servicestack/client/dist/servicestack-client.mjs'
+﻿import { onMounted, watch, computed, ref } from "vue"
+import { classNames, isDate, toDate, fromXsdDuration, indexOfAny } from "@servicestack/client"
 import {
     QueryArtifactComments,
     GetArtifactUserData,

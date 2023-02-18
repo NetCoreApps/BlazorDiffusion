@@ -1,5 +1,5 @@
-﻿import { computed, useAttrs, inject } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
-import { classNames, errorResponseExcept } from 'https://unpkg.com/@servicestack/client/dist/servicestack-client.mjs'
+﻿import { computed, useAttrs, inject } from "vue"
+import { classNames, errorResponseExcept } from "@servicestack/client"
 
 export default {
     template: /*html*/`

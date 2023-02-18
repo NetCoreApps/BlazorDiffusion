@@ -1,5 +1,5 @@
-﻿import { createApp, reactive, ref, unref, isRef, provide } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
-import { JsonServiceClient, $$, $1 } from 'https://unpkg.com/@servicestack/client/dist/servicestack-client.mjs'
+﻿import { createApp, reactive, ref, unref, isRef, provide } from "vue"
+import { JsonApiClient, $$, $1 } from "@servicestack/client"
 import { Authenticate, GetAlbumUserData, ResponseError, ResponseStatus } from './dtos.mjs'
 import ArtifactComments from '/js/artifact-comments.js'
 import ArtifactInfo from '/js/artifact-info.js'
@@ -8,25 +8,21 @@ import ErrorSummary from '/js/error-summary.js'
 import InputComment from '/js/input-comment.js'
 import { SelectInput, TextareaInput } from '/js/form.js'
 
-export function init() {
-    Components = createComponents({
-        'artifact-comments': ArtifactComments,
-        'artifact-info': ArtifactInfo,
-        'artifact-icons': ArtifactIcons,
-        'error-summary': ErrorSummary,
-        'input-comment': InputComment,
-        'select-input': SelectInput,
-        'textarea-input': TextareaInput,
-    })
-    AppData = reactive(AppData)
-    AppData.UserArtifact = { liked: false, upVoted: [], downVoted: [] }
-    AppData.UserAlbum = { likedArtifacts: [] }
-    client = new JsonServiceClient(ApiBaseUrl).apply(c => {
-        c.basePath = "/api"
-        c.headers = new Headers() //avoid pre-flight CORS requests
-    })
-    Apps = []
+Components = createComponents({
+    'artifact-comments': ArtifactComments,
+    'artifact-info': ArtifactInfo,
+    'artifact-icons': ArtifactIcons,
+    'error-summary': ErrorSummary,
+    'input-comment': InputComment,
+    'select-input': SelectInput,
+    'textarea-input': TextareaInput,
+})
+Apps = []
+
+export function load() {
+    console.log('load')
     $$('[data-component]').forEach(el => {
+        if (el.__vue_app__) return
         let componentName = el.getAttribute('data-component')
         let component = componentName && Components[componentName]
         if (!component) {
@@ -45,20 +41,36 @@ export function init() {
         app.mount(el)
         Apps.push(app)
     })
+    loadUserData()
+}
+
+function loadUserData() {
     const albumId = map($1('[data-album]'), x => x.getAttribute('data-album'))
+    if (albumId && albumId !== AppData.albumId) {
+        console.log('loadUserData', albumId)
+        client.api(new GetAlbumUserData({ albumId }))
+            .then(r => {
+                if (r.succeeded) {
+                    AppData.UserAlbum = r.response
+                    AppData.albumId = albumId
+                }
+            })
+    }
+}
+
+export function init() {
+    console.log('init')
+    AppData = reactive(AppData)
+    AppData.UserArtifact = { liked: false, upVoted: [], downVoted: [] }
+    AppData.UserAlbum = { likedArtifacts: [] }
+    client = JsonApiClient.create()
+    load()
 
     client.api(new Authenticate())
         .then(api => {
             AppData.Auth = api.succeeded ? api.response : null
             AppData.init = true
-            if (albumId) {
-                client.api(new GetAlbumUserData({ albumId }))
-                    .then(r => {
-                        if (r.succeeded) {
-                            AppData.UserAlbum = r.response
-                        }
-                    })
-            }
+            loadUserData()
         })
 }
 
@@ -153,6 +165,5 @@ function createComponents(c) {
             }
         }
     }
-    //c.
     return c
 }
