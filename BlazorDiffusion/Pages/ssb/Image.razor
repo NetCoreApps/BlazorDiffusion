@@ -1,4 +1,4 @@
-@page "/ssg/creative"
+@page "/ssb/creative"
 @page "/image/{Id:int}/{Slug?}"
 @inherits AppComponentBase
 
@@ -61,7 +61,7 @@
     </div>
 
     <div class="flex flex-wrap justify-center">
-    @foreach (var artifact in Creative.GetArtifacts())
+    @foreach (var artifact in Creative.GetArtifacts().Where(x => x.Quality >= 0 && x.Nsfw != true))
     {
         <a @key=@artifact.Id href=@artifact.GetHtmlFilePath() class="relative overflow-hidden">
             <div class="relative flex justify-center mr-1 mb-1 sm:mr-4 sm:mb-4">
@@ -124,7 +124,6 @@ else if (api.Error != null)
     [Parameter] public string? Slug { get; set; }
     Creative? Creative;
     Artifact? artifact;
-    string? useSrc;
     AlbumResult[] CreativeAlbums = Array.Empty<AlbumResult>();
     List<Artifact> CreativeAlbumArtifacts = new();
     ApiResult<GetCreativeResponse> api = new();

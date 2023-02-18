@@ -1,14 +1,9 @@
-﻿using BlazorDiffusion.Pages.admin;
-using BlazorDiffusion.ServiceModel;
-using BlazorDiffusion.Shared;
-using BlazorDiffusion.UI;
-using Ljbc1994.Blazor.IntersectionObserver;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
-using ServiceStack.Blazor;
-using ServiceStack.Text;
-using System;
+using BlazorDiffusion.UI;
+using BlazorDiffusion.Shared;
+using BlazorDiffusion.ServiceModel;
+using Ljbc1994.Blazor.IntersectionObserver;
 
 namespace BlazorDiffusion.Pages;
 
@@ -18,8 +13,6 @@ public partial class Index : AppAuthComponentBase, IDisposable
     [Inject] ILogger<Index> Log { get; set; } = default!;
     [Inject] IIntersectionObserverService ObserverService { get; set; } = default!;
     [Inject] NavigationManager NavigationManager { get; set; }
-    [Inject] IJSRuntime JS { get; set; }
-
     string[] VisibleFields => new[] { 
         nameof(SearchArtifacts.Query), 
     };

@@ -18,7 +18,7 @@ public class HtmlTemplate
 
     public Dictionary<string, Type> ComponentTypes { get; set; } = new();
 
-    public void RegisterComponent<T>() => ComponentTypes[typeof(T).FullName] = typeof(T);
+    public void RegisterComponent<T>() => ComponentTypes[typeof(T).FullName!] = typeof(T);
     public Type? GetComponentType(string typeName) => ComponentTypes.TryGetValue(typeName, out var c) ? c : null;
 
     public static HtmlTemplate Create(string contents)

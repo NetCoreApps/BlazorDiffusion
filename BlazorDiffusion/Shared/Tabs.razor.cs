@@ -44,7 +44,7 @@ namespace BlazorDiffusion.Shared
             await base.OnInitializedAsync();
         }
 
-        async Task UpdateTab(string location = null)
+        async Task UpdateTab(string? location = null)
         {
             var uri = new Uri(location ?? NavigationManager.Uri);
             var queryStrings = System.Web.HttpUtility.ParseQueryString(uri.Query);

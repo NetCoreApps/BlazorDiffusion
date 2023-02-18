@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BlazorDiffusion.ServiceModel;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using ServiceStack;
 using ServiceStack.Auth;
 using ServiceStack.Html;
@@ -488,7 +490,15 @@ public interface IPrerenderer
 {
     IVirtualFiles VirtualFiles { get; }
     Task RenderPages(HttpContext? httpContext = null);
+    Task<string> RenderArtifactHtmlPageAsync(Artifact artifact, HttpContext? httpContext=null, CancellationToken token=default);
     void AddAlbum(IDbConnection db, AlbumResult album);
+}
+
+public class PrerenderView
+{
+    public string ViewPath { get; set; }
+    public string WritePath { get; set; }
+    public Func<PageModel>? PageModelFactory { get; set; }
 }
 
 public class PrerenderPage

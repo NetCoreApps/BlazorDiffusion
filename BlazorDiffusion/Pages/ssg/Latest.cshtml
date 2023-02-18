@@ -1,0 +1,66 @@
+﻿@page "/ssg/latest"
+@model LatestModel
+@inherits ServiceStack.Mvc.RazorPage
+@{
+    Layout = "_LayoutStatic";
+}
+@using BlazorDiffusion.ServiceModel;
+@using BlazorDiffusion.UI;
+@using BlazorDiffusion.Pages.ssg;
+
+<h1 class="my-4 text-2xl text-center">Latest Images</h1>
+
+@await Html.PartialAsync("_StaticGallery", Model.GalleryResults)
+
+@if (Model.Pages > 1)
+{
+    var start = 0;
+    var to = Model.Pages;
+    if (Model.Pages > 10)
+    {
+        start = Math.Max(Model.UsePage - 6, 0);
+        to = Math.Min(start + 10, Model.Pages);
+    }
+
+    <nav hx-boost="true" class="mt-8 flex items-center justify-between border-t border-gray-700 px-4 sm:px-0">
+        <div class="-mt-px flex w-0 flex-1">
+            @if (Model.UsePage > 1)
+            {
+                <a href="@Ssg.GetLatest(Model.UsePage - 1)" class="inline-flex items-center border-t-2 border-transparent pt-4 pr-1 text-sm font-medium text-gray-500 hover:border-gray-600 hover:text-gray-200">
+                    <!-- Heroicon name: mini/arrow-long-left -->
+                    <svg class="mr-3 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M18 10a.75.75 0 01-.75.75H4.66l2.1 1.95a.75.75 0 11-1.02 1.1l-3.5-3.25a.75.75 0 010-1.1l3.5-3.25a.75.75 0 111.02 1.1l-2.1 1.95h12.59A.75.75 0 0118 10z" clip-rule="evenodd" />
+                    </svg>
+                    Previous
+                </a>
+            }
+        </div>
+        <div class="hidden md:-mt-px md:flex">
+            @for (var i = start; i < to; i++)
+            {
+                var pageNo = i + 1;
+                if (Model.UsePage == pageNo)
+                {
+                    <a href="@Ssg.GetLatest(pageNo)" class="inline-flex items-center border-t-2 border-indigo-400 px-4 pt-4 text-sm font-medium text-indigo-300" aria-current="page">@pageNo</a>
+                }
+                else
+                {
+                    <a href="@Ssg.GetLatest(pageNo)" class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-gray-500 hover:border-gray-600 hover:text-gray-200">@pageNo</a>
+                }
+            }
+        </div>
+        <div class="-mt-px flex w-0 flex-1 justify-end">
+            @if (Model.UsePage < Model.Pages)
+            {
+                <a href="@Ssg.GetLatest(Model.UsePage + 1)" class="inline-flex items-center border-t-2 border-transparent pt-4 pl-1 text-sm font-medium text-gray-500 hover:border-gray-600 hover:text-gray-200">
+                    Next
+                    <!-- Heroicon name: mini/arrow-long-right -->
+                    <svg class="ml-3 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M2 10a.75.75 0 01.75-.75h12.59l-2.1-1.95a.75.75 0 111.02-1.1l3.5 3.25a.75.75 0 010 1.1l-3.5 3.25a.75.75 0 11-1.02-1.1l2.1-1.95H2.75A.75.75 0 012 10z" clip-rule="evenodd" />
+                    </svg>
+                </a>
+            }
+        </div>
+    </nav>
+}
+<!--/ssg/latest-->

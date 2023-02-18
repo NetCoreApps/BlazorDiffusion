@@ -15,7 +15,6 @@ public class BackgroundMqServices : Service
 {
     public static ILog Log = LogManager.GetLogger(typeof(BackgroundMqServices));
     public IPrerenderer Prerenderer { get; set; } = default!;
-    public IComponentRenderer Renderer { get; set; } = default!;
     public HtmlTemplate HtmlTemplate { get; set; } = default!;
     public IStableDiffusionClient StableDiffusionClient { get; set; } = default!;
     public AppConfig AppConfig { get; set; } = default!;
@@ -62,6 +61,7 @@ public class BackgroundMqServices : Service
     static long InSyncTasks = 0;
     public async Task<object> Any(SyncTasks request)
     {
+        //if ("True".Length > 0) return new SyncTasksResponse();
         if (Interlocked.CompareExchange(ref InSyncTasks, 1, 0) > 0)
             return new SyncTasksResponse();
 

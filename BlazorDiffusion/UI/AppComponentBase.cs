@@ -22,7 +22,6 @@ public abstract class AppAuthComponentBase : AuthBlazorComponentBase
     public bool IsModerator => IsAuthenticated && User.HasRole(AppRoles.Moderator);
     [Inject] public UserState UserState { get; set; } = default!;
     [Inject] public KeyboardNavigation KeyboardNavigation { get; set; }
-    [Inject] public IJSRuntime JS { get; set; }
     [Inject] ILogger<AppAuthComponentBase> Log { get; set; }
 
     protected override async Task OnInitializedAsync()

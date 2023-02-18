@@ -4,7 +4,7 @@
 {
     <div class=@ClassNames("overflow-hidden", Class) style=@Artifact.GetBackgroundStyle()>
         <img alt=@Artifact.Prompt width=@width height=@height class=@ImageClass
-            src=@(useSrc ?? Artifact.GetPublicUrl()) loading=@loading
+            src=@(useSrc ?? Artifact.GetPublicUrl()) loading="lazy"
                 @onerror=@(() => useSrc = Artifact.GetImageErrorUrl(useSrc))>
     </div>
 }
@@ -13,7 +13,6 @@
     [Inject] public UserState UserState { get; set; } = default!;
     [Parameter, EditorRequired] public Artifact? Artifact { get; set; } = default!;
     [Parameter] public int? MinSize { get; set; }
-    [Parameter] public string loading { get; set; } = "lazy";
     [Parameter] public string ImageClass { get; set; }
 
     int width => MinSize == null ? Artifact!.Width

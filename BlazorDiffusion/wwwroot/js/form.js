@@ -1,5 +1,5 @@
-﻿import { computed, useAttrs, inject } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
-import { errorResponse, humanize, omit, ResponseStatus, toPascalCase } from 'https://unpkg.com/@servicestack/client/dist/servicestack-client.mjs'
+﻿import { computed, useAttrs, inject } from "vue"
+import { errorResponse, humanize, omit, ResponseStatus, toPascalCase } from "@servicestack/client"
 
 export var SelectInput = {
     template: /*html*/`

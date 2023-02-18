@@ -17,7 +17,6 @@ public class SsgServies : Service
 {
     public static ILog Log = LogManager.GetLogger(typeof(SsgServies));
     public IPrerenderer Prerenderer { get; set; } = default!;
-    public IComponentRenderer Renderer { get; set; } = default!;
     public HtmlTemplate HtmlTemplate { get; set; } = default!;
     public IStableDiffusionClient StableDiffusionClient { get; set; } = default!;
     public AppConfig AppConfig { get; set; } = default!;
@@ -111,11 +110,12 @@ public class SsgServies : Service
     {
         Log.DebugFormat("Writing {0} artifact image html", artifacts.Count);
 
+        var httpCtx = (base.Request as NetCoreRequest)?.HttpContext;
         var results = new List<string>();
 
         foreach (var artifact in artifacts)
         {
-            var html = await RenderArtifactHtmlPageAsync(artifact);
+            var html = await Prerenderer.RenderArtifactHtmlPageAsync(artifact, httpCtx);
             var file = artifact.GetHtmlFileName();
             var path = artifact.GetHtmlFilePath();
             Log.DebugFormat("Writing {0} bytes to {1}...", html.Length, path);
@@ -126,34 +126,10 @@ public class SsgServies : Service
         return results;
     }
 
-    public async Task<string> RenderArtifactHtmlPageAsync(Artifact artifact)
-    {
-        string title = artifact.Prompt.LeftPart(',');
-        var meta = HtmlTemplate.CreateMeta(
-            url: AppConfig.BaseUrl.CombineWith(artifact.GetHtmlFilePath()),
-            title: title,
-            image: AppConfig.AssetsBasePath.CombineWith(artifact.FilePath));
-
-        var componentType = HtmlTemplate.GetComponentType("BlazorDiffusion.Pages.ssg.Image")
-            ?? throw HttpError.NotFound("Component not found");
-        var httpCtx = (Request as NetCoreRequest)?.HttpContext
-            ?? HttpContextFactory.CreateHttpContext(AppConfig.BaseUrl);
-
-        var args = new Dictionary<string, object>
-        {
-            [nameof(RenderArtifactHtml.Id)] = artifact.Id,
-            [nameof(RenderArtifactHtml.Slug)] = artifact.GetSlug(),
-        };
-        var body = await Renderer.RenderComponentAsync(componentType, httpCtx, args);
-
-        var html = HtmlTemplate.Render(title: title, head: meta, body: body);
-        return html;
-    }
-
     public async Task<object> Any(Prerender request)
     {
         if (!AppConfig.DisableWrites)
-            await Prerenderer.RenderPages();
+            await Prerenderer.RenderPages((Request as NetCoreRequest)?.HttpContext);
         return new PrerenderResponse();
     }
 
@@ -168,7 +144,7 @@ public class SsgServies : Service
         if (Request.HasValidCache(artifact.ModifiedDate))
             return HttpResult.NotModified();
 
-        var html = await RenderArtifactHtmlPageAsync(artifact);
+        var html = await Prerenderer.RenderArtifactHtmlPageAsync(artifact, (Request as NetCoreRequest)?.HttpContext);
 
         if (request.Save == true)
         {

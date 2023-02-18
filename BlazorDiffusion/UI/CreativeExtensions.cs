@@ -20,7 +20,7 @@ public static class CreativeExtensions
     public static string GetFallbackUrl(this Artifact artifact) => BlazorConfig.Instance.FallbackAssetsBasePath + artifact.FilePath;
     public static string GetSlug(this Artifact artifact) => artifact.Prompt.LeftPart(',').GenerateSlug();
     public static string GetHtmlFileName(this Artifact artifact) =>
-    $"{artifact.Id.ToString().PadLeft(4, '0')}_{artifact.GetSlug()}.html";
+        $"{artifact.Id.ToString().PadLeft(4, '0')}_{artifact.GetSlug()}.html";
     public static string GetHtmlFilePath(this Artifact artifact) =>
         $"/artifacts/{Math.Floor(artifact.Id / 1000d)}/{artifact.GetHtmlFileName()}";
     public static string GetHtmlFilePath(this AlbumResult album, int pageNo)

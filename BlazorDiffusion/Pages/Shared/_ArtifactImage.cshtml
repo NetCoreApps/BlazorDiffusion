@@ -1,0 +1,26 @@
+﻿@model ArtifactImageParams
+@using BlazorDiffusion.UI
+@inject UserState UserState
+@{
+    var Artifact = Model.Artifact;
+    @if (Artifact != null)
+    {
+        var MinSize = Model.MinSize;
+        int width = MinSize == null 
+            ? Artifact.Width
+            : (int)(Artifact.Width > Artifact.Height
+                ? (Artifact.Width / (double)Artifact.Height) * MinSize.Value
+                : MinSize.Value);
+
+        int height = MinSize == null 
+            ? Artifact.Height
+            : (int)(Artifact.Height > Artifact.Width
+                ? (Artifact.Height / (double)Artifact.Width) * MinSize.Value
+                : MinSize.Value);
+
+        <div class="@Html.ClassNames("overflow-hidden", Model.Class)" style="@Artifact.GetBackgroundStyle()">
+            <img alt="@Artifact.Prompt" width="@width" height="@height" class="@Model.ImageClass"
+             src="@Artifact.GetPublicUrl()" loading="lazy">
+        </div>
+    }
+}

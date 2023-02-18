@@ -1,4 +1,4 @@
-﻿import { computed } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+﻿import { computed } from "vue"
 import { useClient } from './static.js'
 import { CreateArtifactLike, DeleteArtifactLike } from './dtos.mjs'
 

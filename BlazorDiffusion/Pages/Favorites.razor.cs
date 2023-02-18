@@ -12,7 +12,6 @@ public partial class Favorites : AppAuthComponentBase, IDisposable
 {
     [Inject] NavigationManager NavigationManager { get; set; } = default!;
     [Inject] IIntersectionObserverService ObserverService { get; set; } = default!;
-    [Inject] IJSRuntime JS { get; set; }
     [Inject] ILogger<Favorites> Log { get; set; } = default!;
 
 

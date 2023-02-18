@@ -10,8 +10,6 @@ namespace BlazorDiffusion.Shared;
 public partial class ArtifactMenu : AppAuthComponentBase
 {
     [Inject] public NavigationManager NavigationManager { get; set; } = default!;
-    [Inject] public UserState UserState { get; set; }
-    [Inject] IJSRuntime JS { get; set; }
     [Parameter, EditorRequired] public Artifact Artifact { get; set; } = default!;
     [Parameter, EditorRequired] public MouseEventArgs Position { get; set; } = default!;
     [Parameter] public RenderFragment<Artifact>? TopMenu { get; set; }

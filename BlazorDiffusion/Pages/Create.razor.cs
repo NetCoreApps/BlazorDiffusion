@@ -15,8 +15,6 @@ namespace BlazorDiffusion.Pages;
 public partial class Create : AppAuthComponentBase, IDisposable
 {
     [Inject] public NavigationManager NavigationManager { get; set; }
-    [Inject] public IJSRuntime JS { get; set; }
-    [Inject] public UserState UserState { get; set; }
 
     static SearchDataResponse? DataCache;
 

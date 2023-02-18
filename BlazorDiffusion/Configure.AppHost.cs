@@ -60,6 +60,7 @@ public class AppHost : AppHostBase, IHostingStartup
             BaseUrl = baseUrl,
             ApiBaseUrl = apiUrl ?? baseUrl,
             WwwBaseUrl = cdnUrl != null ? $"https://api.blazordiffusion.com" : baseUrl,
+            CdnBaseUrl = cdnUrl ?? "https://blazordiffusion.com",
             R2Account = "b95f38ca3a6ac31ea582cd624e6eb385",
             R2AccessId = r2AccessId,
             R2AccessKey = r2AccessKey,

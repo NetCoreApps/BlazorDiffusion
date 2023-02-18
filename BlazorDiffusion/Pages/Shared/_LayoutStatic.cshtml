@@ -1,0 +1,90 @@
+@using BlazorDiffusion.ServiceModel
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using System.Text.RegularExpressions
+
+@{
+    // sync template with /wwwroot/index.html
+}
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.Title</title>
+    <base href="/" />
+    <link rel="stylesheet" href="/css/app.css" />
+    <link href="/css/typography.css" rel="stylesheet">
+    <link href="/css/markdown.css" rel="stylesheet">
+    <link rel="icon" href="/img/blazor.svg" type="image/svg+xml">
+    @RenderSection("head", required:false)
+    <!--head-->
+
+    <script async src="https://ga.jspm.io/npm:es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    @Html.StaticImportMap(new() {
+        ["vue"]                  = "/lib/mjs/vue.min.mjs",
+        ["@servicestack/client"] = "/lib/mjs/servicestack-client.min.mjs",
+        ["@servicestack/vue"]    = "/lib/mjs/servicestack-vue.min.mjs",
+    })
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZKGT7W2HWJ"></script>
+    <script>
+        window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date()); gtag('config', 'G-ZKGT7W2HWJ');
+    </script>
+    <script src="/js/custom.js"></script>
+    <script defer src="/lib/js/htmx.js"></script>
+    <script defer type="module">
+        import { init, load } from '/js/static.js'
+        init()
+        document.addEventListener("htmx:load", load)
+    </script>
+    @RenderSection("scripts", required:false)
+</head>
+<body class="bg-white dark:bg-black dark:text-white">
+    <div id="head"></div>
+    <div id="app" class="min-h-screen">
+        <div id="app-loading">
+            <header class="border-b border-gray-200 dark:border-gray-800 pr-3">
+                <div class="flex flex-wrap items-center">
+                    <div class="flex flex-grow flex-shrink flex-nowrap justify-end items-center">
+                        <a href="/" class="flex items-center flex-shrink-0 px-4 text-2xl whitespace-nowrap overflow-x-hidden flex items-center">
+                            <img class="h-8 w-8 my-3"
+                                 src="/img/blazor.svg"
+                                 alt="Blazor Diffusion Logo">
+                            <div class="ml-2 text-black dark:text-white">Diffusion</div>
+                        </a>
+                        <nav class="relative flex flex-grow">
+                            <ul class="flex flex-wrap items-center justify-end w-full m-0">
+                                <li class="relative flex flex-wrap just-fu-start m-0">
+                                    <div id="signin" data-component="signin"></div>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+            <div class="flex flex-col flex-1">
+                <main class="flex-1">
+                    <div>
+                        <div class="sm:px-6 md:px-8">
+                            @RenderBody()
+                            <!--body-->
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+    <div id="foot" class="mt-24 mb-2 mx-2 sm:mx-4 flex justify-between">
+        <div>
+            <a class="mr-2 sm:mr-8 text-sm sm:text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" href="/albums.html" title="Top Albums">Albums</a>
+            <a class="mr-2 sm:mr-8 text-sm sm:text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" href="/latest.html" title="Latest Images">Latest</a>
+            <a class="mr-2 sm:mr-8 text-sm sm:text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" href="/top.html" title="Top Images">Top</a>
+        </div>
+        <div>
+            <a class="text-sm sm:text-base text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100" href="https://servicestack.net/blazor" target="_blank" title="powered by">servicestack.net/blazor</a>
+        </div>
+    </div>
+    <div id="end"></div>
+</body>
+</html>

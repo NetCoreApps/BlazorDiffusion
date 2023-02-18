@@ -7,6 +7,7 @@
     </PropertyGroup>
     <ItemGroup>
         <Using Include="ServiceStack" />
+        <Using Include="ServiceStack.Mvc" />
         <Using Include="BlazorDiffusion" />
     </ItemGroup>
 
@@ -35,6 +36,7 @@
         <PackageReference Include="ServiceStack.Blazor" Version="6.*" />
         <PackageReference Include="ServiceStack.OrmLite.Sqlite.Data" Version="6.*" />
         <PackageReference Include="ServiceStack.Server" Version="6.*" />
+        <PackageReference Include="ServiceStack.Mvc" Version="6.*" />
     </ItemGroup>
     <!-- Rename BlazorDiffusion.sln.Source and Uncomment Project References to reference source projects -->
     <!--<ItemGroup>
@@ -72,6 +74,9 @@
 
     <ItemGroup>
         <Folder Include="App_Data\" />
+        <Folder Include="wwwroot\albums\" />
+        <Folder Include="wwwroot\lib\" />
+        <Folder Include="wwwroot\latest\" />
     </ItemGroup>
 
     <ItemGroup>
