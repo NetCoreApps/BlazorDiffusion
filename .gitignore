@@ -2,6 +2,7 @@
 **/wwwroot/docs/
 **/wwwroot/prerender/
 **/wwwroot/albums/
+**/wwwroot/latest/
 **/wwwroot/artifacts/
 *.xml
 albums.html
