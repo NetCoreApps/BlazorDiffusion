@@ -5,6 +5,7 @@ using ServiceStack;
 using ServiceStack.Pcl;
 using ServiceStack.Blazor;
 using BlazorDiffusion.ServiceModel;
+using System.Security.Claims;
 
 namespace BlazorDiffusion.UI;
 
@@ -70,6 +71,13 @@ public static class CreativeExtensions
         return rint % 2 == 0
             ? user.GetFallbackUrl().SetQueryParam("r", $"{rint}")
             : user.GetPublicUrl().SetQueryParam("r", $"{rint}");
+    }
+
+    public static List<Artifact> GetModeratedArtifacts(this Creative creative, ClaimsPrincipal? user = null)
+    {
+        return user.HasRole(AppRoles.Moderator)
+            ? creative.GetArtifacts()
+            : creative.GetArtifacts().Where(x => x.Quality >= 0 && x.Nsfw != true).ToList();
     }
 
     public static List<Artifact> GetArtifacts(this Creative creative)

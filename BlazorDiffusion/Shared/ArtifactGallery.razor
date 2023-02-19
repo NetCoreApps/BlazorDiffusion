@@ -268,7 +268,7 @@
     </div>
 
     <div class="flex flex-wrap justify-center">
-    @foreach (var a in Creative.GetArtifacts())
+    @foreach (var a in Creative.GetModeratedArtifacts(User))
     {
         <div @key=@a.Id @onclick=@(_ => navTo(Selected.Id, a.Id)) @onclick:stopPropagation @onclick:preventDefault
             class="relative overflow-hidden cursor-pointer">

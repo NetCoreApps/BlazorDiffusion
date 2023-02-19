@@ -178,7 +178,7 @@ public partial class ArtifactGallery : AppAuthComponentBase, IDisposable
         {
             if (Creative != null && Viewing != null)
             {
-                var artifacts = Creative.GetArtifacts();
+                var artifacts = Creative.GetModeratedArtifacts(User);
                 var activeIndex = artifacts.FindIndex(x => x.Id == Viewing.Id);
                 if (activeIndex >= 0)
                 {
@@ -201,7 +201,7 @@ public partial class ArtifactGallery : AppAuthComponentBase, IDisposable
             {
                 if (key == KeyCodes.ArrowDown)
                 {
-                    var artifact = Creative.GetArtifacts().FirstOrDefault();
+                    var artifact = Creative.GetModeratedArtifacts(User).FirstOrDefault();
                     if (artifact != null)
                     {
                         await navTo(Selected.Id, artifact.Id);
