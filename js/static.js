@@ -8,7 +8,7 @@ import ErrorSummary from '/js/error-summary.js'
 import InputComment from '/js/input-comment.js'
 import { SelectInput, TextareaInput } from '/js/form.js'
 
-Components = createComponents({
+globalThis.Components = createComponents({
     'artifact-comments': ArtifactComments,
     'artifact-info': ArtifactInfo,
     'artifact-icons': ArtifactIcons,
@@ -20,7 +20,6 @@ Components = createComponents({
 Apps = []
 
 export function load() {
-    console.log('load')
     $$('[data-component]').forEach(el => {
         if (el.__vue_app__) return
         let componentName = el.getAttribute('data-component')
@@ -47,7 +46,6 @@ export function load() {
 function loadUserData() {
     const albumId = map($1('[data-album]'), x => x.getAttribute('data-album'))
     if (albumId && albumId !== AppData.albumId) {
-        console.log('loadUserData', albumId)
         client.api(new GetAlbumUserData({ albumId }))
             .then(r => {
                 if (r.succeeded) {
@@ -59,11 +57,11 @@ function loadUserData() {
 }
 
 export function init() {
-    console.log('init')
     AppData = reactive(AppData)
     AppData.UserArtifact = { liked: false, upVoted: [], downVoted: [] }
     AppData.UserAlbum = { likedArtifacts: [] }
-    client = JsonApiClient.create()
+
+    globalThis.client = JsonApiClient.create(globalThis.ApiBaseUrl)
     load()
 
     client.api(new Authenticate())
