@@ -10,6 +10,7 @@ using ServiceStack.Host.NetCore;
 using BlazorDiffusion.ServiceModel;
 using System.IO;
 using ServiceStack.Host;
+using Microsoft.AspNetCore.Http;
 
 namespace BlazorDiffusion.ServiceInterface;
 
@@ -80,7 +81,20 @@ public class SsgServies : Service
 
         return ret;
     }
-    
+
+    public async Task<object> Any(PrerenderImage request)
+    {
+        var ret = new PrerenderResponse { Results = new() };
+
+        var artifact = await Db.SingleByIdAsync<Artifact>(request.ArtifactId);
+        if (artifact == null)
+            return HttpError.NotFound("Artifact does not exist");
+
+        ret.Results.AddRange(await WriteArtifactHtmlPagesAsync(Prerenderer.VirtualFiles, new() { artifact }));
+
+        return ret;
+    }
+
     public async Task<object> Any(PrerenderSitemap request)
     {
         var vfs = Prerenderer.VirtualFiles;

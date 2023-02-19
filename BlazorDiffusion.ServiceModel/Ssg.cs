@@ -78,6 +78,14 @@ public class PrerenderImages : IReturn<PrerenderResponse>
 [ExcludeMetadata]
 [Tag(Tag.Ssg)]
 [ValidateHasRole(AppRoles.Moderator)]
+public class PrerenderImage : IReturn<PrerenderResponse>
+{
+    public int ArtifactId { get; set; }
+}
+
+[ExcludeMetadata]
+[Tag(Tag.Ssg)]
+[ValidateHasRole(AppRoles.Moderator)]
 public class PrerenderSitemap : IReturn<PrerenderResponse>
 {
 }
