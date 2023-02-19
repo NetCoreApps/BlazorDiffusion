@@ -71,6 +71,7 @@ jobs:
       - name: Publish dotnet project
         working-directory: ./BlazorDiffusion
         run: | 
+          dotnet nuget add source "https://nuget.pkg.github.com/ServiceStack/index.json" --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github
           dotnet publish -c Release /p:DEPLOY_API=${{ secrets.DEPLOY_API }} /p:DEPLOY_CDN=${{ secrets.DEPLOY_CDN }} /p:APP_TASKS=prerender
 
       # Authenticate, build and push to GitHub Container Registry (ghcr.io)
