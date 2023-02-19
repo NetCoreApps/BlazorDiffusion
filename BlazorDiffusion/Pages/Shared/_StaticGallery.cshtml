@@ -2,7 +2,7 @@
 @using BlazorDiffusion.UI
 @using BlazorDiffusion.ServiceModel
 
-<div hx-boost="true" class="@Html.ClassNames("grid", AppCss.GetGridClass(Model.GridColumns ?? 5))">
+<div class="@Html.ClassNames("grid", AppCss.GetGridClass(Model.GridColumns ?? 5))">
 @foreach (var artifact in Model.Artifacts.OrEmpty())
 {
     @await Html.PartialAsync("_StaticImage", artifact)
