@@ -342,7 +342,7 @@ public class CreativeService : Service
 
         PublishMessage(new DiskTasks
         {
-            CdnDeleteFiles = artifacts.Select(x => x.GetHtmlFilePath()).ToList()
+            CdnDeleteFiles = artifacts.Select(x => Ssg.GetArtifact(x)).ToList()
         });
     }
 
@@ -353,7 +353,7 @@ public class CreativeService : Service
         {
             var msg = new DiskTasks
             {
-                CdnDeleteFiles = artifacts.Select(x => x.GetHtmlFilePath()).ToList()
+                CdnDeleteFiles = artifacts.Select(x => Ssg.GetArtifact(x)).ToList()
             };
             PublishMessage(msg);
             return msg;

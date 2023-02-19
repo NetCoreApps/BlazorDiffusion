@@ -130,8 +130,8 @@ public class SsgServies : Service
         foreach (var artifact in artifacts)
         {
             var html = await Prerenderer.RenderArtifactHtmlPageAsync(artifact, httpCtx);
-            var file = artifact.GetHtmlFileName();
-            var path = artifact.GetHtmlFilePath();
+            var file = Ssg.GetArtifactFileName(artifact);
+            var path = Ssg.GetArtifact(artifact);
             Log.DebugFormat("Writing {0} bytes to {1}...", html.Length, path);
             await vfs.WriteFileAsync(path, html);
             results.Add(file);
@@ -162,7 +162,7 @@ public class SsgServies : Service
 
         if (request.Save == true)
         {
-            await Prerenderer.VirtualFiles.WriteFileAsync(artifact.GetHtmlFilePath(), html);
+            await Prerenderer.VirtualFiles.WriteFileAsync(Ssg.GetArtifact(artifact), html);
         }
 
         return new HttpResult(html)

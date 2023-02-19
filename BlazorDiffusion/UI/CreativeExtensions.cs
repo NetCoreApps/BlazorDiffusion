@@ -18,16 +18,6 @@ public static class CreativeExtensions
     public static string GetDownloadUrl(this Artifact artifact) => BlazorConfig.Instance.ApiBaseUrl.CombineWith($"/download/artifact/{artifact.RefId}");
     public static string GetPublicUrl(this Artifact artifact) => BlazorConfig.Instance.AssetsBasePath + artifact.FilePath;
     public static string GetFallbackUrl(this Artifact artifact) => BlazorConfig.Instance.FallbackAssetsBasePath + artifact.FilePath;
-    public static string GetSlug(this Artifact artifact) => artifact.Prompt.LeftPart(',').GenerateSlug();
-    public static string GetHtmlFileName(this Artifact artifact) =>
-        $"{artifact.Id.ToString().PadLeft(4, '0')}_{artifact.GetSlug()}.html";
-    public static string GetHtmlFilePath(this Artifact artifact) =>
-        $"/artifacts/{Math.Floor(artifact.Id / 1000d)}/{artifact.GetHtmlFileName()}";
-    public static string GetHtmlFilePath(this AlbumResult album, int pageNo)
-    {
-        var suffix = pageNo == 1 ? "" : "_" + pageNo;
-        return $"/albums/{album.Slug}{suffix}.html";
-    }
 
     public static string GetImageErrorUrl(this Artifact artifact, string? lastImageSrc)
     {

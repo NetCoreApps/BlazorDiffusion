@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using BlazorDiffusion.ServiceModel;
 using ServiceStack;
@@ -36,16 +33,5 @@ public static class DbExtensions
             Likes = likes,
             Albums = albumResults,
         };
-    }
-    public static string GetSlug(this Artifact artifact) => artifact.Prompt.LeftPart(',').GenerateSlug();
-    public static string GetHtmlFileName(this Artifact artifact) =>
-        $"{artifact.Id.ToString().PadLeft(4, '0')}_{artifact.GetSlug()}.html";
-    public static string GetHtmlFilePath(this Artifact artifact) =>
-        $"/artifacts/{Math.Floor(artifact.Id / 1000d)}/{artifact.GetHtmlFileName()}";
-
-    public static string GetHtmlFilePath(this AlbumResult album, int pageNo)
-    {
-        var suffix = pageNo == 1 ? "" : "_" + pageNo;
-        return $"/albums/{album.Slug}{suffix}.html";
     }
 }

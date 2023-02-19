@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using BlazorDiffusion.UI;
 using BlazorDiffusion.ServiceModel;
+using ServiceStack.Logging;
 
 namespace BlazorDiffusion.Pages.ssg;
 
@@ -17,6 +18,7 @@ public class LatestModel : PageModel, IGetPageModel
 
     public async Task OnGetAsync()
     {
+        var log = LogManager.GetLogger(GetType());
         UsePage = Math.Max(Page ?? 1, 1);
         var Gateway = HostContext.AppHost.GetServiceGateway();
 
@@ -62,15 +64,29 @@ public class LatestModel : PageModel, IGetPageModel
             if (reset)
                 clearResults();
 
+            var missingPrompts = new List<int>();
+
             hasMore = artifacts.Count >= request.Take;
             foreach (var artifact in artifacts)
             {
                 if (resultIds.Contains(artifact.Id))
                     continue;
 
+                if (string.IsNullOrEmpty(artifact.Prompt) && string.IsNullOrEmpty(artifact.UserPrompt))
+                {
+                    missingPrompts.Add(artifact.Id);
+                    continue;
+                }
+
                 resultIds.Add(artifact.Id);
                 results.Add(artifact);
             }
+
+            if (missingPrompts.Count > 0) 
+            { 
+                log.ErrorFormat("Artifacts with missing prompts: {0}", string.Join(", ", missingPrompts));
+            }
+
             setResults(results);
         }
 

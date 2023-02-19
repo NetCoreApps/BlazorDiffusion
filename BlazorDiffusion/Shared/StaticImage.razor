@@ -3,7 +3,7 @@
 <div @key=@Artifact.Id class=@ClassNames("relative",
      Artifact.Width > Artifact.Height ? "col-span-2" : Artifact.Height > Artifact.Width ? "row-span-2" : "")>
 
-    <a href=@Artifact.GetHtmlFilePath()
+    <a href=@Ssg.GetArtifact(Artifact)
        class=@ClassNames("overflow-hidden flex justify-center")>
         <div class="relative sm:p-2 flex flex-col cursor-pointer items-center" style=@($"max-width:{Artifact.Width}px")>
 

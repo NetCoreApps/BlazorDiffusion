@@ -4,11 +4,12 @@
 
 @{
     var Artifact = Model;
+    var url = Ssg.GetArtifact(Artifact);
 }
 
 <div class="@Html.ClassNames("relative", Artifact.Width > Artifact.Height ? "col-span-2" : Artifact.Height > Artifact.Width ? "row-span-2" : "")">
 
-    <a href="@Artifact.GetHtmlFilePath()" class="@Html.ClassNames("overflow-hidden flex justify-center")">
+    <a href="@url" class="@Html.ClassNames("overflow-hidden flex justify-center")">
         <div class="relative sm:p-2 flex flex-col cursor-pointer items-center" style="@($"max-width:{Artifact.Width}px")">
 
             @await Html.PartialAsync("_ArtifactImage", new ArtifactImageParams { 

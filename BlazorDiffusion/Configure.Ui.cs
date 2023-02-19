@@ -98,7 +98,7 @@ public class ConfigureUi : IHostingStartup
                     LastModified = pageArtifacts.Max(x => x.ModifiedDate),
                     UrlSet = pageArtifacts.Map(x => new SitemapUrl()
                     {
-                        Location = baseUrl.CombineWith(DbExtensions.GetHtmlFilePath(x)),
+                        Location = baseUrl.CombineWith(Ssg.GetArtifact(x)),
                         LastModified = x.ModifiedDate,
                         ChangeFrequency = SitemapFrequency.Monthly,
                     })
@@ -121,7 +121,7 @@ public class ConfigureUi : IHostingStartup
                 LastModified = artifacts.Max(x => x.ModifiedDate),
                 UrlSet = artifacts.Map(x => new SitemapUrl()
                 {
-                    Location = baseUrl.CombineWith(DbExtensions.GetHtmlFilePath(x)),
+                    Location = baseUrl.CombineWith(Ssg.GetArtifact(x)),
                     LastModified = x.ModifiedDate,
                     ChangeFrequency = SitemapFrequency.Monthly,
                 })
@@ -376,7 +376,7 @@ public class PrerendererWithBlazor : IPrerenderer
         for (var i=0; i<pages; i++)
         {
             var pageNo = i + 1;
-            var path = DbExtensions.GetHtmlFilePath(album, pageNo);
+            var path = Ssg.GetAlbum(album, pageNo);
             var artifactId = album.ArtifactIds?.Skip(i * UserState.StaticPagedTake).FirstOrDefault();
             var artifact = artifactId != null ? db.SingleById<Artifact>(artifactId) : null;
             var albumMeta = HtmlTemplate.CreateMeta(url: path, title: album.Name + (pageNo > 1 ? $" Page {pageNo}" : ""),

@@ -1,8 +1,95 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using ServiceStack;
 using ServiceStack.DataAnnotations;
 
 namespace BlazorDiffusion.ServiceModel;
+
+public static class Ssg
+{
+    public static class Pages
+    {
+        public const string Home = "/Pages/ssg/Empty/Home.cshtml";
+        public const string Top = "/Pages/ssg/Top.cshtml";
+        public const string Latest = "/Pages/ssg/Latest.cshtml";
+        public const string Albums = "/Pages/ssg/Albums.cshtml";
+        public const string Album = "/Pages/ssg/Album.cshtml";
+        public const string Image = "/Pages/ssg/Image.cshtml";
+    }
+
+    public static class Empty
+    {
+        public const string Home = "/prerender/index.html";
+    }
+
+    public static string? LeftPart(string strVal, char needle)
+    {
+        if (strVal == null) return null;
+        var pos = strVal.IndexOf(needle);
+        return pos == -1
+            ? strVal
+            : strVal.Substring(0, pos);
+    }
+    private static readonly Regex InvalidCharsRegex = new(@"[^a-z0-9\s-]", RegexOptions.Compiled);
+    private static readonly Regex SpacesRegex = new(@"\s", RegexOptions.Compiled);
+    private static readonly Regex CollapseHyphensRegex = new("-+", RegexOptions.Compiled);
+    public static string GenerateSlug(string phrase)
+    {
+        if (string.IsNullOrEmpty(phrase))
+            return string.Empty;
+
+        var str = phrase.ToLower()
+            .Replace("#", "sharp")  // c#, f# => csharp, fsharp
+            .Replace("++", "pp");   // c++ => cpp
+
+        str = InvalidCharsRegex.Replace(str, "-");
+        //// convert multiple spaces into one space   
+        //str = CollapseSpacesRegex.Replace(str, " ").Trim();
+        // cut and trim 
+        str = str.Substring(0, str.Length <= 100 ? str.Length : 100).Trim();
+        str = SpacesRegex.Replace(str, "-");
+        str = CollapseHyphensRegex.Replace(str, "-");
+
+        if (string.IsNullOrEmpty(str))
+            return str;
+
+        if (str[0] == '-')
+            str = str.Substring(1);
+        if (str[str.Length - 1] == '-')
+            str = str.Substring(0, str.Length - 1);
+
+        return str;
+    }
+
+
+    public static string GetTop() => $"/top.html";
+
+    public static string GetLatest(int? page = 1) => page.GetValueOrDefault() <= 1
+        ? "/latest.html"
+        : $"/latest/{page}.html";
+
+    public static string GetAlbums() => $"/albums.html";
+
+    public static string GetAlbum(AlbumResult album, int? pageNo = 1)
+    {
+        var suffix = pageNo == 1 ? "" : "_" + pageNo;
+        return $"/albums/{album.Slug}{suffix}.html";
+    }
+
+    public static string GetArtifactPrompt(Artifact artifact) =>
+        (artifact is ArtifactResult result ? result.UserPrompt : null)
+        ?? LeftPart(artifact.Prompt, ',') ?? "";
+
+    public static string GetArtifact(Artifact artifact) =>
+        $"/artifacts/{Math.Floor(artifact.Id / 1000d)}/{GetArtifactFileName(artifact)}";
+
+    public static string GetArtifactFileName(Artifact artifact) =>
+        $"{artifact.Id.ToString().PadLeft(4, '0')}_{GetSlug(artifact)}.html";
+
+    public static string GetSlug(Artifact artifact) => GenerateSlug(GetArtifactPrompt(artifact));
+}
+
 
 [Tag(Tag.Ssg)]
 [ValidateHasRole(AppRoles.Moderator)]
