@@ -84,13 +84,16 @@ jobs:
 
       # Build and push new docker image, skip for manual redeploy other than 'latest'
       - name: Build and push API Docker image
-        uses: docker/build-push-action@v2.2.2
+        uses: docker/build-push-action@v4
         if: ${{ github.event.inputs.version == '' || github.event.inputs.version == 'latest' }}
         with:
           file: Dockerfile
           context: .
           push: true
           tags: ghcr.io/${{ env.image_repository_name }}:${{ env.TAG_NAME }}
+          secrets: |
+            github_actor=${{ github.actor }}
+            github_token=${{ secrets.GITHUB_TOKEN }}
 
       - name: Create env.deploy_cdn
         run: |
