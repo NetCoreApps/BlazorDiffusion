@@ -136,6 +136,7 @@ public class Prerender : IGet, IReturn<PrerenderResponse> { }
 public class PrerenderResponse
 {
     public List<string> Results { get; set; }
+    public List<string> Failed { get; set; }
     public ResponseStatus ResponseStatus { get; set; }
 }
 
