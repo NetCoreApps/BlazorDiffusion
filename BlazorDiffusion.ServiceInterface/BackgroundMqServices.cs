@@ -234,6 +234,9 @@ public class BackgroundMqServices : Service
                 }
                 log("SyncTasks SaveCreatives took {0}ms", swWrites.ElapsedMilliseconds);
 
+                // Rewrite all artifacts of modified creatives
+                creatives.SelectMany(c => c.Artifacts.Select(x => x.Id)).Each(id => artifactIds.Add(id));
+
                 var artifacts = await Db.SelectByIdsAsync<Artifact>(artifactIds);
                 using var ssgServices = HostContext.ResolveService<SsgServies>(Request);
                 await ssgServices.WriteArtifactHtmlPagesAsync(artifacts);
