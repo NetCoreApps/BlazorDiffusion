@@ -44,10 +44,10 @@ public static class Ssg
             .Replace("++", "pp");   // c++ => cpp
 
         str = InvalidCharsRegex.Replace(str, "-");
-        //// convert multiple spaces into one space   
+        //// convert multiple spaces into one space
         //str = CollapseSpacesRegex.Replace(str, " ").Trim();
         // cut and trim 
-        str = str.Substring(0, str.Length <= 100 ? str.Length-1 : 100).Trim();
+        str = str.Substring(0, Math.Min(str.Length - 1, 100)).Trim();
         str = SpacesRegex.Replace(str, "-");
         str = CollapseHyphensRegex.Replace(str, "-");
 
