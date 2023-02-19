@@ -5,6 +5,9 @@ using ServiceStack;
 using ServiceStack.Text;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
+using ServiceStack.Data;
+using ServiceStack.OrmLite;
+using BlazorDiffusion.ServiceModel;
 
 namespace BlazorDiffusion.Tests;
 
@@ -15,6 +18,7 @@ public class PrerenderTasks
     string ClientDir;
     string WwrootDir => ClientDir.CombineWith("wwwroot");
     string PrerenderDir => WwrootDir.CombineWith("prerender");
+    IDbConnectionFactory ResolveDbFactory() => new ConfigureDb().ConfigureAndResolve<IDbConnectionFactory>();
 
     public PrerenderTasks()
     {
@@ -51,4 +55,42 @@ public class PrerenderTasks
             }
         }
     }
+
+    [Test]
+    public void Generate_all_artifact_slugs()
+    {
+        using var db = ResolveDbFactory().OpenDbConnection();
+        var artifactsCount = db.RowCount(db.From<Artifact>());
+        var emptyPrompts = db.RowCount(db.From<Artifact>().Where(x => x.Prompt == null || x.Prompt == ""));
+
+        var prompts = db.ColumnDistinct<string>(db.From<Artifact>().SelectDistinct(x => x.Prompt));
+        $"Checking {prompts.Count} unique prompts, {emptyPrompts} empty from {artifactsCount} artifacts...".Print();
+
+        foreach (var prompt in prompts)
+        {
+            try
+            {
+                var slug = Ssg.GenerateSlug(prompt);
+            }
+            catch (Exception e)
+            {
+                $"ERROR: {e.Message} for '{prompt}'".Print();
+            }
+        }
+
+        var artifacts = db.Select(db.From<Artifact>());
+        $"Checking {artifacts.Count} artifacts paths...".Print();
+        foreach (var artifact in artifacts)
+        {
+            try
+            {
+                var path = Ssg.GetArtifact(artifact);
+            }
+            catch (Exception e)
+            {
+                $"ERROR: {e.Message} for #{artifact.Id} '{artifact.Prompt}'".Print();
+            }
+        }
+    }
+
 }
