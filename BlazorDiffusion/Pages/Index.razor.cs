@@ -35,6 +35,7 @@ public partial class Index : AppAuthComponentBase, IDisposable
     int? lastId = null;
     int? lastView = null;
 
+    public string? PrerenderedHtml { get; set; }
 
     SearchArtifacts request = new();
 
@@ -50,6 +51,12 @@ public partial class Index : AppAuthComponentBase, IDisposable
 
     public ElementReference BottomElement { get; set; }
     IntersectionObserver? bottomObserver;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        PrerenderedHtml = UserState.GetPrerenderedHtml(new Uri(NavigationManager.Uri).AbsolutePath);
+    }
 
     protected override async Task OnParametersSetAsync()
     {

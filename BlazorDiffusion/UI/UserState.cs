@@ -2,7 +2,6 @@
 using ServiceStack.Blazor;
 using BlazorDiffusion.ServiceModel;
 using Microsoft.AspNetCore.Components;
-using System.Linq;
 
 namespace BlazorDiffusion.UI;
 
@@ -13,8 +12,27 @@ public class UserState
     public const int StaticTake = 500;
     public const int StaticPagedTake = 250;
 
+    public string? PrerenderedUrl { get; set; }
+    public string? PrerenderedHtml { get; set; }
+
+    public void SetPrerenderedHtml(string url, string html)
+    {
+        PrerenderedUrl = url;
+        PrerenderedHtml = html;
+    }
+
+    public string? GetPrerenderedHtml(string url)
+    {
+        var matches = url == PrerenderedUrl && !string.IsNullOrEmpty(PrerenderedHtml);
+        log("GetPrerenderedHtml(): {0} == {1} = {2}", url, PrerenderedUrl ?? "", matches);
+        if (matches)
+            return PrerenderedHtml;
+        return null;
+    }
+
     public void RemovePrerenderedHtml()
     {
+        PrerenderedUrl = PrerenderedHtml = null;
         OnRemovePrerenderedHtml?.Invoke();
     }
 

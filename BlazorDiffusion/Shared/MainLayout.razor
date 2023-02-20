@@ -12,9 +12,9 @@
         <main class="flex-1">
             <div>
                 <div class="sm:px-6 md:px-8">
-                    @if (!string.IsNullOrEmpty(PrerenderedHtml))
+                    @if (!string.IsNullOrEmpty(UserState.PrerenderedHtml))
                     {
-                        @((MarkupString)PrerenderedHtml)
+                        @((MarkupString)UserState.PrerenderedHtml)
                         <template id="ignore">@Body</template>
                     }
                     else
@@ -46,9 +46,7 @@
     Task<AuthenticationState>? authStateTask;
 
     string LoginUrl { get; set; } = "/signin";
-
-    public string PrerenderedHtml { get; set; } = "";
-
+    
     protected override void OnInitialized()
     {
         if (JS is IJSInProcessRuntime jsWasm)
@@ -57,12 +55,8 @@
             var currentPath = new Uri(NavigationManager.Uri).AbsolutePath;
             if (NavigationManager.Uri.IndexOf('?') == -1 && html.IndexOf($"data-prerender=\"{currentPath}\"") >= 0)
             {
-                PrerenderedHtml = html;
-                UserState.OnRemovePrerenderedHtml = () =>
-                {
-                    PrerenderedHtml = "";
-                    StateHasChanged();
-                };
+                UserState.SetPrerenderedHtml(currentPath, html);
+                UserState.OnRemovePrerenderedHtml = StateHasChanged;
             }
             AppPrefs.ClientWidth = jsWasm.Invoke<int>("JS.elInvoke", "body", "clientWidth");
         }

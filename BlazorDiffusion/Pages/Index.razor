@@ -2,152 +2,162 @@
 @using Ljbc1994.Blazor.IntersectionObserver.Components
 @inherits AppAuthComponentBase
 
-<Home Page="AppPage.Search" class="">
+@if (PrerenderedHtml != null)
+{
+    
+}
+else
+{
 
-    <form @onsubmit="submit" @onsubmit:preventDefault
-        class="mt-2 sm:mt-8 p-2 sm:p-4 mx-auto shadow overflow-hidden sm:rounded-md w-[450px] sm:w-[600px]">
-    <CascadingValue Value="api.Error">
-        <input class="hidden" type="submit" />
-        <ErrorSummary Except=@VisibleFields />
+    <Home Page="AppPage.Search" class="">
 
-        <TextInput FieldClass="flex justify-center" class="w-80 sm:w-96"
-            @bind-Value="request.Query" name="q" Label="" placeholder="Search existing images" @onkeypress="OnKeyPress" />
+        <form @onsubmit="submit" @onsubmit:preventDefault
+          class="mt-2 sm:mt-8 p-2 sm:p-4 mx-auto shadow overflow-hidden sm:rounded-md w-[450px] sm:w-[600px]">
+            <CascadingValue Value="api.Error">
+                <input class="hidden" type="submit" />
+                <ErrorSummary Except=@VisibleFields />
 
-    </CascadingValue>
-    </form>
+                <TextInput FieldClass="flex justify-center" class="w-80 sm:w-96"
+                       @bind-Value="request.Query" name="q" Label="" placeholder="Search existing images" @onkeypress="OnKeyPress" />
 
-    <div class="flex">
-        @if (SelectedUser != null)
-        {
-            <div class="z-10 flex-shrink mr-2">
-                <div class=@ClassNames("flex flex-col sm:-ml-4 justify-center items-center",
-                    SelectedUser.Handle != null ? "sm:-mt-40" : "sm:-mt-36")>
+            </CascadingValue>
+        </form>
 
-                    <div class="">
-                        <NavLink href=@($"/?user={SelectedUser.RefId}")>
-                            <AvatarImage class=@ClassNames("h-16 w-16 sm:h-24 sm:w-24 sm:p-2", show == null ? "text-yellow-600 hover:text-yellow-400" : "text-cyan-600 hover:text-cyan-400 cursor-pointer") User=@SelectedUser />
-                            @if (SelectedUser.Handle != null)
-                            {
-                                <div title=@($"@{SelectedUser.Handle}") class="text-xs sm:text-sm text-gray-400 text-center overflow-hidden max-w-[6rem]">@($"@{SelectedUser.Handle}")</div>
-                            }
-                        </NavLink>
-                    </div>
+        <div class="flex">
+            @if (SelectedUser != null)
+            {
+                <div class="z-10 flex-shrink mr-2">
+                    <div class=@ClassNames("flex flex-col sm:-ml-4 justify-center items-center",
+                 SelectedUser.Handle != null ? "sm:-mt-40" : "sm:-mt-36")>
 
-                    <div class="mb-2">
-                        <NavLink href=@($"/?user={SelectedUser.RefId}&show=likes")>
-                            <svg class=@ClassNames("h-16 w-16 sm:h-24 sm:w-24", show == "likes" ? "text-red-600 hover:text-red-400" : "text-cyan-600 hover:text-cyan-400 cursor-pointer")
-                            xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24">
-                                <path fill="currentColor" d="M4.244 12.252a4.25 4.25 0 1 1 6.697-5.111h1.118a4.25 4.25 0 1 1 6.697 5.111L11.5 19.51l-7.256-7.257Zm15.218.71A5.25 5.25 0 1 0 11.5 6.167a5.25 5.25 0 1 0-7.962 6.795l7.962 7.961l7.962-7.96Z" />
-                            </svg>
-                        </NavLink>
-                    </div>
-
-                    @foreach (var userAlbum in SelectedUser.Albums)
-                    {
-                        var albumCover = UserState.GetAlbumCoverArtifact(userAlbum);
-                        @if (albumCover != null)
-                        {
-                            <NavLink href=@($"/?user={SelectedUser.RefId}&album={userAlbum.AlbumRef}&source={AppSource.User}")>
-                                <div class=@ClassNames("sm:mt-2 hover:opacity-80 cursor-pointer h-16 w-16 sm:h-24 sm:w-24 overflow-hidden rounded sm:rounded-lg border-2",
-                                    album == userAlbum.AlbumRef ? "border-yellow-400" : "border-transparent")>
-                                    <ArtifactImage Artifact=@albumCover class="flex w-full h-full" ImageClass="object-cover" />
-                                </div>
+                        <div class="">
+                            <NavLink href=@($"/?user={SelectedUser.RefId}")>
+                                <AvatarImage class=@ClassNames("h-16 w-16 sm:h-24 sm:w-24 sm:p-2", show == null ? "text-yellow-600 hover:text-yellow-400" : "text-cyan-600 hover:text-cyan-400 cursor-pointer") User=@SelectedUser />
+                                @if (SelectedUser.Handle != null)
+                                {
+                                    <div title=@($"@{SelectedUser.Handle}") class="text-xs sm:text-sm text-gray-400 text-center overflow-hidden max-w-[6rem]">@($"@{SelectedUser.Handle}")</div>
+                                }
                             </NavLink>
-                        }
-                    }
-                </div>
-            </div>
-            <div class="flex-grow">
-                <ArtifactGallery Results=@GalleryResults Ssg="Ssg" Change="OnGalleryChange" ColumnsSliderClass="-ml-16 sm:ml-0">
-                    <LeftHeader>
-                    <div class="w-full sm:w-1/3 sm:pl-2 sm:-mr-20 flex justify-center sm:justify-start items-center whitespace-nowrap">
-                    @if (SelectedAlbum != null)
-                    {
-                        <AlbumTitle Album=@SelectedAlbum />
-                    }
-                    else if (show == "likes")
-                    {
-                        <div class="text-xl">Likes</div>
-                    }
-                    else
-                    {
-                        <div class="text-xl">Creations</div>
-                    }
-                    </div>
-                    </LeftHeader>
-                </ArtifactGallery>
-            </div>
-        }
-        else
-        {
-            <div class="z-10 flex-shrink sm:mr-2">
-                <div class="flex flex-col sm:-ml-4 mt-16 sm:mt-8 pt-1 sm:pt-2 justify-center items-center">
-                    <div class="text-xs sm:text-sm text-gray-500 whitespace-nowrap w-16 sm:w-24 text-center pb-1">top albums</div>
-                    @foreach (var userAlbum in UserState.TopAlbums)
-                    {
-                        var albumCover = UserState.GetAlbumCoverArtifact(userAlbum);
-                        @if (albumCover != null)
+                        </div>
+
+                        <div class="mb-2">
+                            <NavLink href=@($"/?user={SelectedUser.RefId}&show=likes")>
+                                <svg class=@ClassNames("h-16 w-16 sm:h-24 sm:w-24", show == "likes" ? "text-red-600 hover:text-red-400" : "text-cyan-600 hover:text-cyan-400 cursor-pointer")
+                             xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M4.244 12.252a4.25 4.25 0 1 1 6.697-5.111h1.118a4.25 4.25 0 1 1 6.697 5.111L11.5 19.51l-7.256-7.257Zm15.218.71A5.25 5.25 0 1 0 11.5 6.167a5.25 5.25 0 1 0-7.962 6.795l7.962 7.961l7.962-7.96Z" />
+                                </svg>
+                            </NavLink>
+                        </div>
+
+                        @foreach (var userAlbum in SelectedUser.Albums)
                         {
-                            if (Ssg != true)
+                            var albumCover = UserState.GetAlbumCoverArtifact(userAlbum);
+                            @if (albumCover != null)
                             {
-                                <NavLink href=@($"/?album={userAlbum.AlbumRef}&source={AppSource.Top}")>
+                                <NavLink href=@($"/?user={SelectedUser.RefId}&album={userAlbum.AlbumRef}&source={AppSource.User}")>
                                     <div class=@ClassNames("sm:mt-2 hover:opacity-80 cursor-pointer h-16 w-16 sm:h-24 sm:w-24 overflow-hidden rounded sm:rounded-lg border-2",
-                                         album == userAlbum.AlbumRef ? "border-yellow-400" : "border-transparent")>
+                         album == userAlbum.AlbumRef ? "border-yellow-400" : "border-transparent")>
                                         <ArtifactImage Artifact=@albumCover class="flex w-full h-full" ImageClass="object-cover" />
                                     </div>
                                 </NavLink>
                             }
-                            else
+                        }
+                    </div>
+                </div>
+                <div class="flex-grow">
+                    <ArtifactGallery Results=@GalleryResults Ssg="Ssg" Change="OnGalleryChange" ColumnsSliderClass="-ml-16 sm:ml-0">
+                        <LeftHeader>
+                            <div class="w-full sm:w-1/3 sm:pl-2 sm:-mr-20 flex justify-center sm:justify-start items-center whitespace-nowrap">
+                                @if (SelectedAlbum != null)
+                                {
+                                    <AlbumTitle Album=@SelectedAlbum />
+                                }
+                                else if (show == "likes")
+                                {
+                                    <div class="text-xl">Likes</div>
+                                }
+                                else
+                                {
+                                    <div class="text-xl">Creations</div>
+                                }
+                            </div>
+                        </LeftHeader>
+                    </ArtifactGallery>
+                </div>
+            }
+            else
+            {
+                <div class="z-10 flex-shrink sm:mr-2">
+                    <div class="flex flex-col sm:-ml-4 mt-16 sm:mt-8 pt-1 sm:pt-2 justify-center items-center">
+                        <div class="text-xs sm:text-sm text-gray-500 whitespace-nowrap w-16 sm:w-24 text-center pb-1">top albums</div>
+                        @foreach (var userAlbum in UserState.TopAlbums)
+                        {
+                            var albumCover = UserState.GetAlbumCoverArtifact(userAlbum);
+                            @if (albumCover != null)
                             {
-                                <a href=@($"/albums/{userAlbum.Slug}.html")>
-                                    <div class=@ClassNames("sm:mt-2 hover:opacity-80 cursor-pointer h-16 w-16 sm:h-24 sm:w-24 overflow-hidden rounded sm:rounded-lg border-2", "border-transparent")>
-                                        <ArtifactImage Artifact=@albumCover class="flex w-full h-full" ImageClass="object-cover" />
-                                    </div>
-                                </a>
+                                if (Ssg != true)
+                                {
+                                    <NavLink href=@($"/?album={userAlbum.AlbumRef}&source={AppSource.Top}")>
+                                        <div class=@ClassNames("sm:mt-2 hover:opacity-80 cursor-pointer h-16 w-16 sm:h-24 sm:w-24 overflow-hidden rounded sm:rounded-lg border-2",
+                         album == userAlbum.AlbumRef ? "border-yellow-400" : "border-transparent")>
+                                            <ArtifactImage Artifact=@albumCover class="flex w-full h-full" ImageClass="object-cover" />
+                                        </div>
+                                    </NavLink>
+                                }
+                                else
+                                {
+                                    <a href=@($"/albums/{userAlbum.Slug}.html")>
+                                        <div class=@ClassNames("sm:mt-2 hover:opacity-80 cursor-pointer h-16 w-16 sm:h-24 sm:w-24 overflow-hidden rounded sm:rounded-lg border-2", "border-transparent")>
+                                            <ArtifactImage Artifact=@albumCover class="flex w-full h-full" ImageClass="object-cover" />
+                                        </div>
+                                    </a>
+                                }
                             }
                         }
-                    }
-                    @if (Ssg != true)
-                    {
-                        <NavLink href="/albums" class="text-xs sm:text-sm text-gray-500 dark:hover:text-gray-300 whitespace-nowrap w-16 sm:w-24 text-center pb-1">more</NavLink>
-                    }
-                    else
-                    {
-                        <a href="/albums.html" class="text-xs sm:text-sm text-gray-500 dark:hover:text-gray-300 whitespace-nowrap w-16 sm:w-24 text-center pb-1">more</a>
-                    }
-                </div>
-            </div>
-
-            <div class="flex-grow">
-                <ArtifactGallery Results=@GalleryResults Ssg="Ssg" Change="OnGalleryChange" ColumnsSliderClass="-ml-16 sm:ml-0">
-                    <LeftHeader>
-                    <div class="w-full sm:w-1/3 sm:pl-2 sm:-mr-20 flex justify-center sm:justify-start items-center whitespace-nowrap">
-                    @if (SelectedAlbum != null)
-                    {
-                        <AlbumTitle Album=@SelectedAlbum />
-                    }
-                    else
-                    {
-                        <div class="text-xl sm:mb-1">&nbsp;</div>
-                    }
+                        @if (Ssg != true)
+                        {
+                            <NavLink href="/albums" class="text-xs sm:text-sm text-gray-500 dark:hover:text-gray-300 whitespace-nowrap w-16 sm:w-24 text-center pb-1">more</NavLink>
+                        }
+                        else
+                        {
+                            <a href="/albums.html" class="text-xs sm:text-sm text-gray-500 dark:hover:text-gray-300 whitespace-nowrap w-16 sm:w-24 text-center pb-1">more</a>
+                        }
                     </div>
-                    </LeftHeader>
-                </ArtifactGallery>
-            </div>
-        }
-    </div>
+                </div>
 
-    <div @ref="BottomElement" class="flex justify-center">
-        @if (api.IsLoading)
+                <div class="flex-grow">
+                    <ArtifactGallery Results=@GalleryResults Ssg="Ssg" Change="OnGalleryChange" ColumnsSliderClass="-ml-16 sm:ml-0">
+                        <LeftHeader>
+                            <div class="w-full sm:w-1/3 sm:pl-2 sm:-mr-20 flex justify-center sm:justify-start items-center whitespace-nowrap">
+                                @if (SelectedAlbum != null)
+                                {
+                                    <AlbumTitle Album=@SelectedAlbum />
+                                }
+                                else
+                                {
+                                    <div class="text-xl sm:mb-1">&nbsp;</div>
+                                }
+                            </div>
+                        </LeftHeader>
+                    </ArtifactGallery>
+                </div>
+            }
+        </div>
+
+        <div @ref="BottomElement" class="flex justify-center">
+            @if (api.IsLoading)
+            {
+                <Loading class="text-gray-300 font-normal" ImageClass="w-7 h-7 mt-1.5" Message="loading..." />
+            }
+        </div>
+
+        @if (SelectedAlbum != null)
         {
-            <Loading class="text-gray-300 font-normal" ImageClass="w-7 h-7 mt-1.5" Message="loading..." />
+            <a href=@($"/albums/{SelectedAlbum.Slug}.html") class="mt-16 ml-24 text-sm text-gray-500 hover:text-gray-300">html only version</a>
         }
-    </div>
-
-    @if (SelectedAlbum != null)
-    {
-        <a href=@($"/albums/{SelectedAlbum.Slug}.html") class="mt-16 ml-24 text-sm text-gray-500 hover:text-gray-300">html only version</a>
-    }
 
 
-</Home>
+    </Home>
+    
+}
+
