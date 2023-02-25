@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using ServiceStack.Text;
 using BlazorDiffusion.Pages.ssg;
 using ServiceStack;
+using BlazorDiffusion.Pages.admin;
 
 [assembly: HostingStartup(typeof(BlazorDiffusion.ConfigureUi))]
 
@@ -58,6 +59,17 @@ public class ConfigureUi : IHostingStartup
 
     SitemapFeature CreateSiteMap(IDbConnection db, string baseUrl)
     {
+        var creativePrompts = db.Dictionary<int, string>(db.From<Creative>().Select(x => new { x.Id, x.UserPrompt }));
+
+        string GetSlug(Artifact artifact)
+        {
+            var userPrompt = creativePrompts!.TryGetValue(artifact.CreativeId, out var prompt)
+                ? prompt
+                : artifact.Prompt.LeftPart(',');
+            var slug = Ssg.GenerateSlug(userPrompt);
+            return slug;
+        }
+
         var albums = db.LoadSelect<Album>();
 
         var to = new SitemapFeature() {
@@ -98,7 +110,7 @@ public class ConfigureUi : IHostingStartup
                     LastModified = pageArtifacts.Max(x => x.ModifiedDate),
                     UrlSet = pageArtifacts.Map(x => new SitemapUrl()
                     {
-                        Location = baseUrl.CombineWith(Ssg.GetArtifact(x)),
+                        Location = baseUrl.CombineWith(Ssg.GetArtifact(x, Ssg.GetSlug(x))),
                         LastModified = x.ModifiedDate,
                         ChangeFrequency = SitemapFrequency.Monthly,
                     })
@@ -121,7 +133,7 @@ public class ConfigureUi : IHostingStartup
                 LastModified = artifacts.Max(x => x.ModifiedDate),
                 UrlSet = artifacts.Map(x => new SitemapUrl()
                 {
-                    Location = baseUrl.CombineWith(Ssg.GetArtifact(x)),
+                    Location = baseUrl.CombineWith(Ssg.GetArtifact(x, Ssg.GetSlug(x))),
                     LastModified = x.ModifiedDate,
                     ChangeFrequency = SitemapFrequency.Monthly,
                 })
@@ -341,13 +353,13 @@ public class PrerendererWithRazorPages : IPrerenderer
         }
     }
 
-    public async Task<string> RenderArtifactHtmlPageAsync(Artifact artifact, HttpContext? httpContext = null, CancellationToken token = default)
+    public async Task<string> RenderArtifactHtmlPageAsync(string slug, Artifact artifact, HttpContext? httpContext = null, CancellationToken token = default)
     {
         var imageView = AssertPage(Ssg.Pages.Image);
         var pageModel = new ImageModel
         {
             Id = artifact.Id,
-            Slug = Ssg.GetSlug(artifact),
+            Slug = slug,
         };
         var html = await RenderToHtmlAsync(imageView, pageModel, httpContext, token);
         return html;
@@ -426,11 +438,11 @@ public class PrerendererWithBlazor : IPrerenderer
         }
     }
 
-    public async Task<string> RenderArtifactHtmlPageAsync(Artifact artifact, HttpContext? httpContext = null, CancellationToken token = default)
+    public async Task<string> RenderArtifactHtmlPageAsync(string slug, Artifact artifact, HttpContext? httpContext = null, CancellationToken token = default)
     {
         string title = artifact.Prompt.LeftPart(',');
         var meta = HtmlTemplate.CreateMeta(
-            url: AppConfig.BaseUrl.CombineWith(Ssg.GetArtifact(artifact)),
+            url: AppConfig.BaseUrl.CombineWith(Ssg.GetArtifact(artifact, slug)),
             title: title,
             image: AppConfig.AssetsBasePath.CombineWith(artifact.FilePath));
 
@@ -441,7 +453,7 @@ public class PrerendererWithBlazor : IPrerenderer
         var args = new Dictionary<string, object>
         {
             [nameof(RenderArtifactHtml.Id)] = artifact.Id,
-            [nameof(RenderArtifactHtml.Slug)] = Ssg.GetSlug(artifact),
+            [nameof(RenderArtifactHtml.Slug)] = slug,
         };
         var body = await Renderer.RenderComponentAsync(componentType, httpCtx, args);
 

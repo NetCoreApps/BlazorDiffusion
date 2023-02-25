@@ -4,7 +4,7 @@
 
 @{
     var Artifact = Model;
-    var url = Ssg.GetArtifact(Artifact);
+    var url = Ssg.GetArtifact(Artifact, Ssg.GenerateSlug(Artifact is ArtifactResult r ? r.UserPrompt : Artifact.Prompt.LeftPart(',')));
 }
 
 <div class="@Html.ClassNames("relative", Artifact.Width > Artifact.Height ? "col-span-2" : Artifact.Height > Artifact.Width ? "row-span-2" : "")">

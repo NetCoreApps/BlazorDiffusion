@@ -79,14 +79,15 @@ public static class Ssg
 
     public static string GetArtifactPrompt(Artifact artifact) =>
         (artifact is ArtifactResult result ? result.UserPrompt : null)
-        ?? LeftPart(artifact.Prompt, ',') ?? "";
+        ?? artifact.Prompt ?? "";
 
-    public static string GetArtifact(Artifact artifact) =>
-        $"/artifacts/{Math.Floor(artifact.Id / 1000d)}/{GetArtifactFileName(artifact)}";
+    public static string GetArtifact(Artifact artifact, string slug) =>
+        $"/artifacts/{Math.Floor(artifact.Id / 1000d)}/{GetArtifactFileName(artifact, slug)}";
 
-    public static string GetArtifactFileName(Artifact artifact) =>
-        $"{artifact.Id.ToString().PadLeft(4, '0')}_{GetSlug(artifact)}.html";
+    public static string GetArtifactFileName(Artifact artifact, string slug) =>
+        $"{artifact.Id.ToString().PadLeft(4, '0')}_{slug}.html";
 
+    public static string GetSlug(Creative creative) => GenerateSlug(creative.UserPrompt);
     public static string GetSlug(Artifact artifact) => GenerateSlug(GetArtifactPrompt(artifact));
 }
 

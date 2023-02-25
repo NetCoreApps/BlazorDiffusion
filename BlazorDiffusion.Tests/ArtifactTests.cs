@@ -67,7 +67,7 @@ public class ArtifactTests
         {
             try
             {
-                var path = Ssg.GetArtifact(artifact);
+                var path = Ssg.GetArtifact(artifact, Ssg.GetSlug(artifact));
             }
             catch (Exception e)
             {

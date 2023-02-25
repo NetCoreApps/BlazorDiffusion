@@ -139,6 +139,10 @@ public class SsgServies : Service
     {
         Log.DebugFormat("Writing {0} artifact image html", artifacts.Count);
 
+        var creativeIds = artifacts.Select(a => a.CreativeId).ToSet();
+        var creativePrompts = await Db.DictionaryAsync<int, string>(Db.From<Creative>().Where(x => creativeIds.Contains(x.Id))
+            .Select(x => new { x.Id, x.UserPrompt }));
+
         var httpCtx = (base.Request as NetCoreRequest)?.HttpContext;
         var results = new List<string>();
 
@@ -146,9 +150,14 @@ public class SsgServies : Service
         {
             try
             {
-                var html = await Prerenderer.RenderArtifactHtmlPageAsync(artifact, httpCtx);
-                var file = Ssg.GetArtifactFileName(artifact);
-                var path = Ssg.GetArtifact(artifact);
+                var userPrompt = creativePrompts.TryGetValue(artifact.CreativeId, out var prompt)
+                    ? prompt
+                    : artifact.Prompt.LeftPart(',');
+                var slug = Ssg.GenerateSlug(userPrompt);
+
+                var html = await Prerenderer.RenderArtifactHtmlPageAsync(slug, artifact, httpCtx);
+                var file = Ssg.GetArtifactFileName(artifact, slug);
+                var path = Ssg.GetArtifact(artifact, slug);
                 Log.DebugFormat("Writing {0} bytes to {1}...", html.Length, path);
                 await vfs.WriteFileAsync(path, html);
                 results.Add(file);
@@ -183,14 +192,17 @@ public class SsgServies : Service
         if (artifact == null)
             throw HttpError.NotFound("Image does not exist");
 
+        var userPrompt = await Db.ScalarAsync<string>(Db.From<Creative>().Where(x => x.Id == artifact.CreativeId).Select(x => x.UserPrompt));
+        var slug = Ssg.GenerateSlug(userPrompt);
+
         if (Request.HasValidCache(artifact.ModifiedDate))
             return HttpResult.NotModified();
 
-        var html = await Prerenderer.RenderArtifactHtmlPageAsync(artifact, (Request as NetCoreRequest)?.HttpContext);
+        var html = await Prerenderer.RenderArtifactHtmlPageAsync(slug, artifact, (Request as NetCoreRequest)?.HttpContext);
 
         if (request.Save == true)
         {
-            await Prerenderer.VirtualFiles.WriteFileAsync(Ssg.GetArtifact(artifact), html);
+            await Prerenderer.VirtualFiles.WriteFileAsync(Ssg.GetArtifact(artifact, slug), html);
         }
 
         return new HttpResult(html)

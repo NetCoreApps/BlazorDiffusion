@@ -70,7 +70,7 @@
     <div hx-boost="true" class="flex flex-wrap justify-center">
     @foreach (var artifact in Model.Creative.GetModeratedArtifacts())
     {
-        <a href="@Ssg.GetArtifact(artifact)" class="relative overflow-hidden">
+        <a href="@Ssg.GetArtifact(artifact, Ssg.GetSlug(Model.Creative))" class="relative overflow-hidden">
             <div class="relative flex justify-center mr-1 mb-1 sm:mr-4 sm:mb-4">
                 @await Html.PartialAsync("_ArtifactImage", new ArtifactImageParams { 
                     Artifact = artifact, 

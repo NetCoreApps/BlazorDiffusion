@@ -342,18 +342,32 @@ public class CreativeService : Service
 
         PublishMessage(new DiskTasks
         {
-            CdnDeleteFiles = artifacts.Select(x => Ssg.GetArtifact(x)).ToList()
+            CdnDeleteFiles = artifacts.Select(x => Ssg.GetArtifact(x, Ssg.GetSlug(creative))).ToList()
         });
     }
 
-    public object Any(DeleteArtifactHtml request)
+    public async Task<object> Any(DeleteArtifactHtml request)
     {
         var artifacts = Db.SelectByIds<Artifact>(request.Ids);
         if (artifacts.Count > 0)
         {
+            var creativeIds = artifacts.Select(a => a.CreativeId).ToSet();
+            var creativePrompts = await Db.DictionaryAsync<int, string>(Db.From<Creative>().Where(x => creativeIds.Contains(x.Id))
+                .Select(x => new { x.Id, x.UserPrompt }));
+            
+            string GetSlug(Artifact artifact)
+            {
+                var userPrompt = creativePrompts!.TryGetValue(artifact.CreativeId, out var prompt)
+                    ? prompt
+                    : artifact.Prompt.LeftPart(',');
+                var slug = Ssg.GenerateSlug(userPrompt);
+                return slug;
+            }
+
+
             var msg = new DiskTasks
             {
-                CdnDeleteFiles = artifacts.Select(x => Ssg.GetArtifact(x)).ToList()
+                CdnDeleteFiles = artifacts.Select(x => Ssg.GetArtifact(x, GetSlug(x))).ToList()
             };
             PublishMessage(msg);
             return msg;
@@ -490,7 +504,7 @@ public interface IPrerenderer
 {
     IVirtualFiles VirtualFiles { get; }
     Task RenderPages(HttpContext? httpContext = null);
-    Task<string> RenderArtifactHtmlPageAsync(Artifact artifact, HttpContext? httpContext=null, CancellationToken token=default);
+    Task<string> RenderArtifactHtmlPageAsync(string slug, Artifact artifact, HttpContext? httpContext=null, CancellationToken token=default);
     void AddAlbum(IDbConnection db, AlbumResult album);
 }
 
