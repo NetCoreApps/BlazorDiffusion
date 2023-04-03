@@ -46,6 +46,8 @@ public class AppHost : AppHostBase, IHostingStartup
         Plugins.Add(new CorsFeature(allowedHeaders: "Content-Type,Authorization",
             allowOriginWhitelist: new[]{
             "http://localhost:5000",
+            "http://localhost:8080",
+            "https://diffusion.works",
              baseUrl,
             "https://blazordiffusion.com",
             "https://www.blazordiffusion.com",
