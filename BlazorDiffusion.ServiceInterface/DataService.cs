@@ -72,10 +72,19 @@ public class DataService : Service
 
     public async Task<object> Any(GetAlbumRefs request)
     {
-        var topAlbums = await Db.SelectAsync<AlbumRef>(Db.From<Album>()
+        var topAlbums = await Db.SelectAsync<AlbumRef>(Db.From<Album>(Db.TableAlias("a"))
             .Where(x => x.DeletedDate == null)
             .OrderByDescending(x => new { x.Score, x.Id })
-            .Take(1000));
+            .Take(1000)
+            .Select(x => new { 
+                x.RefId,
+                x.OwnerId,
+                x.Name,
+                x.Slug,
+                x.Description,
+                x.Tags,
+                ArtifactsCount = Sql.Custom<int>("(SELECT COUNT(*) FROM AlbumArtifact WHERE AlbumId = a.Id)")
+            }));
 
         return new GetAlbumRefsResponse
         {

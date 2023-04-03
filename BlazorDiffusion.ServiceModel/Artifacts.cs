@@ -218,6 +218,7 @@ public class AlbumRef
     public string Description { get; set; }
     public List<string> Tags { get; set; }
     public string? PrimaryArtifactRef { get; set; }
+    public int ArtifactsCount { get; set; }
 }
 public class AlbumArtifactRef
 {

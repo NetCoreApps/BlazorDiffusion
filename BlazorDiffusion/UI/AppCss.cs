@@ -2,7 +2,7 @@
 
 public static class AppCss
 {
-    // tailwind needs to see full classses
+    // tailwind needs to see full classes
     static Dictionary<string, string> GridClasses = new()
     {
         ["1"] = "grid-cols-1",
