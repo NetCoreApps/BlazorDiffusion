@@ -77,7 +77,13 @@ public class ConfigureAuth : IHostingStartup
                 IncludeDefaultLogin = false,
                 ValidateRedirectLinks = (ServiceStack.Web.IRequest req, string redirect) => {
                     // Allow external redirect from WASM
-                    if (!redirect.StartsWith("https://blazordiffusion.com"))
+                    var allowedRedirects = new[] {
+                        "https://blazordiffusion.com",
+                        "https://diffusion.works",
+                        "http://localhost:5000",
+                        "http://localhost:8080",
+                    };
+                    if (!allowedRedirects.Any(x => redirect.StartsWith(x)))
                         AuthFeature.NoExternalRedirects(req, redirect);
                 }
             });
