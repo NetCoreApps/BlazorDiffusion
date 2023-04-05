@@ -28,7 +28,7 @@ public class AppHost : AppHostBase, IHostingStartup
     {
         SetConfig(new HostConfig {
             AddRedirectParamsToQueryString = true,
-            //UseSameSiteCookies = true,
+            UseSameSiteCookies = false,
         });
 
         //Plugins.Add(new ProfilingFeature());
