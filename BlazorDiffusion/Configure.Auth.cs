@@ -80,6 +80,7 @@ public class ConfigureAuth : IHostingStartup
                     var allowedRedirects = new[] {
                         "https://blazordiffusion.com",
                         "https://diffusion.works",
+                        "https://localhost:5002",
                         "http://localhost:5000",
                         "http://localhost:8080",
                     };
