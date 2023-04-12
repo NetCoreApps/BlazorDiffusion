@@ -9,6 +9,9 @@ namespace BlazorDiffusion.ServiceInterface;
 
 public static class DbExtensions
 {
+    public static async Task<UserProfile> GetUserProfileAsync(this IDbConnection db, int userId) => 
+        await db.SingleAsync<UserProfile>(db.From<AppUser>().Where(x => x.Id == userId));
+
     public static async Task<UserResult> GetUserResultAsync(this IDbConnection db, int userId)
     {
         var likes = new Likes

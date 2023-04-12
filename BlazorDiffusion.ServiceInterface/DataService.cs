@@ -97,6 +97,7 @@ public class DataService : Service
         var session = await SessionAsAsync<CustomUserSession>();
         var userId = session.GetUserId();
         var result = await Db.GetUserResultAsync(userId);
+        var profile = await Db.GetUserProfileAsync(userId);
 
         using var dbAnalytics = OpenDbConnection(Databases.Analytics);
         var signupTypes = await dbAnalytics.ColumnAsync<SignupType>(Db.From<Signup>()
@@ -105,6 +106,7 @@ public class DataService : Service
         return new UserDataResponse
         {
             User = result,
+            Profile = profile,
             Signups = signupTypes,
             Roles = (await session.GetRolesAsync(AuthRepositoryAsync)).ToList(),
         };

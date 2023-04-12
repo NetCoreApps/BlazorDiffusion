@@ -11,14 +11,11 @@ public class MyServices : Service
     public async Task<object> Any(GetUserProfile request)
     {
         var session = await SessionAsAsync<CustomUserSession>();
-        var userProfile = await GetUserProfileAsync(session.UserAuthId.ToInt());
+        var userProfile = await Db.GetUserProfileAsync(session.UserAuthId.ToInt());
         return new GetUserProfileResponse {
             Result = userProfile
         };
     }
-
-    async Task<UserProfile> GetUserProfileAsync(int userId) => await Db.SingleAsync<UserProfile>(Db.From<AppUser>()
-            .Where(x => x.Id == userId));
 
     public async Task<object> Any(UpdateUserProfile request)
     {
