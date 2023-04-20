@@ -1,5 +1,5 @@
 ﻿import { onMounted, watch, computed, ref } from "vue"
-import { classNames, isDate, toDate, fromXsdDuration, indexOfAny } from "@servicestack/client"
+import { classNames, isDate, toDate, fromXsdDuration, indexOfAny, map } from "@servicestack/client"
 import {
     QueryArtifactComments,
     GetArtifactUserData,
