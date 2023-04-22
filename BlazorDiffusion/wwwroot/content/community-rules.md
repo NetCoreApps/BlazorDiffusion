@@ -26,7 +26,7 @@ Moderators consider context and intent while enforcing the community rules.
 Considering these tips when sharing with the BlazorDiffusion community will help ensure you're contributing great content.
 
 #### 1. Value
-  - Good sharing means posting content which brings value to the community. Content which opens up a discussion, shares something new and unique, or has a deeper story to tell beyond the image itself is content that generally brings value. Ask yourself first: is this something I would be interested in seeing on Imgur if someone else posted it?
+  - Good sharing means posting content which brings value to the community. Content which opens up a discussion, shares something new and unique, or has a deeper story to tell beyond the image itself is content that generally brings value. Ask yourself first: is this something I would be interested in seeing if someone else posted it?
 #### 2. Transparency
   - We expect that the original poster (OP) will be explicit about if and how they are connected to the content they are posting. Trying to hide that relationship, or not explaining it well to others, is a common feature of bad sharing.
 #### 3. Respect
