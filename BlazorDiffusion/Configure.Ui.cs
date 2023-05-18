@@ -59,17 +59,6 @@ public class ConfigureUi : IHostingStartup
 
     SitemapFeature CreateSiteMap(IDbConnection db, string baseUrl)
     {
-        var creativePrompts = db.Dictionary<int, string>(db.From<Creative>().Select(x => new { x.Id, x.UserPrompt }));
-
-        string GetSlug(Artifact artifact)
-        {
-            var userPrompt = creativePrompts!.TryGetValue(artifact.CreativeId, out var prompt)
-                ? prompt
-                : artifact.Prompt.LeftPart(',');
-            var slug = Ssg.GenerateSlug(userPrompt);
-            return slug;
-        }
-
         var albums = db.LoadSelect<Album>();
 
         var to = new SitemapFeature() {
