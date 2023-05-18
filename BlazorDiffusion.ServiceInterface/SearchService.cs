@@ -194,7 +194,7 @@ public class SearchService : Service
                 || (query.Album != null && query.Source != AppSource.Top)
                 || similarToArtifact?.Id != null;
 
-            if (recordSearch)
+            if (recordSearch && Request.RawUrl?.StartsWith("gateway://") != true)
             {
                 base.PublishMessage(new AnalyticsTasks
                 {
