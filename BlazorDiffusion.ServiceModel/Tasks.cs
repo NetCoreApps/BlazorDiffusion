@@ -40,7 +40,7 @@ public class AnalyticsTasks
 
 [Tag(Tag.Tasks)]
 [ExcludeMetadata]
-[Restrict(InternalOnly = true)]
+[ValidateIsAdmin]
 public class SyncTasks : IReturn<SyncTasksResponse>
 {
     public bool? Periodic { get; set; }
