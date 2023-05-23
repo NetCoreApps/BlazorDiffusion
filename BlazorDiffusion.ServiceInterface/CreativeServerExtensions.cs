@@ -38,6 +38,7 @@ public static class CreativeServerExtensions
             Slug= album.Slug,
             OwnerRef = album.OwnerRef,
             PrimaryArtifactId = album.PrimaryArtifactId,
+            Score = album.Score,
             // Show latest artifacts added first
             ArtifactIds = album.PrimaryArtifactId == null
                 ? album.Artifacts.OrderByDescending(x => x.Id).Map(x => x.ArtifactId)

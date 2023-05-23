@@ -221,22 +221,31 @@ public static class Scores
         }
     }
 
-    public static TimeSpan TemporalScoreThreshold = TimeSpan.FromDays(5);
+    public static TimeSpan TemporalScoreThreshold = TimeSpan.FromDays(63);
     static TimeBonus[] TimeBonuses = new TimeBonus[]
     {
-        new(TimeSpan.FromMinutes(10), 1000),
-        new(TimeSpan.FromMinutes(20), 900),
-        new(TimeSpan.FromMinutes(40), 800),
-        new(TimeSpan.FromMinutes(60), 700),
-        new(TimeSpan.FromHours(2), 600),
-        new(TimeSpan.FromHours(4), 500),
-        new(TimeSpan.FromHours(8), 400),
-        new(TimeSpan.FromHours(12), 300),
-        new(TimeSpan.FromHours(24), 200),
-        new(TimeSpan.FromHours(48), 100),
-        new(TimeSpan.FromDays(3), 50),
-        new(TimeSpan.FromDays(4), 40),
-        new(TemporalScoreThreshold, 30),
+        new(TimeSpan.FromMinutes(10), 2000),
+        new(TimeSpan.FromMinutes(20), 1800),
+        new(TimeSpan.FromMinutes(40), 1500),
+        new(TimeSpan.FromMinutes(60), 1100),
+        new(TimeSpan.FromHours(2),    800),
+        new(TimeSpan.FromHours(4),    700),
+        new(TimeSpan.FromHours(8),    600),
+        new(TimeSpan.FromHours(12),   500),
+        new(TimeSpan.FromHours(24),   400),
+        new(TimeSpan.FromHours(48),   300),
+        new(TimeSpan.FromDays(3),     250),
+        new(TimeSpan.FromDays(4),     200),
+        new(TimeSpan.FromDays(5),     150),
+        new(TimeSpan.FromDays(7),     125),
+        new(TimeSpan.FromDays(14),    100),
+        new(TimeSpan.FromDays(21),    90),
+        new(TimeSpan.FromDays(28),    80),
+        new(TimeSpan.FromDays(35),    70),
+        new(TimeSpan.FromDays(42),    60),
+        new(TimeSpan.FromDays(49),    50),
+        new(TimeSpan.FromDays(56),    40),
+        new(TemporalScoreThreshold,   30),
     };
 
     public static int CaclulateTemporalScore(Artifact artifact)
