@@ -1,4 +1,5 @@
 ﻿using ServiceStack;
+using System.Collections.Generic;
 
 namespace BlazorDiffusion.ServiceModel;
 /*Admin APIs*/
@@ -46,4 +47,21 @@ public class AdminUpdateArtifactCommentReport : IPatchDb<ArtifactCommentReport>,
 public class AdminDeleteArtifactCommentReport : IDeleteDb<ArtifactCommentReport>, IReturnVoid
 {
     public int Id { get; set; }
+}
+
+
+[Tag(Tag.Admin)]
+[ValidateIsAdmin]
+public class AdminData : IGet, IReturn<AdminDataResponse> { }
+
+public class PageStats
+{
+    public string Label { get; set; }
+    public int Total { get; set; }
+}
+
+public class AdminDataResponse
+{
+    public List<PageStats> PageStats { get; set; }
+    public ResponseStatus ResponseStatus { get; set; }
 }

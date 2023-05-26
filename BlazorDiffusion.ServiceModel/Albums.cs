@@ -73,6 +73,7 @@ public class AlbumArtifact
     public Artifact? Artifact { get; set; }
 }
 
+[Icon(Svg = Icons.Like)]
 public class AlbumLike
 {
     [AutoIncrement]

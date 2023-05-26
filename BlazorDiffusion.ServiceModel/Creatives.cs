@@ -156,6 +156,7 @@ public class DeleteCreativeArtist : IDeleteDb<CreativeArtist>, IReturnVoid
     public int[]? Ids { get; set; }
 }
 
+[Icon(Svg = Icons.Artist)]
 [ValidateHasRole(AppRoles.Moderator)]
 public class CreativeArtist
 {
@@ -196,6 +197,7 @@ public class DeleteCreativeModifier : IDeleteDb<CreativeModifier>, IReturnVoid
     public int[]? Ids { get; set; }
 }
 
+[Icon(Svg = Icons.Modifier)]
 public class CreativeModifier
 {
     [AutoIncrement]

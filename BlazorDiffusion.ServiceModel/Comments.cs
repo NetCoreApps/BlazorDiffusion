@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 namespace BlazorDiffusion.ServiceModel;
 
+[Icon(Svg = Icons.Comment)]
 public class ArtifactComment : AuditBase
 {
     [AutoIncrement]
@@ -24,6 +25,7 @@ public class ArtifactComment : AuditBase
     public int AppUserId { get; set; }
 }
 
+[Icon(Svg = Icons.Vote)]
 [UniqueConstraint(nameof(ArtifactCommentId), nameof(AppUserId))]
 public class ArtifactCommentVote
 {

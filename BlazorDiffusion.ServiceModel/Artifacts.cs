@@ -189,6 +189,7 @@ public class UpdateArtifact : IPatchDb<Artifact>, IReturn<Artifact>
     public int? Quality { get; set; }
 }
 
+[Icon(Svg=Icons.Like)]
 public class ArtifactLike
 {
     [AutoIncrement]
