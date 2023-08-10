@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Serialization;
 using ServiceStack;
 using ServiceStack.DataAnnotations;
 
@@ -63,6 +64,14 @@ public class QueryCreatives : QueryDb<Creative>
     public int? Id { get; set; }
     public string? CreatedBy { get; set; }
     public int? OwnerId { get; set; }
+}
+
+[Route("/creatives")]
+[DataContract]
+public class Creatives : IReturn<Creatives>
+{
+    [DataMember]
+    public List<Creative> Items { get; set; }
 }
 
 [Tag(Tag.Creatives)]
