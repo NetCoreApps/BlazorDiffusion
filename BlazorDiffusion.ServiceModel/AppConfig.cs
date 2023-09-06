@@ -22,6 +22,13 @@ public class AppConfig
     public string R2Account { get; set; }
     public string AssetsBasePath { get; set; }
     public string FallbackAssetsBasePath { get; set; }
+    public HashSet<string> BanWords { get; set; } = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "panties",
+        "breasts",
+        "hispanic",
+    };
+
     /// <summary>
     /// Ignore saving creatives + pre-rendering pages to avoid Hot Reload reloading page
     /// </summary>

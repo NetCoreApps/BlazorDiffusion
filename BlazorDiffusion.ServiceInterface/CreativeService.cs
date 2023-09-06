@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using ServiceStack;
 using ServiceStack.Auth;
-using ServiceStack.Html;
 using ServiceStack.IO;
 using ServiceStack.Logging;
 using ServiceStack.OrmLite;
@@ -70,6 +69,26 @@ public class CreativeService : Service
     {
         var session = await SessionAsAsync<CustomUserSession>();
         var userId = session.GetUserId();
+        var userAuth = (AppUser)await AuthRepositoryAsync.GetUserAuthAsync(session.UserAuthId);
+
+        var requestLower = request.UserPrompt.ToLower();
+        foreach (var banWord in AppConfig.Instance.BanWords)
+        {
+            if (requestLower.Contains(banWord))
+            {
+                if (userAuth.LockedDate == null)
+                {
+                    userAuth.LockedDate = DateTime.UtcNow;
+                    await AuthRepositoryAsync.SaveUserAuthAsync(userAuth);
+                }
+                break;
+            }
+        }
+        if (userAuth.LockedDate != null)
+        {
+            throw HttpError.Forbidden("Account is locked");
+        }
+
         var userRoles = await session.GetRolesAsync(AuthRepositoryAsync);
 
         var modifiers = await Db.SelectAsync<Modifier>(x => Sql.In(x.Id, request.ModifierIds));
