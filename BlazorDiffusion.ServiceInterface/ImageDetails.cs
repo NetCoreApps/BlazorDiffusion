@@ -196,16 +196,19 @@ public static class ImageUtils
     {
         var originalMs = await ctx.File.InputStream.CopyToNewMemoryStreamAsync();
 
-        // Offload persistance of original image to background task
+        var resizedMs = await CropAndResizeAsync(originalMs, 128, 128, PngFormat.Instance);
+
+        // Offload persistence of original image to background task
+        originalMs.Position = 0;
         using var mqClient = HostContext.AppHost.GetMessageProducer(ctx.Request);
-        mqClient.Publish(new DiskTasks {
-            SaveFile = new() {
+        mqClient.Publish(new DiskTasks
+        {
+            SaveFile = new()
+            {
                 FilePath = ctx.Location.ResolvePath(ctx),
                 Stream = originalMs,
             }
         });
-
-        var resizedMs = await CropAndResizeAsync(originalMs, 128, 128, PngFormat.Instance);
 
         return new HttpFile(ctx.File)
         {
