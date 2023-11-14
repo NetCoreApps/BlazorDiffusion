@@ -71,8 +71,8 @@ public class AppHost : AppHostBase, IHostingStartup
             CdnBucket = "diffusion-client",
             AssetsBasePath = r2AccessId != null ? "https://cdn.diffusion.works" : "/uploads",
             FallbackAssetsBasePath = r2AccessId != null ? "https://pub-97bba6b94a944260b10a6e7d4bf98053.r2.dev" : "/uploads",
-            SyncTasksInterval = TimeSpan.FromMinutes(10),
-            // DisableWrites = HostingEnvironment.IsDevelopment(),
+            SyncTasksInterval = TimeSpan.FromHours(24),
+            DisableWrites = true,
         });
         
         container.Register(appConfig);
