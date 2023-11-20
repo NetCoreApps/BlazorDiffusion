@@ -5,7 +5,6 @@ services:
     depends_on:
       - ${APP_NAME}-litestream
     restart: always
-    network_mode: bridge
     ports:
       - "80"
     environment:
@@ -70,6 +69,11 @@ services:
     volumes:
       - ${APP_NAME}-mydb:/app/App_Data
       - ${APP_NAME}-assets:/app/App_Files
+
+networks:
+  default:
+    external: true                                     
+    name: nginx   
 
 volumes:
   ${APP_NAME}-mydb:
