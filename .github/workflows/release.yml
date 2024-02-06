@@ -207,9 +207,9 @@ jobs:
           envs: APPTOKEN,USERNAME
           script: |
             echo $APPTOKEN | docker login ghcr.io -u $USERNAME --password-stdin
-            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml pull
-            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-restore --exit-code-from ${{ github.event.repository.name }}-restore     
-            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-restore-analytics --exit-code-from ${{ github.event.repository.name }}-restore-analytics
+            docker compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml pull
+            docker compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-restore --exit-code-from ${{ github.event.repository.name }}-restore     
+            docker compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-restore-analytics --exit-code-from ${{ github.event.repository.name }}-restore-analytics
 
       - name: Copy BlazorDiffusion Seed Data to Remote Server
         timeout-minutes: 30
@@ -236,8 +236,8 @@ jobs:
           envs: APPTOKEN,USERNAME
           script: |
             echo $APPTOKEN | docker login ghcr.io -u $USERNAME --password-stdin
-            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml pull
-            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-migration --exit-code-from ${{ github.event.repository.name }}-migration     
+            docker compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml pull
+            docker compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up ${{ github.event.repository.name }}-migration --exit-code-from ${{ github.event.repository.name }}-migration     
       
       # Deploy Docker image with ServiceStack application using `docker compose up` remotely
       - name: remote docker-compose up via ssh
@@ -253,5 +253,5 @@ jobs:
           envs: APPTOKEN,USERNAME
           script: |
             echo $APPTOKEN | docker login ghcr.io -u $USERNAME --password-stdin
-            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml pull
-            docker-compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up -d
+            docker compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml pull
+            docker compose -f ~/.deploy/${{ github.event.repository.name }}-docker-compose.yml up -d
