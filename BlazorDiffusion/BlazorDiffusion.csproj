@@ -73,6 +73,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Folder Include="AiServer\" />
         <Folder Include="App_Data\" />
         <Folder Include="wwwroot\albums\" />
         <Folder Include="wwwroot\lib\" />

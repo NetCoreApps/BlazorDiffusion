@@ -12,6 +12,8 @@ using ServiceStack;
 using ServiceStack.Auth;
 using ServiceStack.Configuration;
 using ServiceStack.Data;
+using ServiceStack.IO;
+using ServiceStack.Messaging;
 using ServiceStack.OrmLite;
 
 namespace BlazorDiffusion.Tests;
@@ -31,9 +33,11 @@ public class CreativeServiceTests
         
         public override void Configure(Container container)
         {
-            container.Register<IDbConnectionFactory>(
-                new OrmLiteConnectionFactory("db.sqlite",
-                    SqliteDialect.Provider));
+            var dbFactory = new OrmLiteConnectionFactory("db.sqlite",
+                SqliteDialect.Provider);
+            dbFactory.RegisterConnection(Databases.Analytics, "analytics.sqlite",
+                SqliteDialect.Provider);
+            container.Register<IDbConnectionFactory>(dbFactory);
             
             var migrator = CreateMigrator();
             migrator.Timeout = TimeSpan.Zero;
@@ -66,11 +70,13 @@ public class CreativeServiceTests
                 //IncludeTotal = true,
             });
             
-            container.Register<IStableDiffusionClient>(new DreamStudioClient
-            {
-                ApiKey = Environment.GetEnvironmentVariable("DREAMAI_APIKEY") ?? "<your_api_key>",
-                OutputPathPrefix = Path.Join(ContentRootDirectory.RealPath.CombineWith("App_Files"),"artifacts")
-            });
+            container.Register<IStableDiffusionClient>(
+                new AiServerClient("https://openai.servicestack.net/",new MemoryVirtualFiles())
+                {
+                    OutputPathPrefix = Path.Join(ContentRootDirectory.RealPath.CombineWith("App_Files"),"artifacts")
+                });
+            container.AddSingleton<AppUserQuotas>();
+            container.AddSingleton<IMessageFactory>(new InMemoryTransientMessageFactory());
             container.AddSingleton<ICrudEvents>(c =>
                 new OrmLiteCrudEvents(c.Resolve<IDbConnectionFactory>()));
             container.Resolve<ICrudEvents>().InitSchema();
@@ -156,7 +162,7 @@ public class CreativeServiceTests
     
     [Test]
     [TestCaseSource("AllGenerationCases")]
-    [Explicit]
+    //[Explicit]
     public void Can_generate_images(ImageGenerationTestCase testCase)
     {
         var client = CreateClient();
