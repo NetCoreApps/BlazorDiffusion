@@ -71,8 +71,10 @@ public class CreativeServiceTests
             });
             
             container.Register<IStableDiffusionClient>(
-                new AiServerClient("https://openai.servicestack.net/",new MemoryVirtualFiles())
+                new AiServerClient
                 {
+                    Client = new JsonApiClient("https://openai.servicestack.net/"),
+                    VirtualFiles = new MemoryVirtualFiles(),
                     OutputPathPrefix = Path.Join(ContentRootDirectory.RealPath.CombineWith("App_Files"),"artifacts")
                 });
             container.AddSingleton<AppUserQuotas>();

@@ -1,5 +1,5 @@
 /* Options:
-Date: 2024-07-10 07:46:36
+Date: 2024-07-12 04:09:19
 Version: 8.31
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: https://openai.servicestack.net
@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using ServiceStack;
 using ServiceStack.DataAnnotations;
+using System.IO;
 using AiServer.ServiceModel.Types;
 using AiServer.ServiceModel;
 
@@ -1058,7 +1059,14 @@ namespace AiServer.ServiceModel.Types
 
     public partial class ComfyImageToImageResponse
     {
-        public virtual string FilePath { get; set; }
+        public ComfyImageToImageResponse()
+        {
+            Images = new List<ComfyHostedFileOutput>{};
+        }
+
+        public virtual string PromptId { get; set; }
+        public virtual ComfyWorkflowRequest Request { get; set; }
+        public virtual List<ComfyHostedFileOutput> Images { get; set; }
     }
 
     public partial class ComfyImageToImageUpscale
@@ -1071,7 +1079,14 @@ namespace AiServer.ServiceModel.Types
 
     public partial class ComfyImageToImageUpscaleResponse
     {
-        public virtual string FilePath { get; set; }
+        public ComfyImageToImageUpscaleResponse()
+        {
+            Images = new List<ComfyHostedFileOutput>{};
+        }
+
+        public virtual string PromptId { get; set; }
+        public virtual ComfyWorkflowRequest Request { get; set; }
+        public virtual List<ComfyHostedFileOutput> Images { get; set; }
     }
 
     public partial class ComfyImageToImageWithMask
@@ -1094,7 +1109,14 @@ namespace AiServer.ServiceModel.Types
 
     public partial class ComfyImageToImageWithMaskResponse
     {
-        public virtual string FilePath { get; set; }
+        public ComfyImageToImageWithMaskResponse()
+        {
+            Images = new List<ComfyHostedFileOutput>{};
+        }
+
+        public virtual string PromptId { get; set; }
+        public virtual ComfyWorkflowRequest Request { get; set; }
+        public virtual List<ComfyHostedFileOutput> Images { get; set; }
     }
 
     public partial class ComfyImageToText
@@ -1105,7 +1127,9 @@ namespace AiServer.ServiceModel.Types
 
     public partial class ComfyImageToTextResponse
     {
-        public virtual string Text { get; set; }
+        public virtual string PromptId { get; set; }
+        public virtual ComfyWorkflowRequest Request { get; set; }
+        public virtual ComfyTextOutput TextOutput { get; set; }
     }
 
     public enum ComfyMaskSource
@@ -1163,7 +1187,9 @@ namespace AiServer.ServiceModel.Types
 
     public partial class ComfySpeechToTextResponse
     {
-        public virtual string Text { get; set; }
+        public virtual string PromptId { get; set; }
+        public virtual ComfyWorkflowRequest Request { get; set; }
+        public virtual ComfyTextOutput TextOutput { get; set; }
     }
 
     public enum ComfyTaskType
@@ -1200,7 +1226,14 @@ namespace AiServer.ServiceModel.Types
 
     public partial class ComfyTextToAudioResponse
     {
-        public virtual string FilePath { get; set; }
+        public ComfyTextToAudioResponse()
+        {
+            Sounds = new List<ComfyHostedFileOutput>{};
+        }
+
+        public virtual string PromptId { get; set; }
+        public virtual ComfyWorkflowRequest Request { get; set; }
+        public virtual List<ComfyHostedFileOutput> Sounds { get; set; }
     }
 
     public partial class ComfyTextToImage
@@ -1226,6 +1259,8 @@ namespace AiServer.ServiceModel.Types
             Images = new List<ComfyHostedFileOutput>{};
         }
 
+        public virtual string PromptId { get; set; }
+        public virtual ComfyWorkflowRequest Request { get; set; }
         public virtual List<ComfyHostedFileOutput> Images { get; set; }
     }
 
@@ -1238,7 +1273,47 @@ namespace AiServer.ServiceModel.Types
 
     public partial class ComfyTextToSpeechResponse
     {
-        public virtual string FilePath { get; set; }
+        public ComfyTextToSpeechResponse()
+        {
+            Speech = new List<ComfyHostedFileOutput>{};
+        }
+
+        public virtual string PromptId { get; set; }
+        public virtual ComfyWorkflowRequest Request { get; set; }
+        public virtual List<ComfyHostedFileOutput> Speech { get; set; }
+    }
+
+    public partial class ComfyWorkflowRequest
+    {
+        public virtual long Id { get; set; }
+        public virtual string Model { get; set; }
+        public virtual int? Steps { get; set; }
+        public virtual int BatchSize { get; set; }
+        public virtual int? Seed { get; set; }
+        public virtual string PositivePrompt { get; set; }
+        public virtual string NegativePrompt { get; set; }
+        public virtual ComfyFileInput Image { get; set; }
+        public virtual ComfyFileInput Speech { get; set; }
+        public virtual ComfyFileInput Mask { get; set; }
+        public virtual Stream ImageInput { get; set; }
+        public virtual Stream SpeechInput { get; set; }
+        public virtual Stream MaskInput { get; set; }
+        public virtual ComfySampler? Sampler { get; set; }
+        public virtual ArtStyle? ArtStyle { get; set; }
+        public virtual string Scheduler { get; set; }
+        public virtual double? CfgScale { get; set; }
+        public virtual double? Denoise { get; set; }
+        public virtual string UpscaleModel { get; set; }
+        public virtual int? Width { get; set; }
+        public virtual int? Height { get; set; }
+        public virtual ComfyTaskType TaskType { get; set; }
+        public virtual string RefId { get; set; }
+        public virtual string Provider { get; set; }
+        public virtual string ReplyTo { get; set; }
+        public virtual string Tag { get; set; }
+        public virtual string Clip { get; set; }
+        public virtual double? SampleLength { get; set; }
+        public virtual ComfyMaskSource MaskChannel { get; set; }
     }
 
     public partial class ComfyWorkflowResponse
@@ -1340,6 +1415,7 @@ namespace AiServer.ServiceModel.Types
             TextOutputs = new List<ComfyTextOutput>{};
         }
 
+        public virtual ComfyWorkflowRequest Request { get; set; }
         public virtual ComfyWorkflowStatus Status { get; set; }
         public virtual ComfyWorkflowResponse WorkflowResponse { get; set; }
         public virtual string PromptId { get; set; }

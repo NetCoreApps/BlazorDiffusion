@@ -98,13 +98,16 @@ public class AppHost : AppHostBase, IHostingStartup
                 transformFile:ImageUtils.TransformAvatarAsync)
             ));
 
+        var aiServerClient = new JsonApiClient("https://openai.servicestack.net/");
+        if(!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AI_SERVER_APIKEY")))
+            aiServerClient.BearerToken = Environment.GetEnvironmentVariable("AI_SERVER_APIKEY");
         // Don't use public prefix if working locally
-        Register<IStableDiffusionClient>(new DreamStudioClient
+        Register<IStableDiffusionClient>(new AiServerClient
         {
-            ApiKey = Environment.GetEnvironmentVariable("DREAMAI_APIKEY") ?? "<your_api_key>",
+            Client = aiServerClient,
             OutputPathPrefix = "artifacts",
-            PublicPrefix = appConfig.AssetsBasePath,
             VirtualFiles = appFs
+            //PublicPrefix = appConfig.AssetsBasePath,
         });
 
         ScriptContext.Args[nameof(AppData)] = AppData.Instance;
