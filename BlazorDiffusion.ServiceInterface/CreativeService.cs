@@ -24,16 +24,16 @@ public class CreativeService : Service
     public IStableDiffusionClient StableDiffusionClient { get; set; } = default!;
     
     public const string DefaultEngine = "stable-diffusion-v1-5";
-    public const int DefaultHeight = 512;
-    public const int DefaultWidth = 512;
+    public const int DefaultHeight = 1024;
+    public const int DefaultWidth = 1024;
     public const int DefaultImages = 4;
-    public const int DefaultSteps = 50;
+    public const int DefaultSteps = 25;
 
-    public const int DefaultModeratorImages = 9;
-    public const int DefaultModeratorSteps = 50;
+    public const int DefaultModeratorImages = 5;
+    public const int DefaultModeratorSteps = 25;
 
-    public const int DefaultMaxWidth = 896;
-    public const int DefaultMaxHeight = 896;
+    public const int DefaultMaxWidth = 1280;
+    public const int DefaultMaxHeight = 1280;
 
     public AppUserQuotas UserQuotas { get; set; }
 

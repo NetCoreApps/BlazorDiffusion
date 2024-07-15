@@ -175,15 +175,15 @@ public partial class Create : AppAuthComponentBase, IDisposable
     {
         request.Width = imageSize switch
         {
-            ImageSize.Portrait => 512,
-            ImageSize.Landscape => 896,
-            _ => 512,
+            ImageSize.Portrait => 1024,
+            ImageSize.Landscape => 1280,
+            _ => 1024,
         };
         request.Height = imageSize switch
         {
-            ImageSize.Portrait => 896,
-            ImageSize.Landscape => 512,
-            _ => 512,
+            ImageSize.Portrait => 1280,
+            ImageSize.Landscape => 1024,
+            _ => 1024,
         };
         request.ArtistIds = artists.Select(x => x.Id).ToList();
         request.ModifierIds = modifiers.Select(x => x.Id).ToList();
