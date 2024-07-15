@@ -29,7 +29,7 @@ public class CreativeService : Service
     public const int DefaultImages = 4;
     public const int DefaultSteps = 25;
 
-    public const int DefaultModeratorImages = 5;
+    public const int DefaultModeratorImages = 4;
     public const int DefaultModeratorSteps = 25;
 
     public const int DefaultMaxWidth = 1280;
