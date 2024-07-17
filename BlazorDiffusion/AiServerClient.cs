@@ -14,6 +14,8 @@ public class AiServerClient: IStableDiffusionClient
     
     public string? OutputPathPrefix { get; set; }
     
+    private object seedLock = new();
+    
     public async Task<ImageGenerationResponse> GenerateImageAsync(ImageGeneration request)
     {
         var req = request.ToComfy();
@@ -25,29 +27,32 @@ public class AiServerClient: IStableDiffusionClient
         
         var results = new List<ImageGenerationResult>();
         var seed = (res?.Request?.Seed ?? 0).ConvertTo<uint>();
-        foreach (var item in res.Images)
+        await Parallel.ForEachAsync(res.Images, async (item, token) =>
         {
             var artifactUrl = $"{Client.BaseUri.TrimEnd('/')}/uploads{item.Url}";
-            var output = Path.Join(OutputPathPrefix, key, $"output_{seed}.png");
-            var bytes = await artifactUrl.GetBytesFromUrlAsync();
-            await VirtualFiles.WriteFileAsync(output, bytes);
+            var bytes = await artifactUrl.GetBytesFromUrlAsync(token: token);
             var imageDetails = ImageDetails.Calculate(bytes);
-
-            results.Add(new()
+            var uuid = Guid.NewGuid().ToString("N");
+            lock (seedLock)
             {
-                Prompt = request.Prompt,
-                Seed = seed,
-                AnswerId = res.PromptId,
-                FilePath = $"/artifacts/{key}/output_{seed}.png",
-                FileName = $"output_{seed}.png",
-                ContentLength = bytes.Length,
-                Width = request.Width,
-                Height = request.Height,
-                ImageDetails = imageDetails,
-            });
-            // Assume incremental seeds for multiple images as comfyui does not provide the specific image seed back
-            seed++;
-        }
+                results.Add(new()
+                {
+                    Prompt = request.Prompt,
+                    Seed = seed,
+                    AnswerId = res.PromptId,
+                    FilePath = $"/artifacts/{key}/output_{uuid}.png",
+                    FileName = $"output_{uuid}.png",
+                    ContentLength = bytes.Length,
+                    Width = request.Width,
+                    Height = request.Height,
+                    ImageDetails = imageDetails,
+                });
+                // Assume incremental seeds for multiple images as comfyui does not provide the specific image seed back
+                seed++;
+            }
+            var output = Path.Join(OutputPathPrefix, key, $"output_{uuid}.png");
+            await VirtualFiles.WriteFileAsync(output, bytes, token);
+        });
 
         return new ImageGenerationResponse
         {
