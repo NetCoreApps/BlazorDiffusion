@@ -18,11 +18,13 @@ public class AiServerClient: IStableDiffusionClient
     {
         var req = request.ToComfy();
         var res = await Client.PostAsync(req);
+        if (res == null)
+            throw new Exception("Failed to generate image.");
         var now = DateTime.UtcNow;
         var key = $"{now:yyyy/MM/dd}/{(long)now.TimeOfDay.TotalMilliseconds}";
         
         var results = new List<ImageGenerationResult>();
-        var seed = (res.Request.Seed ?? 0).ConvertTo<uint>();
+        var seed = (res?.Request?.Seed ?? 0).ConvertTo<uint>();
         foreach (var item in res.Images)
         {
             var artifactUrl = $"{Client.BaseUri.TrimEnd('/')}/uploads{item.Url}";
