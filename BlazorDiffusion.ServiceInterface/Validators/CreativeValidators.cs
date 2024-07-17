@@ -9,11 +9,11 @@ public class CreateCreativeValidator : AbstractValidator<CreateCreative>
     {
         RuleFor(x => x.UserPrompt).NotEmpty();
         RuleFor(x => x.Height)
-            .Must(x => x is >= 256 and <= 1024)
+            .Must(x => x is >= 256 and <= 1536)
             .When(x => x.Height != null)
             .WithMessage("Height must be between 256 and 1024.");
         RuleFor(x => x.Width)
-            .Must(x => x is >= 256 and <= 1024)
+            .Must(x => x is >= 256 and <= 1536)
             .When(x => x.Width != null)
             .WithMessage("Width must be between 256 and 1024.");
         RuleFor(x => x.Images)
